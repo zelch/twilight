@@ -684,6 +684,60 @@ void ConvertLMP(char *filename)
 	StripExtension(filename, tempname);
 	strcat(tempname, ".pcx");
 	WritePCX(tempname, data, image_width, image_height, quakepalette);
+	StripExtension(filename, tempname);
+	strcat(tempname, ".tga");
+	WriteTGA(tempname, data, image_width, image_height, quakepalette);
+	free(data);
+}
+
+/*
+=============
+LoadMIP
+=============
+*/
+unsigned char* LoadMIP (char *filename)
+{
+	int mipsize;
+	unsigned char *data;
+	void *mipdata;
+	if (readfile(filename, &mipdata, &mipsize))
+	{
+		printf("LoadMIP: unable to load \"%s\"\n", filename);
+		return NULL;
+	}
+	image_width = LittleLong(((int *)mipdata)[4]);
+	image_height = LittleLong(((int *)mipdata)[5]);
+	if (image_width < 0 || image_height < 0 || image_width > 512 || image_height > 512)
+	{
+		free(mipdata);
+		printf("LoadMIP: \"%s\" is not an MIP file\n", filename);
+		return NULL;
+	}
+	data = malloc(image_width*image_height);
+	if (!data)
+	{
+		free(mipdata);
+		printf("LoadMIP: unable to allocate memory for \"%s\"\n", filename);
+		return NULL;
+	}
+	memcpy(data, (unsigned char *)mipdata + 40, image_width*image_height);
+	free(mipdata);
+	return data;
+}
+
+void ConvertMIP(char *filename)
+{
+	unsigned char *data;
+	char tempname[4096];
+	data = LoadMIP(filename);
+	if (!data)
+		return;
+	StripExtension(filename, tempname);
+	strcat(tempname, ".pcx");
+	WritePCX(tempname, data, image_width, image_height, quakepalette);
+	StripExtension(filename, tempname);
+	strcat(tempname, ".tga");
+	WriteTGA(tempname, data, image_width, image_height, quakepalette);
 	free(data);
 }
 
@@ -862,6 +916,8 @@ void lmp2pcx()
 	{
 		if (matchpattern(s->text, "*.lmp"))
 			ConvertLMP(s->text);
+		if (matchpattern(s->text, "*.mip"))
+			ConvertMIP(s->text);
 		if (matchpattern(s->text, "*.wad"))
 			ConvertWAD(s->text);
 		s = s->next;
