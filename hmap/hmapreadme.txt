@@ -28,6 +28,7 @@ Hipnotic rotation support.
 Greatly increased limits for everything.
 Can vis a leaky map (use hqbsp -noforcevis if you want vis to fail on a leaky map).
 Shows useful information if run with no parameters.
+Can compile .map files using HalfLife WorldCraft texture alignment
 
 hvis features:
 Can disable liquid sounds (-noambient, -noambientwater, -noambientsky, -noambientlava (quake never used ambient lava sounds though)).
