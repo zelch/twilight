@@ -48,12 +48,12 @@ void(vector org, vector vel, float lifetime) SpawnHarmlessFireball =
 };
 
 .float anim_fps;
-.float anim_endtime;
+.float anim_endframe;
 void() explosionanimate =
 {
 	self.nextthink = time;
 	self.frame = self.frame + self.anim_fps * frametime;
-	if (time > self.anim_endtime)
+	if (self.frame >= self.anim_endframe)
 		remove(self);
 };
 
@@ -61,16 +61,12 @@ void(entity e, float damg, float force, float radius, entity ignore, string dt, 
 {
 	local vector org, v, v2;
 	if (e.solid == SOLID_BSP)
-	{
-		e.solid = SOLID_NOT;
-		e.model = "";
 		setorigin(e, (e.absmin + e.absmax) * 0.5);
-	}
-	else
-	{
-		e.solid = SOLID_NOT;
-		e.model = "";
-	}
+	e.model = "";
+	e.solid = SOLID_NOT;
+	e.movetype = MOVETYPE_NONE;
+	e.takedamage = DAMAGE_NO;
+
 	org = e.origin;
 	findbetterlocation2(e);
 
@@ -101,11 +97,14 @@ void(entity e, float damg, float force, float radius, entity ignore, string dt, 
 	//	effect(v, "models/sprites/dpexplosion1.spr32", 0, 20, 40);
 	//else
 	//	effect(v, "progs/dpexplosion.spr32", 0, 20, 40);
+	e.movetype = MOVETYPE_NONE;
+	e.solid = SOLID_NOT;
+	e.takedamage = DAMAGE_NO;
 	setorigin(e, v);
 	setmodel(e, "progs/dpexplosion.spr32");
 	e.frame = 0;
 	e.anim_fps = 40;
-	e.anim_endtime = time + 0.5;
+	e.anim_endframe = 20;
 	e.think = explosionanimate;
 	e.nextthink = time;
 	e.velocity = '0 0 0';
