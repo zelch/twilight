@@ -30,10 +30,10 @@ void() decorframe =
 	if (numdecors <= maxdecors)
 		return; // nothing to do
 
-	// limit it to considering 1000 entities per frame,
+	// limit it to considering 10000 entities per frame,
 	// otherwise it can cause a runaway loop error
 	iterations = 0;
-	while (numdecors > maxdecors && iterations < 1000)
+	while (numdecors > maxdecors && iterations < 10000)
 	{
 		iterations = iterations + 1;
 		// find and remove the oldest decors (upto 10 at once)
