@@ -688,6 +688,16 @@ for ($i = 0; ; $i++) {
     last
 	if (!-e "$tmpdir/logfile.$i");
 
+    # read and insert the log message
+    open(FILE, "<$tmpdir/logfile.$i");
+    push(@text, "Log message:", "");
+    while (<FILE>) {
+	chomp;
+	push(@text, $_);
+    }
+    push(@text, "");
+    close(FILE);
+
     # read modified list and list all modified files if non-empty
     @modified = file_to_names(@branch_tags, "$tmpdir/modified.$i");
     push(@text, "Modified files:", name_to_list(@branch_tags, @modified), "")
@@ -702,16 +712,6 @@ for ($i = 0; ; $i++) {
     @removed = file_to_names(@branch_tags, "$tmpdir/removed.$i");
     push(@text, "Removed files:", name_to_list(@branch_tags, @removed), "")
 	if (@removed > 0);
-
-    # read and insert the log message
-    open(FILE, "<$tmpdir/logfile.$i");
-    push(@text, "Log message:", "");
-    while (<FILE>) {
-	chomp;
-	push(@text, $_);
-    }
-    push(@text, "");
-    close(FILE);
 
     # remember all the files we looked at
     push(@files, @modified, @added, @removed);
