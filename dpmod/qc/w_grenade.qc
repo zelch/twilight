@@ -1,7 +1,7 @@
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Grenade =
 {
-	if (dtype == DTYPE_PLAYER)
+	if (dtype == DTYPE_PLAYER && dmsg == "GRENADE")
 	{
 		deathstring1 = targ.netname;
 		deathstring3 = attacker.netname;
@@ -16,7 +16,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Grenade =
 			deathstring4 = "'s grenade";
 		}
 	}
-	else if (dtype == DTYPE_SUICIDE)
+	else if (dtype == DTYPE_SUICIDE && dmsg == "GRENADE")
 	{
 		deathstring1 = targ.netname;
 		if (targ.bodyhealth < 1) // gib
@@ -24,35 +24,46 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Grenade =
 		else
 			deathstring2 = " held onto the grenade";
 	}
+	else if (dtype == DTYPE_PLAYER && dmsg == "STICKYGRENADE")
+	{
+		deathstring1 = targ.netname;
+		deathstring3 = attacker.netname;
+		if (targ.bodyhealth < 1) // gib
+		{
+			deathstring2 = " was torn asunder by ";
+			deathstring4 = "'s mine";
+		}
+		else
+		{
+			deathstring2 = " was a victim of ";
+			deathstring4 = "'s mine";
+		}
+	}
+	else if (dtype == DTYPE_SUICIDE && dmsg == "STICKYGRENADE")
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " pressed the button";
+	}
 	else
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-/*
+.float grenademode;
+
 void() W_GrenadeFireImpact =
 {
-	local float a;
-	stopfiring = TRUE;
 	self.wfiretime = time;
-	a = self.ammo_rockets;
-	if (a > 1)
-		a = 1;
-	self.wfiretime = time;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - a;
+	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, (50 + 100 * a) * damagescale, 100 + 100 * a, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, (50 + 100 * a) * damagescale, 100 + 100 * a, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
+	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 150 * damagescale, 200, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 200, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
 };
 
+/*
 void() W_GrenadeFireProximity =
 {
-	local float a;
-	stopfiring = TRUE;
-	a = self.ammo_rockets;
-	if (a > 1)
-		a = 1;
 	self.wfiretime = time;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - a;
+	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
 	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 100 * damagescale, 150, GRENADE_PROXIMITY, 5, "GRENADE", Obituary_Grenade);
 };
@@ -60,14 +71,14 @@ void() W_GrenadeFireProximity =
 
 void() W_GrenadeFireSticky =
 {
-	stopfiring = TRUE;
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
-	LaunchMine(shotorg, shotdir * 3000 + v_up * 0, self, 150 * damagescale, 200, 50 * damagescale, 20 * damagescale, MINE_DETONATEONBUTTON3, 60, "STICKYGRENADE", Obituary_Grenade);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 120 * damagescale, 200, 50 * damagescale, 20 * damagescale, MINE_DETONATABLE, 60, "STICKYGRENADE", Obituary_Grenade);
 };
 
 .float activemines;
+.float oldbutton3;
 void() w_grenadedrop1;
 void() w_grenadedrop2;
 void() w_grenaderaise1;
@@ -78,19 +89,58 @@ void() w_grenade =
 	if (widle(w_grenadedrop1))
 		return;
 
-	if (self.button0)
+	if (time > self.attack_finished)
 	{
-		if (self.activemines >= 20)
+		if ((self.button3 && !self.oldbutton3) || (self.activemines < 1 && self.grenademode == 2))
 		{
-			if (time > self.attack_finished)
+			self.attack_finished = time + 0.2;
+			if (self.activemines >= 1)
 			{
-				self.attack_finished = time + 0.5;
-				sprint(self, "only 20 remote explosives allowed, you must detonate some before placing more\n");
+				sound(self, CHAN_WEAPON, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
+				self.detonatetimeout = time + 0.1;
+			}
+			else
+			{
+				sound(self, CHAN_WEAPON, "weapons/bsgload.wav", 1, ATTN_STATIC);
+				self.grenademode = self.grenademode + 1;
+				if (self.grenademode >= 2)
+					self.grenademode = 0;
+				if (self.grenademode == 0)
+					sprint(self, "mode: impact explosives\n");
+				else if (self.grenademode == 1)
+					sprint(self, "mode: remote explosives\n");
 			}
 		}
-		else if (self.ammo_rockets >= 1)
-			W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_GrenadeFireSticky);
+		else if (self.button0)
+		{
+			if (self.grenademode == 0)
+			{
+				if (self.ammo_rockets >= 1)
+					W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_GrenadeFireImpact);
+				else
+					self.switchweapon = W_BestWeapon(TRUE);
+			}
+			else if (self.grenademode == 1)
+			{
+				if (self.ammo_rockets >= 1)
+				{
+					if (self.activemines < 20)
+						W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_GrenadeFireSticky);
+					else
+					{
+						if (time > self.attack_finished)
+						{
+							self.attack_finished = time + 0.5;
+							sprint(self, "only 20 remote explosives allowed, you must detonate some before placing more\n");
+						}
+					}
+				}
+				else
+					self.switchweapon = W_BestWeapon(TRUE);
+			}
+		}
 	}
+	self.oldbutton3 = self.button3;
 	/*
 	if (self.button0)
 	{

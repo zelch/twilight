@@ -3,7 +3,7 @@ float MINE_LASERTRIP = 1;
 float MINE_PROXIMITY = 2;
 float MINE_IMMUNETODAMAGE = 4;
 float MINE_TENWARHEAD = 8;
-float MINE_DETONATEONBUTTON3 = 16;
+float MINE_DETONATABLE = 16;
 
 .float activemines;
 void() MineExplode =
@@ -55,6 +55,8 @@ void() MineDet =
 	self.movetype = MOVETYPE_NONE;
 };
 
+.float detonatetimeout;
+
 void() MineThink =
 {
 	local entity head;
@@ -79,9 +81,8 @@ void() MineThink =
 		self.th_die();
 		return;
 	}
-	if (self.weapon & MINE_DETONATEONBUTTON3)
-	if (self.owner.button3)
-	if (self.owner.weapon == IT_WEAPON6)
+	if (self.weapon & MINE_DETONATABLE)
+	if (time < self.owner.detonatetimeout)
 	{
 		MineExplode();
 		return;
