@@ -35,6 +35,9 @@ char outputname[256], shadername[256], texturebasename[256], texturedir[256];
 
 float modelorigin[3], modelscale;
 
+// this makes it keep all bones, not removing unused ones (as they might be used for attachments)
+int keepallbones = 1;
+
 void cleancopyname(char *out, char *in, int size)
 {
 	char *end = out + size - 1;
@@ -192,7 +195,7 @@ int parsefilenames(void)
 	out = scriptfilebuffer;
 	while (*in && *in <= ' ')
 		in++;
-	while (*in && 
+	while (*in &&
 	while (scriptfiles < 256)
 	{
 		scriptfile[scriptfiles++] = name;
@@ -285,7 +288,7 @@ float wrapangles(float f)
 void computebonematrix(float x, float y, float z, float a, float b, float c, bonepose_t *out)
 {
 	float		sr, sp, sy, cr, cp, cy;
-	
+
 	sy = sin(c);
 	cy = cos(c);
 	sp = sin(b);
@@ -853,6 +856,8 @@ foundshader:
 	numtbones = 0;
 	for (i = 0;i < numbones;i++)
 	{
+		if (keepallbones)
+			boneusage[i] = 1;
 		if (boneusage[i])
 		{
 			boneremap[i] = numtbones;
@@ -988,7 +993,7 @@ foundshader:
 
 // normally the scene will loop, if this is set it will stay on the final frame
 #define ZYMSCENEFLAG_NOLOOP 1
-		
+
 		if (scene[i].noloop)
 			j |= ZYMSCENEFLAG_NOLOOP;
 		putlong(j);
