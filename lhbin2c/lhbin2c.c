@@ -1,13 +1,14 @@
 
 #include <stdio.h>
+#include <string.h>
 
 static char *nibbletohex = "0123456789ABCDEF";
 
 int main(int argc, char **argv)
 {
-	int i, j, c, w, skipstart, filenum, filesize;
+	int i, j, c, w, skipstart, filenum, filesize, strings = 0, hex = 0;
 	FILE *infile;
-	unsigned char readbuf[16];
+	unsigned char readbuf[128];
 	char writebuf[sizeof(readbuf) * 6 + 32];
 	if (argc >= 2)
 	{
@@ -15,42 +16,134 @@ int main(int argc, char **argv)
 		filenum = 0;
 		for (i = 1;i < argc;i++)
 		{
-			infile = fopen(argv[i], "rb");
-			if (infile)
+			if (!strcmp(argv[i], "-strings"))
+				strings = 1;
+			else if (!strcmp(argv[i], "-array"))
+			{
+				strings = 0;
+				hex = 0;
+			}
+			else if (!strcmp(argv[i], "-hexarray"))
+			{
+				strings = 0;
+				hex = 1;
+			}
+			else if ((infile = fopen(argv[i], "rb")))
 			{
 				fseek(infile, 0, SEEK_END);
 				filesize = ftell(infile);
 				fseek(infile, 0, SEEK_SET);
-				printf("/*file \"%s\"*/\nunsigned char embeddedfile_data%i[%i] =\n{", argv[i], filenum, filesize);
-				filenum++;
-				skipstart = 1;
-				for(;;)
+				printf("/*file \"%s\"*/\n", argv[i]);
+				if (strings && filesize < 8192)
 				{
-					c = fread(readbuf, 1, sizeof(readbuf), infile);
-					if (c < 1)
-						break;
-					w = 0;
-					if (skipstart)
-						skipstart = 0;
-					else
-						writebuf[w++] = ',';
-					writebuf[w++] = '\n';
-					writebuf[w++] = '\t';
-					for (j = 0;j < c;j++)
+					printf("char embeddedfile_data%i[%i] =", filenum, filesize);
+					filenum++;
+					for(;;)
 					{
-						if (j > 0)
+						c = fread(readbuf, 1, sizeof(readbuf), infile);
+						if (c < 1)
+							break;
+						w = 0;
+						writebuf[w++] = '\n';
+						writebuf[w++] = '"';
+						for (j = 0;j < c;j++)
 						{
-							writebuf[w++] = ',';
-							writebuf[w++] = ' ';
+							if (readbuf[j] == '?')
+							{
+								writebuf[w++] = '\\';
+								writebuf[w++] = '?';
+							}
+							else if (readbuf[j] == '\\')
+							{
+								writebuf[w++] = '\\';
+								writebuf[w++] = '\\';
+							}
+							else if (readbuf[j] >= ' ' && readbuf[j] <= 0x7e && readbuf[j] != '"' && readbuf[j] != '\\')
+								writebuf[w++] = readbuf[j];
+							else
+							{
+								writebuf[w++] = '\\';
+								     if (readbuf[j] == '\n')
+									writebuf[w++] = 'n';
+								else if (readbuf[j] == '\r')
+									writebuf[w++] = 'r';
+								else if (readbuf[j] == '\t')
+									writebuf[w++] = 't';
+								else
+								{
+									if (readbuf[j] >= 0100 || (j < c - 1 && readbuf[j + 1] >= '0' && readbuf[j + 1] <= '9'))
+									{
+										writebuf[w++] = ((readbuf[j] >> 6) & 3) + '0';
+										writebuf[w++] = ((readbuf[j] >> 3) & 7) + '0';
+										writebuf[w++] = ((readbuf[j] >> 0) & 7) + '0';
+									}
+									else if (readbuf[j] >= 010)
+									{
+										writebuf[w++] = ((readbuf[j] >> 3) & 7) + '0';
+										writebuf[w++] = ((readbuf[j] >> 0) & 7) + '0';
+									}
+									else
+										writebuf[w++] = ((readbuf[j] >> 0) & 7) + '0';
+								}
+							}
 						}
-						writebuf[w++] = '0';
-						writebuf[w++] = 'x';
-						writebuf[w++] = nibbletohex[(readbuf[j] >> 4) & 15];
-						writebuf[w++] = nibbletohex[readbuf[j] & 15];
+						writebuf[w++] = '"';
+						fwrite(writebuf, 1, w, stdout);
 					}
-					fwrite(writebuf, 1, w, stdout);
+					printf(";\n\n");
 				}
-				printf("\n};\n\n");
+				else
+				{
+					skipstart = 1;
+					printf("unsigned char embeddedfile_data%i[%i] =\n{", filenum, filesize);
+					filenum++;
+					for(;;)
+					{
+						c = fread(readbuf, 1, sizeof(readbuf), infile);
+						if (c < 1)
+							break;
+						w = 0;
+						if (skipstart)
+							skipstart = 0;
+						else
+							writebuf[w++] = ',';
+						writebuf[w++] = '\n';
+						//writebuf[w++] = '\t';
+						for (j = 0;j < c;j++)
+						{
+							if (j > 0)
+							{
+								writebuf[w++] = ',';
+								//writebuf[w++] = ' ';
+							}
+							if (hex)
+							{
+								writebuf[w++] = '0';
+								writebuf[w++] = 'x';
+								writebuf[w++] = nibbletohex[(readbuf[j] >> 4) & 15];
+								writebuf[w++] = nibbletohex[readbuf[j] & 15];
+							}
+							else
+							{
+								if (readbuf[j] >= 100)
+								{
+									writebuf[w++] = '0' + ((readbuf[j] / 100));
+									writebuf[w++] = '0' + ((readbuf[j] / 10) % 10);
+									writebuf[w++] = '0' + ((readbuf[j]) % 10);
+								}
+								else if (readbuf[j] >= 10)
+								{
+									writebuf[w++] = '0' + (readbuf[j] / 10);
+									writebuf[w++] = '0' + ((readbuf[j]) % 10);
+								}
+								else
+									writebuf[w++] = '0' + readbuf[j];
+							}
+						}
+						fwrite(writebuf, 1, w, stdout);
+					}
+					printf("\n};\n\n");
+				}
 				fclose(infile);
 			}
 			else
@@ -59,27 +152,29 @@ int main(int argc, char **argv)
 				fprintf(stderr, "file \"%s\" not found\n", argv[i]);
 			}
 		}
-		printf("embeddedfile_t embeddedfile[] =\n{\n");
+		printf("embeddedfile_t embeddedfile[%i] =\n{\n", filenum + 1);
 		filenum = 0;
 		for (i = 1;i < argc;i++)
 		{
-			infile = fopen(argv[i], "rb");
-			if (infile)
+			if (strcmp(argv[i], "-strings") && strcmp(argv[i], "-array") && strcmp(argv[i], "-hexarray"))
 			{
-				fseek(infile, 0, SEEK_END);
-				filesize = ftell(infile);
-				printf("\t{\"%s\", embeddedfile_data%i, %i},\n", argv[i], filenum, filesize);
-				filenum++;
-				fclose(infile);
+				if ((infile = fopen(argv[i], "rb")))
+				{
+					fseek(infile, 0, SEEK_END);
+					filesize = ftell(infile);
+					printf("\t{\"%s\", embeddedfile_data%i, %i},\n", argv[i], filenum, filesize);
+					filenum++;
+					fclose(infile);
+				}
+				else
+					printf("/*file \"%s\" not found*/\n", argv[i]);
 			}
-			else
-				printf("/*file \"%s\" not found*/\n", argv[i]);
 		}
 		printf("\t{0, 0, 0}\n};\n");
 		return 0;
 	}
 
-	fprintf(stderr, "usage: %s inputfiles\n", argv[0]);
+	fprintf(stderr, "usage: %s [options] inputfiles\nOptions:\n-strings   output strings with escape codes\n-array    output an array of bytes as decimal\n-hexarray    output an array of bytes as hexidecimal\n", argv[0]);
 	return 1;
 }
 
