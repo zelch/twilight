@@ -315,13 +315,12 @@ int main (int argc, char **argv)
 
 	start = I_DoubleTime ();
 
-	strcpy (source, argv[i]);
-	StripExtension (source);
-	strcpy (litfilename, source);
-	strcpy (lightsfilename, source);
-	DefaultExtension (source, ".bsp");
-	DefaultExtension (litfilename, ".lit");
-	DefaultExtension (lightsfilename, ".lights");
+	strcpy(source, argv[i]);
+	strcpy(litfilename, source);
+	strcpy(lightsfilename, source);
+	DefaultExtension(source, ".bsp");
+	ReplaceExtension(litfilename, ".lit");
+	ReplaceExtension(lightsfilename, ".lights");
 
 	LoadBSPFile (source);
 	memset(dlightdata, 0, sizeof(dlightdata));

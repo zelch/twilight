@@ -36,16 +36,16 @@ MergeFace.
 face_t *NewFaceFromFace (face_t *in)
 {
 	face_t	*newf;
-	
+
 	newf = AllocFace ();
 
 	newf->planenum = in->planenum;
-	newf->texturenum = in->texturenum;	
+	newf->texturenum = in->texturenum;
 	newf->planeside = in->planeside;
 	newf->original = in->original;
 	newf->contents[0] = in->contents[0];
 	newf->contents[1] = in->contents[1];
-	
+
 	return newf;
 }
 
@@ -66,7 +66,7 @@ void SplitFace (face_t *in, plane_t *split, face_t **front, face_t **back)
 	face_t	*newf, *new2;
 	vec_t	*p1, *p2;
 	vec3_t	mid;
-	
+
 	if (in->numpoints < 0)
 		Error ("SplitFace: freed face");
 	counts[0] = counts[1] = counts[2] = 0;
@@ -87,23 +87,23 @@ void SplitFace (face_t *in, plane_t *split, face_t **front, face_t **back)
 	}
 	sides[i] = sides[0];
 	dists[i] = dists[0];
-	
-	if (!counts[0])
+
+	if (!counts[SIDE_FRONT])
 	{
 		*front = NULL;
 		*back = in;
 		return;
 	}
-	if (!counts[1])
+	if (!counts[SIDE_BACK])
 	{
 		*front = in;
 		*back = NULL;
 		return;
 	}
-	
+
 	*back = newf = NewFaceFromFace (in);
 	*front = new2 = NewFaceFromFace (in);
-	
+
 // distribute the points and generate splits
 
 	for (i=0 ; i<in->numpoints ; i++)
@@ -112,7 +112,7 @@ void SplitFace (face_t *in, plane_t *split, face_t **front, face_t **back)
 			Error ("SplitFace: numpoints > MAXEDGES");
 
 		p1 = in->pts[i];
-		
+
 		if (sides[i] == SIDE_ON)
 		{
 			VectorCopy (p1, newf->pts[newf->numpoints]);
@@ -121,7 +121,7 @@ void SplitFace (face_t *in, plane_t *split, face_t **front, face_t **back)
 			new2->numpoints++;
 			continue;
 		}
-	
+
 		if (sides[i] == SIDE_FRONT)
 		{
 			VectorCopy (p1, new2->pts[new2->numpoints]);
@@ -132,13 +132,13 @@ void SplitFace (face_t *in, plane_t *split, face_t **front, face_t **back)
 			VectorCopy (p1, newf->pts[newf->numpoints]);
 			newf->numpoints++;
 		}
-		
+
 		if (sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
 			continue;
-			
+
 	// generate a split point
 		p2 = in->pts[(i+1)%in->numpoints];
-		
+
 		dot = dists[i] / (dists[i]-dists[i+1]);
 		for (j=0 ; j<3 ; j++)
 		{	// avoid round off error when possible
@@ -149,7 +149,7 @@ void SplitFace (face_t *in, plane_t *split, face_t **front, face_t **back)
 			else
 				mid[j] = p1[j] + dot*(p2[j]-p1[j]);
 		}
-	
+
 		VectorCopy (mid, newf->pts[newf->numpoints]);
 		newf->numpoints++;
 		VectorCopy (mid, new2->pts[new2->numpoints]);
@@ -159,7 +159,7 @@ void SplitFace (face_t *in, plane_t *split, face_t **front, face_t **back)
 	if (newf->numpoints > MAXEDGES || new2->numpoints > MAXEDGES)
 		Error ("SplitFace: numpoints > MAXEDGES");
 
-#if 0	
+#if 0
 CheckFace (newf);
 CheckFace (new2);
 #endif
@@ -186,14 +186,14 @@ void ClipInside (int splitplane, int frontside, qboolean precedence)
 	face_t	*frags[2];
 	face_t	*insidelist;
 	plane_t *split;
-	
+
 	split = &planes[splitplane];
-	
+
 	insidelist = NULL;
 	for (f=inside ; f ; f=next)
 	{
 		next = f->next;
-		
+
 		if (f->planenum == splitplane)
 		{	// exactly on, handle special
 			if ( frontside != f->planeside || precedence )
@@ -211,7 +211,7 @@ void ClipInside (int splitplane, int frontside, qboolean precedence)
 		{	// proper split
 			SplitFace (f, split, &frags[0], &frags[1]);
 		}
-		
+
 		if (frags[frontside])
 		{
 			frags[frontside]->next = outside;
@@ -223,7 +223,7 @@ void ClipInside (int splitplane, int frontside, qboolean precedence)
 			insidelist = frags[!frontside];
 		}
 	}
-	
+
 	inside = insidelist;
 }
 
@@ -240,35 +240,30 @@ void SaveOutside (qboolean mirror)
 	face_t	*f , *next, *newf;
 	int		i;
 	int		planenum;
-		
+
 	for (f=outside ; f ; f=next)
 	{
 		next = f->next;
 		csgfaces++;
 		Draw_DrawFace (f);
 		planenum = f->planenum;
-		
+
 		if (mirror)
 		{
 			newf = NewFaceFromFace (f);
-			
+
 			newf->numpoints = f->numpoints;
 			newf->planeside = f->planeside ^ 1;	// reverse side
 			newf->contents[0] = f->contents[1];
 			newf->contents[1] = f->contents[0];
-	
+
 			for (i=0 ; i<f->numpoints ; i++)	// add points backwards
-			{
 				VectorCopy (f->pts[f->numpoints-1-i], newf->pts[i]);
-			}
+
+			validfaces[planenum] = MergeFaceToList(newf, validfaces[planenum]);
 		}
-		else
-			newf = NULL;
 
 		validfaces[planenum] = MergeFaceToList(f, validfaces[planenum]);
-		if (newf)
-			validfaces[planenum] = MergeFaceToList(newf, validfaces[planenum]);
-
 		validfaces[planenum] = FreeMergeListScraps (validfaces[planenum]);
 	}
 }
@@ -283,11 +278,11 @@ Free all the faces that got clipped out
 void FreeInside (int contents)
 {
 	face_t	*f, *next;
-	
+
 	for (f=inside ; f ; f=next)
 	{
 		next = f->next;
-		
+
 		if (contents != CONTENTS_SOLID)
 		{
 			f->contents[0] = contents;
@@ -317,9 +312,9 @@ surface_t *BuildSurfaces (void)
 	int				i;
 	surface_t		*s;
 	surface_t		*surfhead;
-	
+
 	surfhead = NULL;
-	
+
 	f = validfaces;
 	for (i=0 ; i<numbrushplanes ; i++, f++)
 	{
@@ -335,8 +330,8 @@ surface_t *BuildSurfaces (void)
 		for (count = s->faces ; count ; count=count->next)
 			csgmergefaces++;
 		CalcSurfaceInfo (s);	// bounding box and flags
-	}	
-	
+	}
+
 	return surfhead;
 }
 
@@ -350,16 +345,16 @@ CopyFacesToOutside
 void CopyFacesToOutside (brush_t *b)
 {
 	face_t		*f, *newf;
-	
+
 	outside = NULL;
-	
+
 	for (f=b->faces ; f ; f=f->next)
 	{
 		brushfaces++;
 #if 0
 {
 	int		i;
-	
+
 	for (i=0 ; i<f->numpoints ; i++)
 		printf ("(%f,%f,%f) ",f->pts[i][0], f->pts[i][1], f->pts[i][2]);
 	printf ("\n");
@@ -393,11 +388,11 @@ surface_t *CSGFaces (brushset_t *bs)
 	qprintf ("---- CSGFaces ----\n");
 
 	memset (validfaces, 0, sizeof(validfaces));
-	
+
 	csgfaces = brushfaces = csgmergefaces = 0;
-	
+
 	Draw_ClearWindow ();
-	
+
 //
 // do the solid faces
 //
@@ -405,13 +400,13 @@ surface_t *CSGFaces (brushset_t *bs)
 	{
 	// set outside to a copy of the brush's faces
 		CopyFacesToOutside (b1);
-		
+
 		overwrite = false;
-		
+
 		for (b2=bs->brushes ; b2 ; b2 = b2->next)
 		{
 		// see if b2 needs to clip a chunk out of b1
-		
+
 			if (b1==b2)
 			{
 				overwrite = true;	// later brushes now overwrite
@@ -426,10 +421,10 @@ surface_t *CSGFaces (brushset_t *bs)
 				continue;
 
 		// divide faces by the planes of the new brush
-		
+
 			inside = outside;
 			outside = NULL;
-			
+
 			for (f=b2->faces ; f ; f=f->next)
 				ClipInside (f->planenum, f->planeside, overwrite);
 
@@ -439,7 +434,7 @@ surface_t *CSGFaces (brushset_t *bs)
 			else
 				FreeInside (CONTENTS_SOLID);
 		}
-		
+
 	// all of the faces left in outside are real surface faces
 		if (b1->contents != CONTENTS_SOLID)
 			SaveOutside (true);	// mirror faces for inside view
@@ -453,11 +448,11 @@ surface_t *CSGFaces (brushset_t *bs)
 #endif
 
 	surfhead = BuildSurfaces ();
-	
+
 	qprintf ("%5i brushfaces\n", brushfaces);
 	qprintf ("%5i csgfaces\n", csgfaces);
 	qprintf ("%5i mergedfaces\n", csgmergefaces);
-	
+
 	return surfhead;
 }
 

@@ -76,7 +76,7 @@ void SetQdirFromPath (char *path)
 {
   char	temp[1024];
   char	*c;
-  
+
   return;
   if (!(path[0] == '/' || path[0] == '\\' || path[1] == ':'))
     {	// path is partial
@@ -246,10 +246,10 @@ returns -1 if not present
 int	FileTime (char *path)
 {
   struct	stat	buf;
-	
+
   if (stat (path,&buf) == -1)
     return -1;
-	
+
   return buf.st_mtime;
 }
 
@@ -266,13 +266,13 @@ char *COM_Parse (char *data)
 {
   int		c;
   int		len;
-	
+
   len = 0;
   com_token[0] = 0;
-	
+
   if (!data)
     return NULL;
-		
+
   // skip whitespace
 skipwhite:
   while ( (c = *data) <= ' ')
@@ -284,7 +284,7 @@ skipwhite:
 	}
       data++;
     }
-	
+
   // skip // comments
   if (c=='/' && data[1] == '/')
     {
@@ -292,7 +292,7 @@ skipwhite:
 	data++;
       goto skipwhite;
     }
-	
+
 
   // handle quoted strings specially
   if (c == '\"')
@@ -330,7 +330,7 @@ skipwhite:
       if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
 	break;
     } while (c>32);
-	
+
   com_token[len] = 0;
   return data;
 }
@@ -557,29 +557,27 @@ void DefaultPath (char *path, char *basepath)
 }
 
 
-void    StripFilename (char *path)
+void ReplaceExtension (char *path, char *extension)
 {
-  int             length;
+	char    *src;
+	//
+	// if path has a .EXT, replace it with extension
+	// if path doesn't have a .EXT, append extension
+	// (extension should include the .)
+	//
+	src = path + strlen(path) - 1;
 
-  length = strlen(path)-1;
-  while (length > 0 && path[length] != PATHSEPERATOR)
-    length--;
-  path[length] = 0;
-}
+	while (*src != PATHSEPERATOR && src != path)
+	{
+		if (*src == '.')
+		{
+			*src = 0;
+			break;
+		}
+		src--;
+	}
 
-void    StripExtension (char *path)
-{
-  int             length;
-
-  length = strlen(path)-1;
-  while (length > 0 && path[length] != '.')
-    {
-      length--;
-      if (path[length] == '/')
-	return;		// no extension
-    }
-  if (length)
-    path[length] = 0;
+	strcat (path, extension);
 }
 
 
@@ -737,13 +735,13 @@ int    BigLong (int l)
 float	LittleFloat (float l)
 {
   union {byte b[4]; float f;} in, out;
-	
+
   in.f = l;
   out.b[0] = in.b[3];
   out.b[1] = in.b[2];
   out.b[2] = in.b[1];
   out.b[3] = in.b[0];
-	
+
   return out.f;
 }
 
@@ -798,7 +796,7 @@ float	BigFloat (float l)
   out.b[1] = in.b[2];
   out.b[2] = in.b[1];
   out.b[3] = in.b[0];
-	
+
   return out.f;
 }
 
@@ -883,7 +881,7 @@ COM_CreatePath
 void	COM_CreatePath (char *path)
 {
   char	*ofs, c;
-	
+
   for (ofs = path+1 ; *ofs ; ofs++)
     {
       c = *ofs;

@@ -190,7 +190,7 @@ void LeafFlow (int leafnum)
 	int			numvis;
 	byte		*dest;
 	portal_t	*p;
-	
+
 //
 // flow through all portals, collecting visible bits
 //
@@ -207,14 +207,14 @@ void LeafFlow (int leafnum)
 
 	if (outbuffer[leafnum>>3] & (1<<(leafnum&7)))
 		Error ("Leaf portals saw into leaf");
-		
+
 	outbuffer[leafnum>>3] |= (1<<(leafnum&7));
 
 	numvis = 0;
 	for (i=0 ; i<portalleafs ; i++)
 		if (outbuffer[i>>3] & (1<<(i&3)))
 			numvis++;
-			
+
 //
 // compress the bit string
 //
@@ -222,7 +222,7 @@ void LeafFlow (int leafnum)
 		printf ("leaf %4i : %4i visible\n", leafnum, numvis);
 	totalvis += numvis;
 
-#if 0	
+#if 0
 	i = (portalleafs+7)>>3;
 	memcpy (compressed, outbuffer, i);
 #else
@@ -231,13 +231,13 @@ void LeafFlow (int leafnum)
 
 	dest = vismap_p;
 	vismap_p += i;
-	
+
 	if (vismap_p > vismap_end)
 		Error ("Vismap expansion overflow");
 
 	dleafs[leafnum+1].visofs = dest-vismap;	// leaf 0 is a common solid
 
-	memcpy (dest, compressed, i);	
+	memcpy (dest, compressed, i);
 }
 
 
@@ -260,9 +260,9 @@ void CalcPortalVis (void)
 		}
 		return;
 	}
-	
+
 	leafon = 0;
-	
+
 	portalizestarttime = time(NULL);
 
 #ifdef __alpha
@@ -272,7 +272,7 @@ void CalcPortalVis (void)
 	pthread_attr_t	attrib;
 	pthread_mutexattr_t	mattrib;
 	int		i;
-	
+
 	my_mutex = malloc (sizeof(*my_mutex));
 	if (pthread_mutexattr_create (&mattrib) == -1)
 		Error ("pthread_mutex_attr_create failed");
@@ -285,14 +285,14 @@ void CalcPortalVis (void)
 		Error ("pthread_attr_create failed");
 	if (pthread_attr_setstacksize (&attrib, 0x100000) == -1)
 		Error ("pthread_attr_setstacksize failed");
-	
+
 	for (i=0 ; i<numthreads ; i++)
 	{
   		if (pthread_create(&work_threads[i], attrib
 		, LeafThread, (pthread_addr_t)i) == -1)
 			Error ("pthread_create failed");
 	}
-		
+
 	for (i=0 ; i<numthreads ; i++)
 	{
 		if (pthread_join (work_threads[i], &status) == -1)
@@ -359,7 +359,7 @@ qboolean PlaneCompare (plane_t *p1, plane_t *p2)
 		if (fabs(p1->normal[i] - p2->normal[i] ) > 0.001)
 			return false;
 
-	return true;				
+	return true;
 }
 
 sep_t	*Findpassages (winding_t *source, winding_t *pass)
@@ -564,7 +564,7 @@ void LoadPortals (char *name)
 	winding_t	*w;
 	int			leafnums[2];
 	plane_t		plane;
-	
+
 	if (!strcmp(name,"-"))
 		f = stdin;
 	else
@@ -588,11 +588,11 @@ void LoadPortals (char *name)
 
 	bitbytes = ((portalleafs+63)&~63)>>3;
 	bitlongs = bitbytes/sizeof(long);
-	
+
 // each file portal is split into two memory portals
 	portals = malloc(2*numportals*sizeof(portal_t));
 	memset (portals, 0, 2*numportals*sizeof(portal_t));
-	
+
 	leafs = malloc(portalleafs*sizeof(leaf_t));
 	memset (leafs, 0, portalleafs*sizeof(leaf_t));
 
@@ -600,7 +600,7 @@ void LoadPortals (char *name)
 
 	vismap = vismap_p = dvisdata;
 	vismap_end = vismap + MAX_MAP_VISIBILITY;
-		
+
 	for (i=0, p=portals ; i<numportals ; i++)
 	{
 		if (fscanf (f, "%i %i %i ", &numpoints, &leafnums[0], &leafnums[1])
@@ -752,16 +752,12 @@ int main (int argc, char **argv)
 
 	start = I_DoubleTime ();
 
-	strcpy (source, argv[i]);
-	StripExtension (source);
-	DefaultExtension (source, ".bsp");
+	strcpy(source, argv[i]);
+	strcpy(portalfile, source);
+	DefaultExtension(source, ".bsp");
+	ReplaceExtension(portalfile, ".prt");
 
 	LoadBSPFile (source);
-
-	strcpy (portalfile, argv[i]);
-	StripExtension (portalfile);
-	strcat (portalfile, ".prt");
-
 	LoadPortals (portalfile);
 
 	uncompressed = malloc(bitbytes*portalleafs);

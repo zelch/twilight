@@ -338,8 +338,8 @@ void ParseBrush (void)
 			vecs[0][3] = atof(token); // LordHavoc: float coords
 			GetToken (false);
 			vecs[1][3] = atof(token); // LordHavoc: float coords
-			GetToken (false);
 		}
+		GetToken (false);
 		rotate = atof(token);	 // LordHavoc: float coords
 		GetToken (false);
 		scale[0] = atof(token); // LordHavoc: was already float coords
@@ -436,6 +436,7 @@ void ParseBrush (void)
 			d = 1.0 / (scale[i] ? scale[i] : 1.0);
 			for (j = 0;j < 3;j++)
 				tx.vecs[i][j] = vecs[i][j] * d;
+			tx.vecs[i][3] = vecs[i][3];
 		}
 
 		f = malloc(sizeof(mface_t));

@@ -111,9 +111,9 @@ void AddToBounds (brushset_t *bs, vec3_t v)
 	for (i=0 ; i<3 ; i++)
 	{
 		if (v[i] < bs->mins[i])
-		bs->mins[i] = v[i];
+			bs->mins[i] = v[i];
 		if (v[i] > bs->maxs[i])
-		bs->maxs[i] = v[i];
+			bs->maxs[i] = v[i];
 	}
 }
 
@@ -123,7 +123,7 @@ int	PlaneTypeForNormal (vec3_t normal)
 {
 	double	ax, ay, az;
 
-	// NOTE: should these have an epsilon around 1.0?		
+	// NOTE: should these have an epsilon around 1.0?
 	if (normal[0] == 1.0)
 		return PLANE_X;
 	if (normal[1] == 1.0)
@@ -156,12 +156,12 @@ void NormalizePlane (plane_t *dp)
 		dp->normal[0] = 1.0;
 		dp->dist = -dp->dist;
 	}
-	if (dp->normal[1] == -1.0)
+	else if (dp->normal[1] == -1.0)
 	{
 		dp->normal[1] = 1.0;
 		dp->dist = -dp->dist;
 	}
-	if (dp->normal[2] == -1.0)
+	else if (dp->normal[2] == -1.0)
 	{
 		dp->normal[2] = 1.0;
 		dp->dist = -dp->dist;
@@ -214,10 +214,6 @@ int	FindPlane (plane_t *dplane, int *side)
 	plane_t		*dp, pl;
 	vec_t		dot;
 
-	dot = VectorLength(dplane->normal);
-	if (dot < 1.0 - ANGLEEPSILON || dot > 1.0 + ANGLEEPSILON)
-		Error ("FindPlane: normalization error (%f %f %f, length %f)", dplane->normal[0], dplane->normal[1], dplane->normal[2], dot);
-
 	pl = *dplane;
 	NormalizePlane (&pl);
 	if (DotProduct(pl.normal, dplane->normal) > 0)
@@ -227,118 +223,21 @@ int	FindPlane (plane_t *dplane, int *side)
 
 	dp = planes;
 	for (i=0 ; i<numbrushplanes;i++, dp++)
-	{
-		dot = DotProduct (dp->normal, pl.normal);
-		if (dot > 1.0 - ANGLEEPSILON && fabs(dp->dist - pl.dist) < DISTEPSILON )
+		if (DotProduct (dp->normal, pl.normal) > 1.0 - ANGLEEPSILON && fabs(dp->dist - pl.dist) < DISTEPSILON )
 			return i; // regular match
-	}
 
 	if (numbrushplanes == MAX_MAP_PLANES)
 		Error ("FindPlane: numbrushplanes == MAX_MAP_PLANES");
 
-	planes[numbrushplanes] = pl;
+	dot = VectorLength(dplane->normal);
+	if (dot < 1.0 - ANGLEEPSILON || dot > 1.0 + ANGLEEPSILON)
+		Error ("FindPlane: normalization error (%f %f %f, length %f)", dplane->normal[0], dplane->normal[1], dplane->normal[2], dot);
 
+	planes[numbrushplanes] = pl;
 	numbrushplanes++;
 
 	return numbrushplanes-1;
 }
-
-
-/*
-===============
-FindPlane_old
-
-Returns a global plane number and the side that will be the front
-===============
-*/
-int	FindPlane_old (plane_t *dplane, int *side)
-{
-	int			i;
-	plane_t		*dp;
-	vec_t		dot, ax, ay, az;
-
-	dot = VectorLength(dplane->normal);
-	if (dot < 1.0 - ANGLEEPSILON || dot > 1.0 + ANGLEEPSILON)
-		Error ("FindPlane_old: normalization error (%f %f %f, length %f)", dplane->normal[0], dplane->normal[1], dplane->normal[2], dot);
-
-	dp = planes;
-
-	for (i=0 ; i<numbrushplanes;i++, dp++)
-	{
-		dot = DotProduct (dplane->normal, dp->normal);
-		if (dot > 1.0 - ANGLEEPSILON && fabs(dplane->dist - dp->dist) < DISTEPSILON )
-		{	// regular match
-			*side = 0;
-			return i;		
-		}
-		if (dot < -1.0+ANGLEEPSILON && fabs(dplane->dist + dp->dist) < DISTEPSILON )
-		{	// inverse of vector
-			*side = 1;
-			return i;
-		}
-	}
-
-	// allocate a new plane, flipping normal to a consistant direction
-	// if needed
-	*dp = *dplane;
-
-	if (numbrushplanes == MAX_MAP_PLANES)
-		Error ("FindPlane_old: numbrushplanes == MAX_MAP_PLANES");
-	numbrushplanes++;
-
-	*side = 0;
-
-	// NOTE: should these have an epsilon around 1.0?
-	if (dplane->normal[0] == 1.0)
-		dp->type = PLANE_X;
-	else if (dplane->normal[1] == 1.0)
-		dp->type = PLANE_Y;
-	else if (dplane->normal[2] == 1.0)
-		dp->type = PLANE_Z;
-	else if (dplane->normal[0] == -1.0)
-	{
-		dp->type = PLANE_X;
-		dp->normal[0] = 1.0;
-		dp->dist = -dp->dist;
-		*side = 1;
-	}
-	else if (dplane->normal[1] == -1.0)
-	{
-		dp->type = PLANE_Y;
-		dp->normal[1] = 1.0;
-		dp->dist = -dp->dist;
-		*side = 1;
-	}
-	else if (dplane->normal[2] == -1.0)
-	{
-		dp->type = PLANE_Z;
-		dp->normal[2] = 1.0;
-		dp->dist = -dp->dist;
-		*side = 1;
-	}
-	else
-	{
-		ax = fabs(dplane->normal[0]);
-		ay = fabs(dplane->normal[1]);
-		az = fabs(dplane->normal[2]);
-
-		if (ax >= ay && ax >= az)
-			dp->type = PLANE_ANYX;
-		else if (ay >= ax && ay >= az)
-			dp->type = PLANE_ANYY;
-		else
-			dp->type = PLANE_ANYZ;
-		if (dplane->normal[dp->type-PLANE_ANYX] < 0)
-		{
-			VectorNegate (dp->normal, dp->normal);
-			dp->dist = -dp->dist;
-			*side = 1;
-		}
-	}
-
-	return i;
-}
-
 
 
 /*
@@ -739,7 +638,7 @@ void ExpandBrush (int hullnum)
 			else if (p->normal[x] < 0)
 				corner[x] = hull_size[hullnum][0][x];
 		}
-		p->dist += DotProduct (corner, p->normal);		
+		p->dist += DotProduct (corner, p->normal);
 	}
 
 	// add any axis planes not contained in the brush to bevel off corners
@@ -781,7 +680,7 @@ brush_t *LoadBrush (mbrush_t *mb, int hullnum)
 
 	//
 	// check texture name for attributes
-	//	
+	//
 	name = miptex[texinfo[mb->faces->texinfo].miptex];
 
 	if (!Q_strcasecmp(name, "clip") && hullnum == 0)
@@ -793,7 +692,7 @@ brush_t *LoadBrush (mbrush_t *mb, int hullnum)
 			contents = CONTENTS_LAVA;
 		else if (!Q_strncasecmp(name+1,"slime",5))
 			contents = CONTENTS_SLIME;
-		else			
+		else
 			contents = CONTENTS_WATER;
 	}
 	else if (!Q_strncasecmp (name, "sky",3) && worldmodel && hullnum == 0)
@@ -863,7 +762,7 @@ void Brush_DrawAll (brushset_t *bs)
 
 	for (b=bs->brushes ; b ; b=b->next)
 		for (f=b->faces ; f ; f=f->next)
-			Draw_DrawFace (f);	
+			Draw_DrawFace (f);
 }
 
 

@@ -188,15 +188,15 @@ winding_t *ClipWinding (winding_t *in, plane_t *split, qboolean keepon)
 	sides[i] = sides[0];
 	dists[i] = dists[0];
 
-	if (keepon && !counts[0] && !counts[1])
+	if (keepon && !counts[SIDE_FRONT] && !counts[SIDE_BACK])
 		return in;
 
-	if (!counts[0])
+	if (!counts[SIDE_FRONT])
 	{
 		FreeWinding (in);
 		return NULL;
 	}
-	if (!counts[1])
+	if (!counts[SIDE_BACK])
 		return in;
 
 	maxpts = in->numpoints+4;	// can't use counts[0]+2 because of fp grouping errors
@@ -290,12 +290,12 @@ void DivideWinding (winding_t *in, plane_t *split, winding_t **front, winding_t 
 
 	*front = *back = NULL;
 
-	if (!counts[0])
+	if (!counts[SIDE_FRONT])
 	{
 		*back = in;
 		return;
 	}
-	if (!counts[1])
+	if (!counts[SIDE_BACK])
 	{
 		*front = in;
 		return;
@@ -414,11 +414,11 @@ AllocFace
 face_t *AllocFace (void)
 {
   face_t	*f;
-	
+
   c_activefaces++;
   if (c_activefaces > c_peakfaces)
     c_peakfaces = c_activefaces;
-		
+
   f = malloc (sizeof(face_t));
   memset (f, 0, sizeof(face_t));
   f->planenum = -1;
@@ -446,11 +446,11 @@ surface_t *AllocSurface (void)
 
   s = malloc (sizeof(surface_t));
   memset (s, 0, sizeof(surface_t));
-	
+
   c_activesurfaces++;
   if (c_activesurfaces > c_peaksurfaces)
     c_peaksurfaces = c_activesurfaces;
-		
+
   return s;
 }
 
@@ -468,14 +468,14 @@ AllocPortal
 portal_t *AllocPortal (void)
 {
   portal_t	*p;
-	
+
   c_activeportals++;
   if (c_activeportals > c_peakportals)
     c_peakportals = c_activeportals;
-	
+
   p = malloc (sizeof(portal_t));
   memset (p, 0, sizeof(portal_t));
-	
+
   return p;
 }
 
@@ -494,10 +494,10 @@ AllocNode
 node_t *AllocNode (void)
 {
   node_t	*n;
-	
+
   n = malloc (sizeof(node_t));
   memset (n, 0, sizeof(node_t));
-	
+
   return n;
 }
 
@@ -509,10 +509,10 @@ AllocBrush
 brush_t *AllocBrush (void)
 {
   brush_t	*b;
-	
+
   b = malloc (sizeof(brush_t));
   memset (b, 0, sizeof(brush_t));
-	
+
   return b;
 }
 
@@ -642,7 +642,7 @@ void UpdateEntLump (void)
 {
   int		m, entnum;
   char	mod[80];
-		
+
   m = 1;
   for (entnum = 1 ; entnum < num_entities ; entnum++)
     {
@@ -802,14 +802,14 @@ void CreateHulls (void)
       CreateSingleHull ();
       exit (0);
     }
-	
+
   // commanded to use the allready existing hulls 1 and 2
   if (usehulls)
     {
       CreateSingleHull ();
       return;
     }
-	
+
   // commanded to ignore the hulls altogether
   if (noclip)
     {
@@ -840,7 +840,7 @@ void CreateHulls (void)
 
   if (hullnum)
     exit (0);
-	
+
   wait (NULL);		// wait for clip hull process to finish
   wait (NULL);		// wait for clip hull process to finish
 
@@ -875,21 +875,14 @@ ProcessFile
 void ProcessFile (char *sourcebase, char *bspfilename1)
 {
 	// create filenames
-	strcpy (bspfilename, bspfilename1);
-	StripExtension (bspfilename);
-	strcat (bspfilename, ".bsp");
-
-	strcpy (hullfilename, bspfilename1);
-	StripExtension (hullfilename);
-	strcat (hullfilename, ".h0");
-
-	strcpy (portfilename, bspfilename1);
-	StripExtension (portfilename);
-	strcat (portfilename, ".prt");
-
-	strcpy (pointfilename, bspfilename1);
-	StripExtension (pointfilename);
-	strcat (pointfilename, ".pts");
+	strcpy(bspfilename, bspfilename1);
+	strcpy(hullfilename, bspfilename1);
+	strcpy(portfilename, bspfilename1);
+	strcpy(pointfilename, bspfilename1);
+	DefaultExtension(bspfilename, ".bsp");
+	ReplaceExtension(hullfilename, ".h0");
+	ReplaceExtension(portfilename, ".prt");
+	ReplaceExtension(pointfilename, ".pts");
 
 	if (!onlyents)
 	{
@@ -1021,22 +1014,17 @@ int main (int argc, char **argv)
 	//
 	argv0 = argv[0];
 
-
-	//
-	// create destination name if not specified
-	//
-	strcpy (sourcename, argv[i]);
-	DefaultExtension (sourcename, ".map");
-
-	if (i != argc - 2)
-	{
-		strcpy (destname, argv[i]);
-		StripExtension (destname);
-		strcat (destname, ".bsp");
-		printf ("outputfile: %s\n", destname);
-	}
-	else
-		strcpy (destname, argv[i+1]);
+	// argv[i] and argv[arc-1] are the same if only one name is supplied
+	strcpy(sourcename, argv[i]);
+	strcpy(destname, argv[argc-1]);
+	DefaultExtension(sourcename, ".map");
+	DefaultExtension(destname, ".bsp");
+	if (!strcmp(sourcename, destname))
+		ReplaceExtension(destname, ".bsp");
+	printf("inputfile: %s\n", sourcename);
+	printf("outputfile: %s\n", destname);
+	if (!strcmp(sourcename, destname))
+		Error("sourcename == destname\n");
 
 	//
 	// do it!

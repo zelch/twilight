@@ -59,8 +59,7 @@ extern void SaveFile (char *filename, void *buffer, int count);
 
 extern void DefaultExtension (char *path, char *extension);
 extern void DefaultPath (char *path, char *basepath);
-extern void StripFilename (char *path);
-extern void StripExtension (char *path);
+extern void ReplaceExtension (char *path, char *extension);
 
 extern void ExtractFilePath (char *path, char *dest);
 extern void ExtractFileBase (char *path, char *dest);
