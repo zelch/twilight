@@ -238,23 +238,21 @@ float(entity targ, entity ignore, vector org, float amount, float radius, float 
 {
         local   vector  v, m1, m2;
         local   float   b, dist;
-        if (pointcontents(org) == CONTENT_SOLID)
-                return 0;
+        //if (pointcontents(org) == CONTENT_SOLID)
+        //	return 0;
         m1 = targ.mins + targ.origin;
         m2 = targ.maxs + targ.origin;
         b = -1;
-        if (org_x >= (m1_x - 2)) if (org_x < (m2_x + 2))
-        if (org_y >= (m1_y - 2)) if (org_y < (m2_y + 2))
-        if (org_z >= (m1_z - 2)) if (org_z < (m2_z + 2))
-        {
-                raddamage_lasthit = org;
-                return amount;
-        }
         // find nearest point and calc damage for that
         v_x = bound(m1_x, org_x, m2_x);
         v_y = bound(m1_y, org_y, m2_y);
         v_z = bound(m1_z, org_z, m2_z);
         dist = vlen(v - org);
+        if (dist < 2)
+        {
+                raddamage_lasthit = org;
+                return amount;
+        }
         if (dist >= radius)
                 return 0; // out of range
         b = (amount/radius) * (radius - dist);
