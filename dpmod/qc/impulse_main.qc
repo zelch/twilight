@@ -212,6 +212,7 @@ void() ImpulseCommands =
 		sprint(self, "addbot - adds a bot\n");
 		sprint(self, "+button3 - secondary fire (used by some weapons)\n");
 		sprint(self, "+button4 - zoom (available with all weapons)\n");
+		sprint(self, "+button5 - grapple (not in singleplayer/coop)\n");
 	}
 	if (self.isadmin)
 	{
