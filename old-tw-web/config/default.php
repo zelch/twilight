@@ -5,13 +5,13 @@
 				"alink=\"#0080ff\" vlink=\"#0080ff\" link=\"#0080ff\"",
 		basefont => "face=\"verdana, arial\"" ,
 
-		header => "width=\"100%\" bgcolor=\"#000fb5\"" ,
+		header => "width=\"100%\" bgcolor=\"#000430\"" ,
 
-		footer => "width=\"100%\" bgcolor=\"#000fb5\"" ,
+		footer => "width=\"100%\" bgcolor=\"#000430\"" ,
 		footerpre => "<center><font face=\"verdana, arial\" size=\"-2\">" ,
 		footerpost => "</font></center>",
 
-		nav => "bgcolor=\"#000fb5\" width=\"15%\" valign=\"top\"" ,
+		nav => "bgcolor=\"#000430\" width=\"15%\" valign=\"top\"" ,
 		navpre => "<font face=\"verdana, arial\" size=\"+1\"><strong>" ,
 		navpost => "</strong></font>" ,
 
@@ -67,13 +67,13 @@ a {
 
 
 td.header {
-	background: #00087f
+	background: #000430
 		url(/images/border.jpg)
 		repeat-y;
 }
 
 td.footer {
-	background: #00087f
+	background: #000430
 		url(/images/border.jpg)
 		repeat-y;
 	margin-top: 10px;
@@ -83,7 +83,7 @@ td.footer {
 
 td.side {
 	width: 15%;
-	background: #00087f
+	background: #000430
 		url(/images/border.jpg)
 		repeat-y;
 	vertical-align: top;
