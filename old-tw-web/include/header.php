@@ -2,10 +2,10 @@
 	require ($pageroot . "/include/browser-detect.php");
 
 	if ($browser_css) {
-		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" " .
+		echo ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" " .
 			"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
 	} else {
-		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" " .
+		echo ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" " .
 			"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
 	}
 	echo ("<html>\n<head>\n<title>Project Twilight: " . $title . "</title>\n");
