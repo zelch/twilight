@@ -241,9 +241,6 @@ void ParseLightEntities( void )
 					l->spotcone = -cos( 20 * Q_PI / 180 );
 				else
 					l->spotcone = -cos( l->angle / 2 * Q_PI / 180 );
-
-				if( l->spotcone <= 0 )
-					l->spotcone = 0;
 				break;
 			}
 		}
