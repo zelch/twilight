@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include "dpmformat.h"
 #include "SDL.h"
@@ -32,6 +33,11 @@ typedef double GLdouble;
 typedef void GLvoid;
 typedef float GLclampf;
 typedef int GLbitfield;
+typedef unsigned char GLboolean;
+
+typedef int GLintptrARB;
+typedef int GLsizeiptrARB;
+
 
 static int quit;
 
@@ -647,6 +653,50 @@ void (GLAPIENTRY *glColorPointer)(GLint size, GLenum type, GLsizei stride, const
 void (GLAPIENTRY *glTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
 void (GLAPIENTRY *glDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 
+void (GLAPIENTRY *glBindBufferARB) (GLenum target, GLuint buffer);
+void (GLAPIENTRY *glDeleteBuffersARB) (GLsizei n, const GLuint *buffers);
+void (GLAPIENTRY *glGenBuffersARB) (GLsizei n, GLuint *buffers);
+GLboolean (GLAPIENTRY *glIsBufferARB) (GLuint buffer);
+GLvoid* (GLAPIENTRY *glMapBufferARB) (GLenum target, GLenum access);
+GLboolean (GLAPIENTRY *glUnmapBufferARB) (GLenum target);
+void (GLAPIENTRY *glBufferDataARB) (GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage);
+void (GLAPIENTRY *glBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data);
+
+
+
+#define GL_ARRAY_BUFFER_ARB               0x8892
+#define GL_ELEMENT_ARRAY_BUFFER_ARB       0x8893
+#define GL_ARRAY_BUFFER_BINDING_ARB       0x8894
+#define GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB 0x8895
+#define GL_VERTEX_ARRAY_BUFFER_BINDING_ARB 0x8896
+#define GL_NORMAL_ARRAY_BUFFER_BINDING_ARB 0x8897
+#define GL_COLOR_ARRAY_BUFFER_BINDING_ARB 0x8898
+#define GL_INDEX_ARRAY_BUFFER_BINDING_ARB 0x8899
+#define GL_TEXTURE_COORD_ARRAY_BUFFER_BINDING_ARB 0x889A
+#define GL_EDGE_FLAG_ARRAY_BUFFER_BINDING_ARB 0x889B
+#define GL_SECONDARY_COLOR_ARRAY_BUFFER_BINDING_ARB 0x889C
+#define GL_FOG_COORDINATE_ARRAY_BUFFER_BINDING_ARB 0x889D
+#define GL_WEIGHT_ARRAY_BUFFER_BINDING_ARB 0x889E
+#define GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB 0x889F
+#define GL_STREAM_DRAW_ARB                0x88E0
+#define GL_STREAM_READ_ARB                0x88E1
+#define GL_STREAM_COPY_ARB                0x88E2
+#define GL_STATIC_DRAW_ARB                0x88E4
+#define GL_STATIC_READ_ARB                0x88E5
+#define GL_STATIC_COPY_ARB                0x88E6
+#define GL_DYNAMIC_DRAW_ARB               0x88E8
+#define GL_DYNAMIC_READ_ARB               0x88E9
+#define GL_DYNAMIC_COPY_ARB               0x88EA
+#define GL_READ_ONLY_ARB                  0x88B8
+#define GL_WRITE_ONLY_ARB                 0x88B9
+#define GL_READ_WRITE_ARB                 0x88BA
+#define GL_BUFFER_SIZE_ARB                0x8764
+#define GL_BUFFER_USAGE_ARB               0x8765
+#define GL_BUFFER_ACCESS_ARB              0x88BB
+#define GL_BUFFER_MAPPED_ARB              0x88BC
+#define GL_BUFFER_MAP_POINTER_ARB         0x88BD
+
+
 void resampleimage(unsigned char *inpixels, int inwidth, int inheight, unsigned char *outpixels, int outwidth, int outheight)
 {
 	unsigned char *inrow, *inpix;
@@ -808,114 +858,173 @@ void dpmlerpbones(dpmheader_t *dpm, int lerpframe1, int lerpframe2, float lerp, 
 int textureunits = 1;
 
 int varraysize;
-float *varray_vertex;
-float *varray_normal;
-float *varray_color;
-float *varray_texcoord[MAX_TEXTUREUNITS];
+
+typedef struct {
+	float	v[3];
+} vertex_t;
+
+typedef struct {
+	float	v[2];
+} texcoord_t;
+
+vertex_t *varray_vertex;
+vertex_t *varray_normal;
+texcoord_t *varray_texcoord;
+
+unsigned int vbo_bufs[3] = { 0, 0, 0};
 
 void R_Mesh_Init(void)
 {
-	int i;
 	varraysize = 0;
 	varray_vertex = NULL;
 	varray_normal = NULL;
-	varray_color = NULL;
-	for (i = 0;i < MAX_TEXTUREUNITS;i++)
-		varray_texcoord[i] = NULL;
+	varray_texcoord = NULL;
 }
+
+#define USE_VBO_VERT 0
+#define USE_VBO_NORM 0
+#define USE_VBO_TC 0
 
 void R_Mesh_ResizeCheck(int numverts)
 {
-	int i;
 	if (varraysize < numverts)
 	{
+		varraysize = numverts;
+#if USE_VBO_VERT || USE_VBO_TC || USE_VBO_NORM
+		glDeleteBuffersARB(3, vbo_bufs);
+		glGenBuffersARB(3, vbo_bufs);
+#endif
+#if USE_VBO_VERT
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
+		glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(vertex_t) * varraysize,
+				NULL, GL_DYNAMIC_DRAW_ARB);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#else
 		if (varray_vertex)
 			free(varray_vertex);
-		varraysize = numverts;
-		varray_vertex = malloc(varraysize * (4 + 4 + 4 + 4 * textureunits) * sizeof(float));
-		memset(varray_vertex, 0, varraysize * (4 + 4 + 4 + 4 * textureunits) * sizeof(float));
-		varray_normal = varray_vertex + varraysize * 4;
-		varray_color = varray_normal + varraysize * 4;
-		varray_texcoord[0] = varray_color + varraysize * 4;
-		for (i = 1;i < textureunits;i++)
-			varray_texcoord[i] = varray_texcoord[i - 1] + varraysize * 4;
-		glVertexPointer(3, GL_FLOAT, sizeof(float[4]), varray_vertex);
-		glNormalPointer(GL_FLOAT, sizeof(float[4]), varray_normal);
-		glColorPointer(4, GL_FLOAT, sizeof(float[4]), varray_color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(float[4]), varray_texcoord[0]);
+		varray_vertex = calloc(varraysize, sizeof(vertex_t));
+		glVertexPointer(3, GL_FLOAT, 0, varray_vertex);
+#endif
+#if USE_VBO_NORM
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
+		glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(vertex_t) * varraysize,
+				NULL, GL_DYNAMIC_DRAW_ARB);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#else
+		if (varray_normal)
+			free(varray_normal);
+		varray_normal = calloc(varraysize, sizeof(vertex_t));
+		glNormalPointer(GL_FLOAT, 0, varray_normal);
+#endif
+#if USE_VBO_TC
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
+		glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(texcoord_t) * varraysize,
+				NULL, GL_DYNAMIC_DRAW_ARB);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#else
+		if (varray_texcoord)
+			free(varray_texcoord);
+		varray_texcoord = calloc(varraysize, sizeof(texcoord_t));
+		glTexCoordPointer(2, GL_FLOAT, 0, varray_texcoord);
+#endif
+
+		glEnable(GL_VERTEX_ARRAY);
+		glEnable(GL_NORMAL_ARRAY);
+		glEnable(GL_TEXTURE_COORD_ARRAY);
+		glDisable(GL_COLOR_ARRAY);
 	}
 }
 
 void dpmdraw(dpmheader_t *dpm, dpmbonepose_t *bonepose)
 {
-	int meshnum, vertnum, i;
-	float *outv, *outn, *outtc, *tc;
+	int meshnum, vertnum, i, v;
+	float *tc, vertex[3], normal[3];
 	dpmbonepose_t *m;
 	dpmvertex_t *vert;
 	dpmbonevert_t *bonevert;
 	dpmmesh_t *mesh;
-	if (varray_vertex)
-	{
-		glVertexPointer(3, GL_FLOAT, sizeof(float[4]), varray_vertex);
-		glNormalPointer(GL_FLOAT, sizeof(float[4]), varray_normal);
-		glColorPointer(4, GL_FLOAT, sizeof(float[4]), varray_color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(float[4]), varray_texcoord[0]);
-	}
-	glEnable(GL_VERTEX_ARRAY);
-	glEnable(GL_NORMAL_ARRAY);
-	glDisable(GL_COLOR_ARRAY);
-	glEnable(GL_TEXTURE_COORD_ARRAY);
 	for (meshnum = 0, mesh = (dpmmesh_t *)((unsigned char *)dpm + dpm->ofs_meshs);meshnum < dpm->num_meshs;meshnum++, mesh++)
 	{
 		R_Mesh_ResizeCheck(mesh->num_verts);
-		for (vertnum = 0, outv = varray_vertex, outn = varray_normal, vert = (dpmvertex_t *)((unsigned char *)dpm + mesh->ofs_verts);vertnum < mesh->num_verts;vertnum++, outv += 4, outn += 4)
+#if USE_VBO_VERT
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
+		varray_vertex = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#endif
+#if USE_VBO_NORM
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
+		varray_normal = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#endif
+#if USE_VBO_TC
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
+		varray_texcoord= glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#endif
+		for (vertnum = 0, vert = (dpmvertex_t *)((unsigned char *)dpm + mesh->ofs_verts); vertnum < mesh->num_verts; vertnum++)
 		{
 			if (vert->numbones == 1)
 			{
 				bonevert = (dpmbonevert_t *)(vert + 1);
 				m = bonepose + bonevert->bonenum;
-				outv[0] = bonevert->origin[0] * m->matrix[0][0] + bonevert->origin[1] * m->matrix[0][1] + bonevert->origin[2] * m->matrix[0][2] + m->matrix[0][3];
-				outv[1] = bonevert->origin[0] * m->matrix[1][0] + bonevert->origin[1] * m->matrix[1][1] + bonevert->origin[2] * m->matrix[1][2] + m->matrix[1][3];
-				outv[2] = bonevert->origin[0] * m->matrix[2][0] + bonevert->origin[1] * m->matrix[2][1] + bonevert->origin[2] * m->matrix[2][2] + m->matrix[2][3];
-				outn[0] = bonevert->normal[0] * m->matrix[0][0] + bonevert->normal[1] * m->matrix[0][1] + bonevert->normal[2] * m->matrix[0][2];
-				outn[1] = bonevert->normal[0] * m->matrix[1][0] + bonevert->normal[1] * m->matrix[1][1] + bonevert->normal[2] * m->matrix[1][2];
-				outn[2] = bonevert->normal[0] * m->matrix[2][0] + bonevert->normal[1] * m->matrix[2][1] + bonevert->normal[2] * m->matrix[2][2];
+				for (v = 0; v < 3; v++) {
+					varray_vertex[vertnum].v[v] = bonevert->origin[0] * m->matrix[v][0] + bonevert->origin[1] * m->matrix[v][1] + bonevert->origin[2] * m->matrix[v][2] + bonevert->influence * m->matrix[v][3];
+					varray_normal[vertnum].v[v] = bonevert->normal[0] * m->matrix[v][0] + bonevert->normal[1] * m->matrix[v][1] + bonevert->normal[2] * m->matrix[v][2];
+				}
 				vert = (dpmvertex_t *)(bonevert + 1);
 			}
 			else
 			{
-				outv[0] = 0;
-				outv[1] = 0;
-				outv[2] = 0;
-				outn[0] = 0;
-				outn[1] = 0;
-				outn[2] = 0;
+				for (v = 0; v < 3; v++) {
+					varray_vertex[vertnum].v[v] = 0;
+					varray_normal[vertnum].v[v] = 0;
+				}
 				for (i = 0, bonevert = (dpmbonevert_t *)(vert + 1);i < vert->numbones;i++, bonevert++)
 				{
 					m = bonepose + bonevert->bonenum;
-					outv[0] += bonevert->origin[0] * m->matrix[0][0] + bonevert->origin[1] * m->matrix[0][1] + bonevert->origin[2] * m->matrix[0][2] + bonevert->influence * m->matrix[0][3];
-					outv[1] += bonevert->origin[0] * m->matrix[1][0] + bonevert->origin[1] * m->matrix[1][1] + bonevert->origin[2] * m->matrix[1][2] + bonevert->influence * m->matrix[1][3];
-					outv[2] += bonevert->origin[0] * m->matrix[2][0] + bonevert->origin[1] * m->matrix[2][1] + bonevert->origin[2] * m->matrix[2][2] + bonevert->influence * m->matrix[2][3];
-					outn[0] += bonevert->normal[0] * m->matrix[0][0] + bonevert->normal[1] * m->matrix[0][1] + bonevert->normal[2] * m->matrix[0][2];
-					outn[1] += bonevert->normal[0] * m->matrix[1][0] + bonevert->normal[1] * m->matrix[1][1] + bonevert->normal[2] * m->matrix[1][2];
-					outn[2] += bonevert->normal[0] * m->matrix[2][0] + bonevert->normal[1] * m->matrix[2][1] + bonevert->normal[2] * m->matrix[2][2];
+					vertex[0] = vertex[1] = vertex[2] = 0;
+					normal[0] = normal[1] = normal[2] = 0;
+					for (v = 0; v < 3; v++) {
+						vertex[v] += bonevert->origin[0] * m->matrix[v][0] + bonevert->origin[1] * m->matrix[v][1] + bonevert->origin[2] * m->matrix[v][2] + bonevert->influence * m->matrix[v][3];
+						normal[v] += bonevert->normal[0] * m->matrix[v][0] + bonevert->normal[1] * m->matrix[v][1] + bonevert->normal[2] * m->matrix[v][2];
+					}
+					varray_vertex[vertnum].v[0] = vertex[0];
+					varray_vertex[vertnum].v[1] = vertex[1];
+					varray_vertex[vertnum].v[2] = vertex[2];
+					varray_normal[vertnum].v[0] = normal[0];
+					varray_normal[vertnum].v[1] = normal[1];
+					varray_normal[vertnum].v[2] = normal[2];
 				}
 				vert = (dpmvertex_t *)bonevert;
 			}
 		}
-		for (vertnum = 0, outtc = varray_texcoord[0], tc = (float *)((unsigned char *)dpm + mesh->ofs_texcoords);vertnum < mesh->num_verts;vertnum++, tc += 2, outtc += 4)
+		for (vertnum = 0, tc = (float *)((unsigned char *)dpm + mesh->ofs_texcoords);vertnum < mesh->num_verts;vertnum++, tc += 2)
 		{
-			outtc[0] = tc[0];
-			outtc[1] = tc[1];
+			varray_texcoord[vertnum].v[0] = tc[0];
+			varray_texcoord[vertnum].v[1] = tc[1];
 		}
+#if USE_VBO_VERT
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
+		glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+		glVertexPointer(3, GL_FLOAT, 0, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#endif
+#if USE_VBO_NORM
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
+		glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+		glNormalPointer(GL_FLOAT, 0, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#endif
+#if USE_VBO_TC
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
+		glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+		glTexCoordPointer(2, GL_FLOAT, 0, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#endif
 		glColor4f(1,1,1,1);
 		bindimagetexture(mesh->shadername);
 		glDrawElements(GL_TRIANGLES, mesh->num_tris * 3, GL_UNSIGNED_INT, (GLuint *)((unsigned char *)dpm + mesh->ofs_indices));
 	}
-	glDisable(GL_VERTEX_ARRAY);
-	glDisable(GL_NORMAL_ARRAY);
-	glDisable(GL_COLOR_ARRAY);
-	glDisable(GL_TEXTURE_COORD_ARRAY);
 }
 
 SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
@@ -958,6 +1067,15 @@ SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
 	glColorPointer = SDL_GL_GetProcAddress("glColorPointer");
 	glTexCoordPointer = SDL_GL_GetProcAddress("glTexCoordPointer");
 	glDrawElements = SDL_GL_GetProcAddress("glDrawElements");
+
+	glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+	glDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
+	glGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
+	glIsBufferARB = SDL_GL_GetProcAddress("glIsBufferARB");
+	glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
+	glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
+	glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
+	glBufferSubDataARB = SDL_GL_GetProcAddress("glBufferSubDataARB");
 
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxtexturesize);
 	return surface;
