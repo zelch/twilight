@@ -15,7 +15,7 @@ Would compile mymap.map to mymap.bsp and mymap.lit, the other files (.prt, .pts)
 
 Re-vising a map:
 hmap2 -bsp2prt e1m1
-hmap2 -vis e1m1
+hmap2 -vis -e1m1
 Would recompile the vis data in e1m1, note that bsp2prt automatically makes water transparent, so this is a way to watervis your maps without using vispatch.
 (Note that quake prefers paks over regular files, so if you want the new e1m1.bsp to be loaded this would have to be done in a mod directory for quake to actually load it, or assorted other solutions)
 
@@ -33,12 +33,12 @@ Mostly tyrlite compatible - the "delay" key for light types is supported
 Light tweaking options on commandline - -radiusscale, -intensity, -defaulttype, -overridetypes
 -minlight support - raises dark areas to this level without affecting brighter areas
 -ambientlight support - raises all areas of the level by this amount
-Re-vis maps - using bsp2prt followed by vis
+Re-vis maps - using bsp2prt followed by vis (Vic)
 Make new .lit files for existing maps without modifying the .bsp - -relight and various options are useful for this
 Compiling an unsealed 'leaky' map still produces a .prt file so it can be vised
 Faster lighting - uses vis data to optimize lighting, be sure to run -vis before -light to get this speedup
 Faster vis - uses rvis optimization which has no impact on quality and is around 30% faster
-More lightmap antialiasing modes - in addition to -extra there are -extra4x4 and -extra8x8
+More lightmap antialiasing modes - in addition to -extra there are -extra4x4 and -extra8x8 (Vic added -extra8x8)
 Able to make higher performance largescale maps with -darkplaces option (most other engines can't handle huge lightmaps like this produces, be warned)
 Huge map support - up to +-32768 coordinates, make those huge levels you dreamed of!
 Increased limits to the very max of the .bsp format
@@ -49,7 +49,9 @@ Transparent water support (on by default)
 Better error reporting - often says where a problem occurred in the level, and some errors are now only warnings (such as point off plane, which tries to self correct)
 Multiple wad support - example: "wad" "wizard.wad;base.wad"
 Can disable liquid sounds using -noambient, -noambientwater, -noambientsky, -noambientslime, -noambientlava
+Can enable the unused slime sound channel using -ambientslime to make it use slime channel instead of water channel (if engine does not support this the slime is silent)
 Defaults to -level 4 vis instead of -level 2 like original vis did
+Compresses vis data more by merging vis data for identical parts of a map, saving a few k (Vic)
 
 Usage info on the hmap2 utilities:
 
@@ -84,6 +86,7 @@ options:
 -noambientslime disable ambient slime sounds (water, or -ambientslime)
 -noambientlava  disable ambient lava sounds (unused by quake)
 -noambientsky   disable ambient sky sounds (wind)
+-noreuse        disable merging of identical vis data (less compression)
 
 usage: hmap2 -light [options] bspfile
 Compiles lighting data in a .bsp and also makes .lit colored lighting data

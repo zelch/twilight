@@ -671,6 +671,7 @@ int Vis_Main( int argc, char **argv )
 "-noambientslime disable ambient slime sounds (water, or -ambientslime)\n"
 "-noambientlava  disable ambient lava sounds (unused by quake)\n"
 "-noambientsky   disable ambient sky sounds (wind)\n"
+"-noreuse        disable merging of identical vis data (less compression)\n"
 		);
 	}
 
