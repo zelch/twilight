@@ -1,4 +1,5 @@
 <?php
+	echo ("<p>&nbsp;</p>");
 	if ($browser_css) {
 		echo ("</td></tr>\n<tr><td colspan=\"2\" class=\"footer\">\n");
 	} else {
