@@ -20,8 +20,9 @@
 		"releases.&nbsp; The existing docs apply otherwise.\n"
 	);
 
-	box ("line", "<a href=\"twilight-win32-0.1.0.zip\">Win32 binaries</a>\n");
-	box ("line", "<a href=\"twilight-0.1.0.zip\">Source code</a>\n");
+	box ("line", "<a href=\"download.php/twilight-win32-0.1.0.zip\">Win32 binaries (497387 bytes) [zip]</a>\n");
+	box ("line", "<a href=\"download.php/twilight-0.1.0.zip\">Source code (1198287 bytes) [zip]</a>\n");
+	box ("line", "<a href=\"download.php/twilight-0.1.0.tar.gz\">Source code (962971 bytes) [tar.gz]</a>\n");
 
 	require ($pageroot . "/include/footer.php");
 ?>
