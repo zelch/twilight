@@ -10,4 +10,4 @@
 # command.
 #TopLevelAdmin=no
 
-LockDir=/cvs/lock
+LockDir=/cvs/lock/twilight
