@@ -16,6 +16,18 @@ float(string s) checkextension = #99;
 //	ext_setcolor = TRUE;
 //from then on you can check ext_setcolor to know if that extension is available
 
+//DP_CON_SET
+//idea: id Software
+//darkplaces implementation: LordHavoc
+//description:
+//indicates this engine supports the "set" console command which creates or sets a non-archived cvar (not saved to config.cfg on exit), it is recommended that set and seta commands be placed in default.cfg for mod-specific cvars.
+
+//DP_CON_SETA
+//idea: id Software
+//darkplaces implementation: LordHavoc
+//description:
+//indicates this engine supports the "seta" console command which creates or sets an archived cvar (saved to config.cfg on exit), it is recommended that set and seta commands be placed in default.cfg for mod-specific cvars.
+
 //DP_LITSPRITES
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
