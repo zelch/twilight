@@ -451,8 +451,10 @@ void() zombie_paine30 =[$paine30, zombie_run1   ] {zombie_heal();};
 
 void() zombie_die =
 {
-        sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
-        MonsterGibs("progs/h_zombie.mdl", 4, "", 0, "", 0);
+	self.classname = "decor"; // setup for recycling
+	self.createdtime = time + 30; // make sure it won't be replaced anytime soon
+	sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
+	MonsterGibs("progs/h_zombie.mdl", 4, "", 0, "", 0);
 };
 
 /*
