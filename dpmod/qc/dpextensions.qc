@@ -544,6 +544,24 @@ void(vector dir) vectorvectors = #432;
 //description:
 //shows that the engine supports Quake3 .md3 files.
 
+//DP_SND_DIRECTIONLESSATTNNONE
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//description:
+//make sounds with ATTN_NONE have no spatialization.
+
+//DP_SND_OGGVORBIS
+//idea: Transfusion
+//darkplaces implementation: Elric
+//description:
+//the engine supports loading Ogg Vorbis sound files. When failing to load a WAV file, it tries to open a corresponding Ogg Vorbis file instead. Before trying to load it, the engine will change the file extension to "ogg" if the file extension is "wav" ("sound/my_snd.wav" -> "sound/my_snd.ogg", but "sound/my_snd.misc" will remain unchanged for instance).
+
+//DP_SND_STEREOWAV
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//description:
+//the engine supports stereo WAV files.
+
 //DP_REGISTERCVAR
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
