@@ -56,7 +56,7 @@ void() W_GrenadeFireImpact =
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
 	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 150 * damagescale, 200, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 200, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 120, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
 };
 
 /*
@@ -74,7 +74,7 @@ void() W_GrenadeFireSticky =
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 120 * damagescale, 200, 50 * damagescale, 20 * damagescale, MINE_DETONATABLE, 60, "STICKYGRENADE", Obituary_Grenade);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 120 * damagescale, 120, 50 * damagescale, 20 * damagescale, MINE_DETONATABLE, 60, "STICKYGRENADE", Obituary_Grenade);
 };
 
 .float activemines;
@@ -113,19 +113,14 @@ void() w_grenade =
 		}
 		else if (self.button0)
 		{
-			if (self.grenademode == 0)
+			if (self.ammo_rockets >= 1)
 			{
-				if (self.ammo_rockets >= 1)
-					W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_GrenadeFireImpact);
-				else
-					self.switchweapon = W_BestWeapon(TRUE);
-			}
-			else if (self.grenademode == 1)
-			{
-				if (self.ammo_rockets >= 1)
+				if (self.grenademode == 0)
+					W_GenericSlowFireCode("weapons/grenade.wav", 0.6, W_GrenadeFireImpact);
+				else if (self.grenademode == 1)
 				{
 					if (self.activemines < 20)
-						W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_GrenadeFireSticky);
+						W_GenericSlowFireCode("weapons/grenade.wav", 0.8, W_GrenadeFireSticky);
 					else
 					{
 						if (time > self.attack_finished)
@@ -135,9 +130,9 @@ void() w_grenade =
 						}
 					}
 				}
-				else
-					self.switchweapon = W_BestWeapon(TRUE);
 			}
+			else
+				self.switchweapon = W_BestWeapon(TRUE);
 		}
 	}
 	self.oldbutton3 = self.button3;
