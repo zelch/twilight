@@ -658,17 +658,19 @@ int Vis_Main( int argc, char **argv )
 	if (i != argc - 1)
 	{
 		Error ("%s",
-"usage: hvis [options] bspfile"
+"usage: hmap2 -vis [options] bspfile\n"
+"Compiles visibility data in a .bsp, needs a .prt file\n"
 "options:\n"
 "-level 0-4      quality, default 4\n"
 "-fast           fast but bad quality vis\n"
 "-v              verbose\n"
 "-norvis         disable rvis optimization, 0.001% better quality and 30% slower\n"
-"-ambientslime   enables ambient slime sounds (reserve a channel, do not default to water)\n"
+"-ambientslime   do not convert slime channel to water (requires engine support)\n"
 "-noambient      disable ambient sounds (water bubbling, wind, etc)\n"
 "-noambientwater disable ambient water sounds (water)\n"
-"-noambientsky   disable ambient sky sounds (wind)\n"
+"-noambientslime disable ambient slime sounds (water, or -ambientslime)\n"
 "-noambientlava  disable ambient lava sounds (unused by quake)\n"
+"-noambientsky   disable ambient sky sounds (wind)\n"
 		);
 	}
 

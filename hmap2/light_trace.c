@@ -130,9 +130,11 @@ static int RecursiveTestLine (int num, float p1f, float p2f, vec3_t p1, vec3_t p
 loc0:
 	if (num < 0)
 	{
-		if (num == CONTENTS_SOLID)
+		if (!trace_trace->startcontents)
+			trace_trace->startcontents = num;
+		trace_trace->endcontents = num;
+		if (num == CONTENTS_SOLID || num == CONTENTS_SKY)
 		{
-			trace_trace->startSolid = true;
 //			VectorClear( trace_trace->filter );
 			return TESTLINESTATE_SOLID;
 		}
@@ -231,7 +233,8 @@ qboolean Light_TraceLine (lightTrace_t *trace, vec3_t start, vec3_t end)
 	trace_trace = trace;
 	trace_trace->fraction = 1.0;
 	trace_trace->plane = nullplane;
-	trace_trace->startSolid = false;
+	trace_trace->startcontents = 0;
+	trace_trace->endcontents = 0;
 	VectorSet (trace_trace->filter, 1, 1, 1);
 	VectorCopy (end, trace_trace->impact);
 

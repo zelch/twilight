@@ -18,6 +18,12 @@ qboolean	verbose;
 int			extrasamplesbit; // power of 2 extra sampling (0 = 1x1 sampling, 1 = 2x2 sampling, 2 = 4x4 sampling, etc)
 vec_t		extrasamplesscale; // 1.0 / pointspersample (extrasamples related)
 vec_t		globallightscale;
+vec_t		globallightradiusscale;
+lighttype_t	defaultlighttype;
+int			overridelighttypes;
+
+int			minlight;
+int			ambientlight;
 
 // filename to write light list to
 char lightsfilename[1024];
@@ -90,45 +96,31 @@ void ParseLightEntities( void )
 
 		l = &directlights[num_directlights++];
 		memset( l, 0, sizeof (*l) );
+
 		color2[0] = color2[1] = color2[2] = 1.0f;
 		l->color[0] = l->color[1] = l->color[2] = 1.0f;
-		l->lightoffset = LIGHTDISTBIAS;
 		GetVectorForKey( ent, "origin", l->origin );
 
-		l->falloff = FloatForKey( ent, "wait" );
-		if( !l->falloff )
-			l->falloff = DEFAULTFALLOFF;
-		l->falloff *= l->falloff; // square it for lighting calculations
-
-		l->lightradius = FloatForKey( ent, "_lightradius" );
+		l->type = defaultlighttype;
+		if (!overridelighttypes && (i = FloatForKey( ent, "delay" )))
+		{
+			if (i < 0 || i >= LIGHTTYPE_TOTAL)
+				Error("error in light at %.0f %.0f %.0f:\nunknown light type \"delay\" \"%s\"\n", l->origin[0], l->origin[1], l->origin[2], ValueForKey( ent, "delay" ));
+			l->type = i;
+		}
 
 		l->style = FloatForKey( ent, "style" );
 		if( (unsigned)l->style > 254 )
-			Error( "LoadLights: Bad light style %i (must be 0-254)", l->style );
+			Error( "error in light at %.0f %.0f %.0f:\nBad light style %i (must be 0-254)", l->origin[0], l->origin[1], l->origin[2], l->style );
 
 		l->angle = FloatForKey( ent, "angle" );
 
 		value = ValueForKey( ent, "color" );
 		if( !value[0] )
 			value = ValueForKey( ent, "_color" );
-		if( value[0] ) {
-			// scan into doubles, then assign
-			// which makes it vec_t size independent
-			if( sscanf (value, "%lf %lf %lf", &vec[0], &vec[1], &vec[2]) != 3 )
-				Error( "LoadEntities: not 3 values for color" );
-
-			// scale the color to have at least one component at 1.0
-			vec[3] = vec[0];
-			if( vec[1] > vec[3] )
-				vec[3] = vec[1];
-			if( vec[2] > vec[3] )
-				vec[3] = vec[2];
-			if( vec[3] != 0.0 )
-				vec[3] = 1.0 / vec[3];
-			color2[0] = vec[0] * vec[3];
-			color2[1] = vec[1] * vec[3];
-			color2[2] = vec[2] * vec[3];
-		}
+		if( value[0] )
+			if( sscanf (value, "%lf %lf %lf", &color2[0], &color2[1], &color2[2]) != 3 )
+				Error( "error in light at %.0f %.0f %.0f:\ncolor must be given 3 values", l->origin[0], l->origin[1], l->origin[2] );
 
 		value = ValueForKey( ent, "light" );
 		if( !value[0] )
@@ -139,40 +131,75 @@ void ParseLightEntities( void )
 
 			switch( i ) {
 				case 4:// HalfLife light
-					l->light = (int)vec[3];
-					l->color[0] = vec[0] * (1.0f / 255.0f);
-					l->color[1] = vec[1] * (1.0f / 255.0f);
-					l->color[2] = vec[2] * (1.0f / 255.0f);
-					break;
-				case 3:
-					l->light = 1;
 					l->color[0] = vec[0];
 					l->color[1] = vec[1];
 					l->color[2] = vec[2];
+					l->radius = vec[3];
 					break;
-				case 1:
-					l->light = (int)vec[0];
-					l->color[0] = 1.0f;
-					l->color[1] = 1.0f;
-					l->color[2] = 1.0f;
+				case 1: // quake light
+					l->radius = vec[0];
+					l->color[0] = vec[0];
+					l->color[1] = vec[0];
+					l->color[2] = vec[0];
 					break;
 				default:
-					Error( "LoadEntities: _light (or light) key must be 1 (Quake), 4 (HalfLife), or 3 (HLight) values, \"%s\" is not valid\n", value );
+					Error( "error in light at %.0f %.0f %.0f:\n_light (or light) key must be 1 (Quake) or 4 (HalfLife) numbers, \"%s\" is not valid\n", l->origin[0], l->origin[1], l->origin[2], value );
 			}
 		}
 
-		if( !l->light )
-			l->light = DEFAULTLIGHTLEVEL;
+		if( !l->radius )
+		{
+			l->radius = DEFAULTLIGHTLEVEL;
+			l->color[0] = DEFAULTLIGHTLEVEL;
+			l->color[1] = DEFAULTLIGHTLEVEL;
+			l->color[2] = DEFAULTLIGHTLEVEL;
+		}
 
-		// convert to subtraction to the brightness for the whole light, so it will fade nicely, rather than being clipped off
-		l->color[0] *= color2[0] * l->light * /*l->falloff */ 16384.0 * globallightscale;
-		l->color[1] *= color2[1] * l->light * /*l->falloff */ 16384.0 * globallightscale;
-		l->color[2] *= color2[2] * l->light * /*l->falloff */ 16384.0 * globallightscale;
+		// for some reason this * 0.5 is needed to match quake light
+		VectorScale(l->color, 0.5, l->color);
 
-		if( l->lightradius )
-			l->subbrightness = 1.0 / (l->lightradius * l->lightradius * l->falloff + LIGHTDISTBIAS);
-		if( l->subbrightness < (1.0 / 1048576.0) )
-			l->subbrightness = (1.0 / 1048576.0);
+		// fix tyrlite darklight radius value (but color remains negative)		
+		l->radius = fabs(l->radius);
+		
+		// apply scaling to radius
+		vec[0] = FloatForKey( ent, "wait" );
+		if( !vec[0] )
+			vec[0] = 1;
+		if (vec[0] != 1)
+		{
+			if (vec[0] <= 0.0001)
+			{
+				l->type = LIGHTTYPE_NONE;
+				l->radius = BOGUS_RANGE;
+				VectorScale(l->color, 0.25, l->color);
+			}
+			else
+				l->radius /= vec[0];
+		}
+
+		l->radius *= globallightradiusscale;
+		l->clampradius = l->radius;
+
+		switch (l->type)
+		{
+		case LIGHTTYPE_RECIPX:
+			l->clampradius = BOGUS_RANGE;
+			break;
+		case LIGHTTYPE_RECIPXX:
+			l->clampradius = BOGUS_RANGE;
+			break;
+		default:
+			break;
+		}
+
+		l->color[0] *= color2[0] * globallightscale;
+		l->color[1] *= color2[1] * globallightscale;
+		l->color[2] *= color2[2] * globallightscale;
+
+		// this confines the light to a specified radius (typically used on RECIPX and RECIPXX)
+		vec[0] = FloatForKey( ent, "_lightradius" );
+		if (vec[0])
+			l->clampradius = vec[0];
 
 		if( isLight ) {
 			value = ValueForKey( ent, "targetname" );
@@ -190,7 +217,11 @@ void ParseLightEntities( void )
 
 		value = ValueForKey( ent, "target" );
 		if( !value[0] )
+		{
+			if (l->type == LIGHTTYPE_SUN)
+				Error("error in light at %.0f %.0f %.0f:\nLIGHTTYPE_SUN (delay 4) requires a target for the sun direction\n", l->origin[0], l->origin[1], l->origin[2]);
 			continue;
+		}
 
 		for( j = 0; j < num_entities; j++ ) {
 			if( i == j )
@@ -220,7 +251,9 @@ void ParseLightEntities( void )
 		}
 
 		if( j == num_entities )	{
-			printf( "WARNING: light at (%i,%i,%i) has unmatched target\n", (int)l->origin[0], (int)l->origin[1], (int)l->origin[2]);
+			printf( "warning in light at %.0f %.0f %.0f:\nunmatched spotlight target\n", l->origin[0], l->origin[1], l->origin[2]);
+			if (l->type == LIGHTTYPE_SUN)
+				Error("error in light at %.0f %.0f %.0f:\nLIGHTTYPE_SUN (delay 4) requires a target for the sun direction\n", l->origin[0], l->origin[1], l->origin[2]);
 			continue;
 		}
 
@@ -231,7 +264,7 @@ void ParseLightEntities( void )
 
 			l->style = atof( style );
 			if( (unsigned)l->style > 254 )
-				Error( "LoadLights: Bad target light style %i (must be 0-254)", l->style );
+				Error( "error in light at %.0f %.0f %.0f:\nBad target light style %i (must be 0-254)", l->origin[0], l->origin[1], l->origin[2], l->style );
 
 			memset( s, 0, sizeof(s) );
 			sprintf( s, "%i", l->style );
@@ -242,16 +275,33 @@ void ParseLightEntities( void )
 
 void WriteLights( void )
 {
+#if 0
 	int i;
 	FILE *f;
 	directlight_t *l;
 
-	printf ("building .lights file\n");
+	if (minlight > 0 || ambientlight > 0)
+	{
+		printf("can't save .lights file - minlight or ambientlight used\n");
+		return;
+	}
+
+	for( i = 0, l = directlights; i < num_directlights; i++, l++ )
+	{
+		if (l->type != LIGHTTYPE_RECIPXX)
+		{
+			printf("can't save .lights file - .lights only supports LIGHTTYPE_RECIPXX\n");
+			return;
+		}
+	}
+
+	printf("saving .lights file for enhanced model lighting in darkplaces\n");
 
 	f = fopen( lightsfilename, "wb" );
 	for( i = 0, l = directlights; i < num_directlights; i++, l++ )
 		fprintf( f, "%f %f %f %f %f %f %f %f %f %f %f %f %f %d\n", (double)l->origin[0], (double)l->origin[1], (double)l->origin[2], (double)l->falloff, (double)l->color[0], (double)l->color[1], (double)l->color[2], (double)l->subbrightness, (double)l->spotdir[0], (double)l->spotdir[1], (double)l->spotdir[2], (double)l->spotcone, (double)l->lightoffset, l->style );
 	fclose( f );
+#endif
 }
 
 dleaf_t *Light_PointInLeaf(vec3_t point)
@@ -334,6 +384,8 @@ void LightWorld (void)
 			misccount++;
 			break;
 		}
+		if (ignorevis)
+			printf("light at origin '%f %f %f' is in solid or sky, ignoring vis\n", light->origin[0], light->origin[1], light->origin[2]);
 		if (leaf->visofs == -1 || ignorevis || !lightvis)
 		{
 			/*
@@ -430,9 +482,8 @@ void LightWorld (void)
 		if (!ent)
 			Error("FindFaceOffsets: Couldn't find entity for model %s.\n", name);
 
-		org[0] = org[1] = org[2] = 0;
-		if (!strncmp(ValueForKey (ent, "classname"), "rotate_", 7))
-			GetVectorForKey(ent, "origin", org);
+		// LordHavoc: changed this to support origins on all submodels
+		GetVectorForKey(ent, "origin", org);
 
 		for (m = 0;m < dmodels[k].numfaces;m++)
 			LightFace (dfaces + m + dmodels[k].firstface, NULL, alllight, alllights, org);
@@ -467,6 +518,11 @@ int Light_Main (int argc, char **argv)
 	lightvis = true;
 	relight = false;
 	globallightscale = 1.0;
+	globallightradiusscale = 1.0;
+	minlight = 0;
+	ambientlight = 0;
+	defaultlighttype = LIGHTTYPE_MINUSX;
+	overridelighttypes = false;
 
 	for (i=1 ; i<argc ; i++)
 	{
@@ -504,6 +560,47 @@ int Light_Main (int argc, char **argv)
 			if (globallightscale < 0.01)
 				globallightscale = 0.01;
 		}
+		else if (!strcmp(argv[i],"-radiusscale"))
+		{
+			i++;
+			if (i >= argc)
+				Error("no value was given to -radiusscale\n");
+			globallightradiusscale = atof(argv[i]);
+			if (globallightradiusscale < 0.01)
+				globallightradiusscale = 0.01;
+		}
+		else if (!strcmp(argv[i],"-minlight"))
+		{
+			i++;
+			if (i >= argc)
+				Error("no value was given to -minlight\n");
+			minlight = atof(argv[i]);
+			if (minlight < 0)
+				minlight = 0;
+		}
+		else if (!strcmp(argv[i],"-ambientlight"))
+		{
+			i++;
+			if (i >= argc)
+				Error("no value was given to -ambientlight\n");
+			ambientlight = atof(argv[i]);
+			if (ambientlight < 0)
+				ambientlight = 0;
+		}
+		else if (!strcmp(argv[i],"-defaulttype"))
+		{
+			i++;
+			if (i >= argc)
+				Error("no value was given to -defaulttype\n");
+			defaultlighttype = atoi(argv[i]);
+			if (defaultlighttype < 0 || defaultlighttype >= LIGHTTYPE_TOTAL)
+				Error("invalid value given to -defaulttype\n");
+		}
+		else if (!strcmp(argv[i],"-overridetypes"))
+		{
+			printf("overriding all light types with current default\n");
+			overridelighttypes = true;
+		}
 		else if (argv[i][0] == '-')
 			Error ("Unknown option \"%s\"", argv[i]);
 		else
@@ -515,17 +612,34 @@ int Light_Main (int argc, char **argv)
 // LordHavoc
 	if (i != argc - 1)
 		Error ("%s",
-"usage: hlight [options] bspfile\n"
+"usage: hmap2 -light [options] bspfile\n"
+"Compiles lighting data in a .bsp and also makes .lit colored lighting data\n"
 "Quick usage notes for entities: (place these in key/value pairs)\n"
-"wait - falloff rate (1.0 default, 0.5 = bigger radius, 2 = smaller, affects area the light covers)\n"
-"_color - 3 values (red green blue), specifies color of light, the scale of the numbers does not matter (\"1 3 2.5\" is identical to \"1000 3000 2500\")\n"
-"_lightradius - limits light to this radius (and darkens light to make it blend well at the edges)\n"
+"wait - falloff rate: 1.0 default, 0.5 = double radius, 2 = half radius\n"
+"_color - red green blue, specifies color of light, example 1 0.6 0.3 is orange\n"
+"_lightradius - forces light to be this radius (useful with 1/ types)\n"
+"delay - light type: (x = distance of surface from light, r = radius)\n"
+"0: 1-(x/r)    fast, quake lighting, the default, tyrlite compatible\n"
+"1: 1/(x)      slow, tyrlite compatible\n"
+"2: 1/(x*x)    slow, realistic, tyrlite compatible\n"
+"3: 1          fast, no fade, useful for sky lights, tyrlite compatible\n"
+"4: sun        slow, directional sunlight, uses target direction like spotlights\n"
+"5: 1-x/r*x/r  fast, looks like darkplaces/tenebrae lights\n"
 "What the options do:\n"
-"-extra         antialiased lighting (takes much longer, higher quality)\n"
-"-extra4x4      antialiased lighting (even slower and higher quality than -extra)\n"
-"-extra8x8      antialiased lighting (even slower and higher quality than -extra4x4)\n"
-"-nolightvis    disables use of visibility data to optimize lighting\n"
-"-relight       makes a .lit file for an existing map without modifying the .bsp\n"
+"-extra        antialiased lighting, takes much longer, higher quality\n"
+"-extra4x4     antialiased lighting, even slower and better than -extra\n"
+"-extra8x8     antialiased lighting, even slower and better than -extra4x4\n"
+"-nolightvis   disables use of visibility data to optimize lighting\n"
+"-relight      make a .lit file for an existing .bsp without modifying the .bsp\n"
+"Options from here on are incompatible with darkplaces realtime lighting mode\n"
+"(it does not know if these options are used, and will require manual rtlights\n"
+" editing to look good)\n"
+"-intensity    scales brightness of all lights\n"
+"-radiusscale  scales size of all lights (including 1/ types)\n"
+"-defaulttype <number> sets default light type by number, see delay above\n"
+"-overridetypes forces all lights to use the -defaulttype setting\n"
+"-minlight     raises darkest areas of the map to this light level (0-255)\n"
+"-ambientlight raises all of the map by this light level (0-255)\n"
 		);
 
 	// init memory

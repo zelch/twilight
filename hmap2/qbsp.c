@@ -260,11 +260,13 @@ int main (int argc, char **argv)
 	if (i != argc - 2 && i != argc - 1)
 error:
 		Error ("%s",
-"usage: hqbsp [options] sourcefile [destfile]\n"
-"options:\n"
-"-bsp2prt    builds .prt file for .bsp, run -bsp2prt as the first parameter for more\n"
+"usage: hmap2 [options] sourcefile [destfile]\n"
+"Compiles .map to .bsp, does not compile vis or lighting data\n"
+"other utilities available:\n"
+"-bsp2prt    bsp2prt utility, run -bsp2prt as the first parameter for more\n"
 "-light      lighting utility, run -light as the first parameter for more\n"
 "-vis        vis utility, run -vis as the first parameter for more\n"
+"options:\n"
 "-nowater    disable watervis; r_wateralpha in glquake will not work right\n"
 "-notjunc    disable tjunction fixing; glquake will have holes between polygons\n"
 "-nofill     disable sealing of map and vis, used for ammoboxes\n"

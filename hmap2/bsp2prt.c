@@ -104,7 +104,8 @@ int Bsp2Prt_Main( int argc, char **argv )
 
 	if( argc < 2 ) {
 		Error ("%s",
-"usage: bsp2prt sourcefile\n"
+"usage: hmap2 -bsp2prt sourcefile\n"
+"Makes a .prt file from a .bsp, to allow it to be vised\n"
 		);
 	}
 

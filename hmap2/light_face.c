@@ -352,6 +352,78 @@ FACE LIGHTING
 
 int		c_culldistplane, c_proper;
 
+int SingleLightFace_FindMapNum(lightinfo_t *l, int style)
+{
+	int mapnum;
+	for (mapnum = 0;mapnum < MAXLIGHTMAPS;mapnum++)
+	{
+		if (l->lightstyles[mapnum] == style)
+			break;
+		if (l->lightstyles[mapnum] == 255)
+		{
+			if (relight)
+				return MAXLIGHTMAPS;
+			// cleared already
+			//memset(l->sample[mapnum], 0, sizeof(lightsample_t) * l->numsamples);
+			l->lightstyles[mapnum] = style;
+			break;
+		}
+	}
+
+	if (mapnum == MAXLIGHTMAPS)
+		printf ("WARNING: Too many light styles on a face\n");
+	return mapnum;
+}
+
+void SingleLightFace_Sun (directlight_t *light, lightinfo_t *l)
+{
+	vec_t			shade;
+	vec3_t			testpos, c;
+	int				mapnum;
+	int				i;
+	lightpoint_t	*point;
+	lightsample_t	*sample;
+	lightTrace_t	tr;
+
+	// ignore backfaces
+	shade = -DotProduct (light->spotdir, l->facenormal);
+	if (shade <= 0)
+		return;
+	// LordHavoc: FIXME: decide this 0.5 bias based on shader properties (some are dull, some are shiny)
+	shade = (shade * 0.5 + 0.5);
+
+	// mapnum won't be allocated until some light hits the surface
+	mapnum = -1;
+	c_proper++;
+
+	for (i = 0, point = l->point;i < l->numpoints;i++, point++)
+	{
+		// LordHavoc: changed to be more realistic (entirely different lighting model)
+		// LordHavoc: FIXME: use subbrightness on all lights, simply to have some distance culling
+		VectorMA(point->v, 131072, light->spotdir, testpos);
+		// if trace hits solid don't cast sun
+		if (point->occluded || (!Light_TraceLine(&tr, point->v, testpos) && tr.endcontents == CONTENTS_SOLID))
+			continue;
+
+		c[0] = shade * light->color[0] * tr.filter[0];
+		c[1] = shade * light->color[1] * tr.filter[1];
+		c[2] = shade * light->color[2] * tr.filter[2];
+
+		// ignore colors too dim
+		if (DotProduct(c, c) < (1.0 / 32.0))
+			continue;
+
+		// if there is some light, alloc a style for it
+		if (mapnum < 0)
+			if ((mapnum = SingleLightFace_FindMapNum(l, light->style)) >= MAXLIGHTMAPS)
+				return;
+
+		// accumulate the lighting
+		sample = &l->sample[mapnum][point->samplepos];
+		VectorMA(sample->c, extrasamplesscale, c, sample->c);
+	}
+}
+
 /*
 ================
 SingleLightFace
@@ -359,148 +431,88 @@ SingleLightFace
 */
 void SingleLightFace (directlight_t *light, lightinfo_t *l)
 {
-	vec_t			dist, idist;
-	//vec_t			lightbrightness;
-	vec_t			lightsubtract;
-	vec_t			lightfalloff;
-	vec3_t			incoming;
+	vec_t			dist, idist, dist2, dist3, rad2;
+	vec3_t			incoming, c;
 	vec_t			add;
-	qboolean		hit;
 	int				mapnum;
 	int				i;
-	vec3_t			spotvec;
-	vec_t			spotcone;
 	lightpoint_t	*point;
 	lightsample_t	*sample;
 	lightTrace_t	tr;
 
+	if (light->type == LIGHTTYPE_SUN)
+	{
+		SingleLightFace_Sun(light, l);
+		return;
+	}
+
 	dist = (DotProduct (light->origin, l->facenormal) - l->facedist);
 
 // don't bother with lights behind the surface
-	if (dist < -0.25)
+	if (dist < 0)
 		return;
 
-	//lightbrightness = light->light * 16384.0;
-	lightfalloff = light->falloff;
-	lightsubtract = light->subbrightness;
 // don't bother with light too far away
-	if (lightsubtract > (1.0 / (dist * dist * lightfalloff + LIGHTDISTBIAS)))
+	if (dist > light->radius)
 	{
 		c_culldistplane++;
 		return;
 	}
 
-	for (mapnum = 0;mapnum < MAXLIGHTMAPS;mapnum++)
-	{
-		if (l->lightstyles[mapnum] == light->style)
-			break;
-		if (l->lightstyles[mapnum] == 255)
-		{
-			if (relight)
-				return;
-			memset(l->sample[mapnum], 0, sizeof(lightsample_t) * l->numsamples);
-			break;
-		}
-	}
-
-	if (mapnum == MAXLIGHTMAPS)
-	{
-		printf ("WARNING: Too many light styles on a face\n");
-		return;
-	}
-
-	spotcone = light->spotcone;
-	VectorCopy(light->spotdir, spotvec);
-
-//
-// check it for real
-//
-	hit = relight; // if relighting, the style is already considered used
+	// mapnum won't be allocated until some light hits the surface
+	mapnum = -1;
 	c_proper++;
 
 	for (i = 0, point = l->point;i < l->numpoints;i++, point++)
 	{
 		VectorSubtract (light->origin, point->v, incoming);
 		dist = sqrt(DotProduct(incoming, incoming));
-		if (!dist)
+		if (!dist || dist > light->radius)
 			continue;
 		idist = 1.0 / dist;
 		VectorScale( incoming, idist, incoming );
 
 		// spotlight
-		if (spotcone > 0 && DotProduct (spotvec, incoming) > spotcone)
+		if (light->spotcone && DotProduct (light->spotdir, incoming) > light->spotcone)
 			continue;
 
-		// LordHavoc: changed to be more realistic (entirely different lighting model)
-		// LordHavoc: FIXME: use subbrightness on all lights, simply to have some distance culling
-		add = 1.0 / (dist * dist * lightfalloff + LIGHTDISTBIAS) - lightsubtract; // LordHavoc: added subbrightness
-		if (add <= 0)
-			continue;
+		//printf("light->type %i\n", light->type);
+		dist2 = dist / light->radius;
+		dist3 = dist / light->clampradius;
+		rad2 = light->clampradius / light->radius;
+		switch(light->type)
+		{
+		case LIGHTTYPE_MINUSX:  add = (1.0 - (dist2        )) - (1.0 - (rad2       )) * dist3;break;
+		case LIGHTTYPE_MINUSXX: add = (1.0 - (dist2 * dist2)) - (1.0 - (rad2 * rad2)) * dist3;break;
+		case LIGHTTYPE_RECIPX:  add = (1.0 / (dist2        )) - (1.0 / (rad2       )) * dist3;break;
+		case LIGHTTYPE_RECIPXX: add = (1.0 / (dist2 * dist2)) - (1.0 / (rad2 * rad2)) * dist3;break;
+		//case LIGHTTYPE_RECIPXX: add = (1.0 / ((light->distbias + dist) * (light->distbias + dist)) * (light->distscale * light->distscale)) - (1.0 / (((light->distbias + light->radius) * (light->distbias + light->radius)) * (light->distscale * light->distscale))) * (dist / light->radius);break;
+		default: add = 1.0;break;
+		}
 
-		if (point->occluded || !Light_TraceLine(&tr, point->v, light->origin))
+		if (add <= 0 || point->occluded || !Light_TraceLine(&tr, point->v, light->origin) || tr.startcontents == CONTENTS_SOLID)
 			continue;
 
 		// LordHavoc: FIXME: decide this 0.5 bias based on shader properties (some are dull, some are shiny)
-		add *= (DotProduct (incoming, l->facenormal) * 0.5 + 0.5);
-		add *= extrasamplesscale;
+		add = add * (DotProduct (incoming, l->facenormal) * 0.5 + 0.5);
+		c[0] = add * light->color[0] * tr.filter[0];
+		c[1] = add * light->color[1] * tr.filter[1];
+		c[2] = add * light->color[2] * tr.filter[2];
+
+		// ignore colors too dim
+		if (DotProduct(c, c) < (1.0 / 32.0))
+			continue;
+
+		// if there is some light, alloc a style for it
+		if (mapnum < 0)
+			if ((mapnum = SingleLightFace_FindMapNum(l, light->style)) >= MAXLIGHTMAPS)
+				return;
+
+		// accumulate the lighting
 		sample = &l->sample[mapnum][point->samplepos];
-		sample->c[0] += add * light->color[0] * tr.filter[0];
-		sample->c[1] += add * light->color[1] * tr.filter[1];
-		sample->c[2] += add * light->color[2] * tr.filter[2];
-		// ignore real tiny lights
-		if (!hit && ((sample->c[0]+sample->c[1]+sample->c[2]) >= 1))
-			hit = true;
+		VectorMA(sample->c, extrasamplesscale, c, sample->c);
 	}
-
-	// if the style has some data now, make sure it is in the list
-	if (hit)
-		l->lightstyles[mapnum] = light->style;
 }
-
-/*
-============
-FixMinlight
-============
-*/
-/*
-void FixMinlight (lightinfo_t *l)
-{
-	int				i, j;
-	lightsample_t	*sample;
-
-// if minlight is set, there must be a style 0 light map
-	if (!minlight)
-		return;
-
-	for (i = 0;i < l->numlightstyles;i++)
-	{
-		if (l->lightstyles[i] == 0)
-		{
-			for (j = 0, sample = l->sample[i];j < l->numsamples;j++, sample++)
-			{
-				if (sample->c[0] < minlight)
-					sample->c[0] = minlight;
-				if (sample->c[1] < minlight)
-					sample->c[1] = minlight;
-				if (sample->c[2] < minlight)
-					sample->c[2] = minlight;
-			}
-			return;
-		}
-	}
-
-	if (l->numlightstyles == MAXLIGHTMAPS)
-		return;		// oh well..
-	for (j = 0, sample = l->sample[i];j < l->numsamples;j++, sample++)
-	{
-		sample->c[0] = minlight;
-		sample->c[1] = minlight;
-		sample->c[2] = minlight;
-	}
-	l->lightstyles[i] = 0;
-	l->numlightstyles++;
-}
-*/
 
 int ranout = false;
 
@@ -520,7 +532,7 @@ void LightFace (dface_t *f, lightchain_t *lightchain, directlight_t **novislight
 	//memset (&l, 0, sizeof(l));
 	l.face = f;
 	if( !l.point )
-		l.point = qmalloc( SINGLEMAP * (1<<extrasamplesbit)*(1<<extrasamplesbit) );
+		l.point = qmalloc(sizeof(lightpoint_t) * SINGLEMAP * (1<<extrasamplesbit)*(1<<extrasamplesbit) );
 
 //
 // some surfaces don't need lightmaps
@@ -563,15 +575,19 @@ void LightFace (dface_t *f, lightchain_t *lightchain, directlight_t **novislight
 	if (l.numsamples > SINGLEMAP)
 		Error ("Bad lightmap size");
 
+	// clear all the samples to 0
+	for (i = 0;i < MAXLIGHTMAPS;i++)
+		memset(l.sample[i], 0, sizeof(lightsample_t) * l.numsamples);
+
+	// if -minlight or -ambientlight is used we always allocate style 0
+	if (minlight > 0 || ambientlight > 0)
+		l.lightstyles[0] = 0;
+
 	if (relight)
 	{
 		// reserve the correct light styles
 		for (i = 0;i < MAXLIGHTMAPS;i++)
-		{
 			l.lightstyles[i] = f->styles[i];
-			if (l.lightstyles[i] != 255)
-				memset(l.sample[i], 0, sizeof(lightsample_t) * l.numsamples);
-		}
 	}
 
 //
@@ -585,7 +601,18 @@ void LightFace (dface_t *f, lightchain_t *lightchain, directlight_t **novislight
 	while (novislights--)
 		SingleLightFace (*novislight++, &l);
 
-	//FixMinlight (&l);
+	// apply ambientlight if needed
+	if (ambientlight > 0)
+		for (i = 0;i < l.numsamples;i++)
+			for (j = 0;j < 3;j++)
+				l.sample[0][i].c[j] += ambientlight;
+
+	// apply minlight if needed
+	if (minlight > 0)
+		for (i = 0;i < l.numsamples;i++)
+			for (j = 0;j < 3;j++)
+				if (l.sample[0][i].c[j] < minlight)
+					l.sample[0][i].c[j] = minlight;
 
 // save out the values
 
