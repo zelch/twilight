@@ -1,4 +1,5 @@
 #! /bin/sh
 
-curl http://twilight.sourceforge.net/update-the-f00king-website.php
+# Disabled pending rewrite for icculus
+#curl http://twilight.sourceforge.net/update-the-f00king-website.php
 
