@@ -14,6 +14,12 @@ void() info_notnull =
 {
 };
 
+void() misc_teleporter_dest =
+{
+	info_teleport_destination();
+};
+
+
 void() info_target_train_find =
 {
 	local entity targ;

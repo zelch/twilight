@@ -770,6 +770,8 @@ void() PutClientInServer =
 	self.view_ofs = '0 0 22';
 
 	setorigin(self, spot.origin + '0 0 1');
+	// don't snap back to where you died (oldorigin) if the map has a misplaced spawn entity
+	self.oldorigin = self.origin;
 
 	self.iscorpse = FALSE;
 
