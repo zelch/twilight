@@ -7,8 +7,8 @@
 			"Older News" => "/info/oldnews.php"
 		) ,
 		Downloads => array (
-			"Releases" => "/files/index.php" ,
-			"Other Files" => "/files/other.php" ,
+			"Releases" => "/releases/index.php" ,
+			"Other Files" => "/files/index.php" ,
 			"CVS Snapshots" => "/cvs/index.php"
 		) ,
 		"Contacting Us" => array (

@@ -1,6 +1,6 @@
 <?php
 
-	require ($pageroot . "/config/wtc.php");
+	require ($pageroot . "/config/default.php");
 	require ($pageroot . "/config/pages.php");
 	require ($pageroot . "/config/people.php");
 
