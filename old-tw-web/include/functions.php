@@ -1,6 +1,8 @@
 <?php
 	function email ($person)
 	{
+		global $userinfo;
+
 		return "<a href=\"mailto:" . $userinfo[$person]["Email"] . "\">" .
 			$person . "</a>";
 	}

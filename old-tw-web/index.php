@@ -5,7 +5,7 @@
 
 	box ("title", "Recent News");
 
-    newsitem ("02 Aug 2001", "knghtbrd", "We've got a bit nicer logo now\n" .
+    newsitem ("02 Aug 2001", "Knghtbrd", "We've got a bit nicer logo now\n" .
 		"thanks to some ideas given by everyone and my stubborn refusal\n" .
 		"to let gimp have the last laugh with the old one.&nbsp; I'm sure\n" .
 		"we can all agree the last one sucked.&nbsp; Thanks to everyone\n" .
@@ -23,7 +23,7 @@
 		"to do one.  The new website layout I've been working on is now\n" .
 		"up, if you couldn't tell.&nbsp; ;)&nbsp; I am also happy to\n" .
 		"report that the engine compiles on win32 in VC++ 4 and 6 thanks\n" .
-		"to " . email (LordHavoc) . " and " . email (Vic) . ".&nbsp\n" .
+		"to " . email (LordHavoc) . " and " . email (digiman) . ".&nbsp\n" .
 		email (zinx) . " made the code use auto* for Linux people,\n" .
 		"although with today being the last day of\n" .
 		"<a href=\"http://qexpo.condemned.com/\">QExpo</a>, it is\n" .
