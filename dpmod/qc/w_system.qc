@@ -380,7 +380,7 @@ void() W_ChangeWeapon =
 		self.impulse = self.impulse - 200;
 	//bprintfloat(self.impulse);
 	//bprint(" changeweapon\n");
-	W_Cycle(self.impulse, FALSE);
+	W_Cycle(self.impulse, TRUE);
 	self.impulse = 0;
 };
 
@@ -455,10 +455,10 @@ void() CheatCommand =
 	if (self.health < 1)
 		return;
 
-	Inventory_SetQuantity(self, "shells", AMMOMAX_SHELLS);
-	Inventory_SetQuantity(self, "nails", AMMOMAX_NAILS);
-	Inventory_SetQuantity(self, "rockets", AMMOMAX_ROCKETS);
-	Inventory_SetQuantity(self, "cells", AMMOMAX_SHELLS);
+	Inventory_SetQuantity(self, "shells", 9999);
+	Inventory_SetQuantity(self, "nails", 9999);
+	Inventory_SetQuantity(self, "rockets", 9999);
+	Inventory_SetQuantity(self, "cells", 9999);
 	/*
 	self.items = self.items
 	 | IT_WEAPON1
@@ -2163,6 +2163,1422 @@ float(float request) w_laserrifle =
 	return TRUE;
 };
 
+float AXE_DAMAGE = 20;
+float AXE_REFIRE = 0.5;
+
+float CHAINSAW_DAMAGE = 15;
+float CHAINSAW_REFIRE = 0.1;
+
+float HANDGRENADE_DAMAGE = 120;
+float HANDGRENADE_RADIUS = 200;
+float HANDGRENADE_REFIRE = 0.9;
+
+float HOPPER_DAMAGE = 120;
+float HOPPER_RADIUS = 200;
+float HOPPER_REFIRE = 0.6;
+
+float PRICKLER_DAMAGE = 25;
+float PRICKLER_REFIRE = 0.6;
+
+float SCATTERGUN_DAMAGE = 25;
+float SCATTERGUN_AMMO = 7;
+float SCATTERGUN_REFIRE = 0.9;
+
+float RIFLE_DAMAGE = 90;
+float RIFLE_REFIRE = 0.9;
+
+float MACHINEGUN_DAMAGE = 25;
+float MACHINEGUN_REFIRE = 0.1;
+
+float VULCAN_DAMAGE = 25;
+float VULCAN_REFIRE = 0.05;
+
+float EXECUTIONER_DAMAGE = 90;
+float EXECUTIONER_RADIUS = 90;
+float EXECUTIONER_REFIRE = 0.5;
+
+float JACKHAMMER_DAMAGE = 90;
+float JACKHAMMER_RADIUS = 90;
+float JACKHAMMER_RAPIDREFIRE = 0.2;
+float JACKHAMMER_SINGLEREFIRE = 0.5;
+
+float GRENADELAUNCHER2_DAMAGE = 120;
+float GRENADELAUNCHER2_AMMO = 3;
+float GRENADELAUNCHER2_RADIUS = 200;
+float GRENADELAUNCHER2_REFIRE = 0.6;
+
+float BACKPACKMORTAR_DAMAGE = 100;
+float BACKPACKMORTAR_AMMO = 3;
+float BACKPACKMORTAR_RADIUS = 250;
+float BACKPACKMORTAR_REFIRE = 0.6;
+
+float INCINERATOR_DAMAGE = 40;
+float INCINERATOR_REFIRE = 0.05;
+
+float RAILGUN_DAMAGE = 90;
+float RAILGUN_REFIRE = 0.9;
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Axe =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was axeed by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_axe =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_axe.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return TRUE;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = 0;
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		{
+			W_Hostile();
+			// FIXME: this needs to animate the player model too
+			f = random() * 4;
+			if (f < 1)
+				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE); // player_axe
+			else if (f < 2)
+				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE); // player_axeb
+			else if (f < 3)
+				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE); // player_axec
+			else
+				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE); // player_axed
+			// FIXME: damage code should be on third animation frame
+			// change solid type so the traceline hits SOLID_CORPSE
+			f = self.solid;
+			self.solid = SOLID_BBOX;
+			traceline (shotorg, shotorg + shotdir * 64, FALSE, self);
+			self.solid = f;
+			if (trace_fraction < 1)
+			{
+				if (trace_ent.solid == SOLID_BSP)
+				{
+					sound (self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
+					te_gunshot(trace_endpos - shotdir * 4);
+				}
+				T_Damage (trace_ent, self, self, AXE_DAMAGE, AXE_DAMAGE, "AXE", DT_CUT, trace_endpos - shotdir * 4, '0 0 0', Obituary_Axe);
+			}
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Chainsaw =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was chainsawed by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+.float chainsaw_finished;
+float(float request) w_chainsaw =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_saw.mdl");
+		precache_sound("weapons/sawidle.wav");
+		precache_sound("weapons/sawridle.wav");
+		precache_sound("weapons/sawatck.wav");
+		precache_sound("weapons/sawguts.wav");
+		registerweapon(1, "Chainsaw", w_chainsaw, "chainsaw", VWEP_AXE, "progs/v_saw.mdl", 0, 0, 2000, CHAINSAW_DAMAGE / CHAINSAW_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return TRUE;
+	if (request == WR_SETUP)
+	{
+		self.chainsaw_finished = time + 4;
+		sound(self, CHAN_AUTO, "weapons/sawidle.wav", 1, ATTN_STATIC);
+		//wsetanim(WANIM_LOWER, 8, -2, 0.2);
+		wsetanim(WANIM_READY, 0, 5, 0.5);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 5, 0.5);
+		return TRUE;
+	}
+	if (request == WR_ANIMATIONFRAME)
+	{
+		if (self.wanim_id == WANIM_FIRE1)
+		{
+			W_Hostile();
+
+			// change solid type so the traceline hits SOLID_CORPSE
+			f = self.solid;
+			self.solid = SOLID_BBOX;
+			traceline (shotorg, shotorg + shotdir * 64, FALSE, self);
+			self.solid = f;
+
+			if (trace_fraction < 1)
+			{
+				if (trace_ent.solid == SOLID_BSP)
+				{
+					sound (self, CHAN_AUTO, "player/axhit2.wav", 1, ATTN_NORM);
+					te_gunshot(trace_endpos - shotdir * 4);
+				}
+				if (trace_ent.iscreature)
+					sound(self, CHAN_AUTO, "weapons/sawguts.wav", 1, ATTN_STATIC);
+				T_Damage (trace_ent, self, self, CHAINSAW_DAMAGE, CHAINSAW_DAMAGE, "CHAINSAW", DT_CUT, trace_endpos - shotdir * 4, '0 0 0', Obituary_Chainsaw);
+			}
+		}
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = 0;
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 5, 0.5);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (time >= self.chainsaw_finished)
+		{
+			self.chainsaw_finished = time + random() * 0.6 + 0.8;
+			sound(self, CHAN_WEAPON, "weapons/sawridle.wav", 1, ATTN_STATIC);
+		}
+		if (time >= self.wanim_endtime)
+		{
+			wsetanim(WANIM_READY, 0, 5, 0.5);
+		}
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			//wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			wswitch();
+			return TRUE;
+		}
+		if (self.button0)
+		{
+			self.chainsaw_finished = time + random() * 0.6 + 0.8;
+			sound(self, CHAN_WEAPON, "weapons/sawatck.wav", 1, ATTN_STATIC);
+			wsetanim(WANIM_FIRE1, 5, 6, CHAINSAW_REFIRE * 6);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.chainsaw_finished)
+		{
+			self.chainsaw_finished = time + random() * 0.6 + 0.8;
+			sound(self, CHAN_WEAPON, "weapons/sawatck.wav", 1, ATTN_STATIC);
+		}
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 5, 0.5);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Hopper =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was blasted by a hopper from ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_hopper =
+{
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dprock.mdl");
+		precache_model("progs/grenade.mdl");
+		precache_sound("weapons/grenade.wav");
+		precache_sound("weapons/bounce.wav");
+		registerweapon(1, "Hopper ", w_hopper, "hopper", VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl", IT_ROCKETS, 0, 2000, HOPPER_DAMAGE / HOPPER_REFIRE, WANIMTYPE_ROCKET);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "rockets") > 0;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "rockets");
+	if (self.aimtarg) // bot target
+		self.button0 = w_grenadeattackaim(1000, 2);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0 || self.button3)
+		if (Inventory_Quantity(self, "rockets") > 0)
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "rockets", -1);
+			w_muzzleflash(shotorg, 2);
+			if (self.button0)
+				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, HOPPER_DAMAGE, HOPPER_RADIUS, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "HOPPER", Obituary_Hopper);
+			else
+				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, HOPPER_DAMAGE, HOPPER_RADIUS, GRENADE_IMMUNETODAMAGE, 3, "HOPPER", Obituary_Hopper);
+			wsetanim(WANIM_FIRE1, 1, 6, HOPPER_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Grenade3 =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was blasted by a grenade from ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_handgrenade =
+{
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dprock.mdl");
+		precache_model("progs/grenade.mdl");
+		precache_sound("weapons/grenade.wav");
+		precache_sound("weapons/bounce.wav");
+		registerweapon(1, "Grenade", w_handgrenade, "handgrenade", VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl", IT_ROCKETS, 0, 2000, HANDGRENADE_DAMAGE / HANDGRENADE_REFIRE, WANIMTYPE_ROCKET);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "rockets") > 0;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "rockets");
+	if (self.aimtarg) // bot target
+		self.button0 = w_grenadeattackaim(1000, 2);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0 || self.button3)
+		if (Inventory_Quantity(self, "rockets") > 0)
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "rockets", -1);
+			w_muzzleflash(shotorg, 2);
+			if (self.button0)
+				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, HANDGRENADE_DAMAGE, HANDGRENADE_RADIUS, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade3);
+			else
+				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, HANDGRENADE_DAMAGE, HANDGRENADE_RADIUS, GRENADE_IMMUNETODAMAGE, 3, "GRENADE", Obituary_Grenade3);
+			wsetanim(WANIM_FIRE1, 1, 6, HANDGRENADE_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Prickler =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was prickled by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_prickler =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(2, "Prickler", w_prickler, "prickler", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, PRICKLER_DAMAGE / PRICKLER_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "nails");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "nails");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "nails"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "nails", -1);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, 1, PRICKLER_DAMAGE, PRICKLER_DAMAGE, 0, 0, shotdir * 10000, 0.025, "PRICKLER", DT_NAIL, Obituary_Prickler);
+			wsetanim(WANIM_FIRE1, 1, 0, PRICKLER_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Scattergun =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was prickled by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_scattergun =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/shotgn2.wav");
+		registerweapon(2, "Scattergun", w_scattergun, "scattergun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, SCATTERGUN_DAMAGE * SCATTERGUN_AMMO / SCATTERGUN_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "nails");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "nails");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "nails"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
+			f = Inventory_Quantity(self, "nails");
+			if (f > SCATTERGUN_AMMO)
+				f = SCATTERGUN_AMMO;
+			Inventory_AdjustQuantity(self, "nails", 0 - f);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, f, SCATTERGUN_DAMAGE, SCATTERGUN_DAMAGE, 0, 0, shotdir * 10000, 0.05, "SCATTERGUN", DT_NAIL, Obituary_Scattergun);
+			wsetanim(WANIM_FIRE1, 1, 0, SCATTERGUN_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Rifle =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was eliminated by a rifle round from ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_rifle =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(3, "Rifle", w_rifle, "rifle", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, RIFLE_DAMAGE / RIFLE_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "shells");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "shells");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "shells"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "shells", -1);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, 1, RIFLE_DAMAGE, RIFLE_DAMAGE, 0, 0, shotdir * 10000, 0, "RIFLE", DT_NAIL, Obituary_Rifle);
+			wsetanim(WANIM_FIRE1, 1, 0, RIFLE_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Machinegun =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was machinegunned by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_machinegun =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(4, "Machinegun", w_machinegun, "machinegun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, MACHINEGUN_DAMAGE / MACHINEGUN_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "nails");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "nails");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "nails"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "nails", -1);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, 1, MACHINEGUN_DAMAGE, MACHINEGUN_DAMAGE, 0, 0, shotdir * 10000, 0.025, "MACHINEGUN", DT_NAIL, Obituary_Machinegun);
+			wsetanim(WANIM_FIRE1, 1, 0, MACHINEGUN_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Vulcan =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was vulcanned by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_vulcan =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(5, "Vulcan", w_vulcan, "vulcan", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, VULCAN_DAMAGE / VULCAN_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "nails");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "nails");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "nails"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "nails", -1);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, 1, VULCAN_DAMAGE, VULCAN_DAMAGE, 0, 0, shotdir * 10000, 0.05, "VULCAN", DT_NAIL, Obituary_Vulcan);
+			wsetanim(WANIM_FIRE1, 1, 0, VULCAN_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Executioner =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was executionerned by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_executioner =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(6, "Executioner", w_executioner, "executioner", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, EXECUTIONER_DAMAGE / EXECUTIONER_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "rockets");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "rockets");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "rockets"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "rockets", -1);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, 1, 0, 0, EXECUTIONER_DAMAGE, EXECUTIONER_RADIUS, shotdir * 10000, 0.025, "EXECUTIONER", DT_NAIL, Obituary_Executioner);
+			wsetanim(WANIM_FIRE1, 1, 0, EXECUTIONER_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Jackhammer =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was jackhammerned by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_jackhammer =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(6, "Jackhammer", w_jackhammer, "jackhammer", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, JACKHAMMER_DAMAGE / JACKHAMMER_RAPIDREFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "rockets");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "rockets");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "rockets"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "rockets", -1);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, 1, 0, 0, JACKHAMMER_DAMAGE, JACKHAMMER_RADIUS, shotdir * 10000, 0.05, "JACKHAMMER", DT_NAIL, Obituary_Jackhammer);
+			wsetanim(WANIM_FIRE1, 1, 0, JACKHAMMER_RAPIDREFIRE);
+			return TRUE;
+		}
+		if (self.button3)
+		if (Inventory_Quantity(self, "rockets"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "rockets", -1);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, 1, 0, 0, JACKHAMMER_DAMAGE, JACKHAMMER_RADIUS, shotdir * 10000, 0.0125, "JACKHAMMER", DT_NAIL, Obituary_Jackhammer);
+			wsetanim(WANIM_FIRE1, 1, 0, JACKHAMMER_SINGLEREFIRE);
+			return TRUE;
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Grenade2 =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was blasted by a grenade from ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_grenadelauncher2 =
+{
+	local float f;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dprock.mdl");
+		precache_model("progs/grenade.mdl");
+		precache_sound("weapons/grenade.wav");
+		precache_sound("weapons/bounce.wav");
+		registerweapon(7, "Grenade Launcher", w_grenadelauncher2, "grenadelauncher", VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl", IT_ROCKETS, 0, 2000, GRENADELAUNCHER2_DAMAGE / GRENADELAUNCHER2_REFIRE, WANIMTYPE_ROCKET);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "rockets") > 0;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "rockets");
+	if (self.aimtarg) // bot target
+		self.button0 = w_grenadeattackaim(1000, 2);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0 || self.button3)
+		if (Inventory_Quantity(self, "rockets") > 0)
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
+			f = Inventory_Quantity(self, "rockets");
+			if (f > GRENADELAUNCHER2_AMMO)
+				f = GRENADELAUNCHER2_AMMO;
+			Inventory_AdjustQuantity(self, "rockets", 0 - f);
+			w_muzzleflash(shotorg, 2);
+			if (self.button0)
+				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, GRENADELAUNCHER2_DAMAGE * f, GRENADELAUNCHER2_RADIUS, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade2);
+			else
+				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, GRENADELAUNCHER2_DAMAGE * f, GRENADELAUNCHER2_RADIUS, GRENADE_IMMUNETODAMAGE, 3, "GRENADE", Obituary_Grenade2);
+			wsetanim(WANIM_FIRE1, 1, 6, GRENADELAUNCHER_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_BackpackMortar =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was blasted by a mortar from ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_backpackmortar =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		//precache_model("progs/v_dprock.mdl");
+		precache_model("progs/grenade.mdl");
+		precache_sound("weapons/grenade.wav");
+		precache_sound("weapons/bounce.wav");
+		registerweapon(7, "Backpack Mortar", w_backpackmortar, "backpackmortar", VWEP_GRENADE_LAUNCHER, "" /*progs/v_dprock.mdl"*/, IT_ROCKETS, 0, 2000, BACKPACKMORTAR_DAMAGE / BACKPACKMORTAR_REFIRE, WANIMTYPE_ROCKET);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "rockets") > 0;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "rockets");
+	if (self.aimtarg) // bot target
+		self.button0 = w_grenadeattackaim(1000, 2);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0 || self.button3)
+		if (Inventory_Quantity(self, "rockets") > 0)
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
+			f = Inventory_Quantity(self, "rockets");
+			if (f > BACKPACKMORTAR_AMMO)
+				f = BACKPACKMORTAR_AMMO;
+			Inventory_AdjustQuantity(self, "rockets", 0 - f);
+			w_muzzleflash(shotorg, 4);
+			while (f > 0)
+			{
+				v = shotdir * 200 + v_up * 600 + randomvec() * f * 30;
+				if (self.button3)
+					LaunchGrenade(shotorg, v, self, BACKPACKMORTAR_DAMAGE, BACKPACKMORTAR_RADIUS, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "BACKPACKMORTAR", Obituary_BackpackMortar);
+				else
+					LaunchGrenade(shotorg, v, self, BACKPACKMORTAR_DAMAGE, BACKPACKMORTAR_RADIUS, GRENADE_IMMUNETODAMAGE, 1.5, "BACKPACKMORTAR", Obituary_BackpackMortar);
+				f = f - 1;
+			}
+			wsetanim(WANIM_FIRE1, 1, 6, BACKPACKMORTAR_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Incinerator =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was incinerated by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+.float incinerator_time;
+float(float request) w_incinerator =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("fire/burn.wav");
+		registerweapon(8, "Incinerator", w_incinerator, "incinerator", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, INCINERATOR_DAMAGE / INCINERATOR_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "cells");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "cells");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "cells"))
+		{
+			W_Hostile();
+
+			// fixme: need a blowtorch sort of sound
+			if (time > self.incinerator_time)
+			{
+				self.incinerator_time = time + 0.2;
+				sound(self, CHAN_WEAPON, "fire/burn.wav", 1, ATTN_NORM);
+			}
+
+			Inventory_AdjustQuantity(self, "cells", -1);
+
+			// FIXME: spawn a long torch flame model
+
+			// change solid type so the traceline hits SOLID_CORPSE
+			f = self.solid;
+			self.solid = SOLID_BBOX;
+			traceline (shotorg, shotorg + shotdir * 350, FALSE, self);
+			self.solid = f;
+			if (trace_fraction < 1)
+				T_Damage (trace_ent, self, self, INCINERATOR_DAMAGE * (1 - trace_fraction), INCINERATOR_DAMAGE * (1 - trace_fraction), "INCINERATOR", DT_CUT, trace_endpos - shotdir * 4, '0 0 0', Obituary_Incinerator);
+
+			wsetanim(WANIM_FIRE1, 1, 0, INCINERATOR_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Railgun =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was railguned by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_railgun =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(8, "Railgun", w_railgun, "railgun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, RAILGUN_DAMAGE / RAILGUN_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "shells");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "shells");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_RAISE)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_LOWER)
+	{
+		if (time >= self.wanim_endtime)
+			wswitch();
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		if (Inventory_Quantity(self, "shells"))
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "shells", -1);
+			w_muzzleflash(shotorg, 0.5);
+			FireBullets(self, self, 1, 1, RAILGUN_DAMAGE, RAILGUN_DAMAGE, 0, 0, shotdir * 10000, 0.025, "RAILGUN", DT_NAIL, Obituary_Railgun);
+			wsetanim(WANIM_FIRE1, 1, 0, RAILGUN_REFIRE);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (time >= self.wanim_endtime)
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	return TRUE;
+};
+
 void() grapple_precache;
 void() W_Precache =
 {
@@ -2171,6 +3587,7 @@ void() W_Precache =
 	precache_model("progs/s_spike.mdl");
 	precache_model("progs/muzzleflash.spr32");
 	grapple_precache();
+
 	w_pistol(WR_REGISTER);
 	w_shotgun(WR_REGISTER);
 	w_plasmashotgun(WR_REGISTER);
@@ -2184,5 +3601,24 @@ void() W_Precache =
 	w_thunderbolt(WR_REGISTER);
 	w_plasmarifle(WR_REGISTER);
 	w_plasmawave(WR_REGISTER);
+
+	if (cvar("temp1") & 8388608)
+	{
+		w_axe(WR_REGISTER);
+		//w_chainsaw(WR_REGISTER);
+		//w_handgrenade(WR_REGISTER);
+		//w_hopper(WR_REGISTER);
+		w_prickler(WR_REGISTER);
+		w_scattergun(WR_REGISTER);
+		w_rifle(WR_REGISTER);
+		w_machinegun(WR_REGISTER);
+		w_vulcan(WR_REGISTER);
+		//w_executioner(WR_REGISTER);
+		w_jackhammer(WR_REGISTER);
+		w_grenadelauncher2(WR_REGISTER);
+		w_backpackmortar(WR_REGISTER);
+		w_incinerator(WR_REGISTER);
+		//w_railgun(WR_REGISTER);
+	}
 };
 
