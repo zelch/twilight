@@ -268,7 +268,7 @@ a {
 		"|Rain|" => array (
 			"Name" => "Ben Winslow" ,
 			"Email" => "rain+twweb@bluecherry.net"
-		) ,
+		)
 	);
 
 	// Add yourself above!
