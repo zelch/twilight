@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+
 #ifndef M_PI
 #define M_PI 3.1415926535
 #endif
@@ -22,16 +23,17 @@
 #pragma warning (disable : 4244)
 #endif
 
+#define MAX_FILEPATH 1024
 #define MAX_NAME 32
-#define MAX_FRAMES 8192
 #define MAX_SCENES 256
+#define MAX_FRAMES 65536
 #define MAX_TRIS 65536
-#define MAX_VERTS 65536
+#define MAX_VERTS (MAX_TRIS * 3)
 #define MAX_BONES 256
 #define MAX_SHADERS 256
-#define MAX_FILESIZE 33554432
+#define MAX_FILESIZE (64*1024*1024)
 
-char outputname[256], shadername[256], texturebasename[256], texturedir[256];
+char output_name[MAX_FILEPATH];
 
 float modelorigin[3], modelscale;
 
@@ -907,10 +909,10 @@ foundshader:
 	for (i = 0;i < numposes;i++)
 	{
 		int j;
-		for (j = 0;j < numbones;j++)
+		for (j = 0;j < numtbones;j++)
 		{
-			if (bone[j].parent >= 0)
-				concattransform(&bonematrix[bone[j].parent], &pose[i][j], &bonematrix[j]);
+			if (tbone[j].parent >= 0)
+				concattransform(&bonematrix[tbone[j].parent], &pose[i][j], &bonematrix[j]);
 			else
 				matrixcopy(&pose[i][j], &bonematrix[j]);
 		}
@@ -919,7 +921,7 @@ foundshader:
 		tradius = 0;
 		for (j = 0;j < numtverts;j++)
 		{
-			transform(tvert[j].origin, &bonematrix[boneunmap[tvert[j].bonenum]], org);
+			transform(tvert[j].origin, &bonematrix[tvert[j].bonenum], org);
 			if (tmins[0] > org[0]) tmins[0] = org[0];if (tmaxs[0] < org[0]) tmaxs[0] = org[0];
 			if (tmins[1] > org[1]) tmins[1] = org[1];if (tmaxs[1] < org[1]) tmaxs[1] = org[1];
 			if (tmins[2] > org[2]) tmins[2] = org[2];if (tmaxs[2] < org[2]) tmaxs[2] = org[2];
@@ -1119,7 +1121,7 @@ foundshader:
 		printf("%5i frames % 3.0f fps %s : %s\n", scene[i].length, scene[i].framerate, scene[i].noloop ? "noloop" : "", name);
 	}
 	printf("file size: %5ik\n", (bufferused + 512) >> 10);
-	writefile(outputname, outputbuffer, bufferused);
+	writefile(output_name, outputbuffer, bufferused);
 //	printf("writing shader and textures\n");
 	return 1;
 }
@@ -1571,24 +1573,9 @@ int sc_output(void)
 		return 0;
 	if (!isfilename(c))
 		return 0;
-	strcpy(outputname, c);
-	chopextension(outputname);
-	strcpy(texturebasename, outputname);
-	strcat(texturebasename, "_");
-	strcpy(shadername, outputname);
-	strcat(shadername, ".shader");
-	strcat(outputname, ".zym");
-	return 1;
-}
-
-int sc_texturedir(void)
-{
-	char *c = gettoken();
-	if (!c)
-		return 0;
-	if (!isfilename(c))
-		return 0;
-	strcpy(texturedir, c);
+	strcpy(output_name, c);
+	chopextension(output_name);
+	strcat(output_name, ".zym");
 	return 1;
 }
 
@@ -1753,7 +1740,6 @@ int sc_nothing(void)
 sccommand sc_commands[] =
 {
 	{"output", sc_output},
-	{"texturedir", sc_texturedir},
 	{"origin", sc_origin},
 	{"scale", sc_scale},
 	{"mesh", sc_mesh},
