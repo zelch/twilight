@@ -44,10 +44,9 @@ typedef struct
 
 	int				numpoints;
 	int				numsamples;
-	// *32 for -extra8x8
-//	lightpoint_t	point[SINGLEMAP*64];
+	int				maxsamples;
 	lightpoint_t	*point;
-	lightsample_t	sample[MAXLIGHTMAPS][SINGLEMAP];
+	lightsample_t	*sample[MAXLIGHTMAPS];
 
 	vec3_t			texorg;
 	vec3_t			worldtotex[2];	// s = (world - texorg) . worldtotex[0]
@@ -189,12 +188,28 @@ void CalcFaceExtents (lightinfo_t *l)
 
 void CalcSamples (lightinfo_t *l)
 {
+	int				mapnum;
 	/*
-	int				i, mapnum;
+	int				i;
 	lightsample_t	*sample;
 	*/
 
 	l->numsamples = l->texsize[0] * l->texsize[1];
+	if (l->numsamples > SINGLEMAP)
+		Error ("Bad lightmap size: %i", l->numsamples);
+
+	if( l->numsamples > l->maxsamples ) {
+		l->maxsamples = l->numsamples;
+
+		qfree( l->point );
+		l->point = qmalloc( sizeof( lightpoint_t ) * l->maxsamples * (1<<extrasamplesbit)*(1<<extrasamplesbit) );
+
+		for( mapnum = 0; mapnum < MAXLIGHTMAPS; mapnum++ ) {
+			qfree( l->sample[mapnum] );
+			l->sample[mapnum] = qmalloc( sizeof( lightsample_t ) * l->maxsamples );
+		}
+	}
+
 	// no need to clear because the lightinfo struct was cleared already
 	/*
 	for (mapnum = 0;mapnum < MAXLIGHTMAPS;mapnum++)
@@ -378,7 +393,7 @@ int SingleLightFace_FindMapNum(lightinfo_t *l, int style)
 void SingleLightFace_Sun (directlight_t *light, lightinfo_t *l)
 {
 	vec_t			shade;
-	vec3_t			testpos, c;
+	vec3_t			startpos, endpos, c;
 	int				mapnum;
 	int				i;
 	lightpoint_t	*point;
@@ -400,9 +415,10 @@ void SingleLightFace_Sun (directlight_t *light, lightinfo_t *l)
 	{
 		// LordHavoc: changed to be more realistic (entirely different lighting model)
 		// LordHavoc: FIXME: use subbrightness on all lights, simply to have some distance culling
-		VectorMA(point->v, 131072, light->spotdir, testpos);
+		VectorMA(point->v, -(1 / 32.0), light->spotdir, startpos);
+		VectorMA(point->v, -131072, light->spotdir, endpos);
 		// if trace hits solid don't cast sun
-		if (point->occluded || (!Light_TraceLine(&tr, point->v, testpos) && tr.endcontents == CONTENTS_SOLID))
+		if (point->occluded || Light_PointContents(startpos) == CONTENTS_SOLID || (!Light_TraceLine(&tr, startpos, endpos) && tr.endcontents == CONTENTS_SOLID))
 			continue;
 
 		c[0] = shade * light->color[0] * tr.filter[0];
@@ -531,8 +547,6 @@ void LightFace (dface_t *f, lightchain_t *lightchain, directlight_t **novislight
 
 	//memset (&l, 0, sizeof(l));
 	l.face = f;
-	if( !l.point )
-		l.point = qmalloc(sizeof(lightpoint_t) * SINGLEMAP * (1<<extrasamplesbit)*(1<<extrasamplesbit) );
 
 //
 // some surfaces don't need lightmaps
@@ -571,9 +585,6 @@ void LightFace (dface_t *f, lightchain_t *lightchain, directlight_t **novislight
 	CalcFaceExtents (&l);
 	CalcSamples (&l);
 	CalcPoints (&l);
-
-	if (l.numsamples > SINGLEMAP)
-		Error ("Bad lightmap size");
 
 	// clear all the samples to 0
 	for (i = 0;i < MAXLIGHTMAPS;i++)
