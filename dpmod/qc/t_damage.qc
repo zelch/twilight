@@ -124,9 +124,9 @@ This should be the only function that ever reduces health.
 .float  regenthink; // next time player will regen some health
 void(entity targ, entity inflictor, entity attacker, float healthdamage, float damage, string dethtype, float damgtype, vector damgpoint, vector force, void(entity t, entity a, string m, float dtyp) obitfunc) T_Damage =
 {
-	local   vector  dir;
-	local	entity	oldself;
-	local   float   save, htake, take, ratio;
+	local vector dir;
+	local entity oldself;
+	local float save, htake, take, ratio, f;
 
 	oldself = self;
 
@@ -217,10 +217,10 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 //		if (attacker.items & IT_QUAD)
 //			damage = damage * 4;
 
-		// save damage based on the target's armor level        
+		// save damage based on the target's armor level
 		save = 0;
 		if (damgtype & DTF_ARMOR)
-			save = ceil(targ.armortype * damage);
+			save = targ.armortype * damage;
 		if (targ.team > 0)
 		if (targ.team == attacker.team)
 		if (teamplay == 1 || teamplay == 3)
@@ -232,16 +232,16 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		if (save > targ.armorvalue)
 			save = targ.armorvalue;
 		targ.armorvalue = targ.armorvalue - save;
-		take = ceil(damage-save); // body damage
+		take = damage - save; // body damage
 		if (take < 0)
 			take = 0;
 
-		if (take < 1)
-		if (save < 1)
+		if (take < 0.01)
+		if (save < 0.01)
 			return; // no damage to do
 
-		htake = ceil((damage-save) * ratio); // health damage
-		if (htake < 1) htake = 1;
+		htake = take * ratio; // health damage
+		if (htake < 0.01) htake = 0.01;
 
 		if (targ.bleedfunc) // telefrag doesn't cause bleeding
 		{
@@ -275,6 +275,21 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 
 		if (targ.flags & FL_GODMODE)
 			return;
+
+		if (attacker.items & IT_QUAD) // Fury is vampiric
+		if (attacker.classname == "player")
+		if (targ.iscreature)
+		if (targ != attacker)
+		if (targ.health > 0)
+		{
+			f = 0.1;
+			if (targ.classname == "player")
+				f = 0.5;
+			f = attacker.health + min(htake, targ.health) * f;
+			f = min(f, HEALTHMEGAMAX);
+			attacker.health = max(f, attacker.health);
+		}
+
 		// do the damage
 		targ.health = targ.health - htake;
 //		if (damgtype & DTF_RESIST_EXPLOSIVE)
@@ -311,7 +326,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 
 	if ((self.flags & FL_MONSTER) && attacker != world) // get mad unless of the same class (except for soldiers)
 	if (self != attacker && attacker != self.enemy)
-	if (self.classname != attacker.classname || self.classname == "monster_army") 
+	if (self.classname != attacker.classname || self.classname == "monster_army")
 //	//if (attacker.classname == "player")
 	if (attacker.takedamage)
 	if (attacker.havocattack == TRUE)
@@ -328,7 +343,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		// nightmare mode monsters don't go into pain frames often
 		if (skill >= 3)
 		if (self.flags & FL_MONSTER)
-			self.pain_finished = time + 5;		
+			self.pain_finished = time + 5;
 	}
 
 	self = oldself;

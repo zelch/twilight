@@ -1220,7 +1220,7 @@ void() CheckPowerups =
 	}
 
 	self.effects = self.effects - (self.effects & (EF_BLUE + EF_RED + EF_DIMLIGHT + EF_ADDITIVE/* + EF_REFLECTIVE*/));
-	self.items = self.items - (self.items & (IT_INVISIBILITY + IT_INVULNERABILITY + IT_QUAD + IT_SUIT));
+	self.items = self.items - (self.items & (IT_INVISIBILITY + IT_INVULNERABILITY + /*IT_QUAD + */IT_SUIT));
 
 	// invisibility
 	if (self.invisible_finished)
@@ -1294,6 +1294,7 @@ void() CheckPowerups =
 	if (self.invincible_finished > time)
 		self.effects = self.effects | (EF_RED/* + EF_REFLECTIVE*/);
 
+	/*
 	// super damage
 	if (self.super_damage_finished)
 	{
@@ -1325,7 +1326,8 @@ void() CheckPowerups =
 			self.super_time = 0;
 		}
 	}
-	if (self.super_damage_finished > time)
+	*/
+	if (self.items & IT_QUAD)
 		self.effects = self.effects | (EF_BLUE/* + EF_REFLECTIVE*/);
 
 	// suit

@@ -5,45 +5,66 @@
 void() RegenStuff =
 {
 	local float b;
-	if (time > self.rotthink)
+	if (!self.deadflag)
 	{
-		self.rotthink = time + 1;
-		// rot health
-		if (self.health > self.max_health)
+		if (time > self.rotthink)
 		{
-			self.health = self.health - 1;
-			if (self.health < self.max_health)
-				self.health = self.max_health;
-		}
-		/*
-		// rot armor
-		if (self.armorvalue > ARMORMAX)
-		{
-			self.armorvalue = self.armorvalue - 1;
-			if (self.armorvalue < ARMORMAX)
-				self.armorvalue = ARMORMAX;
-		}
-		*/
-	}
-	if (time > self.regenthink)
-	{
-		if (deathmatch)
-			self.regenthink = time + 0.1;
-		else
-			self.regenthink = time + 0.25;
-		if (!self.deadflag)
-		{
-			if (self.health < self.max_health)
+			// rot health
+			if (self.items & IT_QUAD) // Fury drains health very quickly
 			{
-				self.health = self.health + 1;
-				if (self.health > self.max_health)
-					self.health = self.max_health;
+				self.rotthink = time + 0.2;
+				if (self.health > 1)
+				{
+					self.health = self.health - 1;
+					if (self.health < 1)
+						self.health = 1;
+				}
+				else
+				{
+					self.items = self.items - IT_QUAD;
+					sprint(self, "Fury has left you weak.\n");
+				}
 			}
-			if (self.bodyhealth < self.health + 100)
+			else
 			{
-				self.bodyhealth = self.bodyhealth + 2;
-				if (self.bodyhealth > self.health + 100)
-					self.bodyhealth = self.health + 100;
+				self.rotthink = time + 1;
+				if (self.health > self.max_health)
+				{
+					self.health = self.health - 1;
+					if (self.health < self.max_health)
+						self.health = self.max_health;
+				}
+			}
+			/*
+			// rot armor
+			if (self.armorvalue > ARMORMAX)
+			{
+				self.armorvalue = self.armorvalue - 1;
+				if (self.armorvalue < ARMORMAX)
+					self.armorvalue = ARMORMAX;
+			}
+			*/
+		}
+		if (time > self.regenthink)
+		{
+			if (deathmatch)
+				self.regenthink = time + 0.1;
+			else
+				self.regenthink = time + 0.25;
+			if (!(self.items & IT_QUAD)) // no healing with Fury
+			{
+				if (self.health < self.max_health)
+				{
+					self.health = self.health + 1;
+					if (self.health > self.max_health)
+						self.health = self.max_health;
+				}
+				if (self.bodyhealth < self.health + 100)
+				{
+					self.bodyhealth = self.bodyhealth + 2;
+					if (self.bodyhealth > self.health + 100)
+						self.bodyhealth = self.health + 100;
+				}
 			}
 		}
 	}
