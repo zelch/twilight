@@ -182,32 +182,32 @@ void particles_advance(float currenttime)
 				if (p->x < world_minx)
 				{
 					p->x = world_minx - (p->x - world_minx);
-					p->vx = fabs(p->vx);
+					p->vx = (float) fabs(p->vx);
 				}
 				if (p->y < world_miny)
 				{
 					p->y = world_miny - (p->y - world_miny);
-					p->vy = fabs(p->vy);
+					p->vy = (float) fabs(p->vy);
 				}
 				if (p->z < world_minz)
 				{
 					p->z = world_minz - (p->z - world_minz);
-					p->vz = fabs(p->vz);
+					p->vz = (float) fabs(p->vz);
 				}
 				if (p->x > world_maxx)
 				{
 					p->x = world_maxx - (p->x - world_maxx);
-					p->vx = -fabs(p->vx);
+					p->vx = (float) -fabs(p->vx);
 				}
 				if (p->y > world_maxy)
 				{
 					p->y = world_maxy - (p->y - world_maxy);
-					p->vy = -fabs(p->vy);
+					p->vy = (float) -fabs(p->vy);
 				}
 				if (p->z > world_maxz)
 				{
 					p->z = world_maxz - (p->z - world_maxz);
-					p->vz = -fabs(p->vz);
+					p->vz = (float) -fabs(p->vz);
 				}
 			}
 		}
