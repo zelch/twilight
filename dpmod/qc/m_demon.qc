@@ -78,8 +78,7 @@ void()	demon1_jump4	=[	$leap4,		demon1_jump5	]
 	ai_face();
 
 	self.touch = Demon_JumpTouch;
-	makevectors (self.angles);
-	self.origin_z = self.origin_z + 1;
+	makevectors (self.angles_y * '0 1 0');
 	self.velocity = v_forward * 600 + '0 0 250';
 	if (self.flags & FL_ONGROUND)
 		self.flags = self.flags - FL_ONGROUND;
@@ -227,6 +226,7 @@ float()	CheckDemonJump =
 	*/
 
 	// LordHavoc: do further checking now
+	makevectors (self.angles_y * '0 1 0');
 	old = self.velocity;
 	self.velocity = v_forward * 600 + '0 0 250';
 	tracetoss(self, self);
