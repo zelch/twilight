@@ -25,5 +25,5 @@
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 DEFAULT	$CVSROOT/CVSROOT/new_log_accum -m twilight-commits@lists.sourceforge.net %{sVv}
-CVSROOT	$CVSROOT/CVSROOT/new_log_accum -m rain@bluecherry.net %{sVv}
+CVSROOT	$CVSROOT/CVSROOT/new_log_accum -m knghtbrd@bluecherry.net,rain@bluecherry.net %{sVv}
 htdocs	$CVSROOT/CVSROOT/new_log_accum -m twilight-commits@lists.sourceforge.net %{sVv}; $CVSROOT/CVSROOT/do_webpulse
