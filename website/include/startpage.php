@@ -33,7 +33,7 @@ function startpage_heading ($title)
 	}
 	else
 	{
-		# FIXME: non-CSS
+		# FIXME: add support for non-CSS
 		echo ("<body>\n");
 	}
 
@@ -51,7 +51,7 @@ function startpage_nav ($title)
 	global $css_avail;
 	global $navsection;
 
-	# FIXME: non-CSS
+	# FIXME: add support for non-CSS
 	# Nav sidebar
 	echo ("<td class=\"layout\" valign=\"top\" width=\"200\">\n");
 	echo ("<div class=\"nav\">\n");

@@ -14,5 +14,10 @@ $navsection = array (
 #	"Members" => "members.php"
 );
 
+$webspace = "/webspace/projects/twilight";
+
+/* DON'T use this unless you need to (ie, for zipball links) */
+$urlbase = "http://icculus.org/twilight"
+
 ?>
 
