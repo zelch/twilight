@@ -58,23 +58,21 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 		return;
 	}
 
-	if ((self.flags & FL_MONSTER) && attacker != world)
-		self.enemy = attacker;
-
-	// bump the monster counter
-	if (self.flags & FL_MONSTER)
-	{
-		killed_monsters = killed_monsters + 1;
-		WriteByte (MSG_ALL, SVC_KILLEDMONSTER);
-	}
-
-	ClientObituary(self, attacker, dmsg, dtype, obitfunc);
-
 	self.takedamage = DAMAGE_NO;
 	self.touch = SUB_Null;
 
 	if (!self.iscorpse)
+	{
+		// bump the monster counter
+		if (self.flags & FL_MONSTER)
+		{
+			self.enemy = attacker;
+			killed_monsters = killed_monsters + 1;
+			WriteByte (MSG_ALL, SVC_KILLEDMONSTER);
+		}
+		ClientObituary(self, attacker, dmsg, dtype, obitfunc);
 		monster_death_use();
+	}
 
 	self.doobits = 0;
 	//self.think = self.th_die;

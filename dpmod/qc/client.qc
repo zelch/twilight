@@ -1637,24 +1637,6 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	{
 		ChangeFrags(attacker, 1);
 		dtype = DTYPE_PLAYER;
-
-		if (deathmatch == 7)
-		{
-			if (attacker.combo_time >= time)
-			{
-				attacker.combo_amount = attacker.combo_amount + 1;
-				killcombomsg(attacker, attacker.combo_amount);
-			}
-			else
-				attacker.combo_amount = 1;
-		
-			attacker.combo_time = time + 1.5;
-			attacker.spree_count = attacker.spree_count + 1;	
-			attacker.spree_amount = attacker.spree_amount + 1;
-
-			if (attacker.spree_count >= 10)
-				spreemessage(attacker, attacker.spree_amount);
-		}
 	}
 	else if (targ.classname == "player" && attacker.classname == "player")
 	{
@@ -1678,6 +1660,24 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	}
 	else
 		dtype = DTYPE_OTHER;
+
+	if (dtype == DTYPE_PLAYER && deathmatch)
+	{
+		if (attacker.combo_time >= time)
+		{
+			attacker.combo_amount = attacker.combo_amount + 1;
+			killcombomsg(attacker, attacker.combo_amount);
+		}
+		else
+			attacker.combo_amount = 1;
+	
+		attacker.combo_time = time + 1.5;
+		attacker.spree_count = attacker.spree_count + 1;	
+		attacker.spree_amount = attacker.spree_amount + 1;
+
+		if (attacker.spree_count >= 10)
+			spreemessage(attacker, attacker.spree_amount);
+	}
 
 	if (targ.doobits/* || (deathmatch && (targ.flags & FL_MONSTER) && targ.netname != "")*/)
 	{
