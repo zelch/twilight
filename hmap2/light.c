@@ -242,10 +242,8 @@ void ParseLightEntities( void )
 				else
 					l->spotcone = -cos( l->angle / 2 * Q_PI / 180 );
 
-				if( l->spotcone <= 0 ) {
-					VectorClear( l->spotdir );
+				if( l->spotcone <= 0 )
 					l->spotcone = 0;
-				}
 				break;
 			}
 		}
