@@ -16,6 +16,12 @@ float(string s) checkextension = #99;
 //	ext_setcolor = TRUE;
 //from then on you can check ext_setcolor to know if that extension is available
 
+//DP_LITSPRITES
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//description:
+//indicates this engine supports lighting on sprites, any sprite with ! in its filename (both on disk and in the qc) will be lit rather than having forced EF_FULLBRIGHT (EF_FULLBRIGHT on the entity can still force these sprites to not be lit).
+
 //DP_LITSUPPORT
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
