@@ -94,7 +94,6 @@ void Con_Printf (char *fmt, ...)
 {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
-	static qboolean	inupdate;
 	
 	va_start (argptr,fmt);
 	vsprintf (msg,fmt,argptr);
