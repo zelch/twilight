@@ -17,7 +17,7 @@
 
 		plugstable => "width=\"100%\"" ,
 		plugspre => "<center>" ,
-		plugspost => "</center" ,
+		plugspost => "</center>" ,
 
 		newstable => "width=\"100%\" bgcolor=\"#00087f\" cellspacing=\"1\"" ,
 		newstitletable => "width=\"100%\" bgcolor=\"#00087f\"" ,
