@@ -372,7 +372,7 @@ void WriteEntitiesToString (void)
 {
 	char	*buf, *end;
 	epair_t	*ep;
-	char	line[128];
+	char	line[MAX_KEY + MAX_VALUE + 7]; // LordHavoc: thanks to metlslime for pointing out this fix (was 128)
 	int		i;
 
 	buf = dentdata;
