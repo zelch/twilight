@@ -180,4 +180,4 @@ void() SV_PlayerPhysics =
 		if (f > 0)
 			self.velocity = self.velocity + wishdir * min(f, sv_accelerate * frametime * wishspeed);
 	}
-}
+};
