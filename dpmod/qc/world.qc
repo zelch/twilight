@@ -49,6 +49,14 @@ void() NextLevel =
 {
 	local entity o;
 
+	if (cvar("samelevel"))
+	{
+		nextmap = mapname;
+		gameover = TRUE;
+		execute_changelevel();
+		return;
+	}
+
 	if (mapname == "start")
 	{
 		if (!cvar("registered"))
