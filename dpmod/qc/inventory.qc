@@ -824,7 +824,7 @@ float(entity character, entity absorbcharacter) Inventory_AbsorbInventory =
 float(entity character, entity absorbcharacter) Inventory_AbsorbCloneInventory =
 {
 	local float c, quantity;
-	local entity item, cloneitem;
+	local entity item;
 
 	c = 0;
 	item = Inventory_GetNextItem(absorbcharacter, world);

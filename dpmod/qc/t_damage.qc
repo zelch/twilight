@@ -129,9 +129,8 @@ This should be the only function that ever reduces health.
 .float  regenthink; // next time player will regen some health
 void(entity targ, entity inflictor, entity attacker, float healthdamage, float damage, string dethtype, float damgtype, vector damgpoint, vector force, void(entity t, entity a, string m, float dtyp) obitfunc) T_Damage =
 {
-	local vector dir;
 	local entity oldself;
-	local float save, htake, take, ratio, f;
+	local float save, htake, take, ratio;
 
 	oldself = self;
 
