@@ -5,6 +5,11 @@ require "include/main.php";
 
 startpage ("News");
 
+newsitem ("Friday, 1 November 2002",
+		"Ah, yes, something to direct people to! So this is where it was " .
+		"hiding.."
+);	
+
 newsitem ("Sunday, 7 July 2002",
 		"The website is now in CVS properly, with webpulse script.  " .
 		"Knghtbrd apologizes for the delay in getting the new site up and " .
