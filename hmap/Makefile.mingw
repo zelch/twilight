@@ -3,7 +3,8 @@ HQBSPOBJECTS= hqbsp/brush.o hqbsp/csg4.o hqbsp/map.o hqbsp/merge.o hqbsp/nodraw.
 HVISOBJECTS= hvis/flow.o hvis/soundpvs.o hvis/vis.o $(COMMONOBJECTS)
 HLIGHTOBJECTS= hlight/entities.o hlight/light.o hlight/ltface.o hlight/trace.o $(COMMONOBJECTS)
 
-CFLAGS= -Wall -Icommon -MD -O6 -funroll-loops $(PROFILEOPTIONS) -fexpensive-optimizations -fomit-frame-pointer
+CFLAGS= -Wall -Icommon -MD -O6 -funroll-loops -fexpensive-optimizations -fomit-frame-pointer
+#CFLAGS= -Wall -Icommon -MD
 LDFLAGS= -lwinmm
 
 all: bin/hqbsp bin/hvis bin/hlight
