@@ -5,8 +5,12 @@ require "include/main.php";
 
 startpage ("News");
 
+newsitem ("Friday, 31 December 2003",
+		"We now have win32 binaries!"
+);	
+
 newsitem ("Thursday, 30 December 2003",
-		"Ok! Twilight 0.2.0-RC2 has been released!" .
+		"Ok! Twilight 0.2.0-RC2 has been released!  " .
 		"Please pound on it and report ANY bugs that are found, thanks."
 );	
 
