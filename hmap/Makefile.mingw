@@ -4,7 +4,7 @@ HVISOBJECTS= hvis/flow.o hvis/soundpvs.o hvis/vis.o $(COMMONOBJECTS)
 HLIGHTOBJECTS= hlight/entities.o hlight/light.o hlight/ltface.o hlight/trace.o $(COMMONOBJECTS)
 
 CFLAGS= -Wall -Icommon -MD -O6 -funroll-loops $(PROFILEOPTIONS) -fexpensive-optimizations -fomit-frame-pointer
-LDFLAGS=
+LDFLAGS= -lwinmm
 
 all: bin/hqbsp bin/hvis bin/hlight
 
