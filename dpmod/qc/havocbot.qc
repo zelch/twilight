@@ -212,8 +212,6 @@ void(float t, float f1, float f2, entity e1, vector v1, vector v2, vector v3, ve
 void() havocbot_chooserole;
 void() havocbot_new =
 {
-	local entity saveself;
-	local float r;
 	// only 32 names available
 	if (havoccurrentbots >= 32)
 		return;
@@ -262,7 +260,6 @@ void() havocbot_findentsandspawnwaysurfaces;
 void() havocbot_serverframe =
 {
 	local   entity  head, saveself;
-	local   float   botcount;
 	if (intermission_running)
 		return;
 
@@ -409,14 +406,12 @@ float() waysurface_link =
 	local entity e;
 	local float d;
 	local vector m1, m2;
-	//self.think = waysurface_link;
-	//self.nextthink = time;
 
-	m1 = self.mins;
-	m2 = self.maxs;
+	m1 = self.mins + '-1 -1 -9';
+	m2 = self.maxs + '1 1 9';
 	d = 0;
 	e = self.oldenemy;
-	while (d < 20)
+	while (d < 200)
 	{
 		d = d + 1;
 		e = find(e, classname, "waysurface");
@@ -589,15 +584,12 @@ void(entity e) havocbot_spawnwaysurfaces;
 
 entity(entity e) findnearestwaysurface =
 {
-	local entity head;
-	local vector org, m1, m2;
+	local vector org;
 	if (e.origin != e.nearestwaysurfaceorigin || time > e.nearestwaysurfacetimeout)
 	{
-		m1 = e.absmin;
-		m2 = e.absmax;
-		org = (m1 + m2) * 0.5;
-		org_z = m1_z + 1;
-		e.nearestwaysurface = findwaysurface(org, m1, m2);
+		org = e.origin + (e.mins + e.maxs) * 0.5;
+		org_z = e.origin_z + e.mins_z + 1;
+		e.nearestwaysurface = findwaysurface(org, e.origin + e.mins, e.origin + e.maxs);
 		e.nearestwaysurfaceorigin = e.origin;
 		e.nearestwaysurfacetimeout = time + random() * 3 + 5;
 		return e.nearestwaysurface;
@@ -612,20 +604,25 @@ void(entity head, entity w) havocbot_checkwaysurface =
 {
 	local vector o, m1, m2;
 	local float cost;
-	o = head.dest;
-	m1 = w.absmin;
-	m2 = w.absmax;
-	if (o_x < m1_x) o_x = m1_x;if (o_x > m2_x) o_x = m2_x;
-	if (o_y < m1_y) o_y = m1_y;if (o_y > m2_y) o_y = m2_y;
-	if (o_z < m1_z) o_z = m1_z;if (o_z > m2_z) o_z = m2_z;
-	cost = head.wpcost + vlen(o - head.dest) + head.dmg;
+	cost = head.wpcost + head.dmg;
 	if(cost < w.wpcost)
 	{
-		//te_smallflash(o);
-		w.dest = o;
-		w.wpcost = cost;
-		w.enemy = head;
-		w.wpfire = 1;
+		o = head.dest - w.owner.origin;
+		m1 = w.mins;m2 = w.maxs;
+		if (o_x < m1_x) o_x = m1_x;if (o_x > m2_x) o_x = m2_x;
+		if (o_y < m1_y) o_y = m1_y;if (o_y > m2_y) o_y = m2_y;
+		//if (o_z < m1_z) o_z = m1_z;if (o_z > m2_z) o_z = m2_z;
+		//o = getsurfaceclippedpoint(w.owner, w.dmg2, head.dest - w.owner.origin);
+		o_z = o_x * w.dest5_x + o_y * w.dest5_y + w.dest5_z;
+		cost = cost + vlen(o + w.owner.origin - head.dest);
+		if(cost < w.wpcost)
+		{
+			//te_smallflash(o);
+			w.dest = o;
+			w.wpcost = cost;
+			w.enemy = head;
+			w.wpfire = 1;
+		}
 	}
 }
 
@@ -633,7 +630,11 @@ void() markroutes =
 {
 	local entity start, head, w;
 	local vector o, m1, m2;
-	local float d, dist, cost;
+	local float d, dist, cost, c;
+	w = findwaysurface(self.origin, self.absmin, self.absmax);
+	if (w == world)
+		return;
+	//te_smallflash(self.origin);
 	head = findchain(classname, "waysurface");
 	while (head)
 	{
@@ -643,26 +644,25 @@ void() markroutes =
 		head.enemy = world;
 		head = head.chain;
 	}
-	w = findwaysurface(self.origin, self.absmin, self.absmax);
-	if (w == world)
-		return;
-	o = self.origin;
-	m1 = w.mins;
-	m2 = w.maxs;
-	if (o_x < m1_x) o_x = m1_x;if (o_x > m2_x) o_x = m2_x;
-	if (o_y < m1_y) o_y = m1_y;if (o_y > m2_y) o_y = m2_y;
-	if (o_z < m1_z) o_z = m1_z;if (o_z > m2_z) o_z = m2_z;
-	w.dest = o;
+	w.dest = self.origin;
+	w.dest_z = self.dest_x * w.dest5_x + self.dest_y * w.dest5_y + w.dest5_z;
 	w.wpcost = vlen(w.dest - self.origin) + w.dmg;
-	w.enemy = world;
 	w.wpfire = 1;
+	//w.enemy = world;
+	//c = 0;
 	while (1)
 	{
 		head = findchainfloat(wpfire, 1);
 		if (head == world)
+		{
+			//bprintfloat(c);
+			//bprint("\n");
 			return;
+		}
 		while (head)
 		{
+			//c = c + 1;
+			//te_smallflash(head.dest);
 			head.wpfire = 0;
 			w = head.wp0;if(w){havocbot_checkwaysurface(head, w);
 			w = head.wp1;if(w){havocbot_checkwaysurface(head, w);
@@ -721,79 +721,80 @@ void(entity e, float f) routerating =
 
 void(entity e) routetogoal =
 {
-	local vector org, m1, m2;
-	local float f;
-	local string s;
-	local entity old;
 	clearroute();
 	self.goalentity = e;
 	if (e == world)
 		return;
 	/*
+	te_smallflash((e.absmin + e.absmax) * 0.5);
 	bprint("routetogoal(");
-	s = etos(e);
-	bprint(s);
-	bprint(")\n");
+	bprint(etos(e));
+	bprint(") : ");
+	bprint(etos(e));
 	*/
 	pushroute(e);
 	if (tracewalk(self, self.origin, e.origin))
+	{
+		//bprint("\n");
 		return;
+	}
 	e = findnearestwaysurface(e);
-	m1 = self.absmin;
-	m2 = self.absmax;
-	//while (e.enemy != world)
-	//old = e;
 	while (e != world)
 	{
-		pushroute(e);
-		//if (e == self.lastwaysurfacetouched)
-		//	return; // skip nearest waysurface if it has already been touched
-		if (e.maxs_x > m1_x)
-		if (e.mins_x < m2_x)
-		if (e.maxs_y > m1_y)
-		if (e.mins_y < m2_y)
-		if (e.maxs_z > m1_z)
-		if (e.mins_z < m2_z)
-		{
-			//if (old)
-			//	pushroute(old);
-			return;
-		}
-		//old = e;
 		/*
-		if (e.enemy.enemy == world)
-		{
-			f = vlen(e.enemy.origin - self.origin);
-			if (vlen(e.origin - self.origin) > f)
-				return; // skip the nearest-to-player waysurface if it is further from the goal
-		}
+		bprint(" ");
+		bprint(etos(e));
+		te_smallflash((e.absmin + e.absmax) * 0.5);
 		*/
+		pushroute(e);
 		e = e.enemy;
 	}
-	//if (old)
-	//	pushroute(old);
+	//bprint("\n");
 };
 
 void() havocbot_popgoals =
 {
+	local vector org, m1, m2;
 	local float s;
+	org = self.origin + self.velocity * 0.2;
+	m1 = org + self.mins;
+	m2 = org + self.maxs;
 	s = TRUE;
 	while (s)
 	{
 		s = FALSE;
-		if (self.absmax_x > self.goalcurrent.mins_x)
-		if (self.absmin_x < self.goalcurrent.maxs_x)
-		if (self.absmax_y > self.goalcurrent.mins_y)
-		if (self.absmin_y < self.goalcurrent.maxs_y)
-		if (self.absmax_z > self.goalcurrent.mins_z)
-		if (self.absmin_z < self.goalcurrent.maxs_z)
+		if (self.goalcurrent.classname == "waysurface")
 		{
-			poproute();
-			if (self.goalcurrent == world)
-				return;
-			s = TRUE;
-			continue;
+			if (m2_x > self.goalcurrent.mins_x)
+			if (m1_x < self.goalcurrent.maxs_x)
+			if (m2_y > self.goalcurrent.mins_y)
+			if (m1_y < self.goalcurrent.maxs_y)
+			if (org_z + self.mins_z + 2 > org_x * self.goalcurrent.dest5_x + org_y * self.goalcurrent.dest5_y + self.goalcurrent.dest5_z)
+			{
+				poproute();
+				if (self.goalcurrent == world)
+					return;
+				s = TRUE;
+				continue;
+			}
 		}
+		else
+		{
+			if (m2_x > self.goalcurrent.mins_x)
+			if (m1_x < self.goalcurrent.maxs_x)
+			if (m2_y > self.goalcurrent.mins_y)
+			if (m1_y < self.goalcurrent.maxs_y)
+			if (m2_z > self.goalcurrent.mins_z)
+			if (m1_z < self.goalcurrent.maxs_z)
+			{
+				poproute();
+				if (self.goalcurrent == world)
+					return;
+				s = TRUE;
+				continue;
+			}
+		}
+		/*
 		// check for tempgoals that died
 		if (!self.goalcurrent.classname && self.goalcurrent != self.goalentity)
 		{
@@ -802,40 +803,113 @@ void() havocbot_popgoals =
 				return;
 			s = TRUE;
 		}
+		*/
 	}
 }
 
 .float havocbotignoretime;
 void(vector dodge) havocbot_movetogoal =
 {
-	local vector destorg, diff, dir, vel, flatdir, move, end, m1, m2, m3, m4, org;
-	local float s, dist, walkdist, walkangle, havoconground, p;
-	local entity e, head, floorsurface;
+	local vector destorg, diff, dir, vel, flatdir, move, end, m1, m2, m3, m4, org, evadeobstacle, evadelava;
+	local float s, dist, c;
+	local entity head;
+	//if (self.goalentity)
+	//	te_lightning2(self, self.origin, (self.goalentity.absmin + self.goalentity.absmax) * 0.5);
 	self.movement = '0 0 0';
 	if (self.goalcurrent == world)
 		return;
 	havocbot_popgoals();
 	if (self.goalcurrent == world)
 		return;
+	evadeobstacle = '0 0 0';
+	evadelava = '0 0 0';
 	if (self.waterlevel)
 	{
 		diff = destorg - self.origin;
 		dist = vlen(diff);
 		dir = normalize(diff);
-	//	self.velocity = self.velocity + dir * (400 * sv_accelerate * frametime) + normalize(dodge) * maxspeed * 2;
-	//	if (vlen(self.velocity) > maxspeed)
-	//		self.velocity = normalize(self.velocity) * maxspeed;
 	}
 	else
 	{
-		havoconground = self.flags & FL_ONGROUND;
-		if (!havoconground)
+		if (!(self.flags & FL_ONGROUND))
 		{
 			// prevent goal checks when we can't walk
-			//self.goaltime = time + 0.2;
+			if (self.goaltime < time + 0.1)
+				self.goaltime = time + 0.1;
 			return;
 		}
 
+		// jump if going toward an obstacle that doesn't look like stairs we
+		// can walk up directly
+		tracebox(self.origin, self.mins, self.maxs, self.origin + self.velocity * 0.2, FALSE, self);
+		if (trace_fraction < 1)
+		if (trace_plane_normal_z < 0.7)
+		{
+			s = trace_fraction;
+			tracebox(self.origin + '0 0 16', self.mins, self.maxs, self.origin + self.velocity * 0.2 + '0 0 16', FALSE, self);
+			if (trace_fraction < s + 0.01)
+			if (trace_plane_normal_z < 0.7)
+			{
+				s = trace_fraction;
+				tracebox(self.origin + '0 0 48', self.mins, self.maxs, self.origin + self.velocity * 0.2 + '0 0 48', FALSE, self);
+				if (trace_fraction > s)
+					self.button2 = 1;
+			}
+		}
+
+		traceline(self.origin + self.velocity * 0.2, self.origin + self.velocity * 0.2 + '0 0 -1000', TRUE, world);
+		s = pointcontents(trace_endpos + '0 0 1');
+		if (s == CONTENT_LAVA || s == CONTENT_SLIME)
+			evadelava = normalize(self.velocity) * -1;
+
+		head = self.goalcurrent;
+		if (self.goalcurrent.classname == "waysurface")
+		{
+			destorg = getsurfaceclippedpoint(head.owner, head.dmg2, self.origin);
+			destorg_z = destorg_x * head.dest5_x + destorg_y * head.dest5_y + head.dest5_z;
+			org_x = destorg_x + (random() * self.size_x) + self.mins_x;
+			org_y = destorg_y + (random() * self.size_y) + self.mins_y;
+			org_z = org_x * head.dest5_x + org_y * head.dest5_y + head.dest5_z;
+			traceline(self.origin + org - destorg, org, FALSE, self);
+			if (trace_fraction < 1)
+			if (trace_plane_normal != head.dest2)
+			if (trace_plane_dist != head.count)
+				evadeobstacle = normalize(org - destorg) * -0.5;
+			/*
+			traceline(org_x - destorg)
+			traceline(self.origin, self.mins, self.maxs, destorg + '0 0 1' * self.mins_z, FALSE, self);
+			if (trace_fraction < 1)
+			{
+				// can't directly walk to the nearest point on the surface
+				// so choose a random location on the surface
+				c = 0;
+				while (c < 20)
+				{
+					org_x = head.mins_x + random() * (head.maxs_x - head.mins_x);
+					org_y = head.mins_x + random() * (head.maxs_x - head.mins_x);
+					org_z = org_x * head.dest5_x + org_y * head.dest5_y + head.dest5_z;
+					destorg = getsurfaceclippedpoint(head.owner, head.dmg2, org);
+					destorg_z = destorg_x * head.dest5_x + destorg_y * head.dest5_y + head.dest5_z;
+					traceline(self.origin, destorg, FALSE, self);
+					if (trace_fraction == 1 || trace_ent == head)
+						break;
+					c = c + 1;
+				}
+				if (c >= 20)
+					return;
+			}
+			*/
+		}
+		else
+		{
+			m1 = head.origin + head.mins;
+			m2 = head.origin + head.maxs;
+			destorg = self.origin;
+			if (destorg_x < m1_x) destorg_x = m1_x;if (destorg_x > m2_x) destorg_x = m2_x;
+			if (destorg_y < m1_y) destorg_y = m1_y;if (destorg_y > m2_y) destorg_y = m2_y;
+			if (destorg_z < m1_z) destorg_z = m1_z;if (destorg_z > m2_z) destorg_z = m2_z;
+		}
+		/*
 		org = self.origin;
 		m1 = self.origin;
 		m2 = self.origin;
@@ -931,10 +1005,8 @@ void(vector dodge) havocbot_movetogoal =
 				return;
 			}
 		}
-		//dir = normalize(destorg - self.origin);
-		//particle(self.origin + dir * 16, '0 0 0', 50, 5);
-		te_lightning2(self, self.origin, destorg);
-
+		*/
+		//te_lightning2(self, self.origin, destorg);
 
 		diff = destorg - self.origin;
 		dist = vlen(diff);
@@ -942,26 +1014,13 @@ void(vector dodge) havocbot_movetogoal =
 		flatdir = diff;flatdir_z = 0;
 		flatdir = normalize(flatdir);
 		dir = flatdir;
-		/*
-		// the * 1.125 is to turn a maxspeed of 320, into an acceleration of 400 to match the default quake cl_*speed variables
-		vel = flatdir * (maxspeed * 1.125) * sv_accelerate;
-		self.velocity = self.velocity + vel * frametime;
-		if (vlen(dodge) > 1)
-		{
-			dodge_z = 0;
-			self.velocity = self.velocity + normalize(dodge) * maxspeed * 2;
-		}
-		move = self.velocity;move_z = 0;
-		if (vlen(move) > maxspeed)
-			move = normalize(move) * maxspeed;
-		self.velocity_x = move_x;self.velocity_y = move_y;
-		*/
 	}
-	dir = dir + dodge;
+	dir = normalize(dir + dodge + evadeobstacle + evadelava);
+	dir = dir * 400;// - (self.velocity - dir * (self.velocity * dir));
 	makevectors(self.v_angle);
-	self.movement_x = dir * v_forward * 400;
-	self.movement_y = dir * v_right * 350;
-	self.movement_z = dir * v_up * 400;
+	self.movement_x = dir * v_forward;
+	self.movement_y = dir * v_right;
+	self.movement_z = dir * v_up;
 };
 
 vector() havocbot_dodge =
@@ -969,53 +1028,46 @@ vector() havocbot_dodge =
 	local entity head;
 	local vector dodge, v, n;
 	local float danger, bestdanger, vl, d;
-	local string s;
 	dodge = '0 0 0';
 	bestdanger = -20;
 	// check for dangerous objects near bot or approaching bot
 	head = findchainfloat(shoulddodge, TRUE);
 	while(head)
 	{
-		vl = vlen(head.velocity);
-		if (vl > maxspeed * 0.3)
+		if (head.owner != self)
 		{
-			n = normalize(head.velocity);
-			v = self.origin - head.origin;
-			d = v * n;
-			if (d > (0 - head.dangerrating))
-			if (d < (vl * 0.2 + head.dangerrating))
+			vl = vlen(head.velocity);
+			if (vl > maxspeed * 0.3)
 			{
-				// calculate direction and distance from the flight path, by removing the forward axis
-				v = v - (n * (v * n));
-				danger = head.dangerrating - vlen(v);
+				n = normalize(head.velocity);
+				v = self.origin - head.origin;
+				d = v * n;
+				if (d > (0 - head.dangerrating))
+				if (d < (vl * 0.2 + head.dangerrating))
+				{
+					// calculate direction and distance from the flight path, by removing the forward axis
+					v = v - (n * (v * n));
+					danger = head.dangerrating - vlen(v);
+					if (bestdanger < danger)
+					{
+						bestdanger = danger;
+						// dodge to the side of the object
+						dodge = normalize(v);
+					}
+				}
+			}
+			else
+			{
+				danger = head.dangerrating - vlen(head.origin - self.origin);
 				if (bestdanger < danger)
 				{
 					bestdanger = danger;
-					// dodge to the side of the object
-					dodge = normalize(v);
+					dodge = normalize(self.origin - head.origin);
 				}
-			}
-		}
-		else
-		{
-			danger = head.dangerrating - vlen(head.origin - self.origin);
-			if (bestdanger < danger)
-			{
-				bestdanger = danger;
-				dodge = normalize(self.origin - head.origin);
 			}
 		}
 		head = head.chain;
 	}
-	/*
-	if (dodge != '0 0 0')
-	{
-		bprint("dodge ");
-		s = vtos(dodge * maxspeed);
-		bprint(s);
-		bprint("\n");
-	}
-	*/
 	return dodge;
 };
 
@@ -1048,36 +1100,14 @@ void() havocbot_chooseenemy =
 
 void() havocbot_chooseweapon =
 {
-	/*
-	local   float   best, bestdamage, shotspeed, dist;
-	dist = vlen(self.enemy.origin - self.origin);
-	best = IT_WEAPON1;bestdamage = DMG_WEAPON1;
-	if (self.items & IT_WEAPON2) if (self.ammo_shells  >= 1) if (dist >= DMG_WEAPON2_MINRANGE) if (dist < DMG_WEAPON2_RANGE) if (DMG_WEAPON2 > bestdamage) {best = IT_WEAPON2;bestdamage = DMG_WEAPON2;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON3) if (self.ammo_shells  >= 1) if (dist >= DMG_WEAPON3_MINRANGE) if (dist < DMG_WEAPON3_RANGE) if (DMG_WEAPON3 > bestdamage) {best = IT_WEAPON3;bestdamage = DMG_WEAPON3;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON4) if (self.ammo_nails   >= 1) if (dist >= DMG_WEAPON4_MINRANGE) if (dist < DMG_WEAPON4_RANGE) if (DMG_WEAPON4 > bestdamage) {best = IT_WEAPON4;bestdamage = DMG_WEAPON4;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON5) if (self.ammo_nails   >= 1) if (dist >= DMG_WEAPON5_MINRANGE) if (dist < DMG_WEAPON5_RANGE) if (DMG_WEAPON5 > bestdamage) {best = IT_WEAPON5;bestdamage = DMG_WEAPON5;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON6) if (self.ammo_rockets >= 1) if (dist >= DMG_WEAPON6_MINRANGE) if (dist < DMG_WEAPON6_RANGE) if (DMG_WEAPON6 > bestdamage) {best = IT_WEAPON6;bestdamage = DMG_WEAPON6;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON7) if (self.ammo_rockets >= 1) if (dist >= DMG_WEAPON7_MINRANGE) if (dist < DMG_WEAPON7_RANGE) if (DMG_WEAPON7 > bestdamage) {best = IT_WEAPON7;bestdamage = DMG_WEAPON7;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON8) if (self.ammo_cells   >= 1) if (dist >= DMG_WEAPON8_MINRANGE) if (dist < DMG_WEAPON8_RANGE) if (DMG_WEAPON8 > bestdamage) {best = IT_WEAPON8;bestdamage = DMG_WEAPON8;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON9) if (self.ammo_cells   >= 1) if (dist >= DMG_WEAPON9_MINRANGE) if (dist < DMG_WEAPON9_RANGE) if (DMG_WEAPON9 > bestdamage) {best = IT_WEAPON9;bestdamage = DMG_WEAPON9;shotspeed = DMG_WEAPON2_VELOCITY;}
-	self.switcheapon = best;
-	if (shotspeed >= 10000)
-		self.shotlead = 0; // instant weapon
-	else
-		self.shotlead = 1 / shotspeed;
-	*/
-	if (time > self.weaponchangetimeout/* || !setweapon(self.switchweapon, WR_SELECTABLE)*/)
-	{
-		self.weaponchangetimeout = time + 0.2;
-		self.switchweapon = W_BestWeapon(TRUE);//ForTarget(self.enemy); //W_BestWeapon(TRUE);
-	}
+	self.switchweapon = W_BestWeapon(TRUE);
 };
 
 .float nextaim;
 void() havocbot_aim =
 {
-	local float f, aimlatency, latency, shotleadspeed;
-	local vector v, selfvel, enemyvel;
+	local float aimlatency;
+	local vector selfvel, enemyvel;
 	local string s;
 	if (time < self.nextaim)
 		return;
@@ -1087,57 +1117,13 @@ void() havocbot_aim =
 	aimlatency = self.ping;
 	if (self.enemy != world)
 	{
-		/*
-		self.nextaim = time + 0.1;
-		if (self.enemy != self.oldenemy)
-		{
-			self.oldenemy = self.enemy;
-			self.dest1 = self.dest2 = self.dest3 = self.enemy.origin;
-		}
-		else
-		{
-			// compute average velocity over .3 seconds based on origins (this is intentionally not .velocity)
-			self.dest1 = self.dest2;
-			self.dest2 = self.dest3;
-			self.dest3 = self.enemy.origin;
-		}
-		vel = ((self.dest2 - self.dest1) + (self.dest3 - self.dest2)) * 5.0; // 0.5 / 0.1 = 5.0
-		*/
 		selfvel = self.velocity;
 		if (!self.waterlevel)
 			selfvel_z = 0;
 		enemyvel = self.enemy.velocity;
 		if (!self.enemy.waterlevel)
 			enemyvel_z = 0;
-		/*
-		bprint("lag_additem(");
-		s = ftos(time + aimlatency);
-		bprint(s);
-		bprint(", 0, 0, ");
-		s = etos(self.enemy);
-		bprint(s);
-		bprint(", ");
-		s = vtos(self.origin);
-		bprint(s);
-		bprint(", ");
-		s = vtos(selfvel);
-		bprint(s);
-		bprint(", ");
-		s = vtos(self.enemy.origin);
-		bprint(s);
-		bprint(", ");
-		s = vtos(enemyvel);
-		bprint(s);
-		bprint(")\n");
-		*/
 		lag_additem(time + aimlatency, 0, 0, self.enemy, self.origin, selfvel, self.enemy.origin, enemyvel);
-
-//		v = trace_endpos;
-//		traceline(self.origin + '0 0 16', v, FALSE, self);
-//		if (trace_fraction >= 1 || trace_ent == self.enemy)
-//			lag_additem(time + aimlatency, 0, 0, self.enemy, v, '0 0 0', '0 0 0', '0 0 0');
-//		else
-//			lag_additem(time + aimlatency, 0, 0, self.enemy, '0 0 0', '0 0 0', '0 0 0', '0 0 0');
 	}
 	else
 		lag_additem(time + aimlatency, 0, 0, world, '0 0 0', '0 0 0', '0 0 0', '0 0 0');
@@ -1150,54 +1136,11 @@ void() havocbot_aim =
 .vector aimtargvelocity;
 void(float t, float f1, float f2, entity e1, vector v1, vector v2, vector v3, vector v4) havocbot_lagfunc =
 {
-	local string s;
 	self.aimtarg = e1;
 	self.aimselforigin = v1;
 	self.aimselfvelocity = v2;
 	self.aimtargorigin = v3;
 	self.aimtargvelocity = v4;
-	/*
-	bprint("havocbot_lagfunc(");
-	s = ftos(t);
-	bprint(s);
-	bprint(", ");
-	s = ftos(f1);
-	bprint(s);
-	bprint(", ");
-	s = ftos(f2);
-	bprint(s);
-	bprint(", ");
-	s = etos(e1);
-	bprint(s);
-	bprint(", ");
-	s = vtos(v1);
-	bprint(s);
-	bprint(", ");
-	s = vtos(v2);
-	bprint(s);
-	bprint(", ");
-	s = vtos(v3);
-	bprint(s);
-	bprint(", ");
-	s = vtos(v4);
-	bprint(s);
-	bprint(")\n");
-	*/
-	/*
-
-	self.lefty = 0;
-	if (fl)
-	{
-		//if (!setweapon(fl, WR_SELECTABLE))
-		//	return; // don't have the weapon??
-		//self.switchweapon = fl;
-		if (self.weapon == fl)
-		if (self.wstate == WS_ACTIVE)
-			self.lefty = 1;
-	}
-	else if (self.goalcurrent != world)
-		self.dest = self.goalcurrent.origin;
-	*/
 };
 
 .float painintensity;
@@ -1206,7 +1149,7 @@ void() havocbot_doaim =
 	local vector ang, angdiff, originalangdiff, selfvel, selforigin, targvel, targorigin, v, aimdir;
 	local float angdistance, fire, aimlatency, latency, shotleadspeed, pain;
 	local entity targ, saveenemy;
-	local string s;
+	//local string s;
 
 	fire = FALSE;
 	targ = self.aimtarg;
@@ -1381,374 +1324,15 @@ void() havocbot_think =
 	self.oldhealth = self.health;
 };
 
-/*
-float nextwayspawntime;
-
-void() waypointspawnforitem_think =
-{
-	local entity e;
-	self.nextthink = time + 0.03;
-	if (time >= nextwayspawntime)
-	{
-		e = self;
-		self = self.owner;
-		nextwayspawntime = time + 0.05;
-		if (!findwaysurface((self.mins + self.maxs) * 0.5 + self.origin, self.mins + self.origin, self.maxs + self.origin))
-			havocbot_spawnwaysurface(0);
-		self = e;
-		remove(self);
-		return;
-	}
-};
-*/
-
 void(entity e) waypointspawnforitem =
 {
-/*
-	newmis = spawn();
-	newmis.think = waypointspawnforitem_think;
-	newmis.nextthink = time;
-	newmis.owner = e;
-*/
-	/*
-	local entity head;
-	local vector org;
-	org = (e.absmin + e.absmax) * 0.5;
-	// find any waypoints touching this item, if any are found, don't spawn a new one
-	head = findradius(org, 0);
-	while(head)
-	{
-		if (head.classname == "waypoint")
-			return;
-		head = head.chain;
-	}
-	waypointspawn(org, 0);
-	*/
 };
-
-/*
-void() havocbot_dumpwaypoints =
-{
-	local entity head;
-	local string s;
-	head = findchain(classname, "waypoint");
-	sprint(self, "// waypoints for ");
-	sprint(self, world.model);
-	sprint(self, "\nvoid() waypoints_ = \n{\n");
-	while (head)
-	{
-		sprint(self, "        waypointspawn('");
-		s = vtos(head.origin);sprint(self, s);
-		sprint(self, "', ");
-		s = ftos(head.spawnflags);sprint(self, s);
-		sprint(self, ");\n");
-		head = head.chain;
-	}
-};
-
-void() havocbot_makewaypoint = {waypointspawn(self.origin, 0);};
-void() havocbot_killwaypoint =
-{
-	local   entity  head, best;
-	local   float   bestdist;
-	bestdist = 256; // max distance
-	head = findchain(classname, "waypoint");
-	while (head)
-	{
-		if (vlen(head.origin - self.origin) < bestdist)
-		{
-			best = head;
-			bestdist = vlen(head.origin - self.origin);
-		}
-		head = head.chain;
-	}
-	if (best)
-		remove(best);
-};
-*/
 
 void() havocbot_impulses =
 {
-	/*
-	if (cvar("temp1") & 512) // waypoint editing mode
-	{
-			 if (self.impulse == 110) {havocbot_makewaypoint();self.impulse = 0;}
-		else if (self.impulse == 111) {havocbot_killwaypoint();self.impulse = 0;}
-		else if (self.impulse == 118) {waypoint_relinkall();self.impulse = 0;}
-		else if (self.impulse == 119) {havocbot_dumpwaypoints();self.impulse = 0;}
-	}
-	*/
-
 	     if (self.impulse == 101) {havocbot_add(1);self.impulse = 0;}
 	else if (self.impulse == 102) {havocbot_remove(1);self.impulse = 0;}
 };
-
-/*
-void() waybox_enlargebox =
-{
-	local vector m1, m2, org1, org2;
-	local float c;
-	m1 = self.mins;
-	m2 = self.maxs;
-	if (m1 == m2)
-	{
-		// first time
-		self.dest = org1 = m1;
-		traceline(org1, org1 + '0 0 -65536', TRUE, world);
-		self.dest2 = trace_plane_normal;
-		self.count = trace_plane_dist;
-		traceline(org1, org1 + '-65536 0 0', TRUE, world);m1_x = trace_endpos_x;
-		traceline(org1, org1 + '65536 0 0', TRUE, world);m2_x = trace_endpos_x;
-		traceline(org1, org1 + '0 -65536 0', TRUE, world);m1_y = trace_endpos_y;
-		traceline(org1, org1 + '0 65536 0', TRUE, world);m2_y = trace_endpos_y;
-		traceline(org1, org1 + '0 0 -65536', TRUE, world);m1_z = trace_endpos_z;
-		traceline(org1, org1 + '0 0 65536', TRUE, world);m2_z = trace_endpos_z;
-	}
-	c = 0;
-	while (c < 10)
-	{
-		c = c + 1;
-		org1 = org2 = randompos(m1, m2);
-		org1_x = m2_x;
-		org2_x = m1_x;
-		traceline(org1, org2, TRUE, world);
-		m1_x = trace_endpos_x;
-		org1 = org2 = randompos(m1, m2);
-		org1_x = m1_x;
-		org2_x = m2_x;
-		traceline(org1, org2, TRUE, world);
-		m2_x = trace_endpos_x;
-
-		org1 = org2 = randompos(m1, m2);
-		org1_y = m2_y;
-		org2_y = m1_y;
-		traceline(org1, org2, TRUE, world);
-		m1_y = trace_endpos_y;
-		org1 = org2 = randompos(m1, m2);
-		org1_y = m1_y;
-		org2_y = m2_y;
-		traceline(org1, org2, TRUE, world);
-		m2_y = trace_endpos_y;
-	}
-
-	c = 0;
-	while (c < 30)
-	{
-		org1 = randompos(m1, m2);
-		org1_z = org1_x * slope_zx + org1_y * slope_zy + slope_basez;
-		org1_
-		traceline(org1, org1 + '0 0 -'
-		org2_z =
-		org1_z = m2_z;
-		org2_z = m1_z;
-		traceline(org1, org2, TRUE, world);
-		m1_z = trace_endpos_z;
-		org1 = org2 = randompos(m1, m2);
-		org1_z = m1_z;
-		org2_z = m2_z;
-		traceline(org1, org2, TRUE, world);
-		m2_z = trace_endpos_z;
-	}
-	setsize(self, m1, m2);
-};
-*/
-
-/*
-void() waysurface_setupthink =
-{
-	local float c, d, success, r;
-	local vector org, m1, m2;
-	self.nextthink = time + 0.1;
-	org = randompos(self.mins, self.maxs);
-	org_z = org_x * self.dest5_x + org_y * self.dest5_y + self.dest5_z;
-	//particle(org, '0 0 0', 104, 4);
-	if (time < self.cnt)
-	{
-		c = 0;
-		while (c < 128)
-		{
-			c = c + 1;
-			m1 = self.mins;
-			m2 = self.maxs;
-			r = random() * 64;
-			if (c & 1)
-			{
-				if (c & 2)
-				{
-					org_x = m1_x - r;
-					if (org_x < self.dest1_x - 256) org_x = self.dest1_x - 256;
-					//org_y = random() * (m2_y - m1_y) + m1_y;
-				}
-				else
-				{
-					org_x = m2_x + r;
-					if (org_x > self.dest1_x + 256) org_x = self.dest1_x + 256;
-					//org_y = random() * (m2_y - m1_y) + m1_y;
-				}
-			}
-			else
-			{
-				if (c & 2)
-				{
-					//org_x = random() * (m2_x - m1_x) + m1_x;
-					org_y = m1_y - r;
-					if (org_y < self.dest1_y - 256) org_y = self.dest1_y - 256;
-				}
-				else
-				{
-					//org_x = random() * (m2_x - m1_x) + m1_x;
-					org_y = m2_y + r;
-					if (org_y > self.dest1_y + 256) org_y = self.dest1_y + 256;
-				}
-			}
-			d = 0;
-			while (d <= 1)
-			{
-				if (c & 1)
-					org_y = m1_y + (m2_y - m1_y) * d;
-				else
-					org_x = m1_x + (m2_x - m1_x) * d;
-				success = FALSE;
-				org_z = org_x * self.dest5_x + org_y * self.dest5_y + self.dest5_z;
-				traceline(self.dest1, org, TRUE, world);
-				org = trace_endpos;
-				traceline(org, org + '0 0 -4', TRUE, world);
-				if (trace_fraction < 1)
-				if (trace_plane_dist == self.count)
-				if (trace_plane_normal == self.dest2)
-				{
-					//particle(org, '0 0 0', 140, 4);
-					if (m1_x > org_x) m1_x = org_x;if (m2_x < org_x) m2_x = org_x;
-					if (m1_y > org_y) m1_y = org_y;if (m2_y < org_y) m2_y = org_y;
-					if (m1_z > org_z) m1_z = org_z;if (m2_z < org_z) m2_z = org_z;
-					success = TRUE;
-				}
-				if (!success)
-					break;
-				// increment by 1/8th
-				d = d + 0.125;
-			}
-			if (d >= 1)
-			if (m1 != self.mins || m2 != self.maxs)
-				setsize(self, m1, m2);
-		}
-	}
-	else if (self.lefty || time > self.weapon)
-	{
-		if (!self.items)
-		{
-			self.items = 1;
-			setsize(self, self.mins + '-17 -17 -9', self.maxs + '17 17 9');
-		}
-		self.weapon = time + 10;
-		self.lefty = waysurface_link();
-	}
-};
-*/
-
-/*
-void() waysurface_setupthink =
-{
-	local float c, d, success;
-	local vector org, testorg, m1, m2;
-	self.nextthink = time + 0.1;
-	org = randompos(self.mins, self.maxs);
-	org_z = org_x * self.dest5_x + org_y * self.dest5_y + self.dest5_z;
-	//particle(org, '0 0 0', 104, 4);
-	if (time < self.cnt)
-	{
-		c = 0;
-		m1 = self.mins;
-		m2 = self.maxs;
-		while (c < 512)
-		{
-			c = c + 1;
-			testorg = randompos(m1, m2);
-			if (c & 1)
-			{
-				if (c & 2)
-				{
-					org_x = m1_x - 32;
-					if (org_x < self.dest1_x - 256) org_x = self.dest1_x - 256;
-				}
-				else
-				{
-					org_x = m2_x + 32;
-					if (org_x > self.dest1_x + 256) org_x = self.dest1_x + 256;
-				}
-				org_y = random() * (m2_y - m1_y) + m1_y;
-			}
-			else
-			{
-				if (c & 2)
-				{
-					org_y = m1_y - 32;
-					if (org_y < self.dest1_y - 256) org_y = self.dest1_y - 256;
-				}
-				else
-				{
-					org_y = m2_y + 32;
-					if (org_y > self.dest1_y + 256) org_y = self.dest1_y + 256;
-				}
-				org_x = random() * (m2_x - m1_x) + m1_x;
-			}
-			org_z = org_x * self.dest5_x + org_y * self.dest5_y + self.dest5_z;
-			traceline(testorg, org, TRUE, world);
-			org = trace_endpos;
-			traceline(org, org + '0 0 -4', TRUE, world);
-			if (trace_fraction < 1)
-			if (trace_plane_dist == self.count)
-			if (trace_plane_normal == self.dest2)
-			{
-				//particle(org, '0 0 0', 140, 4);
-				if (m1_x > org_x) m1_x = org_x;if (m2_x < org_x) m2_x = org_x;
-				if (m1_y > org_y) m1_y = org_y;if (m2_y < org_y) m2_y = org_y;
-				if (m1_z > org_z) m1_z = org_z;if (m2_z < org_z) m2_z = org_z;
-			}
-		}
-		if (m1 != self.mins || m2 != self.maxs)
-			setsize(self, m1, m2);
-	}
-	else if (self.lefty || time > self.weapon)
-	{
-		self.weapon = time + 10;
-		self.lefty = waysurface_link();
-	}
-};
-*/
-
-/*
-void(float fl) havocbot_spawnwaysurface =
-{
-	newmis = spawn();
-	newmis.classname = "waysurface";
-	newmis.think = waysurface_setupthink;
-	newmis.lefty = TRUE;
-	newmis.nextthink = time;
-	newmis.cnt = time + 1;
-	newmis.dest1 = trace_endpos + '0 0 1';
-	newmis.dest2 = trace_plane_normal;
-	newmis.count = trace_plane_dist;
-	newmis.dmg2 = getsurfacenearpoint(trace_ent, trace_endpos);
-	// test 1 unit above so it doesn't start inside the surface
-	newmis.dest5_x = 0 - (normal_x / normal_z);
-	newmis.dest5_y = 0 - (normal_y / normal_z);
-	newmis.dest5_z = newmis.dest1_z - (newmis.dest1_x * newmis.dest5_x + newmis.dest1_y * newmis.dest5_y);
-	bprint("org ");
-	bprintvector(newmis.dest1);
-	bprint(" normal ");
-	bprintvector(newmis.dest2);
-	bprint(" dist ");
-	bprintfloat(newmis.count);
-	bprint(" slope ");
-	bprintvector(newmis.dest5);
-	bprint(" surfnum ");
-	bprintfloat(newmis.dmg2);
-	bprint("\n");
-	// start out as just a point
-	setsize(newmis, newmis.dest1, newmis.dest1);
-};
-*/
 
 entity(vector org, vector m1, vector m2) findwaysurface =
 {
@@ -1775,10 +1359,13 @@ entity(vector org, vector m1, vector m2) findwaysurface =
 	return world;
 }
 
+/*
 .float nextlaywaysurface;
 .entity lastwaysurface;
+*/
 void() havoc_laywaypoints =
 {
+/*
 	local entity head, w;
 	local vector org;
 	if (!deathmatch)
@@ -1786,56 +1373,51 @@ void() havoc_laywaypoints =
 		return;
 	if (self.fixangle || self.teleport_time > time || self.pausetime > time)
 		self.lastwaysurface = world;
-	//if (!(self.flags & FL_CLIENT))
-	//	return;
-	//if (!(self.flags & FL_ONGROUND))
-	//	return;
+	if (!(self.flags & FL_CLIENT))
+		return;
+	if (!(self.flags & FL_ONGROUND))
+		return;
 	if (time < self.nextlaywaysurface)
 		return;
 	self.nextlaywaysurface = time + 0.1; //2 + random() * 0.3;
-	/*
-	traceline(self.origin + '0 0 -23', self.origin + '0 0 -40', FALSE, self);
-	if (trace_fraction >= 1)
-		return;
-	head = findchain(classname, "waysurface");
-	while(head)
-	{
-		if (vlen(head.origin - self.origin) < 192)
-		if (tracewalk(self, self.origin, head.origin))
-			return;
-		head = head.chain;
-	}
-	havocbot_makewaysurface();
-	*/
 	org = self.origin + self.mins_z * '0 0 1';
 	head = findwaysurface(org, self.mins + self.origin, self.maxs + self.origin);
-	//if (head)
-	//{
-		/*
-		if (head != self.lastwaysurface)
-		if (self.lastwaysurface)
-			waysurface_addlink(self.lastwaysurface, head);
-		self.lastwaysurface = head;
-		*/
-		/*
-		w = head.wp0;if (w) te_lightning2(w, (head.absmin + head.absmax) * 0.5 + '0 0 24', (w.absmin + w.absmax) * 0.5 + '0 0 24');
-		w = head.wp1;if (w) te_lightning2(w, (head.absmin + head.absmax) * 0.5 + '0 0 24', (w.absmin + w.absmax) * 0.5 + '0 0 24');
-		w = head.wp2;if (w) te_lightning2(w, (head.absmin + head.absmax) * 0.5 + '0 0 24', (w.absmin + w.absmax) * 0.5 + '0 0 24');
-		w = head.wp3;if (w) te_lightning2(w, (head.absmin + head.absmax) * 0.5 + '0 0 24', (w.absmin + w.absmax) * 0.5 + '0 0 24');
-		w = head.wp4;if (w) te_lightning2(w, (head.absmin + head.absmax) * 0.5 + '0 0 24', (w.absmin + w.absmax) * 0.5 + '0 0 24');
-		w = head.wp5;if (w) te_lightning2(w, (head.absmin + head.absmax) * 0.5 + '0 0 24', (w.absmin + w.absmax) * 0.5 + '0 0 24');
-		w = head.wp6;if (w) te_lightning2(w, (head.absmin + head.absmax) * 0.5 + '0 0 24', (w.absmin + w.absmax) * 0.5 + '0 0 24');
-		w = head.wp7;if (w) te_lightning2(w, (head.absmin + head.absmax) * 0.5 + '0 0 24', (w.absmin + w.absmax) * 0.5 + '0 0 24');
-		*/
-	//}
-	//else
-	/*
-	if (!head)
+	if (head)
 	{
-		// if it found no surface, spawn a new one
-		havocbot_spawnwaysurface(0);
+		w = head.wp0;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp1;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp2;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp3;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp4;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp5;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp6;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp7;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp8;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp9;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp10;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp11;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp12;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp13;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp14;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp15;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp16;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp17;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp18;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp19;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp20;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp21;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp22;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp23;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp24;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp25;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp26;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp27;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp28;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp29;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp30;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
+		w = head.wp31;if (w) te_lightning2(w, (w.absmin + w.absmax) * 0.5 + '0 0 24', self.origin);
 	}
-	*/
+*/
 };
 
 entity dangerwaysurface;
@@ -1875,12 +1457,14 @@ void() havocbot_updatedangerousobjects =
 
 void() waysurface_think =
 {
-	local vector org;
-	self.nextthink = time + 2;
+	//local vector org;
+	self.nextthink = time + 0.2;
+	/*
 	org = randompos(self.mins, self.maxs);
 	org_z = org_x * self.dest5_x + org_y * self.dest5_y + self.dest5_z;
 	org = org + self.origin;
-	//particle(org, '0 0 0', 104, 4);
+	particle(org, '0 0 0', 104, 4);
+	*/
 	if (time > self.weapon)
 	if (!waysurface_link())
 		self.weapon = time + 10;
@@ -1889,10 +1473,9 @@ void() waysurface_think =
 // note: no rotation support (yet)
 void(entity e) havocbot_spawnwaysurfaces =
 {
-	local float surfnum, numpoints, pointnum, thinktime;
+	local float surfnum, numpoints, pointnum;
 	local vector normal, v, m1, m2;
 	surfnum = 0;
-	thinktime = time;
 	while (1)
 	{
 		numpoints = getsurfacenumpoints(e, surfnum);
@@ -1905,17 +1488,15 @@ void(entity e) havocbot_spawnwaysurfaces =
 			surfnum = surfnum + 1;
 			continue;
 		}
+
 		newmis = spawn();
 		newmis.classname = "waysurface";
 		newmis.think = waysurface_think;
 		newmis.lefty = TRUE;
-		newmis.nextthink = thinktime;
+		newmis.nextthink = time;// + surfnum * 0.01;
 		newmis.cnt = time + 1;
 		newmis.owner = e;
 		newmis.dmg2 = surfnum;
-		thinktime = thinktime + 0.125;
-		if (thinktime >= time + 2)
-			thinktime = time;
 
 		m1 = m2 = getsurfacepoint(e, surfnum, 0);
 		pointnum = 1;
@@ -1927,6 +1508,7 @@ void(entity e) havocbot_spawnwaysurfaces =
 			if (m1_z > v_z) m1_z = v_z;if (m2_z < v_z) m2_z = v_z;
 			pointnum = pointnum + 1;
 		}
+
 		setorigin(newmis, e.origin);
 		setsize(newmis, m1 + '-1 -1 -9' - e.origin, m2 + '1 1 9' - e.origin);
 		if (e != world)
@@ -1948,6 +1530,10 @@ void(entity e) havocbot_spawnwaysurfaces =
 		newmis.dest5_y = 0 - (normal_y / normal_z);
 		newmis.dest5_z = newmis.dest1_z + 1 - (newmis.dest1_x * newmis.dest5_x + newmis.dest1_y * newmis.dest5_y);
 
+		newmis.dest1 = (m1 + m2) * 0.5;
+		newmis.dest1_z = newmis.dest1_x * newmis.dest5_x + newmis.dest1_y * newmis.dest5_y + newmis.dest5_z;
+
+		/*
 		bprint("org ");
 		bprintvector(newmis.dest1);
 		bprint(" normal ");
@@ -1959,8 +1545,11 @@ void(entity e) havocbot_spawnwaysurfaces =
 		bprint(" surfnum ");
 		bprintfloat(newmis.dmg2);
 		bprint("\n");
+		*/
 
-		newmis.dest1 = (newmis.absmin + newmis.absmax) * 0.5;
+		if (pointcontents(newmis.dest1 + '0 0 -2') != CONTENT_SOLID)
+			remove(newmis);
+
 		surfnum = surfnum + 1;
 	}
 };
