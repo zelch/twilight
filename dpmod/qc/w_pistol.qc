@@ -33,6 +33,9 @@ void() w_pistol =
 	if (widle(w_pistoldrop1))
 		return;
 
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(12000, 2);
+
 	if (self.button0)
 	if (W_ShotsToFire(0.4))
 		W_PistolFireCode();

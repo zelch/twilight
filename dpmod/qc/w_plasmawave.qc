@@ -100,6 +100,21 @@ void() w_plasmawaveraise1;
 void() w_plasmawaveraise2;
 void() w_plasmawave =
 {
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (time < self.altfiretimeout)
+			self.button3 = w_directattackaim(1000, 3);
+		else
+			self.button0 = w_directattackaim(1000, 3);
+	}
+
 	// FIXME: need overload fire sound (second overload sound)
 	if (self.woverload > 0)
 	{

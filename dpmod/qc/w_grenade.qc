@@ -105,6 +105,9 @@ void() w_grenade =
 	if (widle(w_grenadedrop1))
 		return;
 
+	if (self.aimtarg) // bot target
+		self.button0 = w_grenadeattackaim(1000, 2);
+
 	if (time > self.detonatetimeout)
 	if (time > self.attack_finished)
 	{

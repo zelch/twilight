@@ -9,8 +9,8 @@ PLAYER BACKPACKS
 void() BackpackFade =
 {
 	self.nextthink = time;
-//	self.alpha = 1 - (time - self.cnt) * 4;
-//	if (self.alpha < 0.01)
+	self.alpha = 1 - (time - self.cnt) * 4;
+	if (self.alpha < 0.01)
 	{
 		Inventory_DestroyByName(self, "", 99999);
 		remove(self);
@@ -43,143 +43,50 @@ void() BackpackTouch =
 	oself = self;
 	acount = 0;
 	self.items = self.items - (self.items & other.items);
-	if (other.flags & FL_CLIENT)
-	{
-		sprint(other, "You get ");
-		if (self.items)
-		{
-			//d = IT_WEAPON1;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON2;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON3;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON4;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON5;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON6;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON7;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON8;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON9;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			//d = IT_WEAPON10;if(self.items & d) {if(acount) sprint(other,", ");s=weaponname(d);sprint(other,s);acount=1;}
-			d = 0;
-			if (self.items & IT_WEAPON1) d = d + 1;
-			if (self.items & IT_WEAPON2) d = d + 1;
-			if (self.items & IT_WEAPON3) d = d + 1;
-			if (self.items & IT_WEAPON4) d = d + 1;
-			if (self.items & IT_WEAPON5) d = d + 1;
-			if (self.items & IT_WEAPON6) d = d + 1;
-			if (self.items & IT_WEAPON7) d = d + 1;
-			if (self.items & IT_WEAPON8) d = d + 1;
-			if (self.items & IT_WEAPON9) d = d + 1;
-			if (self.items & IT_WEAPON10) d = d + 1;
-			if (d >= 3)
-				sprint(other, "several weapons");
-			else if (d == 2)
-				sprint(other, "a couple weapons");
-			else
-				sprint(other, "a weapon");
-			acount=1;
-		}
-	}
 
 	// if the player was using his best weapon, change up to the new one if better
 	self = other;
 	best = W_BestWeapon(TRUE);
 	self = oself;
 
-	// add the ammo
-	//Inventory_AdjustQuantity(other, "shells", Inventory_Quantity(self, "shells"));
-	//Inventory_AdjustQuantity(other, "nails", Inventory_Quantity(self, "nails"));
-	//Inventory_AdjustQuantity(other, "rockets", Inventory_Quantity(self, "rockets"));
-	//Inventory_AdjustQuantity(other, "cells", Inventory_Quantity(self, "cells"));
-	if (self.super_damage_finished > time)
-	if (self.super_damage_finished > other.super_damage_finished)
-	{
-		other.super_time = 1;
-		other.super_damage_finished = self.super_damage_finished;
-		other.items = other.items | IT_QUAD;
-	}
-	if (self.invisible_finished > time)
-	if (self.invisible_finished > other.invisible_finished)
-	{
-		other.invisible_time = 1;
-		other.invisible_finished = self.invisible_finished;
-		other.items = other.items | IT_INVISIBILITY;
-	}
-	if (self.invincible_finished > time)
-	if (self.invincible_finished > other.invincible_finished)
-	{
-		other.invincible_time = 1;
-		other.invincible_finished = self.invincible_finished;
-		other.items = other.items | IT_INVULNERABILITY;
-	}
-
 	new = self.items;
 	old = other.items;
 	other.items = old | new;
 
-	if (other.flags & FL_CLIENT)
+	item = Inventory_GetNextItem(self, world);
+	while (item)
 	{
-		item = Inventory_GetNextItem(self, world);
-		while (item)
+		d = Inventory_AbsorbItem(other, item);
+		if (d)
 		{
-			d = Inventory_AbsorbItem(other, item);
-			if (d)
+			if (other.flags & FL_CLIENT)
 			{
 				s = ftos(d);
 				if (acount)
 					sprint(other, ", ");
+				else
+					sprint(other, "You get ");
 				acount = 1;
 				sprint (other, s);
 				sprint (other, " ");
 				sprint (other, item.netname);
-				if (item.count == 0)
-				{
-					Item_Destroy(item);
-					item = world;
-				}
 			}
-			item = Inventory_GetNextItem(self, item);
+			if (item.count == 0)
+			{
+				Item_Destroy(item);
+				item = world;
+			}
 		}
-		/*
-		if (Inventory_Quantity(self, "shells"))
-		{
-			if (acount)
-				sprint(other, ", ");
-			acount = 1;
-			s = ftos(Inventory_Quantity(self, "shells"));
-			sprint (other, s);
-			sprint (other, " shells");
-		}
-		if (Inventory_Quantity(self, "nails"))
-		{
-			if (acount)
-				sprint(other, ", ");
-			acount = 1;
-			s = ftos(Inventory_Quantity(self, "nails"));
-			sprint (other, s);
-			sprint (other, " rounds");
-		}
-		if (Inventory_Quantity(self, "rockets"))
-		{
-			if (acount)
-				sprint(other, ", ");
-			acount = 1;
-			s = ftos(Inventory_Quantity(self, "rockets"));
-			sprint (other, s);
-			sprint (other, " rockets");
-		}
-		if (Inventory_Quantity(self, "cells"))
-		{
-			if (acount)
-				sprint(other, ", ");
-			acount = 1;
-			s = ftos(Inventory_Quantity(self, "cells"));
-			sprint (other, s);
-			sprint (other, " cells");
-		}
-		*/
+		item = Inventory_GetNextItem(self, item);
+	}
+	if (other.flags & FL_CLIENT)
+	{
 		if (self.super_damage_finished > time)
 		{
 			if (acount)
 				sprint(other, ", ");
+			else
+				sprint(other, "You get ");
 			acount = 1;
 			sprint (other, "quad");
 		}
@@ -187,6 +94,8 @@ void() BackpackTouch =
 		{
 			if (acount)
 				sprint(other, ", ");
+			else
+				sprint(other, "You get ");
 			acount = 1;
 			sprint (other, "ring");
 		}
@@ -194,13 +103,14 @@ void() BackpackTouch =
 		{
 			if (acount)
 				sprint(other, ", ");
+			else
+				sprint(other, "You get ");
 			acount = 1;
 			sprint (other, "protection");
 		}
 
-		if (!acount)
-			sprint(other, "nothing you need");
-		sprint (other, "\n");
+		if (acount)
+			sprint (other, "\n");
 		stuffcmd(other, "bf\n");
 	}
 	// backpack touch sound
@@ -210,18 +120,12 @@ void() BackpackTouch =
 	self = other;
 
 	// change to the weapon
-	old = W_BestWeapon(TRUE); // didn't want to add a new local...
-	if (old & new) // is the best weapon in the pack?
-		self.switchweapon = old; // yep, change to it.
+	best = W_BestWeapon(TRUE);
+	if (best & new) // is the best weapon in the pack?
+		self.switchweapon = best; // yep, change to it.
 
 	self = oself;
 	BackpackRemove();
-	/*
-	self.think = SUB_Remove;
-	self.nextthink = time + 0.1;
-	self.solid = SOLID_NOT;
-	self.touch = SUB_Null;
-	*/
 };
 
 // FIXME: bother to rate backpacks based on their contents?
@@ -237,17 +141,17 @@ DropBackpack
 */
 void() DropBackpack =
 {
-	local   entity  item, head, killent;
-	local   float   c, t;
+	local entity item, head, killent;
+	local float c, t;
 
 	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
 		return;
 
-	if (deathmatch == DM_RPG)
-		Inventory_DropByName(self, "", 99999);
+	//if (deathmatch == DM_RPG)
+	//	Inventory_DropByName(self, "", 99999);
 
-	if (!(Inventory_Quantity(self, "shells") + Inventory_Quantity(self, "nails") + Inventory_Quantity(self, "rockets") + Inventory_Quantity(self, "cells")))
-	if (!(self.super_damage_finished || self.invisible_finished || self.invincible_finished))
+	if (!Inventory_GetNextItem(self, world))
+	//if (!(Inventory_Quantity(self, "shells") + Inventory_Quantity(self, "nails") + Inventory_Quantity(self, "rockets") + Inventory_Quantity(self, "cells")))
 	if (!(self.items & (IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10)))
 		return; // nothing in it
 
@@ -273,32 +177,17 @@ void() DropBackpack =
 
 	item = spawn();
 	item.createdtime = time;
-	item.owner = item;
-	item.enemy = item;
+	//item.owner = item;
+	//item.enemy = item;
 	item.classname = "backpack";
-
-	item.items = self.items & (IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10);
-	self.items = self.items - item.items;
-
-	item.super_damage_finished = self.super_damage_finished;
-	item.invisible_finished = self.invisible_finished;
-	item.invincible_finished = self.invincible_finished;
-	self.super_damage_finished = 0;
-	self.invisible_finished = 0;
-	self.invincible_finished = 0;
+	item.havocpickup = TRUE;
+	item.pickupevalfunc = item_backpack_pickupeval;
 
 	item.velocity_x = crandom() * 100;
 	item.velocity_y = crandom() * 100;
 	item.velocity_z = 300;
 
-	if (item.super_damage_finished)
-		item.effects = item.effects | EF_BLUE;
-	if (item.invisible_finished)
-		item.alpha = 0.5;
-	if (item.invincible_finished)
-		item.effects = item.effects | EF_RED;
-
-	item.colormap = self.colormap;
+	item.colormap = self.colormap; // color backpack like player
 	item.flags = FL_ITEM;
 	item.solid = SOLID_TRIGGER;
 	item.movetype = MOVETYPE_TOSS;
@@ -313,28 +202,8 @@ void() DropBackpack =
 		item.nextthink = time + 120;    // remove after 2 minutes
 	item.think = BackpackRemove;
 
-	/*
-	item.havocrating = 0;
-//	if (item.items & IT_WEAPON1) item.havocrating = item.havocrating + 60;
-//	if (item.items & IT_WEAPON2) item.havocrating = item.havocrating + 120;
-	if (item.items & IT_WEAPON3) item.havocrating = item.havocrating + 200;
-	if (item.items & IT_WEAPON4) item.havocrating = item.havocrating + 150;
-	if (item.items & IT_WEAPON5) item.havocrating = item.havocrating + 300;
-	if (item.items & IT_WEAPON6) item.havocrating = item.havocrating + 200;
-	if (item.items & IT_WEAPON7) item.havocrating = item.havocrating + 240;
-	if (item.items & IT_WEAPON8) item.havocrating = item.havocrating + 300;
-	if (item.items & IT_WEAPON9) item.havocrating = item.havocrating + 0;
-	if (item.items & IT_WEAPON10) item.havocrating = item.havocrating + 300;
-	item.havocrating = item.havocrating + Inventory_Quantity(item, "shells") * 60;
-	item.havocrating = item.havocrating + Inventory_Quantity(item, "nails") * 15;
-	item.havocrating = item.havocrating + Inventory_Quantity(item, "rockets") * 120;
-	item.havocrating = item.havocrating + Inventory_Quantity(item, "cells") * 30;
-	if (item.super_damage_finished > time) item.havocrating = item.havocrating + 10 * (item.super_damage_finished - time);
-	if (item.invisible_finished    > time) item.havocrating = item.havocrating + 10 * (item.invisible_finished - time);
-	if (item.invincible_finished   > time) item.havocrating = item.havocrating + 20 * (item.invincible_finished - time);
-	*/
-	item.havocpickup = TRUE;
-	item.pickupevalfunc = item_backpack_pickupeval;
-
+	// this transfers legacy items
+	item.items = self.items & (IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10);
+	// this transfers all inventory items (ammo, etc)
 	Inventory_AbsorbInventory(item, self);
 };

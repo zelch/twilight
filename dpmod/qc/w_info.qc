@@ -125,47 +125,6 @@ float(float minrange, float preferredrange, float baserating) genericweaponratin
 };
 
 /*
-float(float w) RankForWeapon =
-{
-	if (w == IT_WEAPON10) return 1;
-	if (w == IT_WEAPON8) return 2;
-	if (w == IT_WEAPON7) return 3;
-	if (w == IT_WEAPON6) return 4;
-	if (w == IT_WEAPON5) return 5;
-	if (w == IT_WEAPON4) return 6;
-	if (w == IT_WEAPON3) return 7;
-	if (w == IT_WEAPON2) return 8;
-	if (w == IT_WEAPON9) return 9;
-	if (w == IT_WEAPON1) return 10;
-	// this should never happen, as it catches all valid weapons in the code above
-	return 100;
-};
-*/
-
-/*
-=============
-Deathmatch_Weapon
-
-Deathmatch weapon change rules for picking up a weapon
-
-=============
-*/
-/*
-void(float old, float new) Deathmatch_Weapon =
-{
-	local float or, nr;
-
-	if (self.health < 1)
-		return;
-	// change self.weapon if desired
-	or = RankForWeapon (self.weapon);
-	nr = RankForWeapon (new);
-	if (nr < or)
-		self.switchweapon = new;
-};
-*/
-
-/*
 ============
 W_ChangeWeapon
 
@@ -178,35 +137,17 @@ void() W_ChangeWeapon =
 		return;
 	if (self.impulse >= 200)
 		self.impulse = self.impulse - 200;
-	if (self.impulse == 1) {fl = IT_WEAPON1;}
-	if (self.impulse == 2) {fl = IT_WEAPON2;}
-	if (self.impulse == 3) {fl = IT_WEAPON3;}
-	if (self.impulse == 4) {fl = IT_WEAPON4;}
-	if (self.impulse == 5) {fl = IT_WEAPON5;}
-	if (self.impulse == 6) {fl = IT_WEAPON6;}
-	if (self.impulse == 7) {fl = IT_WEAPON7;}
-	if (self.impulse == 8) {fl = IT_WEAPON8;}
-	if (self.impulse == 9) {fl = IT_WEAPON9;}
-	if (self.impulse == 10) {fl = IT_WEAPON10;}
+	if (self.impulse == 1) {setweapon(IT_WEAPON1, WR_SWITCH);}
+	if (self.impulse == 2) {setweapon(IT_WEAPON2, WR_SWITCH);}
+	if (self.impulse == 3) {setweapon(IT_WEAPON3, WR_SWITCH);}
+	if (self.impulse == 4) {setweapon(IT_WEAPON4, WR_SWITCH);}
+	if (self.impulse == 5) {setweapon(IT_WEAPON5, WR_SWITCH);}
+	if (self.impulse == 6) {setweapon(IT_WEAPON6, WR_SWITCH);}
+	if (self.impulse == 7) {setweapon(IT_WEAPON7, WR_SWITCH);}
+	if (self.impulse == 8) {setweapon(IT_WEAPON8, WR_SWITCH);}
+	if (self.impulse == 9) {setweapon(IT_WEAPON9, WR_SWITCH);}
+	if (self.impulse == 10) {setweapon(IT_WEAPON10, WR_SWITCH);}
 	self.impulse = 0;
-	/*
-	if (!(self.items & fl))
-	{
-		// don't have the weapon or the ammo
-		if (self.flags & FL_CLIENT)
-			sprint(self, "That weapon does not appear to be in your posession\n");
-		return;
-	}
-	if (!setweapon(fl, TRUE, FALSE))
-	{
-		// don't have the ammo
-		if (self.flags & FL_CLIENT)
-			sprint (self, "Insufficient ammunition for that weapon\n");
-		return;
-	}
-	*/
-	if (setweapon(fl, WR_SELECTABLE))
-		self.switchweapon = fl;
 };
 
 /*
@@ -221,10 +162,10 @@ void() CheatCommand =
 	if (self.health < 1)
 		return;
 
-	Inventory_SetQuantity(self, "shells", 99999);
-	Inventory_SetQuantity(self, "nails", 99999);
-	Inventory_SetQuantity(self, "rockets", 99999);
-	Inventory_SetQuantity(self, "cells", 99999);
+	Inventory_SetQuantity(self, "shells", AMMOMAX_SHELLS);
+	Inventory_SetQuantity(self, "nails", AMMOMAX_NAILS);
+	Inventory_SetQuantity(self, "rockets", AMMOMAX_ROCKETS);
+	Inventory_SetQuantity(self, "cells", AMMOMAX_SHELLS);
 	self.items = self.items
 	 | IT_WEAPON1
 	 | IT_WEAPON2

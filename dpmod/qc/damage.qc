@@ -3,26 +3,42 @@
 .float  ammo_nails;
 .float  ammo_rockets;
 .float  ammo_cells;
-.float  ammo_xshells;
 
 float   AMMOMAX_SHELLS          =  100;
 float   AMMOMAX_NAILS           =  200;
 float   AMMOMAX_ROCKETS         =  100;
 float   AMMOMAX_CELLS           =  200;
-float   AMMOMAX_XSHELLS         =  100;
 
-float   STARTDM_AMMO_SHELLS      =    20;
-float   STARTDM_AMMO_NAILS       =    0;
-float   STARTDM_AMMO_ROCKETS     =    0;
-float   STARTDM_AMMO_CELLS       =    0;
-float   STARTDM_AMMO_XSHELLS     =    0;
+// LordHavoc: since constants can't have math in them, the ITEMS are inlined in client.qc :(
+float   STARTPARMSDM_AMMO_SHELLS     =   20;
+float   STARTPARMSDM_AMMO_NAILS      =    0;
+float   STARTPARMSDM_AMMO_ROCKETS    =    0;
+float   STARTPARMSDM_AMMO_CELLS      =    0;
+//float   STARTPARMSDM_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
+float   STARTPARMSDM_HEALTH          =  125;
+float   STARTPARMSDM_MAXHEALTH       =  100;
+float   STARTPARMSDM_ARMORVALUE      =    0;
+float   STARTPARMSDM_ARMORTYPE       =    0;
 
-float   STARTSP_AMMO_SHELLS      =    20;
-float   STARTSP_AMMO_NAILS       =    0;
-float   STARTSP_AMMO_ROCKETS     =    0;
-float   STARTSP_AMMO_CELLS       =    0;
-float   STARTSP_AMMO_XSHELLS     =    0;
-float   STARTSP_WEAPON           = IT_WEAPON2;
+float   STARTPARMSSP_AMMO_SHELLS     =   20;
+float   STARTPARMSSP_AMMO_NAILS      =    0;
+float   STARTPARMSSP_AMMO_ROCKETS    =    0;
+float   STARTPARMSSP_AMMO_CELLS      =    0;
+//float   STARTPARMSSP_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
+float   STARTPARMSSP_HEALTH          =  100;
+float   STARTPARMSSP_MAXHEALTH       =  100;
+float   STARTPARMSSP_ARMORVALUE      =    0;
+float   STARTPARMSSP_ARMORTYPE       =    0;
+
+float   STARTPARMSELIM_AMMO_SHELLS   =  100;
+float   STARTPARMSELIM_AMMO_NAILS    =  200;
+float   STARTPARMSELIM_AMMO_ROCKETS  =  100;
+float   STARTPARMSELIM_AMMO_CELLS    =  200;
+//float   STARTPARMSELIM_ITEMS         = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
+float   STARTPARMSELIM_HEALTH        =  400;
+float   STARTPARMSELIM_MAXHEALTH     =  400;
+float   STARTPARMSELIM_ARMORVALUE    =    0;
+float   STARTPARMSELIM_ARMORTYPE     =    0;
 
 // ammo given by collecting weapons when already at weapon's fill-up limit
 float   AMMOWEAPONOVERFLOW              =    0; // false, thus it will give normal ammo
@@ -30,13 +46,11 @@ float   AMMOWEAPONOVERFLOW_SHELLS       =    3;
 float   AMMOWEAPONOVERFLOW_NAILS        =    5;
 float   AMMOWEAPONOVERFLOW_ROCKETS      =    1;
 float   AMMOWEAPONOVERFLOW_CELLS        =    5;
-float   AMMOWEAPONOVERFLOW_XSHELLS      =    3;
 
 float   AMMO_SHELLS                     =   20; // double if big box
 float   AMMO_NAILS                      =   25; // double if big box
 float   AMMO_ROCKETS                    =    5; // double if big box
 float   AMMO_CELLS                      =   14; // double if big box
-float   AMMO_XSHELLS                    =   20; // double if big box
 
 float   AMMO_GRUNT_PISTOL_ROUNDS        =    5;
 float   AMMO_GRUNT_SHOTGUN_SHELLS       =    2;

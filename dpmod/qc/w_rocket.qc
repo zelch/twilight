@@ -135,6 +135,21 @@ void() w_rocket =
 	if (widle(w_rocketdrop1))
 		return;
 
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (time < self.altfiretimeout)
+			self.button3 = w_directattackaim(3000, 1);
+		else
+			self.button0 = w_directattackaim(5000, 1);
+	}
+
 	if (self.button3)
 	{
 		if (W_ShotsToFire(1.2))

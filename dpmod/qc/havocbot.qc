@@ -1099,11 +1099,8 @@ void() havocbot_chooseenemy =
 	while (head)
 	{
 		if (head.takedamage == DAMAGE_AIM)
-		if (head != self)
-		if (!head.deadflag)
 		if (head.health < besthealth)
-		if (head.classname != "player" || !coop)
-		if (head.team != self.team || self.team == 0 || teamplay == 0)
+		if (w_shouldattack(head))
 		{
 			traceline(self.origin + self.view_ofs, (head.absmin + head.absmax) * 0.5, FALSE, self);
 			if (trace_ent == head || trace_fraction >= 1)
@@ -1125,15 +1122,12 @@ void() havocbot_chooseweapon =
 .float nextaim;
 void() havocbot_aim =
 {
-	local float aimlatency;
 	local vector selfvel, enemyvel;
 	local string s;
 	if (time < self.nextaim)
 		return;
 	self.nextaim = time + 0.1;
-	aimlatency = (4 - skill) * 0.1 + random() * 0.05;
-	self.ping = self.ping + (aimlatency - self.ping) * frametime * 3;
-	aimlatency = self.ping;
+	self.ping = self.ping + (((4 - skill) * 0.1 + random() * 0.05) - self.ping) * frametime * 3;
 	if (self.enemy != world)
 	{
 		selfvel = self.velocity;
@@ -1142,13 +1136,14 @@ void() havocbot_aim =
 		enemyvel = self.enemy.velocity;
 		if (!self.enemy.waterlevel)
 			enemyvel_z = 0;
-		lag_additem(time + aimlatency, 0, 0, self.enemy, self.origin, selfvel, self.enemy.origin, enemyvel);
+		lag_additem(time + self.ping, 0, 0, self.enemy, self.origin, selfvel, self.enemy.origin, enemyvel);
 	}
 	else
-		lag_additem(time + aimlatency, 0, 0, world, '0 0 0', '0 0 0', '0 0 0', '0 0 0');
+		lag_additem(time + self.ping, 0, 0, world, '0 0 0', '0 0 0', '0 0 0', '0 0 0');
 };
 
 .entity aimtarg;
+.float aimlatency;
 .vector aimselforigin;
 .vector aimselfvelocity;
 .vector aimtargorigin;
@@ -1156,17 +1151,19 @@ void() havocbot_aim =
 void(float t, float f1, float f2, entity e1, vector v1, vector v2, vector v3, vector v4) havocbot_lagfunc =
 {
 	self.aimtarg = e1;
+	self.aimlatency = self.ping; // FIXME?  Shouldn't this be in the lag item?
 	self.aimselforigin = v1;
 	self.aimselfvelocity = v2;
 	self.aimtargorigin = v3;
 	self.aimtargvelocity = v4;
 };
 
+/*
 .float painintensity;
 void() havocbot_doaim =
 {
 	local vector ang, angdiff, originalangdiff, selfvel, selforigin, targvel, targorigin, v, aimdir;
-	local float angdistance, fire, aimlatency, latency, shotleadspeed, pain;
+	local float angdistance, fire, latency, shotleadspeed, pain;
 	local entity targ, saveenemy;
 	//local string s;
 
@@ -1181,7 +1178,10 @@ void() havocbot_doaim =
 	}
 	if (targ != world)
 	if (targ.takedamage)
+	if (self.weapon == self.switchweapon)
+	if (self.wstate == WS_ACTIVE)
 	{
+*/
 		/*
 		if (time > self.weaponchangetimeout || !setweapon(self.weapon, WR_SELECTABLE))
 		{
@@ -1189,62 +1189,63 @@ void() havocbot_doaim =
 			self.switchweapon = W_BestWeaponForTarget(targ); //W_BestWeapon(TRUE);
 		}
 		*/
-		selforigin = self.aimselforigin + self.aimselfvelocity * aimlatency;
-		targorigin = self.aimtargorigin + self.aimtargvelocity * aimlatency;
-		if (self.weapon == IT_WEAPON6) shotleadspeed = 600;
-		else if (self.weapon == IT_WEAPON7) shotleadspeed = 5000;
-		else if (self.weapon == IT_WEAPON8) shotleadspeed = 5000;
-		else shotleadspeed = 5000;
+/*
+		selforigin = self.aimselforigin + self.aimselfvelocity * self.aimlatency;
+		targorigin = self.aimtargorigin + self.aimtargvelocity * self.aimlatency;
+		shotleadspeed = setweapon(self.weapon, WR_SHOTLEADSPEED);
 		latency = vlen(targorigin - selforigin) / shotleadspeed;
-		v = targorigin + self.aimtargvelocity * latency - self.aimselfvelocity * latency;
+		v = targorigin + self.aimtargvelocity * latency;
+		// this extra line compensates for momentum
+		//v = v - self.aimselfvelocity * latency;
 		tracebox(self.aimtargorigin, targ.mins, targ.maxs, v, FALSE, targ);
 		aimdir = trace_endpos - self.origin - '0 0 16';
-		if (self.weapon == self.switchweapon && self.wstate == WS_ACTIVE)
+		saveenemy = self.enemy;
+		self.enemy = targ;
+		weaponaimtarget = trace_endpos;
+*/
+		/*
+		bprint("havocbot_doaim(");
+		s = etos(self.aimtarg);
+		bprint(s);
+		bprint(", ");
+		s = vtos(self.aimselforigin);
+		bprint(s);
+		bprint(", ");
+		s = vtos(self.aimselfvelocity);
+		bprint(s);
+		bprint(", ");
+		s = vtos(self.aimtargorigin);
+		bprint(s);
+		bprint(", ");
+		s = vtos(self.aimtargvelocity);
+		bprint(s);
+		bprint(")\nselforigin ");
+		s = vtos(selforigin);
+		bprint(s);
+		bprint(", targorigin ");
+		s = vtos(targorigin);
+		bprint(s);
+		bprint(", aimdir ");
+		s = vtos(aimdir);
+		bprint(s);
+		bprint(")\n");
+		*/
+/*
+		if (setweapon(self.weapon, WR_AIM))
 		{
-			saveenemy = self.enemy;
-			self.enemy = targ;
-			weaponaimtarget = trace_endpos;
+			if ((cvar("temp1") & 512) == 0)
+				self.button0 = 1;
+*/
 			/*
-			bprint("havocbot_doaim(");
-			s = etos(self.aimtarg);
+			bprint("weaponaimdir ");
+			s = vtos(weaponaimdir);
 			bprint(s);
-			bprint(", ");
-			s = vtos(self.aimselforigin);
-			bprint(s);
-			bprint(", ");
-			s = vtos(self.aimselfvelocity);
-			bprint(s);
-			bprint(", ");
-			s = vtos(self.aimtargorigin);
-			bprint(s);
-			bprint(", ");
-			s = vtos(self.aimtargvelocity);
-			bprint(s);
-			bprint(")\nselforigin ");
-			s = vtos(selforigin);
-			bprint(s);
-			bprint(", targorigin ");
-			s = vtos(targorigin);
-			bprint(s);
-			bprint(", aimdir ");
-			s = vtos(aimdir);
-			bprint(s);
-			bprint(")\n");
+			bprint("\n");
 			*/
-			if (setweapon(self.weapon, WR_AIM))
-			{
-				if ((cvar("temp1") & 512) == 0)
-					self.button0 = 1;
-				/*
-				bprint("weaponaimdir ");
-				s = vtos(weaponaimdir);
-				bprint(s);
-				bprint("\n");
-				*/
-				aimdir = weaponaimdir;
-			}
-			self.enemy = saveenemy;
+/*
+			aimdir = weaponaimdir;
 		}
+		self.enemy = saveenemy;
 	}
 
 	// LordHavoc: todo: deceleration aiming simulation
@@ -1301,6 +1302,7 @@ void() havocbot_doaim =
 	// compute model angles
 	self.angles = self.v_angle_y * '0 1 0';
 };
+*/
 
 .float  respawntime;
 .float nextgoalcheck;
@@ -1330,7 +1332,9 @@ void() havocbot_think =
 	havocbot_chooseweapon();
 	havocbot_aim();
 	lag_update();
-	havocbot_doaim();
+	//havocbot_doaim();
+	if (!self.aimtarg)
+		w_aimdir(self.goalcurrent.origin - self.origin, 0);
 	dodge = havocbot_dodge();
 	havocbot_movetogoal(dodge);
 	SV_PlayerPhysics();

@@ -28,14 +28,6 @@ void() plasma_think =
 		if (self.frame >= 10)
 			self.frame = 0;
 	}
-	/*
-	if (self.owner.classname == "player" && self.owner.weapon == IT_WEAPON8 && self.owner.viewzoom < 0.5)
-	{
-		makevectors(self.owner.v_angle);
-		traceline(self.owner.origin + '0 0 16', self.owner.origin + '0 0 16' + v_forward * 65536, FALSE, self.owner);
-		self.velocity = self.velocity + (normalize(trace_endpos - self.origin) * 10000 - self.velocity) * frametime * 5;
-	}
-	*/
 	if (time > self.count)
 		remove(self);
 };

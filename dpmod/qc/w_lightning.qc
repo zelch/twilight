@@ -142,6 +142,9 @@ void() w_lightning =
 	if (widle(w_lightningdrop1))
 		return;
 
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(6000, 0.1);
+
 	if (self.button0)
 	{
 		if (Inventory_Quantity(self, "cells") > 0)

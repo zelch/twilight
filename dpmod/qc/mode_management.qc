@@ -288,8 +288,7 @@ void() modeupdate =
 		nextcvarupdate = time + 1;
 		mode_updatecvars();
 	}
-	if (deathmatch == 7)
-		deathmatch7update();
+	deathmatch7update();
 };
 
 // true if items should respawn
@@ -307,7 +306,7 @@ void() modesetup =
 
 	// don't spawn any monsters until 15 seconds
 	spawnchecktime = 15;
-	if (deathmatch == 7)
+	if (deathmatch == 7 || cvar("scratch1") >= 1 || cvar("spawnmonsters") >= 1)
 		precachemonsters();
 };
 
@@ -466,6 +465,7 @@ void() spawnmonsters =
 	else if (r < 12) spawnmonster( 4,  8, "monster_zombie"     , monster_zombie     , '-16 -16 -24', '16 16 32');
 };
 
+float monstersprecached;
 void() precachemonster_army;
 void() precachemonster_demon1;
 void() precachemonster_dog;
@@ -493,36 +493,46 @@ void() precachemonsters =
 	precachemonster_tarbaby();
 	precachemonster_wizard();
 	precachemonster_zombie();
+	monstersprecached = TRUE;
 };
 
 void() deathmatch7update =
 {
 	local entity e;
-	local float f, monster_count;
-	if (time > spawnchecktime)
+	local float f, monster_count, monsters;
+	if (time < spawnchecktime)
+		return;
+	if (!monstersprecached)
+		return;
+	spawnchecktime = time + 0.2;
+	monsters = 0;
+	if (deathmatch == 7)
+		monsters = 50;
+	f = cvar("scratch1");
+	if (f >= 1)
+		monsters = f;
+	f = cvar("spawnmonsters");
+	if (f >= 1)
+		monsters = f;
+	if (monsters < 1)
+		return;
+	monster_count = 0;
+	e = findchainfloat(iscreature, TRUE);
+	while (e)
 	{
-		spawnchecktime = time + 0.2;
-		monster_count = 0;
-		e = findchainfloat(iscreature, TRUE);
-		while (e)
-		{
-			if (e.flags & FL_MONSTER)
-				monster_count = monster_count + 1;
-			e = e.chain;
-		}
-		f = cvar("scratch1");
-		if (f < 1)
-			f = 50;
-		if (monster_count < f)
-		{
-			e = findchain(classname, "spawningmonster");
-			while (e)
-			{
-				monster_count = monster_count + 1;
-				e = e.chain;
-			}
-			if (monster_count < f)
-				spawnmonsters();
-		}
+		if (e.flags & FL_MONSTER)
+			monster_count = monster_count + 1;
+		e = e.chain;
 	}
+	if (monster_count >= monsters)
+		return;
+	e = findchain(classname, "spawningmonster");
+	while (e)
+	{
+		monster_count = monster_count + 1;
+		e = e.chain;
+	}
+	if (monster_count >= monsters)
+		return;
+	spawnmonsters();
 }

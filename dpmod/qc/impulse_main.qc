@@ -1,4 +1,24 @@
 
+/*
+// frikqcc field pointer test code
+var .float fieldpointertest;
+void() fieldpointertestfunc =
+{
+	fieldpointertest = ammo_shells;
+	self.fieldpointertest = 5;
+};
+*/
+
+/*
+// frikqcc field pointer field test code
+..float fieldpointertest;
+void() fieldpointertestfunc =
+{
+	self.fieldpointertest = ammo_shells;
+	self.(self.fieldpointertest) = 5;
+};
+*/
+
 // FRIK_FILE extension test code
 void () saveme =
 {
@@ -90,6 +110,7 @@ void SV_ParseClientCommand (string s)
 	local string c;
 	args = tokenize(s);
 	c = argv(0);
+	// edit this to do what you want with the received commands
 	     if (c == "say") clientcommand(self, s);
 	else if (c == "say_team") clientcommand(self, s);
 	else if (c == "name") clientcommand(self, s);
@@ -107,6 +128,8 @@ void SV_ParseClientCommand (string s)
 	else if (c == "noclip") clientcommand(self, s);
 	else if (c == "notarget") clientcommand(self, s);
 	else if (c == "give") clientcommand(self, s);
+	// please keep this fallback incase new engine commands are added
+	else clientcommand(self, s);
 }
 
 .float isadmin, adminnumber, admindigits, adminattempts;

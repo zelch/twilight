@@ -95,6 +95,22 @@ void() w_snailgun =
 	if (widle(w_snailgundrop1))
 		return;
 
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (vlen(self.aimtarg.origin - self.origin) < 600)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (Inventory_Quantity(self, "rockets") >= 3 && time < self.altfiretimeout)
+			self.button3 = w_grenadeattackaim(1000, 1);
+		else
+			self.button0 = w_directattackaim(12000, 1);
+	}
+
 	if (self.button0)
 	{
 		if (Inventory_Quantity(self, "nails") >= 1)

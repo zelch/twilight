@@ -1,35 +1,10 @@
 
 void(vector org, vector vel, entity own, float damage, float damage2, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchGrenade;
 
-/*
-void(vector org, entity attacker, float damg, float radius, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) SmallExplosion =
-{
-	local vector v;
-	local entity e;
-	e = spawn();
-	e.owner = attacker;
-	setorigin(e, org);
-	findbetterlocation2(e);
-
-	te_plasmaburn(org);
-	T_RadiusDamage(e, attacker, damg, radius, world, dt, DT_EXPLOSION, obitfunc);
-	remove(e);
-
-	v = findbetterlocation3(org); // move animation away from walls
-	effect(v, "progs/s_explod.spr", 0, 6, 10);
-	//effect(v, "progs/dpexplosion.spr32", 0, 20, 40);
-};
-*/
-
 void() MissileExplode =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
-	/*
-	if (self.owner.weapon == IT_WEAPON4)
-		SmallExplosion(self.origin, self.owner, self.dmg, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
-	else
-	*/
-		Explosion(self.origin, self.owner, self.dmg, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+	Explosion(self.origin, self.owner, self.dmg, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	remove(self);
 };
 
@@ -61,23 +36,7 @@ void() MissileThink =
 	local vector v;
 	self.nextthink = time;
 	fightdone = time + 1; // delay stuff until fighting is over
-	/*
-	//if (self.owner.weapon == IT_WEAPON7)
-	if (self.owner.classname == "player")
-	{
-		makevectors(self.owner.v_angle);
-		traceline(self.owner.origin + '0 0 16', self.owner.origin + '0 0 16' + v_forward * 65536, FALSE, self.owner);
-		v = normalize(trace_endpos - self.origin);
-		//if (normalize(self.velocity) * v < 0.4 || (self.owner.weapon != IT_WEAPON7 && self.owner.weapon != IT_WEAPON4))
-		if (self.owner.weapon != IT_WEAPON7 && self.owner.weapon != IT_WEAPON4)
-			v = normalize(self.velocity);
-		if (self.owner.weapon == IT_WEAPON4)
-			p = 1000;
-		else
-			p = 5000;
-		self.velocity = self.velocity + (v * p - self.velocity) * frametime;
-	}
-	else*/ if ((self.velocity * self.dest) < self.speed)
+	if ((self.velocity * self.dest) < self.speed)
 	{
 		self.velocity = self.velocity + self.dest * self.speed * 2 * frametime;
 		p = self.velocity * self.dest;
@@ -89,7 +48,7 @@ void() MissileThink =
 	}
 	self.angles = vectoangles(self.velocity);
 	p = pointcontents(self.origin);
-	if (/*(self.owner.button3 && self.owner.weapon == IT_WEAPON7) || */time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA)
+	if (time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA)
 	{
 		MissileExplode();
 		return;

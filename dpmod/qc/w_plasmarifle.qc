@@ -80,6 +80,22 @@ void() w_plasmarifleraise1;
 void() w_plasmarifleraise2;
 void() w_plasmarifle =
 {
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (time < self.altfiretimeout)
+			self.button3 = w_directattackaim(25000, 1);
+		else
+			self.button0 = w_directattackaim(25000, 1);
+	}
+
+	/*
 	// FIXME: need overload fire sound (second overload sound)
 	if (self.woverload > 0)
 	{
@@ -89,7 +105,7 @@ void() w_plasmarifle =
 			self.woverload = 0;
 		}
 	}
-	else if (self.button0 && Inventory_Quantity(self, "cells") > 0)
+	else */if (self.button0 && Inventory_Quantity(self, "cells") > 0)
 	{
 		self.wload = W_ShotsToFire(0.05);
 		if (self.wload > 0)
@@ -97,15 +113,34 @@ void() w_plasmarifle =
 	}
 	else if (time >= self.attack_finished)
 	{
-		if (self.button3 && Inventory_Quantity(self, "cells") > 0)
+		if (self.button3 && Inventory_Quantity(self, "cells") > 0 && self.woverload < 50)
 		{
-			self.woverload = 12;
+			// FIXME: need overload charge sound (first overload sound)
+			if (!self.woverload)
+				sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
+			self.woverload = self.woverload + frametime * 50;
+		}
+		else if (self.woverload > 0)
+		{
+			if (W_ShotsToFire(0.5))
+			{
+				// FIXME: need overload fire sound (second overload sound)
+				if (self.woverload > 50)
+					self.woverload = 50;
+				if (self.woverload > Inventory_Quantity(self, "cells"))
+					self.woverload = Inventory_Quantity(self, "cells");
+				if (self.woverload >= 3)
+					W_PlasmaRifleFire(3, self.woverload / 3, 30, self.woverload * 20);
+				self.woverload = 0;
+			}
+			/*
 			//if (self.woverload > Inventory_Quantity(self, "cells"))
 			//	self.woverload = Inventory_Quantity(self, "cells");
-			Inventory_AdjustQuantity(self, "cells", 0 - self.woverload);
+			//Inventory_AdjustQuantity(self, "cells", 0 - self.woverload);
 			self.attack_finished = time + 0.2;
 			// FIXME: need overload charge sound (first overload sound)
 			sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
+			*/
 		}
 		else if (widle(w_plasmarifledrop1))
 			return;

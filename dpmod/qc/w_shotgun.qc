@@ -36,6 +36,9 @@ void() w_shotgun =
 	if (widle(w_shotgundrop1))
 		return;
 
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(6000, 1);
+
 	if (self.wload > Inventory_Quantity(self, "shells"))
 		self.wload = Inventory_Quantity(self, "shells");
 

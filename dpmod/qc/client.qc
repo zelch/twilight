@@ -136,15 +136,45 @@ void() info_intermission =
 
 void() SetNewParms =
 {
-	parm1 = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON10; // | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
-	parm2 = HEALTHMAX; // health
-	parm3 = 0; // armorvalue
-	parm4 = STARTSP_AMMO_SHELLS;
-	parm5 = STARTSP_AMMO_NAILS;
-	parm6 = STARTSP_AMMO_ROCKETS;
-	parm7 = STARTSP_AMMO_CELLS;
-	parm8 = STARTSP_WEAPON; // selected weapon
-	parm9 = 0; // armortype * 100
+	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
+	{
+		parm1 = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10; //STARTPARMSELIM_ITEMS;
+		parm2 = STARTPARMSELIM_HEALTH;
+		parm3 = STARTPARMSELIM_ARMORVALUE;
+		parm4 = STARTPARMSELIM_AMMO_SHELLS;
+		parm5 = STARTPARMSELIM_AMMO_NAILS;
+		parm6 = STARTPARMSELIM_AMMO_ROCKETS;
+		parm7 = STARTPARMSELIM_AMMO_CELLS;
+		parm8 = 0; // weapon
+		parm9 = STARTPARMSELIM_ARMORTYPE * 100;
+		parm10 = STARTPARMSELIM_MAXHEALTH;
+	}
+	else if (deathmatch)
+	{
+		parm1 = IT_WEAPON1 | IT_WEAPON2; //STARTPARMSDM_ITEMS;
+		parm2 = STARTPARMSDM_HEALTH;
+		parm3 = STARTPARMSDM_ARMORVALUE;
+		parm4 = STARTPARMSDM_AMMO_SHELLS;
+		parm5 = STARTPARMSDM_AMMO_NAILS;
+		parm6 = STARTPARMSDM_AMMO_ROCKETS;
+		parm7 = STARTPARMSDM_AMMO_CELLS;
+		parm8 = 0; // weapon
+		parm9 = STARTPARMSDM_ARMORTYPE * 100;
+		parm10 = STARTPARMSDM_MAXHEALTH;
+	}
+	else
+	{
+		parm1 = IT_WEAPON1 | IT_WEAPON2; //STARTPARMSSP_ITEMS;
+		parm2 = STARTPARMSSP_HEALTH;
+		parm3 = STARTPARMSSP_ARMORVALUE;
+		parm4 = STARTPARMSSP_AMMO_SHELLS;
+		parm5 = STARTPARMSSP_AMMO_NAILS;
+		parm6 = STARTPARMSSP_AMMO_ROCKETS;
+		parm7 = STARTPARMSSP_AMMO_CELLS;
+		parm8 = 0; // weapon
+		parm9 = STARTPARMSSP_ARMORTYPE * 100;
+		parm10 = STARTPARMSSP_MAXHEALTH;
+	}
 };
 
 void() SetChangeParms =
@@ -167,59 +197,29 @@ void() SetChangeParms =
 	parm7 = Inventory_Quantity(self, "cells");
 	parm8 = self.weapon;
 	parm9 = self.armortype * 100;
+	parm10 = self.max_health;
 };
 
 void() DecodeLevelParms =
 {
-	if ((deathmatch == DM_FRAGFEST) || (deathmatch == DM_ELIM))
-	{
-		self.items = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10 | IT_ARMOR3;
-		self.health = self.max_health = HEALTHMAX; // start at max, not above it
-		if (deathmatch == DM_ELIM)
-			self.health = self.max_health = HEALTHELIMINATION;
-		self.armortype = 0.8;
-		self.armorvalue = 200;
-		// this gets clipped down to whatever the limits are
-		Inventory_SetQuantity(self, "shells", 9999999);
-		Inventory_SetQuantity(self, "nails", 9999999);
-		Inventory_SetQuantity(self, "rockets", 9999999);
-		Inventory_SetQuantity(self, "cells", 9999999);
-		Inventory_SetQuantity(self, "xshells", 9999999);
-		self.weapon = W_BestWeapon(TRUE);
-	}
-	else if (deathmatch)
-	{
-		self.items = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON9 | IT_WEAPON10 | IT_ARMOR1; // | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
-		self.health = HEALTHSTART; // health
-		self.max_health = HEALTHMAX;
-		self.armorvalue = 50;
-		self.armortype = 0.3;
-		Inventory_SetQuantity(self, "shells", STARTDM_AMMO_SHELLS);
-		Inventory_SetQuantity(self, "nails", STARTDM_AMMO_NAILS);
-		Inventory_SetQuantity(self, "rockets", STARTDM_AMMO_ROCKETS);
-		Inventory_SetQuantity(self, "cells", STARTDM_AMMO_CELLS);
-		Inventory_SetQuantity(self, "xshells", STARTDM_AMMO_XSHELLS);
-		self.weapon = W_BestWeapon(TRUE);
-	}
-	else // singleplayer or coop
-	{
-		// if a bot, or on start map, reset equipment
-		if (self.isbot || world.model == "maps/start.bsp")
-			SetNewParms();
-		self.max_health = HEALTHMAX;
-		self.items = parm1;
-		self.health = parm2;
-		if (self.health < 1)
-			self.health = 1;
-		self.armorvalue = parm3;
-		Inventory_SetQuantity(self, "shells", parm4);
-		Inventory_SetQuantity(self, "nails", parm5);
-		Inventory_SetQuantity(self, "rockets", parm6);
-		Inventory_SetQuantity(self, "cells", parm7);
-		self.weapon = parm8;
-		self.armortype = parm9 / 100;
-		Inventory_SetQuantity(self, "xshells", parm10);
-	}
+	// reset equipment in some cases
+	if (deathmatch || self.isbot || world.model == "maps/start.bsp")
+		SetNewParms();
+	self.items = parm1;
+	self.health = parm2;
+	self.armorvalue = parm3;
+	Inventory_SetQuantity(self, "shells", parm4);
+	Inventory_SetQuantity(self, "nails", parm5);
+	Inventory_SetQuantity(self, "rockets", parm6);
+	Inventory_SetQuantity(self, "cells", parm7);
+	self.weapon = parm8;
+	self.armortype = parm9 / 100;
+	self.max_health = parm10;
+	// safety checks
+	if (self.health < 1)
+		self.health = 1;
+	if (self.max_health < 1)
+		self.max_health = 100;
 	self.bodyhealth = self.health + 100;
 	if ((self.items & self.weapon) == 0)
 		self.weapon = W_BestWeapon(TRUE);
@@ -853,7 +853,6 @@ void() PutClientInServer =
 		Inventory_SetQuantity(self, "nails", 0);
 		Inventory_SetQuantity(self, "rockets", 0);
 		Inventory_SetQuantity(self, "cells", 0);
-		Inventory_SetQuantity(self, "xshells", 0);
 		self.items = 0;
 		self.think = SUB_Null;
 		self.nextthink = 0;
@@ -1168,7 +1167,6 @@ void() PlayerPreThink =
 		Inventory_SetQuantity(self, "nails", AMMOMAX_NAILS);
 		Inventory_SetQuantity(self, "rockets", AMMOMAX_ROCKETS);
 		Inventory_SetQuantity(self, "cells", AMMOMAX_CELLS);
-		Inventory_SetQuantity(self, "xshells", AMMOMAX_XSHELLS);
 	}
 
 	if (intermission_running)

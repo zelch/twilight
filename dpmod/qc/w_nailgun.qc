@@ -87,7 +87,6 @@ void() W_NailgunGrenadeFireCode =
 	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 70, 20, 10, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
 };
 
-
 void() w_nailgundrop1;
 void() w_nailgundrop2;
 void() w_nailgunraise1;
@@ -96,6 +95,22 @@ void() w_nailgun =
 {
 	if (widle(w_nailgundrop1))
 		return;
+
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (vlen(self.aimtarg.origin - self.origin) < 600)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (Inventory_Quantity(self, "rockets") && time < self.altfiretimeout)
+			self.button3 = w_grenadeattackaim(1000, 1);
+		else
+			self.button0 = w_directattackaim(12000, 2);
+	}
 
 	if (self.button0)
 	{

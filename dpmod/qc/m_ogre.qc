@@ -466,7 +466,6 @@ void() monster_ogre =
 		self.deathtype = " was destroyed by an ogre";
 	Inventory_SetQuantity(self, "rockets", AMMO_OGRE_GRENADES);
 	//Inventory_SetQuantity(self, "nails", 0);
-	//self.items = IT_WEAPON6;
 
 	self.shoulddodge = TRUE;
 	self.dangerrating = 150;

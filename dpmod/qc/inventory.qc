@@ -106,9 +106,6 @@ entity(string name) ItemClass_Register =
 	item.it_absorbitem = Item_GenericAbsorbItem;
 	item.noise1 = "weapons/lock4.wav";
 	item.noise2 = "weapons/lock4.wav";
-	item.mdl = item.model;
-	// invisible until ItemDrop is called
-	item.model = "";
 	return item;
 };
 
@@ -118,6 +115,8 @@ void() ItemClass_RegisterDefaultClasses =
 
 	item = ItemClass_Register("shells");
 	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
 	setsize(item, '-16 -16 -24', '16 16 8');
 	item.count1 = AMMOMAX_SHELLS;
 	//item.bulkbase = 0;
@@ -125,6 +124,8 @@ void() ItemClass_RegisterDefaultClasses =
 
 	item = ItemClass_Register("nails");
 	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
 	setsize(item, '-16 -16 -24', '16 16 8');
 	item.count1 = AMMOMAX_NAILS;
 	//item.bulkbase = 0;
@@ -132,6 +133,8 @@ void() ItemClass_RegisterDefaultClasses =
 
 	item = ItemClass_Register("rockets");
 	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
 	setsize(item, '-16 -16 -24', '16 16 8');
 	item.count1 = AMMOMAX_ROCKETS;
 	//item.bulkbase = 0;
@@ -139,6 +142,8 @@ void() ItemClass_RegisterDefaultClasses =
 
 	item = ItemClass_Register("cells");
 	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
 	setsize(item, '-16 -16 -24', '16 16 8');
 	item.count1 = AMMOMAX_CELLS;
 	//item.bulkbase = 0;

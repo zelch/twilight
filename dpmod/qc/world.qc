@@ -346,6 +346,12 @@ void() worldspawn =
 		c = c + 1;
 	}
 	maxclients = c;
+
+	registercvar("spawnmonsters", "0");
+	registercvar("damagescale_playerdamage", "0");
+	registercvar("damagescale_monsterdamage", "0");
+	registercvar("damagescale_monsterhealth", "0");
+
 	lastspawn = world;
 	InitDecors ();
 	player_precache(); // get player precaches
@@ -712,23 +718,49 @@ void(entity e) WaterMove =
 void() damagescaleupdate =
 {
 	local float f;
+
 	skill = cvar("skill");
+
+	// monster damage multiplier
+	monsterdamagescale = 1;
 	// skill 0 =  25%
 	// skill 1 =  50%
 	// skill 2 =  75%
 	// skill 3 = 100%
-	monsterdamagescale = (skill + 1) / 4;
+	if (skill >= 0)
+	if (skill < 4)
+		monsterdamagescale = (skill + 1) / 4;
+	f = cvar("damagescale_monsterdamage");
+	if (f >= 0.01)
+		monsterdamagescale = f;
+
+	// monster health multiplier (implemented by resisting player damage)
+	monsterresistancescale = 1;
 	f = cvar("coop"); // 1 = 1x health, and so on up
-	if (f < 0.1)
-		f = 1;
-	monsterresistancescale = 1 / f;
-	playerdamagescale = (cvar("temp1") & 127) * 0.05;
-	if (playerdamagescale < 0.1)
-		playerdamagescale = 1.0; // 20 - default scale
-	// 100% is pretty realistic damage
-	// (does lack all the vital organs and other details though...)
-	// 10% is basically Quake damage (pitiful)
-	// 20% is normal
+	if (f >= 0.01)
+		monsterresistancescale = 1 / f;
+	f = cvar("damagescale_monsterhealth"); // 1 = 1x health, and so on up
+	if (f >= 0.01)
+		monsterresistancescale = 1 / f;
+
+	// damage multiplier
+	playerdamagescale = 1.0;
+	f = (cvar("temp1") & 127) * 0.05;
+	if (f >= 0.01)
+		playerdamagescale = f;
+	f = cvar("damagescale_playerdamage");
+	if (f >= 0.01)
+		playerdamagescale = f;
+
+	/*
+	bprint("monsterdamagescale ");
+	bprintfloat(monsterdamagescale);
+	bprint(", monsterresistancescale ");
+	bprintfloat(monsterresistancescale);
+	bprint(", playerdamagescale ");
+	bprintfloat(playerdamagescale);
+	bprint("\n");
+	*/
 };
 
 .float findtarget;

@@ -192,32 +192,21 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		if (targ.damagemodifier)
 			ratio = ratio * targ.damagemodifier(targ, healthdamage, damage, damgtype, dethtype);
 
-		if (targ.flags & FL_MONSTER) ratio = ratio * monsterresistancescale;
+		if (attacker.flags & FL_MONSTER) ratio = ratio * monsterdamagescale;
+		if (attacker.classname == "player") ratio = ratio * playerdamagescale;
+
 		if (targ.resist_bullet   ) if (damgtype & DTF_RESIST_BULLET   ) ratio = ratio * targ.resist_bullet;
 		if (targ.resist_explosive) if (damgtype & DTF_RESIST_EXPLOSIVE) ratio = ratio * targ.resist_explosive;
 		if (targ.resist_energy   ) if (damgtype & DTF_RESIST_ENERGY   ) ratio = ratio * targ.resist_energy;
 		if (targ.resist_fire     ) if (damgtype & DTF_RESIST_FIRE     ) ratio = ratio * targ.resist_fire;
-
-		// only scales damage done by players
-		if (attacker.classname == "player")
+		if (targ.flags & FL_MONSTER) ratio = ratio * monsterresistancescale;
+		if (targ.items & IT_INVULNERABILITY)
 		{
-			ratio = ratio * playerdamagescale;
-			if (targ.classname == "player")
-			{
-				if (targ.items & IT_INVULNERABILITY)
-				{
-					if (targ != attacker)
-						ratio = ratio * 0.33;
-					else
-						ratio = 0;
-				}
-			}
-			// only scales player damage to monsters
-			else if (targ.flags & FL_MONSTER)
-				ratio = ratio * monsterdamagescale;
+			if (attacker.classname == "player" && targ.classname == "player" && targ != attacker)
+				ratio = ratio * 0.33;
+			else
+				ratio = 0;
 		}
-		else if (targ.items & IT_INVULNERABILITY)
-			ratio = 0;
 
 //		// check for quad damage powerup on the attacker
 //		if (attacker.items & IT_QUAD)

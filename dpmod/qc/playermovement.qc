@@ -113,9 +113,9 @@ void() SV_PlayerPhysics =
 		//wishvel = v_forward * self.movement_x + v_right * self.movement_y + v_up * self.movement_z;
 		wishvel = v_forward * self.movement_x + v_right * self.movement_y + '0 0 1' * self.movement_z;
 		if (self.gravity)
-			self.velocity_z += self.gravity * sv_gravity * frametime;
+			self.velocity_z = self.velocity_z + self.gravity * sv_gravity * frametime;
 		else
-			self.velocity_z += sv_gravity * frametime;
+			self.velocity_z = self.velocity_z + sv_gravity * frametime;
 		if (self.ladder_entity.classname == "func_water")
 		{
 			f = vlen(wishvel);

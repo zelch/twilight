@@ -499,7 +499,6 @@ void() monster_army =
 	r = random();
 	if (r < 0.30)
 	{
-		//self.items = IT_WEAPON4;
 		self.th_missile = army_missile_nail;
 		Inventory_SetQuantity(self, "nails", 15);
 		if (!self.deathtype) // map makers can override this
@@ -507,7 +506,6 @@ void() monster_army =
 	}
 	else if (r < 0.70)
 	{
-		//self.items = IT_WEAPON2;
 		self.th_missile = army_missile_shotgun;
 		Inventory_SetQuantity(self, "shells", 5);
 		if (!self.deathtype) // map makers can override this

@@ -111,6 +111,9 @@ void() w_dbshotgun =
 	if (widle(w_dbshotgundrop1))
 		return;
 
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(6000, 1);
+
 	if (time > self.attack_finished)
 	{
 		if (self.shotgunshells)
@@ -183,6 +186,17 @@ void() weapon3_precache =
 	precache_sound("weapons/bsgnoammo.wav");
 	precache_sound("weapons/bsgload.wav");
 };
+
+/*
+vector(vector srcvec, vector dstvec, vector dstvel) w_dbshotgunaim =
+{
+	dstvec = dstvec + dstvel * (vlen(dstvec - srcvec) / shotspeed);
+	traceline(srcvec, dstvec, FALSE, self);
+	if (trace_fraction < 1 && trace_ent != self.enemy)
+		return '0 0 0';
+	return dstvec - srcvec;
+};
+*/
 
 float() w_dbshotgunrating = {return genericweaponrating(0, 250, 175);};
 void() w_dbshotgunsetup = {wset(IT_WEAPON3, IT_SHELLS, Inventory_Quantity(self, "shells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");};

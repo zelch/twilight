@@ -51,8 +51,14 @@ float WR_SETUP = 6; // set the viewmodel, etc
 float WR_AIM = 7; // returns direction to aim the weapon (for bots)
 float WR_NAME = 8; // sets weaponstring to the name of the weapon
 float WR_WEAPONRATING = 9; // returns rating given weaponrange, returns -1 if the weapon is not available
+float WR_SWITCH = 10; // true if it can be selected (has ammo), and also sets self.switchweapon if so
 // FIXME: kill/death/suicide stat requests of some kind
 
 float WS_ACTIVE = 1; // weapon is selected
 float WS_RAISE = 2; // weapon is rising (changes to ACTIVE when done)
 float WS_DROP = 3; // weapon is falling (stays DROP until reselected)
+
+// used by bot ai in some weapons to decide if it should use altfire
+.float altfiretimeout;
+.float altfirechecktimeout;
+
