@@ -31,8 +31,10 @@ static const char rcsid[] =
 #include "client.h"
 #include "cmd.h"
 #include "host.h"
+#include "keys.h"
 #include "mathlib.h"
 #include "net.h"
+#include "screen.h"
 #include "strlib.h"
 #include "sys.h"
 
@@ -357,9 +359,15 @@ CL_TimeDemo_f (void)
 
 	CL_PlayDemo_f ();
 
+	// Hide console
+	key_dest = key_game;
+	scr_conlines = 0;
+	scr_con_current = 0;
+			
 	// cls.td_starttime will be grabbed at the second frame of the demo, so
 	// all the loading time doesn't get counted
 	cls.timedemo = true;
 	cls.td_startframe = host_framecount;
 	cls.td_lastframe = -1;				// get a new message this frame
 }
+

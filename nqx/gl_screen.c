@@ -441,6 +441,18 @@ SCR_fov_CB (cvar_t *cvar)
 		Cvar_Set (cvar, "170");
 }
 
+static void
+AvidemoChanged (cvar_t *cvar)
+{
+	if (cvar->ivalue) 
+		avibuffer = Zone_Alloc(tempzone, vid.width * vid.height * 3);
+	else {
+		if (avibuffer)
+			Zone_Free(avibuffer);
+		aviframeno = 0;
+	}
+}
+
 void
 SCR_Init_Cvars (void)
 {
@@ -728,17 +740,6 @@ SCR_CaptureAviDemo (void)
 	if (!TGA_Write (filename, vid.width, vid.height, 3, avibuffer)) { 
 		Com_Printf ("Screenshot write failed, stopping AVI demo.\n");
 		Cvar_Set(cl_avidemo, "0");
-	}
-}
-
-void AvidemoChanged(cvar_t *cvar)
-{
-	if (cvar->ivalue) 
-		avibuffer = Zone_Alloc(tempzone, vid.width * vid.height * 3);
-	else {
-		if (avibuffer)
-			Zone_Free(avibuffer);
-		aviframeno = 0;
 	}
 }
 

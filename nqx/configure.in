@@ -6,7 +6,7 @@ AC_PREREQ(2.13)
 AC_INIT(sv_main.c)
 AC_REVISION($Revision$)
 
-VERSION=7
+VERSION=9
 
 dnl Checks for system type first
 AC_CANONICAL_HOST
