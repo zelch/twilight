@@ -189,7 +189,7 @@ div.sub {
 -->
 </style>
 		<?php
-	} else {
+	} else if (!$no_output) {
 		?>
 <style type="text/css">
 <!--
@@ -264,6 +264,7 @@ a {
 	);
 
 	// Add yourself above!
-	
-?>
 
+	# Number of news items to play on the front page
+	$newslimit = 5;
+?>

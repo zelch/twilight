@@ -1,4 +1,5 @@
 <?php
+global $HTTP_USER_AGENT;
 
 if (ereg( "Konqueror/([0-9].[0-9]([0-9]|beta.*))(\;|\))",$HTTP_USER_AGENT,
 		$log_version)) {
@@ -32,7 +33,6 @@ if (strstr($HTTP_USER_AGENT,"Win")) {
 } else {
 	$browser_platform="Unknown";
 }
-
 $browser_css = FALSE;
 if ($browser_name == "Mozilla") {
 	if ((float)$browser_version >= 5.0) {
@@ -48,7 +48,7 @@ if ($browser_name == "Mozilla") {
 	}
 } elseif ($browser_name == "Konqueror") {
 	if ((float)$browser_version >= 2.2) {
-		if (!ereg ("^2.2beta.*", $browser_version)) {
+		if (!ereg ("^2\.2beta.*", $browser_version)) {
 			$browser_css = TRUE;
 		}	
 	}

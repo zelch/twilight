@@ -6,14 +6,12 @@
 
 	box ("title", "Recent News");
 
-	$newslimit = 5;
-
 	if(sqlAvail) {
-		$sqlConn = @mysql_pconnect(sqlHost, sqlUser, sqlPass);
+		$sqlConn = twsql_connect();
 
 		if($sqlConn) {
 			$sqlQuery = "SELECT n_date, n_user, n_news FROM news_main ORDER BY n_date DESC LIMIT $newslimit";
-			$res = @mysql_db_query(sqlDB, $sqlQuery, $sqlConn);
+			$res = twsql_query($sqlQuery, $sqlConn);
 
 			if($res) {
 				$numrows = @mysql_num_rows($res);
@@ -26,10 +24,14 @@
 					newsitem('now','Web Server','ACK! No news!');
 				}
 			}
+			mysql_close($sqlConn);
 		} else {
-			newsitem('now','Web Server','There was an error connecting to the MySQL server.');
+			if (($fd = @fopen($pageroot . "/../cache/news.cache", "r"))) {
+				echo "<!-- WARNING: MySQL connect failed.  Using cached news data. -->\n";
+				fpassthru($fd);
+			} else
+				newsitem('now','Web Server','There was an error connecting to the MySQL server, and a cached version of the news was not available.');
 		}
-		mysql_close($sqlConn);
 	} else {
 		newsitem('now','Web Server','No SQL server available.');
 	}
