@@ -226,6 +226,24 @@ skipwhite:
       goto skipwhite;
     }
 
+	// skip /* */ comments
+	if (c == '/' && data[1] == '*')
+	{
+		data += 2;
+		while (1)
+		{
+			if (!*data)
+				break;
+			if (*data != '*' || *(data+1) != '/')
+				data++;
+			else
+			{
+				data += 2;
+				break;
+			}
+		}
+		goto skipwhite;
+	}
 
   // handle quoted strings specially
   if (c == '\"')
@@ -236,19 +254,29 @@ skipwhite:
 	  c = *data++;
 	  if (c=='\"')
 	    {
+		  if (len == MAXTOKEN)
+			  len = 0;
 	      com_token[len] = 0;
 	      return data;
 	    }
+	  if (len < MAXTOKEN)
+	  {
 	  com_token[len] = c;
 	  len++;
+	  }
 	} while (1);
     }
 
   // parse single characters
   if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
     {
-      com_token[len] = c;
-      len++;
+	  if (len < MAXTOKEN)
+	  {
+	      com_token[len] = c;
+		  len++;
+	  }
+	  if (len == MAXTOKEN)
+		  len = 0;
       com_token[len] = 0;
       return data+1;
     }
@@ -256,14 +284,19 @@ skipwhite:
   // parse a regular word
   do
     {
-      com_token[len] = c;
+	  if (len < MAXTOKEN)
+	  {
+	      com_token[len] = c;
+		  len++;
+	  }
       data++;
-      len++;
       c = *data;
       if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
 	break;
     } while (c>32);
 
+  if (len == MAXTOKEN)
+	  len = 0;
   com_token[len] = 0;
   return data;
 }
