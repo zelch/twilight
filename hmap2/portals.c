@@ -37,7 +37,7 @@ void FreePortal( portal_t *p ) {
 AddPortalToNodes
 =============
 */
-void AddPortalToNodes (portal_t *p, node_t *front, node_t *back)
+static void AddPortalToNodes (portal_t *p, node_t *front, node_t *back)
 {
 	if (p->nodes[0] || p->nodes[1])
 		Error ("AddPortalToNode: allready included");
@@ -57,7 +57,7 @@ void AddPortalToNodes (portal_t *p, node_t *front, node_t *back)
 RemovePortalFromNode
 =============
 */
-void RemovePortalFromNode (portal_t *portal, node_t *l)
+static void RemovePortalFromNode (portal_t *portal, node_t *l)
 {
 	portal_t	**pp, *t;
 
@@ -101,7 +101,7 @@ CalcNodeBounds
 Vic: proper node's bounding box calculation
 ================
 */
-void CalcNodeBounds (node_t *node)
+static void CalcNodeBounds (node_t *node)
 {
 	int			i;
 	portal_t	*p;
@@ -134,7 +134,7 @@ MakeHeadnodePortals
 The created portals will face the global outside_node
 ================
 */
-void MakeHeadnodePortals (node_t *node, vec3_t mins, vec3_t maxs)
+static void MakeHeadnodePortals (node_t *node, vec3_t mins, vec3_t maxs)
 {
 	vec3_t		bounds[2];
 	int			i, j, n;
@@ -199,10 +199,9 @@ void MakeHeadnodePortals (node_t *node, vec3_t mins, vec3_t maxs)
 /*
 ================
 CutNodePortals_r
-
 ================
 */
-void CutNodePortals_r (node_t *node)
+static void CutNodePortals_r (node_t *node)
 {
 	plane_t 	*plane, clipplane;
 	node_t		*f, *b, *other_node;
@@ -340,7 +339,7 @@ void PortalizeTree (tree_t *tree)
 FreeNodePortals_r
 ==================
 */
-void FreeNodePortals_r (node_t *node)
+static void FreeNodePortals_r (node_t *node)
 {
 	portal_t	*p, *nextp;
 
@@ -382,12 +381,66 @@ PORTAL FILE GENERATION
 
 #define	PORTALFILE	"PRT1"
 
-FILE	*pf;
-int		num_visleafs;				// leafs the player can be in
-int		num_visportals;
+static	FILE	*pf;
+static	int		num_visleafs;				// leafs the player can be in
+static	int		num_visportals;
+
+/*
+================
+PortalSidesVisible
+
+FIXME: add support for detail brushes
+================
+*/
+static qboolean PortalSidesVisible (portal_t *p)
+{
+	if (p->nodes[0]->contents == p->nodes[1]->contents)
+		return true;
+	if (transwater && p->nodes[0]->contents != CONTENTS_SOLID && p->nodes[1]->contents != CONTENTS_SOLID && p->nodes[0]->contents != CONTENTS_SKY && p->nodes[1]->contents != CONTENTS_SKY)
+		return true;
+	return false;
+}
+
+/*
+================
+NumberLeafs_r
+================
+*/
+static void NumberLeafs_r (node_t *node)
+{
+	portal_t	*p;
+
+	if (!node->contents)
+	{	// decision node
+		node->visleafnum = -99;
+		NumberLeafs_r (node->children[0]);
+		NumberLeafs_r (node->children[1]);
+		return;
+	}
+
+	if (node->contents == CONTENTS_SOLID)
+	{	// solid block, viewpoint never inside
+		node->visleafnum = -1;
+		return;
+	}
+
+	node->visleafnum = num_visleafs++;
+
+	for (p = node->portals ; p ; )
+	{
+		if (p->nodes[0] == node)		// only write out from first leaf
+		{
+			if (p->winding && PortalSidesVisible (p))
+				num_visportals++;
+			p = p->next[0];
+		}
+		else
+			p = p->next[1];		
+	}
+}
 
 // Vic: proper float output
-void WriteFloatToPortalFile (vec_t f)
+static void WriteFloatToPortalFile (vec_t f)
 {
 	int i;
 
@@ -398,7 +451,7 @@ void WriteFloatToPortalFile (vec_t f)
 		fprintf( pf, "%f", f );
 }
 
-void WritePortalFile_r (node_t *node)
+static void WritePortalFile_r (node_t *node)
 {
 	int		i;	
 	portal_t	*p;
@@ -419,7 +472,7 @@ void WritePortalFile_r (node_t *node)
 	{
 		w = p->winding;
 		// LordHavoc: transparent water support
-		if (w && p->nodes[0] == node && (p->nodes[0]->contents == p->nodes[1]->contents || (transwater && p->nodes[0]->contents != CONTENTS_SOLID && p->nodes[1]->contents != CONTENTS_SOLID && p->nodes[0]->contents != CONTENTS_SKY && p->nodes[1]->contents != CONTENTS_SKY)))
+		if (w && p->nodes[0] == node && PortalSidesVisible (p))
 		{
 			// write out to the file
 
@@ -453,45 +506,6 @@ void WritePortalFile_r (node_t *node)
 			p = p->next[1];
 	}
 }
-
-/*
-================
-NumberLeafs_r
-================
-*/
-void NumberLeafs_r (node_t *node)
-{
-	portal_t	*p;
-
-	if (!node->contents)
-	{	// decision node
-		node->visleafnum = -99;
-		NumberLeafs_r (node->children[0]);
-		NumberLeafs_r (node->children[1]);
-		return;
-	}
-
-	if (node->contents == CONTENTS_SOLID)
-	{	// solid block, viewpoint never inside
-		node->visleafnum = -1;
-		return;
-	}
-
-	node->visleafnum = num_visleafs++;
-
-	for (p = node->portals ; p ; )
-	{
-		if (p->nodes[0] == node)		// only write out from first leaf
-		{
-			if (p->nodes[0]->contents == p->nodes[1]->contents || (transwater && p->nodes[0]->contents != CONTENTS_SOLID && p->nodes[1]->contents != CONTENTS_SOLID && p->nodes[0]->contents != CONTENTS_SKY && p->nodes[1]->contents != CONTENTS_SKY))
-				num_visportals++;
-			p = p->next[0];
-		}
-		else
-			p = p->next[1];		
-	}
-}
-
 
 /*
 ================
