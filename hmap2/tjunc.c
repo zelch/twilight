@@ -267,7 +267,7 @@ typedef struct
 	face_t original;
 } superface_t;
 
-superface_t superface;
+superface_t *superface;
 
 void FaceFromSuperface (face_t *original)
 {
@@ -280,16 +280,16 @@ void FaceFromSuperface (face_t *original)
 	chain = NULL;
 	do
 	{
-		if( superface.numpoints < 3 ) {
+		if( superface->numpoints < 3 ) {
 			c_degenerateFaces++;
 			return;
 		}
 
-		if (superface.numpoints <= MAX_VERTS_ON_FACE)
+		if (superface->numpoints <= MAX_VERTS_ON_FACE)
 		{	// the face is now small enough without more cutting
 			// so copy it back to the original
-			*original = superface.original;
-			original->winding = CopyWindingExt( superface.numpoints, superface.points );
+			*original = superface->original;
+			original->winding = CopyWindingExt( superface->numpoints, superface->points );
 			original->original = chain;
 			original->next = newlist;
 			newlist = original;
@@ -300,11 +300,11 @@ void FaceFromSuperface (face_t *original)
 
 restart:
 	// find the last corner
-		VectorSubtract (superface.points[superface.numpoints-1], superface.points[0], dir);
+		VectorSubtract (superface->points[superface->numpoints-1], superface->points[0], dir);
 		VectorNormalize (dir);
-		for (lastcorner=superface.numpoints-1 ; lastcorner > 0 ; lastcorner--)
+		for (lastcorner=superface->numpoints-1 ; lastcorner > 0 ; lastcorner--)
 		{
-			VectorSubtract (superface.points[lastcorner-1], superface.points[lastcorner], test);
+			VectorSubtract (superface->points[lastcorner-1], superface->points[lastcorner], test);
 			VectorNormalize (test);
 			v = DotProduct (test, dir);
 			if (v < 0.9999 || v > 1.00001)
@@ -314,44 +314,40 @@ restart:
 		}
 
 	// find the first corner
-		VectorSubtract (superface.points[1], superface.points[0], dir);
+		VectorSubtract (superface->points[1], superface->points[0], dir);
 		VectorNormalize (dir);
-		for (firstcorner=1 ; firstcorner < superface.numpoints-1 ; firstcorner++)
+		for (firstcorner=1 ; firstcorner < superface->numpoints-1 ; firstcorner++)
 		{
-			VectorSubtract (superface.points[firstcorner+1], superface.points[firstcorner], test);
+			VectorSubtract (superface->points[firstcorner+1], superface->points[firstcorner], test);
 			VectorNormalize (test);
 			v = DotProduct (test, dir);
 			if (v < 0.9999 || v > 1.00001)
-			{
 				break;
-			}
 		}
 
 		if (firstcorner+2 >= MAX_VERTS_ON_FACE)
 		{
 			c_rotated++;
 		// rotate the point winding
-			VectorCopy (superface.points[0], test);
-			for (i=1 ; i<superface.numpoints ; i++)
-			{
-				VectorCopy (superface.points[i], superface.points[i-1]);
-			}
-			VectorCopy (test, superface.points[superface.numpoints-1]);
+			VectorCopy (superface->points[0], test);
+			for (i=1 ; i<superface->numpoints ; i++)
+				VectorCopy (superface->points[i], superface->points[i-1]);
+			VectorCopy (test, superface->points[superface->numpoints-1]);
 			goto restart;
 		}
 
 
 	// cut off as big a piece as possible, less than MAXPOINTS, and not
 	// past lastcorner
-		newf = NewFaceFromFace (&superface.original);
+		newf = NewFaceFromFace (&superface->original);
 		newf->original = chain;
 		chain = newf;
 		newf->next = newlist;
 		newlist = newf;
 
-		if (superface.numpoints - firstcorner <= MAX_VERTS_ON_FACE)
+		if (superface->numpoints - firstcorner <= MAX_VERTS_ON_FACE)
 			numpts = firstcorner + 2;
-		else if (lastcorner+2 < MAX_VERTS_ON_FACE && superface.numpoints - lastcorner <= MAX_VERTS_ON_FACE)
+		else if (lastcorner+2 < MAX_VERTS_ON_FACE && superface->numpoints - lastcorner <= MAX_VERTS_ON_FACE)
 			numpts = lastcorner + 2;
 		else
 			numpts = MAX_VERTS_ON_FACE;
@@ -360,11 +356,11 @@ restart:
 			c_degenerateFaces++;
 			return;
 		}
-		newf->winding = CopyWindingExt( numpts, superface.points );
+		newf->winding = CopyWindingExt( numpts, superface->points );
 
-		for (i=newf->winding->numpoints-1 ; i<superface.numpoints ; i++)
-			VectorCopy (superface.points[i], superface.points[i-(newf->winding->numpoints-2)]);
-		superface.numpoints -= (newf->winding->numpoints-2);
+		for (i=newf->winding->numpoints-1 ; i<superface->numpoints ; i++)
+			VectorCopy (superface->points[i], superface->points[i-(newf->winding->numpoints-2)]);
+		superface->numpoints -= (newf->winding->numpoints-2);
 	} while (1);
 }
 
@@ -384,19 +380,19 @@ void FixFaceEdges (face_t *f)
 	if( f->winding->numpoints > MAX_VERTS_ON_SUPERFACE )
 		Error( "FixFaceEdges: f->winding->numpoints > MAX_VERTS_ON_SUPERFACE" );
 
-	superface.original = *f;
-	superface.numpoints = f->winding->numpoints;
-	memcpy( superface.points, f->winding->points, sizeof(vec3_t)*f->winding->numpoints );
+	superface->original = *f;
+	superface->numpoints = f->winding->numpoints;
+	memcpy( superface->points, f->winding->points, sizeof(vec3_t)*f->winding->numpoints );
 	FreeWinding( f->winding );
 
 	// LordHavoc: FIXME: rewrite this mess to find points on edges,
 	// rather than finding edges that run into polygons
 restart:
-	for (i=0 ; i < superface.numpoints ; i++)
+	for (i=0 ; i < superface->numpoints ; i++)
 	{
-		j = (i+1)%superface.numpoints;
+		j = (i+1)%superface->numpoints;
 
-		w = FindEdge (superface.points[i], superface.points[j], &t1, &t2);
+		w = FindEdge (superface->points[i], superface->points[j], &t1, &t2);
 		if (!w)
 			continue;
 
@@ -408,10 +404,10 @@ restart:
 		{
 			c_tjuncs++;
 		// insert a new vertex here
-			for (k = superface.numpoints ; k> j ; k--)
-				VectorCopy (superface.points[k-1], superface.points[k]);
-			VectorMA (w->origin, v->t, w->dir, superface.points[j]);
-			superface.numpoints++;
+			for (k = superface->numpoints ; k> j ; k--)
+				VectorCopy (superface->points[k-1], superface->points[k]);
+			VectorMA (w->origin, v->t, w->dir, superface->points[j]);
+			superface->numpoints++;
 			goto restart;
 		}
 	}
@@ -494,6 +490,7 @@ void FixTJunctions(tree_t *tree)
 	numwedges = numwverts = 0;
 	wverts = qmalloc( sizeof(*wverts) * MAX_WVERTS );
 	wedges = qmalloc( sizeof(*wverts) * MAX_WEDGES );
+	superface = qmalloc (sizeof(superface_t));
 
 	tjunc_find_r (tree->headnode);
 
@@ -508,6 +505,7 @@ void FixTJunctions(tree_t *tree)
 
 	qfree( wverts );
 	qfree( wedges );
+	qfree (superface);
 
 	// Vic: report number of degenerate edges
 	qprintf ("%i degenerate edges\n", c_degenerateEdges);
