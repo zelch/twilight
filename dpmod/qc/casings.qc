@@ -17,14 +17,17 @@ void() InitCasings =
 void() casingtouch =
 {
 	if (other.solid == SOLID_BSP)
-	if (vlen(self.velocity) >= 50)
-	if (time >= self.attack_finished)
-	if (self.origin != self.dest + self.groundentity.origin)
 	{
-		if (game != GAME_NEXUIZ)
-			sound (self, CHAN_WEAPON, "weapons/tink1.wav", 0.5, ATTN_NORM);
-		self.attack_finished = time + 0.2;
-		//self.touch = SUB_Null; // one tink is enough
+		self.velocity = self.velocity * 0.8;
+		if (vlen(self.velocity) >= 50)
+		if (time >= self.attack_finished)
+		if (self.origin != self.dest + self.groundentity.origin)
+		{
+			if (game != GAME_NEXUIZ)
+				sound (self, CHAN_WEAPON, "weapons/tink1.wav", 0.5, ATTN_NORM);
+			self.attack_finished = time + 0.2;
+			//self.touch = SUB_Null; // one tink is enough
+		}
 	}
 	self.dest = self.origin - self.groundentity.origin;
 };
