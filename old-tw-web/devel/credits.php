@@ -21,20 +21,31 @@
 		}
 	}
 
+	box ("para", "But none of this would have been possible without the\n" .
+		"fine work of the people who brought us Quake&reg; in the first\n" .
+		"place, and they deserve at least as much credit for Project\n" .
+		"Twilight as any of us listed above.&nbsp; Thanks guys, you have\n" .
+		"truly created a legendary game and we all owe you a great deal\n" .
+		"for the countless hours of splotches and splatters.\n"
+	);
+
 	array_walk ($authors, 'print_author');
 
 	$thanks = file ($pageroot . "/../cvs-snap/twilight/THANKS");
 
 	function print_quakeguys ($item, $key)
 	{
-		if (ereg ("^      .*$", $item)) {
+		if (ereg ("^      (.*)  +(.*)$", $item)) {
 			echo (ereg_replace ("^      (.*)  +(.*)$",
 				"<tr><td>\\1</td><td>\\2</td></tr>\n")
 			);
 		}
 	}
 
+	// FIXME: is legal XHTML 1.0 ?
+	echo ("<center><table width=\"90%\"");
 	array_walk ($thanks, 'print_quakeguys');
+	echo ("</table></center>");
 
 	require ($pageroot . "/include/footer.php");
 ?>
