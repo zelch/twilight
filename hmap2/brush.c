@@ -93,6 +93,9 @@ void CreateBrushFaces (void)
 		SetKeyValue(CurrentEntity, "origin", text);
 	}
 
+	if (!strcmp(ValueForKey(CurrentEntity, "classname"), "func_invisible"))
+		j = 3;
+
 	for (i = 0;i < numbrushfaces;i++)
 	{
 		mf = &faces[i];
@@ -110,7 +113,7 @@ void CreateBrushFaces (void)
 			VectorNegate(faces[j].plane.normal, plane.normal);
 			plane.dist = -faces[j].plane.dist;
 
-			w = ClipWindingEpsilon (w, &plane, true, ON_EPSILON);
+			w = ClipWindingEpsilon (w, &plane, ON_EPSILON, true);
 		}
 
 		if (!w)
