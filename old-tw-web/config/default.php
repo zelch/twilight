@@ -260,7 +260,11 @@ a {
 		"Elric" => array (
 			"Name" => "Mathieu Olivier" ,
 			"Email" => "molivier@users.sourceforge.net"
-		)
+		),
+		"EvilTypeGuy" => array (
+			"Name" => "Shawn Walker" ,
+			"Email" => "eviltypeguy@users.sourceforge.net"
+		),
 	);
 
 	// Add yourself above!
