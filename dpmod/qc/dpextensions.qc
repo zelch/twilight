@@ -196,6 +196,64 @@ float EF_LOWPRECISION = 4194304;
 //description:
 //global skybox for the map, can not be changed by QC
 
+//DP_GFX_EXTERNALTEXTURES
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//description:
+//loads external textures found in various directories (tenebrae compatible)...
+/*
+in all examples .tga is merely the base texture, it can be any of these:
+.tga (base texture)
+_glow.tga (fullbrights or other glowing overlay stuff, NOTE: this is done using additive blend, not alpha)
+_pants.tga (pants overlay for colormapping on models, this should be shades of grey (it is tinted by pants color) and black wherever the base texture is not black, as this is an additive blend)
+_shirt.tga (same idea as pants, but for shirt color)
+_diffuse.tga (this may be used instead of base texture for per pixel lighting)
+_gloss.tga (specular texture for per pixel lighting, note this can be in color (tenebrae only supports greyscale))
+_norm.tga (normalmap texture for per pixel lighting)
+_bump.tga (bumpmap, converted to normalmap at load time, supported only for reasons of tenebrae compatibility)
+_luma.tga (same as _glow but supported only for reasons of tenebrae compatibility)
+
+due to glquake's incomplete Targa(r) loader, this section describes
+required Targa(r) features support:
+types:
+type 1 (uncompressed 8bit paletted with 24bit/32bit palette)
+type 2 (uncompressed 24bit/32bit true color, glquake supported this)
+type 3 (uncompressed 8bit greyscale)
+type 9 (RLE compressed 8bit paletted with 24bit/32bit palette)
+type 10 (RLE compressed 24bit/32bit true color, glquake supported this)
+type 11 (RLE compressed 8bit greyscale)
+attribute bit 0x20 (Origin At Top Left, top to bottom, left to right)
+
+image formats guarenteed to be supported: tga, pcx, lmp
+image formats that are optional: png, jpg
+
+mdl/spr/spr32 examples:
+skins are named _A (A being a number) and skingroups are named like _A_B
+these act as suffixes on the model name...
+example names for skin _2_1 of model "progs/armor.mdl":
+game/override/progs/armor.mdl_2_1.tga
+game/textures/progs/armor.mdl_2_1.tga
+game/progs/armor.mdl_2_1.tga
+example names for skin _0 of the model "progs/armor.mdl":
+game/override/progs/armor.mdl_0.tga
+game/textures/progs/armor.mdl_0.tga
+game/progs/armor.mdl_0.tga
+note that there can be more skins files (of the _0 naming) than the mdl
+contains, this is only useful to save space in the .mdl file if classic quake
+compatibility is not a concern.
+
+bsp/md2/md3 examples:
+example names for the texture "quake" of model "maps/start.bsp":
+game/override/quake.tga
+game/textures/quake.tga
+game/progs/quake.tga
+
+sbar/menu/console textures: for example the texture "conchars" (console font) in gfx.wad
+game/override/gfx/conchars.tga
+game/textures/gfx/conchars.tga
+game/gfx/conchars.tga
+*/
+
 //DP_HALFLIFE_MAP
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
