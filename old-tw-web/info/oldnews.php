@@ -1,6 +1,6 @@
 <?php
 	$title = "Older News";
-	$pageroot = ".";
+	$pageroot = "..";
 	require ($pageroot . "/include/sql.php");
 	require ($pageroot . "/include/header.php");
 
