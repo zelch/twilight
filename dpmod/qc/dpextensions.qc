@@ -1106,7 +1106,7 @@ float EF_SELECTABLE = 16384; // allows cursor to highlight entity (brighten)
 .vector cursor_screen; // screen position of cursor as -1 to +1 in _x and _y (_z unused)
 .vector cursor_trace_start; // position of camera
 .vector cursor_trace_endpos; // position of cursor in world (as traced from camera)
-.entity cursor_trace_ent; // entity the cursor is pointing at
+.entity cursor_trace_ent; // entity the cursor is pointing at (server forces this to world if the entity is currently free at time of receipt)
 //cvar definitions:
 //cl_prydoncursor (0/1+, default 0, 1 and above use cursors named gfx/prydoncursor%03i.lmp - or .tga and such if DP_GFX_EXTERNALTEXTURES is implemented)
 //description:
