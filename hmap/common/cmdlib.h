@@ -32,7 +32,7 @@ extern int Q_strncasecmp (char *s1, char *s2, int n);
 extern int Q_strcasecmp (char *s1, char *s2);
 //extern void Q_getwd (char *out);
 
-extern int filelength (FILE *f);
+extern int Q_filelength (FILE *f);
 extern int	FileTime (char *path);
 
 extern void	Q_mkdir (char *path);
