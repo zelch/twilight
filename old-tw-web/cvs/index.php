@@ -14,6 +14,7 @@
 	);
 
 	// FIXME: check for ./*.zip and show the file's mtime
+	flink ("twilight-0.1.0.zip");
 	flink ("twilight-current.zip");
 
 	require ($pageroot . "/include/footer.php");

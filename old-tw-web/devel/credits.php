@@ -12,7 +12,7 @@
 		"who are here and don't even know it yet.\n"
 	);
 
-	$authors = file ($pageroot . "/../cvs-snap/twilight/AUTHORS");
+	$authors = file ($pageroot . "/../cvs-snap/twilight-current/AUTHORS");
 
 	function print_author ($item, $key)
 	{
@@ -31,7 +31,7 @@
 		"for the countless hours of splotches and splatters.\n"
 	);
 
-	$thanks = file ($pageroot . "/../cvs-snap/twilight/THANKS");
+	$thanks = file ($pageroot . "/../cvs-snap/twilight-current/THANKS");
 
 	function print_quakeguys ($item, $key)
 	{
