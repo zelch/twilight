@@ -48,7 +48,7 @@ if ($browser_name == "Mozilla") {
 	}
 } elseif ($browser_name == "Konqueror") {
 	if ((float)$browser_version >= 2.2) {
-		if (!ereg ($browser_version, "^2.2beta.*")) {
+		if (!ereg ("^2.2beta.*", $browser_version)) {
 			$browser_css = TRUE;
 		}	
 	}
