@@ -260,6 +260,14 @@ game/gfx/conchars.tga
 //description:
 //simply indicates that the engine supports HalfLife maps (BSP version 30, NOT the QER RGBA ones which are also version 30).
 
+//DP_HALFLIFE_MAP_CVAR
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//cvars:
+//halflifebsp 0/1
+//description:
+//engine sets this cvar when loading a map to indicate if it is halflife format or not.
+
 //DP_INPUTBUTTONS
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -457,7 +465,7 @@ void(vector dir) vectorvectors = #432;
 //idea: quake community
 //darkplaces implementation: LordHavoc
 //description:
-//shows that the engine supports Quake2 .md2 files.
+//shows that the engine supports Quake3 .md3 files.
 
 //DP_REGISTERCVAR
 //idea: LordHavoc
