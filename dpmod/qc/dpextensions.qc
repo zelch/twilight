@@ -900,11 +900,15 @@ string(float n) argv = #442;
 .float pflags; // flags (1 is no shadow, 2 is draw corona which is ignored by darkplaces which always uses a corona)
 .vector angles; // orientation of the light
 .float skin; // cubemap filter number (filter disabled if skin < 16), this selects a projective light filter, a value of 16 loads cubemaps/16posx.tga and cubemaps/16negx.tga and posy, negy, posz, and negz, similar to skybox but some sides need to be rotated or flipped
+//constants:
+float PFLAGS_NOSHADOW = 1;
+float PFLAGS_CORONA = 2;
+float PFLAGS_FULLDYNAMIC = 128;
 //description:
 //more powerful dynamic light settings
 //warning: it is best not to use cubemaps on a light entity that has a model, as using a skin number that a model does not have will cause issues in glquake, and produce warnings in darkplaces (use developer 1 to see them) 
 //changes compared to tenebrae (because they're too 'leet' for standards):
-//EF_FULLDYNAMIC does not exist (it conflicts with standard effect flags), so light_lev is used instead (this means that light_lev does not default to 350 like in Tenebrae)
+//EF_FULLDYNAMIC effects flag replaced by PFLAGS_FULLDYNAMIC flag (EF_FULLDYNAMIC conflicts with EF_NODRAW)
 
 //TW_SV_STEPCONTROL
 //idea: Transfusion
