@@ -36,6 +36,15 @@
 		newscontentpre => "<font face=\"verdana, arial\">" ,
 		newscontentpost => "</font>" ,
 
+		subscr => "width=\"95%\" align=\"center\" bgcolor=\"#000fb5\" " .
+			"cellspacing=\"1\"" ,
+		subscrtitle => "width=\"100%\" bgcolor=\"#000fb5\"" ,
+		subscrtitlepre => "<font face=\"verdana,arial\" size=\"-1\">" ,
+		subscrtitletablepost => "</font>" ,
+		subscrcontent => "width=\"100%\" bgcolor=\"#000440\"" ,
+		subscrcontentpre => "<font face=\"verdana, arial\">" ,
+		subscrcontentpost => "</font>" ,
+
 		title => "width=\"100%\"" ,
 		titlepre => "<font face=\"verdana,arial\" size=\"+3\"><strong>" ,
 		titlepost => "</strong></font>" . ($browser_name == lynx ?
@@ -131,6 +140,20 @@ div.newstitle {
 	font: bolder 90% verdana, sans-serif;
 }
 div.newscontent {
+	margin: 5px;
+}
+
+div.subscr {
+	margin: 10px;
+	background: #000440;
+	border: solid 2px #000fb5;
+}
+div.subscrtitle {
+	background: #000fb5;
+	padding: 1px 5px;
+	font: bolder 90% verdana, sans-serif;
+}
+div.subscrcontent {
 	margin: 5px;
 }
 
