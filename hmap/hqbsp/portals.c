@@ -214,10 +214,18 @@ void CheckWindingArea (winding_t *w)
 	vec3_t	v1, v2, cross;
 
 	total = 0;
+
+	// Vic: fix a rather malicious bug
+/*
 	for (i=1 ; i<w->numpoints ; i++)
 	{
 		VectorSubtract (w->points[i], w->points[0], v1);
 		VectorSubtract (w->points[i+1], w->points[0], v2);
+*/
+	for (i=2 ; i<w->numpoints ; i++)
+	{
+		VectorSubtract (w->points[i-1], w->points[0], v1);
+		VectorSubtract (w->points[i  ], w->points[0], v2);
 		CrossProduct (v1, v2, cross);
 		add = VectorLength (cross);
 		total += add*0.5;
@@ -486,6 +494,15 @@ int		num_visportals;
 
 qboolean transwater;
 
+// Vic: proper float output
+void WriteFloatToPortalFile (float f)
+{
+	if (f == Q_rint(f))
+		fprintf (pf, "%i", (int)f);
+	else
+		fprintf (pf, "%f", f);
+}
+
 void WritePortalFile_r (node_t *node)
 {
 	int		i;	
@@ -520,9 +537,19 @@ void WritePortalFile_r (node_t *node)
 				fprintf (pf,"%i %i %i ",w->numpoints, p->nodes[1]->visleafnum, p->nodes[0]->visleafnum);
 			else
 				fprintf (pf,"%i %i %i ",w->numpoints, p->nodes[0]->visleafnum, p->nodes[1]->visleafnum);
-			for (i=0 ; i<w->numpoints-1 ; i++)
-				fprintf(pf, "(%g %g %g) ", w->points[i][0], w->points[i][1], w->points[i][2]);
-			fprintf(pf, "(%g %g %g)\n", w->points[i][0], w->points[i][1], w->points[i][2]);
+
+			// Vic: proper float output
+			for (i=0 ; i<w->numpoints ; i++)
+			{
+				fprintf (pf, "(");
+				WriteFloatToPortalFile (w->points[i][0]);
+				fprintf (pf, " ");
+				WriteFloatToPortalFile (w->points[i][1]);
+				fprintf (pf, " ");
+				WriteFloatToPortalFile (w->points[i][2]);
+				fprintf (pf, ")");
+				fprintf (pf, i == w->numpoints-1 ? "\n" : " ");
+			}
 		}
 
 		if (p->nodes[0] == node)
