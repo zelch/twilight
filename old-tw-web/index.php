@@ -26,9 +26,9 @@
 			}
 			mysql_close($sqlConn);
 		} else {
-			if (($fd = @fopen($pageroot . "/../cache/news.cache", "r"))) {
+			if (file_exists("news_main.cache")) {
 				echo "<!-- WARNING: MySQL connect failed.  Using cached news data. -->\n";
-				fpassthru($fd);
+				@include("news_main.cache");
 			} else
 				newsitem('now','Web Server','There was an error connecting to the MySQL server, and a cached version of the news was not available.');
 		}
