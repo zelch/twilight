@@ -1,12 +1,18 @@
 <?php
 	$display = array (
-		background => "#000000" ,
-		text => "#ffffff" ,
 		logo => "images/twilight.gif" ,
-		title_grad => "images/hdrbar.jpg" ,
-		base => "#000440" ,
-		title => "#00087f" ,
-		weblink => "#0080ff"
+		body => "text=\"#ffffff\" bgcolor=\"#000000\"" .
+				"alink=\"#0080ff\" vlink=\"#0080ff\" link=\"#0080ff\"",
+
+		headertable => "width=\"100%\" bgcolor=\"#000440\"" ,
+
+		footertable => "width=\"100%\" bgcolor=\"#000440\"" ,
+		footerpre => "<center><font size=\"-2\">" ,
+		footerpost => "</font></center>",
+
+		navtable => "width=\"100%\" bgcolor=\"#00087f\"" ,
+		navpre => "<font face=\"verdana, arial\" size=\"+1\">" ,
+		navpost => "</font>"
 	);
 
 	$nav_items = array (
@@ -18,37 +24,47 @@
 	);
 
 	if ($browser_css) {
-		echo (
-			"<style type=\"text/css\">\n" .
-			"<!--\n" .
-			"div.header {\n" .
-			"	width: 100%;\n" .
-			"	background: #000440\n" .
-			"		url(" . $display["title_grad"] . ")\n" .
-			"		repeat-y\n" .
-			"}\n\n" .
-			"div.footer {\n" .
-			"   width: 100%;\n" .
-			"   background: " . $display["base"] . ";\n" .
-			"   border: 5px solid " . $display["base"] . ";\n" .
-			"   text-align: center\n" .
-			"}\n" .
-			"\n\n" .
-			"div.nav {\n" .
-			"	width: 100%;\n" .
-			"	background: " . $display["title"] . ";\n" .
-			"	padding: 2px;\n" .
-			"	color: white;\n" .
-			"	font: bolder 110% verdana, sans-serif\n" .
-			"}\n" .
-			"a {\n" .
-			"	color: " . $display["weblink"] . ";\n" .
-			"	text-decoration: none\n" .
-			"}\n" .
-			"\n" .
-			"-->\n" .
-			"</style>\n"
-		);
+		?>
+<style type="text/css">
+<!--
+body {
+   background: #000000;
+   color: #ffffff;
+   font: 100% verdana, sans-serif
+}
+
+a {
+	color: #0080ff;
+	text-decoration: none
+}
+
+
+div.header {
+	width: 100%;
+	background: #000440
+		url(images/hdrbar.jpg)
+		repeat-y
+}
+
+div.footer {
+   width: 100%;
+   background: #000440;
+   border: 5px solid #000440;
+   text-align: center;
+   font-size: 80%
+}
+
+div.nav {
+	width: 100%;
+	background: #00087f;
+	padding: 2px;
+	color: white;
+	font: bolder 110% verdana, sans-serif
+}
+
+-->
+</style>
+		<?php
 	}
 ?>
 

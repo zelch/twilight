@@ -10,47 +10,31 @@
 	}
 	echo ("<html>\n<head>\n<title>Project Twilight: " . $page . "</title>\n");
 	require ("config/default.php");
+	require ("include/functions.php");
 
-	echo ("</head>\n<body bgcolor=". $display["background"] . " text=" .
-			$display["text"] . ">\n");
-
+	echo ("</head>\n");
 	if ($browser_css) {
-		echo ("<div class=header>\n<img src=\"" . $display["logo"] .
-			"\" alt=\"Project Twilight\">\n</div>\n");
+		echo ("<body>");
 	} else {
-		echo ("<table border=0 width=100% bgcolor=\"" . $display["base"] .
-			"\">\n<tr><td><img src=\"" . $display["logo"] .
-			"\" alt=\"Project Twilight\"></td></tr>\n</table>");
+		echo ("<body " . $display["body"] . ">\n");
 	}
+
+	box ("header", "<img src=\"" . $display["logo"] .
+					"\" alt=\"Project Twilight\">");
 
 	$nav_ref = 0;
-	if ($browser_css) {
-		echo ("<div class=nav>\n");
-	} else {
-		echo ("<table bgcolor=\"" . $display["title"] . "\" width=\"100%\">\n" .
-			"<tr><td><font face=\"Verdana\">\n");
-	}
+	$nav_str = "";
 	while (list ($title, $url) = each ($nav_items)) {
 		if ($nav_ref) {
-			echo (" | ");
+			$nav_str .= " | ";
 		}
 		$nav_ref++;
 		if ($title == $page) {
-			echo ($title . "\n");
+			$nav_str .= $title . "\n";
 		} else {
-			if ($browser_css) {
-				echo ("<a class=\"nav\" href=\"" . $url . "\">" . $title .
-					"</a>\n");
-			} else {
-				echo ("<a href=\"" . $url . "\"><font color=\"" .
-					$display["nav_link"] . "\">" . $title . "</a></font>\n");
-			}
+			$nav_str .= "<a href=\"" . $url . "\">" . $title . "</a>\n";
 		}
 	}
-	if ($browser_css) {
-		echo ("</div>\n");
-	} else {
-		echo ("</font></td></tr>\n</table>\n");
-	}
+	box ("nav", $nav_str);
 
 ?>
