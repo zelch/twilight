@@ -1305,7 +1305,7 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 		bindimagetexture("lhfont.tga");
 		glColor4f(1,1,1,1);
 		fpsframecount++;
-		if (currenttime >= fpsbasetime + 1000 || fpsframecount >= 100)
+		if (currenttime >= fpsbasetime + 1000)
 		{
 			fps = (int) ((double) fpsframecount * 1000.0 / ((double) currenttime - (double) fpsbasetime));
 			fpsbasetime = currenttime;
