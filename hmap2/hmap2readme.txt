@@ -15,7 +15,7 @@ Would compile mymap.map to mymap.bsp and mymap.lit, the other files (.prt, .pts)
 
 Re-vising a map:
 hmap2 -bsp2prt e1m1
-hmap2 -vis -e1m1
+hmap2 -vis e1m1
 Would recompile the vis data in e1m1, note that bsp2prt automatically makes water transparent, so this is a way to watervis your maps without using vispatch.
 (Note that quake prefers paks over regular files, so if you want the new e1m1.bsp to be loaded this would have to be done in a mod directory for quake to actually load it, or assorted other solutions)
 
