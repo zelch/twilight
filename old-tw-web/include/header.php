@@ -1,6 +1,6 @@
 <?php
 	require ("include/browser-detect.php");
-//	$browser_css = 0;
+//	$browser_css = FALSE;
 
 	if ($browser_css) {
 		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"" .
@@ -39,7 +39,7 @@
 		if ($title == $page) {
 			echo ($title . "\n");
 		} else {
-			if ($browser_css && 0) {
+			if ($browser_css) {
 				echo ("<a class=\"nav\" href=\"" . $url . "\">" . $title .
 					"</a>\n");
 			} else {
