@@ -93,6 +93,8 @@ void CreateBrushFaces (void)
 		SetKeyValue(CurrentEntity, "origin", text);
 	}
 
+	GetVectorForKey(CurrentEntity, "origin", offset);
+
 	for (i = 0;i < numbrushfaces;i++)
 	{
 		mf = &faces[i];
