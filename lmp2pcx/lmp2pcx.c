@@ -642,7 +642,7 @@ void lmp2pcx()
 int main(int argc, char **argv)
 {
 	if (argc != 1)
-		Error("lmp2pcx v1.00 by Forest \"LordHavoc\" Hale\nconverts all .lmp and .wad files in current directory to pcx files\nno commandline options\n");
+		Error("lmp2pcx v1.01 by Forest \"LordHavoc\" Hale\nconverts all .lmp and .wad files in current directory to pcx files\nno commandline options\n");
 	SwapDetect();
 	lmp2pcx();
 #if _DEBUG && WIN32
