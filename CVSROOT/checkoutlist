@@ -14,3 +14,4 @@
 new_commit_prep	Error checking out/updating CVSROOT/new_commit_prep
 new_log_accum	Error checking out/updating CVSROOT/new_log_accum
 do_webpulse	Error checking out/updating CVSROOT/do_webpulse
+ciabot_cvs.pl	Error checking out/updating CVSROOT/ciabot_cvs.pl
