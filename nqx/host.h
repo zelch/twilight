@@ -34,7 +34,6 @@ extern struct cvar_s *sys_nostdout;
 extern struct cvar_s *password;
 
 extern Uint8 *host_basepal;
-extern Uint8 *host_colormap;
 extern int  host_framecount;			// incremented every frame, never reset
 
 										// start of every frame, never reset

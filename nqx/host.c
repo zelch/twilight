@@ -1,5 +1,5 @@
 /*
-	$RCSfile$ -- coordinates spawning and killing of local servers
+	$RCSfile$
 
 	Copyright (C) 1996-1997  Id Software, Inc.
 
@@ -83,7 +83,6 @@ client_t   *host_client;				// current client
 jmp_buf     host_abortserver;
 
 Uint8      *host_basepal;
-Uint8      *host_colormap;
 
 cvar_t     *host_framerate;
 cvar_t     *host_speeds;
@@ -122,7 +121,7 @@ Host_EndGame (char *message, ...)
 	va_start (argptr, message);
 	vsnprintf (string, sizeof (string), message, argptr);
 	va_end (argptr);
-	Com_DPrintf ("Host_EndGame: %s\n", string);
+	Com_Printf ("Host_EndGame: %s\n", string);
 
 	if (sv.active)
 		Host_ShutdownServer (false);
@@ -858,9 +857,6 @@ Host_Init ()
 		host_basepal = (Uint8 *) COM_LoadHunkFile ("gfx/palette.lmp", true);
 		if (!host_basepal)
 			Sys_Error ("Couldn't load gfx/palette.lmp");
-		host_colormap = (Uint8 *) COM_LoadHunkFile ("gfx/colormap.lmp", true);
-		if (!host_colormap)
-			Sys_Error ("Couldn't load gfx/colormap.lmp");
 
 		VID_Init (host_basepal);
 		Draw_Init_Cvars ();
