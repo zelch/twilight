@@ -1595,7 +1595,10 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 		dtype = DTYPE_WORLD;
 	}
 	else if ((targ.flags & FL_MONSTER) && attacker.classname == "player")
+	{
+		ChangeFrags(attacker, 1);
 		dtype = DTYPE_PLAYER;
+	}
 	else if (targ.classname == "player" && attacker.classname == "player")
 	{
 		ChangeFrags(attacker, 1);
@@ -1604,7 +1607,7 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	else
 		dtype = DTYPE_OTHER;
 
-	if (targ.doobits/* || (targ.flags & FL_MONSTER)*/)
+	if (targ.doobits || (deathmatch && (targ.flags & FL_MONSTER)))
 	{
 		newmis = spawn();
 		newmis.classname = "obituaryentity";
