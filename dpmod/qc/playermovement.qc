@@ -129,7 +129,10 @@ void() SV_PlayerPhysics =
 	else
 	{
 		// airborn
-		return;
+		makevectors(self.v_angle_y * '0 1 0');
+		wishvel = v_forward * self.movement_x + v_right * self.movement_y;
+		if (vlen(wishvel) > 10)
+			wishvel = normalize(wishvel) * 10;
 	}
 
 	// acceleration
