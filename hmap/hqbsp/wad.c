@@ -181,7 +181,8 @@ void loadwad(char *filename)
 		lumpinfo.size = LittleLong(lumpinfo.size);
 		CleanupName(lumpinfo.name, lumpinfo.name);
 		// LordHavoc: some wad editors write 0 size
-		if (lumpinfo.compression || (lumpinfo.size && lumpinfo.size != lumpinfo.disksize))
+		// disabled the size check because some wad editors write garbage for the lump size
+		if (lumpinfo.compression)// || (lumpinfo.size && lumpinfo.size != lumpinfo.disksize))
 		{
 			printf("lump \"%s\" in wad \"%s\" is compressed??\n", lumpinfo.name, filename);
 			continue;
