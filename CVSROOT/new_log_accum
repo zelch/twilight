@@ -739,6 +739,7 @@ foreach my $file (@files) {
     close(DIFF);
 }
 #push(@text, $boundary);
+foreach my $item (@text) { print "data: $item\n"; }
 
 # send the mail...
 send_mail(@mailto, @text);
