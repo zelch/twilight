@@ -1,4 +1,11 @@
 <?php
+	function SQLtoNewsDate($date)
+	{
+		$time = explode(' ',$date);
+		$webdate = explode('-',$time);
+		return strftime ( '%d %b %Y', mktime (0, 0, 0, $webdate[1], $webdate[2], $webdate[0]));
+	}
+
 	function email ($person)
 	{
 		global $userinfo;
