@@ -1,7 +1,8 @@
 
-float   maxclients; // set by worldspawn code
-float   maxdecors;
-.float  createdtime;
+float maxclients; // set by worldspawn code
+float numdecors;
+float maxdecors;
+.float createdtime;
 .void() th_gib;
 
 //void(vector org, entity en, vector dir, float splattype, float importance) newbloodsplat;
@@ -11,29 +12,39 @@ void(vector org, float bodydamage, float armordamage, vector vel, float damgtype
 void() decorframe =
 {
 	local entity estart, e, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10;
-	local float bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, bt10, c;
-	// first count up all the decors
-	// (QC is slow, so doing the find() twice is faster than merging
-	//  the two loops, as long as the second loop is rarely used)
-	// later note - created findchain, much faster now
-	c = 0;
+	local float bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, bt10, iterations;
+
+	// numdecors is allowed to be bogus as long as it is >= the real number of decors
+	// (but perfection is clearly preferable)
+	if (numdecors <= maxdecors)
+		return;
+
+	// recount all the decors
+	numdecors = 0;
 	estart = e = findchain(classname, "decor");
 	while(e)
 	{
-		c = c + 1;
+		numdecors = numdecors + 1;
 		e = e.chain;
 	}
-	if (c <= maxdecors)
+	if (numdecors <= maxdecors)
 		return; // nothing to do
 
-	while (c > maxdecors)
+	// limit it to considering 1000 entities per frame,
+	// otherwise it can cause a runaway loop error
+	iterations = 0;
+	while (numdecors > maxdecors && iterations < 1000)
 	{
-		// find and remove the oldest decors (upto 10)
+		iterations = iterations + 1;
+		// find and remove the oldest decors (upto 10 at once)
 		b1 = b2  = b3  = b4  = b5  = b6 = b7 = b8 = b9 = b10 = world;
 		bt1 = bt2 = bt3 = bt4 = bt5 = bt6 = bt7 = bt8 = bt9 = bt10 = time + 10000;
+		if (iterations > 0)
+			estart = findchain(classname, "decor");
 		e = estart;
 		while(e)
 		{
+			iterations = iterations + 1;
 			if (e.createdtime < bt10)
 			{
 				if (e.createdtime < bt9)
@@ -150,25 +161,32 @@ void() decorframe =
 			e = e.chain;
 		}
 		// remove the oldest decors
-		                    c = c - 1;remove(b1);
-		if (c > maxdecors) {c = c - 1;remove(b2);}
-		if (c > maxdecors) {c = c - 1;remove(b3);}
-		if (c > maxdecors) {c = c - 1;remove(b4);}
-		if (c > maxdecors) {c = c - 1;remove(b5);}
-		if (c > maxdecors) {c = c - 1;remove(b6);}
-		if (c > maxdecors) {c = c - 1;remove(b7);}
-		if (c > maxdecors) {c = c - 1;remove(b8);}
-		if (c > maxdecors) {c = c - 1;remove(b9);}
-		if (c > maxdecors) {c = c - 1;remove(b10);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b1);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b2);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b3);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b4);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b5);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b6);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b7);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b8);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b9);}
+		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b10);}
 	}
 };
 
 entity() newdecor =
 {
-	local   entity  e;
+	local entity e;
+	numdecors++;
 	e = spawn();
 	e.classname = "decor";
 	return e;
+};
+
+void(entity e) removedecor =
+{
+	numdecors--;
+	remove(e);
 };
 
 /*
@@ -280,7 +298,7 @@ void() DecorThink =
 	self.nextthink = time;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	if (pointcontents(self.origin) == CONTENT_SOLID)
-		remove(self);
+		removedecor(self);
 };
 
 .float  createdtime;

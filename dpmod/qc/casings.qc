@@ -36,7 +36,7 @@ void() casingthink =
 	p = pointcontents(self.origin);
 	if (p == CONTENT_SOLID || p == CONTENT_LAVA || p == CONTENT_SKY)
 	{
-		remove(self);
+		removedecor(self);
 		return;
 	}
 	if (time > self.cnt)
@@ -44,7 +44,7 @@ void() casingthink =
 		self.nextthink = time;
 		self.alpha = self.alpha - frametime;
 		if (self.alpha < 0.0625)
-			remove(self);
+			removedecor(self);
 	}
 };
 

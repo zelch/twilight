@@ -28,7 +28,7 @@ void() debristhink =
 	if (p == CONTENT_SOLID || p == CONTENT_SKY || p == CONTENT_LAVA)
 	{
 		if (self.classname == "decor")
-			remove(self);
+			removedecor(self);
 		else
 			self.model = "";
 		return;
@@ -42,7 +42,7 @@ void() debristhink =
 		{
 			self.nextthink = 0;
 			if (self.classname == "decor")
-				remove(self);
+				removedecor(self);
 			else
 				self.model = "";
 		}
@@ -298,11 +298,14 @@ void(entity t) CopyToBodyQue =
 };
 
 // used specifically by monsters, choose any of the above methods
-// here to affect all monsters.
+// here to affect all monsters except zombies.
 void(entity t, void() framefunc) MonsterCorpse =
 {
-	t.classname = "decor"; // setup for recycling
-	t.createdtime = time + 30; // make sure it won't be replaced anytime soon
+	// setup for recycling
+	t.classname = "decor";
+	numdecors++;
+	// make sure it won't be replaced anytime soon
+	t.createdtime = time + 30;
 	BecomeCorpse(t, framefunc);
 };
 
