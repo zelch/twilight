@@ -444,7 +444,7 @@ void() ImpulseCommands =
 			newmis.solid = SOLID_SLIDEBOX;
 			newmis.takedamage = DAMAGE_YES;
 			newmis.health = 100;
-			newmis.effects = EF_FLAME;
+			//newmis.effects = EF_FLAME;
 			newmis.th_die = GibClone;
 			setorigin(newmis, self.origin);
 		}
