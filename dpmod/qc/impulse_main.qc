@@ -76,6 +76,7 @@ void() ImpulseCommands =
 		sprint(self, "stats - shows current kill/death stats\n");
 		sprint(self, "addbot - adds a bot\n");
 		sprint(self, "+button3 - secondary fire (used by some weapons)\n");
+		sprint(self, "+button4 - zoom (available with all weapons)\n");
 	}
 	if (self.isadmin)
 	{
