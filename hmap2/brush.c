@@ -73,8 +73,7 @@ void CreateBrushFaces (void)
 	vec3_t			offset, point;
 
 	offset[0] = offset[1] = offset[2] = 0;
-	brush_mins[0] = brush_mins[1] = brush_mins[2] = BOGUS_RANGE;
-	brush_maxs[0] = brush_maxs[1] = brush_maxs[2] = -BOGUS_RANGE;
+	ClearBounds( brush_mins, brush_maxs );
 
 	brush_faces = NULL;
 
@@ -133,9 +132,8 @@ void CreateBrushFaces (void)
 					w->points[j][k] = r;
 				else
 					w->points[j][k] = point[k];
-
-				AddPointToBounds( w->points[j], brush_mins, brush_maxs );
 			}
+			AddPointToBounds( w->points[j], brush_mins, brush_maxs );
 		}
 
 		VectorCopy (mf->plane.normal, plane.normal);
