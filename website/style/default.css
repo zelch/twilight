@@ -65,3 +65,9 @@ div.newcontent {
 	margin: 1px 5px;
 }
 
+div.file {
+	border: solid 1px #5aeaff;
+	background: #172b3f;
+	margin: 5px;
+	margin-bottom: 10px;
+}
