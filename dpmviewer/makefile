@@ -13,7 +13,7 @@ PROFILEOPTION=
 #CFLAGS= -I/usr/include/SDL -MD -Wall -Werror $(OPTIMIZATIONS) $(PROFILEOPTION)
 #debug compile
 OPTIMIZATIONS=
-CFLAGS= -I/usr/include/SDL -MD -Wall -Werror -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION)
+CFLAGS= -I/usr/include/SDL -MD -Wall -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION)
 
 LDFLAGS= -lm $(PROFILEOPTION)
 

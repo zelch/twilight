@@ -1316,7 +1316,7 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 		// note: SDL_GL_SwapBuffers does a glFinish for us
 		SDL_GL_SwapBuffers();
 
-		SDL_Delay(1);
+		//SDL_Delay(1);
 	}
 
 	printf("%d frames rendered in %f seconds, %f average frames per second\n", playedframes, playedtime, playedframes / playedtime);
