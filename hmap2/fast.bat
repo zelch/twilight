@@ -1,3 +1,3 @@
-@hmap %1
-@hmap -vis -fast %1
-@hmap -light %1
+@hmap2 %1
+@hmap2 -vis -fast %1
+@hmap2 -light %1

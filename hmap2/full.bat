@@ -1,3 +1,3 @@
-@hmap %1
-@hmap -vis %1
-@hmap -light -extra8x8 %1
+@hmap2 %1
+@hmap2 -vis %1
+@hmap2 -light -extra8x8 %1

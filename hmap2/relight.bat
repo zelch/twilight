@@ -1,1 +1,1 @@
-@hmap -light -relight %1
+@hmap2 -light -relight %1
