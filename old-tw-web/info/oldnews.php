@@ -10,7 +10,7 @@
 		$sqlConn = twsql_connect();
 
 		if($sqlConn) {
-			$sqlQuery = "SELECT n_date, n_user, n_news FROM news_main ORDER BY n_date DESC SKIP" .  $newslimit - 1;
+			$sqlQuery = "SELECT n_date, n_user, n_news FROM news_main ORDER BY n_date DESC IGNORE " .  $newslimit - 1 . " LINES";
 			$res = twsql_query($sqlQuery, $sqlConn);
 
 			if($res) {
