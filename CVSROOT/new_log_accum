@@ -328,7 +328,7 @@ sub build_header ($@) {
 
 	# generate a unique boundary by calculating the md5sum of the
 	# current time
-	$digest = new MD5;
+	$digest = new Digest::MD5;
 	$digest->reset();
 	$digest->add(time() . rand());
 	$boundary = "----=MIME." . unpack("H*", $digest->digest());
