@@ -21,7 +21,7 @@ void() ammo_touch =
 	if (used < 1)
 		return;
 
-	// if the player was using his best weapon, change up to the new one if better   
+	// if the player was using his best weapon, change up to the new one if better
 	stemp = self;
 	self = other;
 	best = W_BestWeapon(TRUE);
@@ -81,12 +81,12 @@ float(entity player, entity item) item_shells_pickupeval = {if (player.ammo_shel
 float(entity player, entity item) item_nails_pickupeval = {if (player.ammo_nails < AMMOMAX_NAILS) return (AMMOMAX_NAILS - player.ammo_nails) * (AMMOMAX_NAILS - player.ammo_nails) * item.dmg;else return 0;};
 float(entity player, entity item) item_rockets_pickupeval = {if (player.ammo_rockets < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - player.ammo_rockets) * (AMMOMAX_ROCKETS - player.ammo_rockets) * item.dmg;else return 0;};
 float(entity player, entity item) item_cells_pickupeval = {if (player.ammo_cells < AMMOMAX_CELLS) return (AMMOMAX_CELLS - player.ammo_cells) * (AMMOMAX_CELLS - player.ammo_cells) * item.dmg;else return 0;};
-float(entity player, entity item) item_xshells_pickupeval = {if (player.ammo_xshells < AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - player.ammo_xshells) * (AMMOMAX_XSHELLS - player.ammo_xshells) * item.dmg;else return 0;};
+//float(entity player, entity item) item_xshells_pickupeval = {if (player.ammo_xshells < AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - player.ammo_xshells) * (AMMOMAX_XSHELLS - player.ammo_xshells) * item.dmg;else return 0;};
 
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32)
 */
 
-float spawnxshells;
+//float spawnxshells;
 void() item_shells =
 {
 	self.touch = ammo_touch;
@@ -115,6 +115,7 @@ void() item_shells =
 	self.dmg = 60 * self.aflag / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
 	self.pickupevalfunc = item_shells_pickupeval;
 
+	/*
 	spawnxshells = spawnxshells + 1;
 	if (spawnxshells & 1)
 	{
@@ -123,6 +124,7 @@ void() item_shells =
 		self.dmg = 110 * self.aflag / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
 		self.pickupevalfunc = item_xshells_pickupeval;
 	}
+	*/
 
 	StartItem ();
 };
