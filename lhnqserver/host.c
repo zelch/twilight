@@ -37,10 +37,8 @@ quakeparms_t host_parms;
 qboolean	host_initialized;		// true if into command execution
 
 double		host_frametime;
-double		host_realframetime;		// LordHavoc: the real frametime, before slowmo and clamping are applied (used for console scrolling)
 double		host_time;
 double		realtime;				// without any filtering or bounding
-double		oldrealtime;			// last frame run
 int			host_framecount;
 
 double		sv_frametime;
@@ -56,8 +54,6 @@ jmp_buf 	host_abortserver;
 cvar_t	host_framerate = {"host_framerate","0"};	// set for slow motion
 cvar_t	host_speeds = {"host_speeds","0"};			// set for running times
 cvar_t	slowmo = {"slowmo", "1.0"};					// LordHavoc: framerate independent slowmo
-cvar_t	host_minfps = {"host_minfps", "10"};		// LordHavoc: game logic lower cap on framerate (if framerate is below this is, it pretends it is this, so game logic will run normally)
-cvar_t	host_maxfps = {"host_maxfps", "1000"};		// LordHavoc: framerate upper cap
 
 cvar_t	sys_ticrate = {"sys_ticrate","0.05"};
 cvar_t	serverprofile = {"serverprofile","0"};
@@ -154,8 +150,6 @@ void Host_InitLocal (void)
 	Cvar_RegisterVariable (&host_framerate);
 	Cvar_RegisterVariable (&host_speeds);
 	Cvar_RegisterVariable (&slowmo);
-	Cvar_RegisterVariable (&host_minfps);
-	Cvar_RegisterVariable (&host_maxfps);
 
 	Cvar_RegisterVariable (&sys_ticrate);
 	Cvar_RegisterVariable (&serverprofile);
@@ -402,45 +396,6 @@ void Host_ClearMemory (void)
 
 /*
 ===================
-Host_FilterTime
-
-Returns false if the time is too short to run a frame
-===================
-*/
-qboolean Host_FilterTime (float time)
-{
-	realtime += time;
-
-	if (slowmo.value < 0.0f)
-		Cvar_SetValue("slowmo", 0.0f);
-	if (host_minfps.value < 10.0f)
-		Cvar_SetValue("host_minfps", 10.0f);
-	if (host_maxfps.value < host_minfps.value)
-		Cvar_SetValue("host_maxfps", host_minfps.value);
-
-	if ((realtime - oldrealtime) < (1.0 / host_maxfps.value))
-		return false;		// framerate is too high
-
-	host_realframetime = host_frametime = realtime - oldrealtime; // LordHavoc: copy into host_realframetime as well
-	oldrealtime = realtime;
-
-	if (host_framerate.value > 0)
-		host_frametime = host_framerate.value;
-	else
-	{
-		// don't allow really short frames
-		if (host_frametime > (1.0 / host_minfps.value))
-			host_frametime = (1.0 / host_minfps.value);
-	}
-
-	host_frametime *= slowmo.value;
-	
-	return true;
-}
-
-
-/*
-===================
 Host_GetConsoleCommands
 
 Add them exactly as if they had been typed at the console
@@ -508,7 +463,15 @@ void _Host_Frame (float time)
 	
 // decide the simulation time
 	realtime += time;
-		
+	if (host_framerate.value > 0)
+		host_frametime = host_framerate.value;
+	else
+		host_frametime = time;
+
+	if (slowmo.value < 0.0f)
+		Cvar_SetValue("slowmo", 0.0f);
+	host_frametime *= slowmo.value;
+
 // get new key events
 	Sys_SendKeyEvents ();
 

@@ -3,7 +3,7 @@ OBJECTS= cmd.o common.o console.o cpu_noasm.o crc.o cvar.o host.o host_cmd.o mat
 OPTIMIZATIONS= -O6 -ffast-math -funroll-loops -fomit-frame-pointer -fexpensive-optimizations
 #OPTIMIZATIONS= -O -g
 
-CFLAGS= -Wall -Werror $(OPTIMIZATIONS)
+CFLAGS= -Wall -Werror -Wno-trigraphs $(OPTIMIZATIONS)
 #CFLAGS= -Wall -Werror -ggdb $(OPTIMIZATIONS)
 LDFLAGS= -lm
 
