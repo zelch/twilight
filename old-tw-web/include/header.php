@@ -1,6 +1,5 @@
 <?php
 	require ("include/browser-detect.php");
-//	$browser_css = FALSE;
 
 	if ($browser_css) {
 		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"" .
@@ -16,11 +15,11 @@
 			$display["text"] . ">\n");
 
 	if ($browser_css) {
-		echo ("<div class=header>\n<img src=\"" . $display["title_img"] .
+		echo ("<div class=header>\n<img src=\"" . $display["logo"] .
 			"\" alt=\"Project Twilight\">\n</div>\n");
 	} else {
-		echo ("<table border=0 width=100% bgcolor=\"" . $display["titlebar"] .
-			"\">\n<tr><td><img src=\"" . $display["title_img"] .
+		echo ("<table border=0 width=100% bgcolor=\"" . $display["base"] .
+			"\">\n<tr><td><img src=\"" . $display["logo"] .
 			"\" alt=\"Project Twilight\"></td></tr>\n</table>");
 	}
 
@@ -28,7 +27,7 @@
 	if ($browser_css) {
 		echo ("<div class=nav>\n");
 	} else {
-		echo ("<table bgcolor=\"" . $display["nav"] . "\" width=\"100%\">\n" .
+		echo ("<table bgcolor=\"" . $display["title"] . "\" width=\"100%\">\n" .
 			"<tr><td><font face=\"Verdana\">\n");
 	}
 	while (list ($title, $url) = each ($nav_items)) {

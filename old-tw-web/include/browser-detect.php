@@ -46,6 +46,16 @@ if ($browser_name == "Mozilla") {
 	if ((float)$browser_version >= 3.60) {
 		$browser_css = TRUE;
 	}
+} elseif ($browser_name == "Lynx") {
+	// Hell, lynx doesn't care CSS or not.
+	$browser_css = TRUE;
+}
+
+if ($use_css == "no")
+{
+	$browser_css = FALSE;
+} elseif ($use_css == "yes") {
+	$browser_css = TRUE;
 }
 
 /*
