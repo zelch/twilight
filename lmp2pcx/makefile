@@ -1,19 +1,45 @@
+##### Win32 variables #####
 
-CFLAGS= -MD -Wall -Werror
-LDFLAGS=
+WIN32_EXE=lmp2pcx.exe
+WIN32_LDFLAGS=
 
-all: lmp2pcx
+##### Unix variables #####
+
+UNIX_EXE=lmp2pcx
+UNIX_LDFLAGS=
+
+##### Common variables #####
+
+CC=gcc
+CFLAGS=-Wall -O2
+
+ifdef windir
+CMD_RM=del
+else
+CMD_RM=rm -f
+endif
+
+##### Commands #####
+
+.PHONY: all mingw clean
+
+all:
+ifdef windir
+	$(MAKE) EXE=$(WIN32_EXE) LDFLAGS="$(WIN32_LDFLAGS)" $(WIN32_EXE)
+else
+	$(MAKE) EXE=$(UNIX_EXE) LDFLAGS="$(UNIX_LDFLAGS)" $(UNIX_EXE)
+endif
+
+mingw:
+	@$(MAKE) EXE=$(WIN32_EXE) LDFLAGS="$(WIN32_LDFLAGS)" $(WIN32_EXE)
 
 .c.o:
-	gcc $(CFLAGS) -c $*.c
+	$(CC) $(CFLAGS) -c $*.c
 
-lmp2pcx: lmp2pcx.o
-	gcc -o $@ $^ $(LDFLAGS)
+$(EXE): lmp2pcx.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	-rm -f lmp2pcx *.o *.d
-
-.PHONY: clean
-
--include *.d
-
+	-$(CMD_RM) $(WIN32_EXE)
+	-$(CMD_RM) $(UNIX_EXE)
+	-$(CMD_RM) *.o
