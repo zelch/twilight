@@ -364,7 +364,7 @@ sub send_mail ($@) {
     my (@mailto, @text) = @_;
 
 foreach my $item (@text) { print "before.data: $item\n"; }
-
+foreach my $item (@mailto) { print "mailto: $item\n"; }
     open(MAIL, "|$MAILER " . join(' ', @mailto));
 #    push(@data, $boundary);
     print MAIL join("\n", @text), "\n";
