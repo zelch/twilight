@@ -27,7 +27,7 @@ void() W_WeaponFrame =
 				//            12345678901234567890123456789012345678
 				sprint(self, "Lord Havoc's Dark Places\n");
 				sprint(self, "be sure to type dphelp in console for very useful information\n");
-				sprint(self, "http://darkplaces.gamevisions.com\n");
+				sprint(self, "http://icculus.org/twilight/darkplaces\n");
 			}
 		}
 	}
