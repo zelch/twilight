@@ -12,7 +12,7 @@
 
 		if($sqlConn) {
 			$sqlQuery = "SELECT n_date, n_user, n_news FROM news_main ORDER BY n_date DESC LIMIT $newslimit";
-			$res = mysql_db_query(sqlDB, $sqlQuery, $sqlConn);
+			$res = @mysql_db_query(sqlDB, $sqlQuery, $sqlConn);
 
 			if($res) {
 				$numrows = @mysql_num_rows($res);
