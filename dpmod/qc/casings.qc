@@ -67,7 +67,7 @@ void(vector org, vector orientation, vector vel, float randomvel, float casingty
 	e = newdecor();
 	e.isdecor = TRUE;
 	e.alpha = 1;
-	e.forcescale = 5;
+	e.forcescale = 15;
 	e.movetype = MOVETYPE_BOUNCE;
 	e.solid = SOLID_TRIGGER;
 	e.velocity = vel + randomvec() * randomvel + self.velocity;
