@@ -740,21 +740,38 @@ float ROCKETLAUNCHER_RADIUS = 150;
 float ROCKETLAUNCHER_REFIRE = 0.6;
 float ROCKETLAUNCHER_LOADTIME = 0.2;
 float ROCKETLAUNCHER_MAXLOAD = 3;
+float ROCKETLAUNCHER_VELOCITY = 5000;
+float ROCKETLAUNCHER_TRIPLE_VELOCITY = 5000;
 float THUNDERBOLT_CELL_HEALTH = 30;
 float THUNDERBOLT_CELL_BODY = 15;
 float THUNDERBOLT_CELLSPERSECOND = 10;
+float PLASMARIFLE_NORMAL_CELL = 60;
+float PLASMARIFLE_NORMAL_CELLS = 2;
+float PLASMARIFLE_NORMAL_RADIUS = 80;
+float PLASMARIFLE_NORMAL_VELOCITY = 5000;
+float PLASMARIFLE_NORMAL_REFIRE = 0.1;
+float PLASMARIFLE_SUPER_CELL = 30;
+float PLASMARIFLE_SUPER_CELLS = 6;
+float PLASMARIFLE_SUPER_RADIUS = 80;
+float PLASMARIFLE_SUPER_VELOCITY = 5000;
+float PLASMARIFLE_SUPER_REFIRE = 0.5;
+/*
 float PLASMARIFLE_NORMAL_CELL = 30;
 float PLASMARIFLE_NORMAL_CELLS = 1;
 float PLASMARIFLE_NORMAL_RADIUS = 50;
+float PLASMARIFLE_NORMAL_VELOCITY = 25000;
+float PLASMARIFLE_NORMAL_REFIRE = 0.1;
 float PLASMARIFLE_SUPER_CELL = 30;
 float PLASMARIFLE_SUPER_CELLS = 3;
 float PLASMARIFLE_SUPER_RADIUS = 80;
-float PLASMARIFLE_REFIRE = 0.1;
-float PLASMAWAVE_SINGLE_CELL = 20;
+float PLASMARIFLE_SUPER_VELOCITY = 25000;
+float PLASMARIFLE_SUPER_REFIRE = 0.1;
+*/
+float PLASMAWAVE_SINGLE_CELL = 60;
 float PLASMAWAVE_SINGLE_CELLS = 10;
 float PLASMAWAVE_SINGLE_REFIRE = 0.6;
 float PLASMAWAVE_SINGLE_BURNRADIUS = 120;
-float PLASMAWAVE_WAVE_CELL = 20;
+float PLASMAWAVE_WAVE_CELL = 60;
 float PLASMAWAVE_WAVE_MAXCELLS = 50;
 float PLASMAWAVE_WAVE_CELLSPERSHOT = 5;
 float PLASMAWAVE_WAVE_MAXSHOTS = 10;
@@ -920,7 +937,7 @@ float(float request) w_shotgun =
 			sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 			Inventory_AdjustQuantity(self, "shells", -1);
 			w_muzzleflash(shotorg, 2);
-			FireBullets(self, self, 1, 5, SHOTGUN_SHELL * 0.2, SHOTGUN_SHELL * 0.2, 0, 0, shotdir * 10000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+			FireBullets(self, self, 1, 5, SHOTGUN_SHELL * 0.2, SHOTGUN_SHELL * 0.2, 0, 0, shotdir * 10000, 0.015, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 			//FireBullets(self, self, 0, 5, SHOTGUN_SHELL * 0.1, SHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 			wsetanim(WANIM_FIRE1, 1, 6, SHOTGUN_REFIRE);
 		}
@@ -1126,15 +1143,15 @@ float(float request) w_dbshotgun =
 			{
 				self.shotgunshells = self.shotgunshells | 1;
 				Inventory_AdjustQuantity(self, "shells", -1);
-				FireBullets(self, self, 1, 5, DBSHOTGUN_SHELL * 0.05, DBSHOTGUN_SHELL * 0.05, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
-				FireBullets(self, self, 0, 5, DBSHOTGUN_SHELL * 0.05, DBSHOTGUN_SHELL * 0.05, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
+				FireBullets(self, self, 1, 5, DBSHOTGUN_SHELL * 0.05, DBSHOTGUN_SHELL * 0.05, 0, 0, shotdir * 6000, 0.025, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
+				FireBullets(self, self, 0, 5, DBSHOTGUN_SHELL * 0.05, DBSHOTGUN_SHELL * 0.05, 0, 0, shotdir * 6000, 0.025, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
 			}
 			if (Inventory_Quantity(self, "shells") >= 1)
 			{
 				self.shotgunshells = self.shotgunshells | 2;
 				Inventory_AdjustQuantity(self, "shells", -1);
-				FireBullets(self, self, 1, 5, DBSHOTGUN_SHELL * 0.05, DBSHOTGUN_SHELL * 0.05, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
-				FireBullets(self, self, 0, 5, DBSHOTGUN_SHELL * 0.05, DBSHOTGUN_SHELL * 0.05, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
+				FireBullets(self, self, 1, 5, DBSHOTGUN_SHELL * 0.05, DBSHOTGUN_SHELL * 0.05, 0, 0, shotdir * 6000, 0.025, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
+				FireBullets(self, self, 0, 5, DBSHOTGUN_SHELL * 0.05, DBSHOTGUN_SHELL * 0.05, 0, 0, shotdir * 6000, 0.025, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
 			}
 			wsetanim(WANIM_FIRE1, 1, 7, DBSHOTGUN_REFIRE);
 		}
@@ -1603,7 +1620,7 @@ float(float request) w_rocketlauncher =
 			if (self.wburst == 1)
 			{
 				self.wburst = self.wburst - 1;
-				LaunchMissile(shotorg, shotdir * 2000, self, ROCKETLAUNCHER_DAMAGE, ROCKETLAUNCHER_FORCE, ROCKETLAUNCHER_RADIUS, "ROCKET", Obituary_Rocket);
+				LaunchMissile(shotorg, shotdir * ROCKETLAUNCHER_VELOCITY, self, ROCKETLAUNCHER_DAMAGE, ROCKETLAUNCHER_FORCE, ROCKETLAUNCHER_RADIUS, "ROCKET", Obituary_Rocket);
 			}
 			else
 			{
@@ -1611,10 +1628,11 @@ float(float request) w_rocketlauncher =
 				while (self.wburst > 0)
 				{
 					self.wburst = self.wburst - 1;
-					LaunchMissile(shotorg, shotdir * 2000, self, ROCKETLAUNCHER_DAMAGE, ROCKETLAUNCHER_FORCE, ROCKETLAUNCHER_RADIUS, "ROCKET", Obituary_Rocket);
-					newmis.angles_z = step * self.wburst;
+					LaunchMissile(shotorg, shotdir * ROCKETLAUNCHER_TRIPLE_VELOCITY, self, ROCKETLAUNCHER_DAMAGE, ROCKETLAUNCHER_FORCE, ROCKETLAUNCHER_RADIUS, "ROCKET", Obituary_Rocket);
+					//newmis.angles_z = step * self.wburst;
+					newmis.dest3_z = step * self.wburst;
 					newmis.dest2 = '0 8 0';
-					newmis.avelocity = '0 0 720';
+					newmis.avelocity = '0 0 1440';
 				}
 			}
 			wsetanim(WANIM_FIRE1, 1, 6, ROCKETLAUNCHER_REFIRE);
@@ -1648,7 +1666,7 @@ float(float request) w_plasmarifle =
 		precache_model("progs/plasmashot.spr32");
 		precache_sound("plasma/plasma.wav");
 		precache_sound("plasma/plasexpl.wav");
-		registerweapon(9, "Plasma Rifle", w_plasmarifle, "plasmarifle", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_CELLS, 0, 1500, PLASMARIFLE_NORMAL_CELL * PLASMARIFLE_NORMAL_CELLS / PLASMARIFLE_REFIRE, WANIMTYPE_NAILGUN);
+		registerweapon(9, "Plasma Rifle", w_plasmarifle, "plasmarifle", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_CELLS, 0, 1500, PLASMARIFLE_NORMAL_CELL * PLASMARIFLE_NORMAL_CELLS / PLASMARIFLE_NORMAL_REFIRE, WANIMTYPE_NAILGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1667,33 +1685,22 @@ float(float request) w_plasmarifle =
 	{
 		if (self.wanim_id == WANIM_FIRE1)
 		{
-			if (self.button0 || self.button3)
+			if (self.button0)
 			if (Inventory_Quantity(self, "cells"))
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-				w_muzzleflash(shotorg, 2);
+				w_muzzleflash(shotorg, 0);
 				cells = Inventory_Quantity(self, "cells");
-				if (self.button3)
-				{
-					if (cells > PLASMARIFLE_SUPER_CELLS)
-						cells = PLASMARIFLE_SUPER_CELLS;
-					FirePlasma(self, shotorg, shotdir * 25000, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
-				}
-				else
-				{
-					if (cells > PLASMARIFLE_NORMAL_CELLS)
-						cells = PLASMARIFLE_NORMAL_CELLS;
-					FirePlasma(self, shotorg, shotdir * 25000, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
-				}
+				if (cells > PLASMARIFLE_NORMAL_CELLS)
+					cells = PLASMARIFLE_NORMAL_CELLS;
+				FirePlasma(self, shotorg, shotdir * PLASMARIFLE_NORMAL_VELOCITY, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
-				/*
 				while (cells > 0)
 				{
 					cells = cells - 1;
 					ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 100, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				}
-				*/
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -1704,7 +1711,7 @@ float(float request) w_plasmarifle =
 		if (self.wanim_id == WANIM_LOWER)
 			wswitch();
 		else if (self.wanim_id == WANIM_FIRE1)
-			wsetanim(WANIM_FIRE1, 1, 8, PLASMARIFLE_REFIRE * 8);
+			wsetanim(WANIM_FIRE1, 1, 8, PLASMARIFLE_NORMAL_REFIRE * 8);
 		else
 			wsetanim(WANIM_READY, 0, 0, 0);
 		return TRUE;
@@ -1722,9 +1729,33 @@ float(float request) w_plasmarifle =
 			wsetanim(WANIM_LOWER, 9, 2, 0.2);
 			return TRUE;
 		}
-		if (self.button0 || self.button3)
+		if (self.button3)
+		if (time > self.attack_finished)
 		if (Inventory_Quantity(self, "cells") > 0)
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+			w_muzzleflash(shotorg, 2);
+			cells = Inventory_Quantity(self, "cells");
+			if (cells > PLASMARIFLE_SUPER_CELLS)
+				cells = PLASMARIFLE_SUPER_CELLS;
+			FirePlasma(self, shotorg, shotdir * PLASMARIFLE_SUPER_VELOCITY, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
+			Inventory_AdjustQuantity(self, "cells", 0 - cells);
+			while (cells > 0)
+			{
+				cells = cells - 1;
+				ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 100, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+			}
+			self.attack_finished = time + PLASMARIFLE_SUPER_REFIRE;
+			return TRUE;
+		}
+		if (self.button0)
+		if (time > self.attack_finished)
+		if (Inventory_Quantity(self, "cells") > 0)
+		{
 			wsetanim(WANIM_FIRE1, 1, 0, 0);
+			return TRUE;
+		}
 		return TRUE;
 	}
 	return TRUE;
@@ -2023,7 +2054,7 @@ float(float request) w_plasmawave =
 			self.wfiretime = time;
 			Inventory_AdjustQuantity(self, "cells", 0 - cells);
 			w_muzzleflash(shotorg, 4);
-			FirePlasmaBall(self, shotorg, shotdir * 1000, cells * PLASMAWAVE_SINGLE_CELL * 20, cells * PLASMAWAVE_SINGLE_CELL * 20, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
+			FirePlasmaBall(self, shotorg, shotdir * 1000, cells * PLASMAWAVE_SINGLE_CELL, cells * PLASMAWAVE_SINGLE_CELL, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 			wsetanim(WANIM_FIRE1, 0, 0, PLASMAWAVE_SINGLE_REFIRE);
 			return TRUE;
 		}

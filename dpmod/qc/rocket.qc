@@ -187,20 +187,31 @@ void(vector org, vector dir, entity own, float damg, float force, float blastrad
 
 void() MissileThink =
 {
-	local float p;
+	local float p, deltatime;
 	local vector neworg;
 
 	self.nextthink = time;
 	fightdone = time + 1; // delay stuff until fighting is over
 
 	//self.angles = vectoangles(self.velocity) + (time - self.wait) * self.avelocity;
-	self.angles = self.angles + frametime * self.avelocity;
-
-	neworg = self.origin - self.dest + frametime * self.velocity;
+	deltatime = (time - self.weapon);
+	if (deltatime < 1)
+		deltatime = deltatime * deltatime;
+	deltatime = deltatime;
+	self.angles = self.dest3 + deltatime * self.avelocity;
 	makevectors(self.angles);
-	self.dest = self.dest2_x * v_forward + self.dest2_y * v_right + self.dest2_z * v_up;
+	neworg = self.dest1 + deltatime * self.velocity + self.dest2_x * v_forward + self.dest2_y * v_right + self.dest2_z * v_up;
+	tracebox(self.origin, self.mins, self.maxs, neworg, FALSE, self);
 
-	tracebox(self.origin, self.mins, self.maxs, neworg + self.dest, FALSE, self);
+	/*
+	//self.angles = vectoangles(self.velocity) + (time - self.wait) * self.avelocity;
+	self.angles = self.angles + frametime * self.avelocity;
+	makevectors(self.angles);
+	neworg = self.origin - self.dest + frametime * self.velocity;
+	self.dest = self.dest2_x * v_forward + self.dest2_y * v_right + self.dest2_z * v_up;
+	*/
+
+	//tracebox(self.origin, self.mins, self.maxs, neworg + self.dest, FALSE, self);
 	setorigin(self, trace_endpos);
 
 	p = pointcontents(self.origin);
@@ -251,4 +262,8 @@ void(vector org, vector vel, entity own, float damg, float force, float blastrad
 	setmodel (newmis, "progs/missile.mdl");
 	setsize (newmis, '0 0 0', '0 0 0');
 	setorigin (newmis, org);
+
+	newmis.dest1 = org;
+	newmis.dest3 = newmis.angles;
 };
+
