@@ -88,7 +88,7 @@ static void CalcFaceVectors( lightinfo_t *l, const vec3_t faceorg )
 	// flip it towards plane normal
 	distscale = DotProduct( texnormal, l->facenormal );
 	if( !distscale )
-		Error( "Texture axis perpendicular to face" );
+		Error( "Texture axis perpendicular to face at location %f %f %f", l->facemid[0], l->facemid[1], l->facemid[2] );
 	if( distscale < 0 ) {
 		distscale = -distscale;
 		VectorNegate( texnormal, texnormal );
@@ -129,7 +129,7 @@ Fills in s->texmins[] and s->texsize[]
 also sets exactmins[] and exactmaxs[]
 ================
 */
-static void CalcFaceExtents( lightinfo_t *l )
+static void CalcFaceExtents( lightinfo_t *l, const vec3_t faceorg )
 {
 	int			i, j, e;
 	dface_t		*s = l->face;
@@ -157,7 +157,7 @@ static void CalcFaceExtents( lightinfo_t *l )
 				maxs[j] = val;
 		}
 	}
-	VectorScale(l->facemid, (1.0 / s->numedges), l->facemid);
+	VectorMA(faceorg, (1.0 / s->numedges), l->facemid, l->facemid);
 
 	for( i = 0; i < 2; i++ ) {
 		l->exactmins[i] = mins[i];
@@ -537,8 +537,8 @@ void LightFace( dface_t *f, const lightchain_t *lightchain, const directlight_t 
 		l.facedist = -l.facedist;
 	}
 
+	CalcFaceExtents( &l, faceorg );
 	CalcFaceVectors( &l, faceorg );
-	CalcFaceExtents( &l );
 	CalcSamples( &l );
 	CalcPoints( &l );
 
