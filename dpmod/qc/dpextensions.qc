@@ -650,6 +650,14 @@ float SOLID_CORPSE = 5;
 //description:
 //the entity is only visible to the specified client.
 
+//DP_SV_DROPCLIENT
+//idea: FrikaC
+//darkplaces implementation: LordHavoc
+//builtin definitions:
+void(entity clent) dropclient = #453;
+//description:
+//causes the server to immediately drop the client, more reliable than stuffcmd(clent, "disconnect\n"); which could be intentionally ignored by the client engine 
+
 //DP_SV_EFFECT
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
