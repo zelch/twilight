@@ -187,7 +187,7 @@ void() w_rocket =
 
 	if (self.button3)
 	//	W_GenericSlowFireCode("weapons/sgun1.wav", 1.2, W_RocketFireDual);
-		W_GenericSlowFireCode("weapons/sgun1.wav", 0.4, W_RocketFireTripleSpiral);
+		W_GenericSlowFireCode("weapons/sgun1.wav", 1, W_RocketFireTripleSpiral);
 	/*
 	{
 		if (self.button0)
