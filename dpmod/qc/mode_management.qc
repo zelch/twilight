@@ -244,7 +244,15 @@ string dmmessage;
 void(string m) setdm =
 {
 	dmmessage = m;
-	cvar_set("deathmatch", m);
+	if (cvar_string("deathmatch") != m)
+		cvar_set("deathmatch", m);
+}
+
+void(string m) setteamplay =
+{
+	dmmessage = m;
+	if (cvar_string("teamplay") != m)
+		cvar_set("teamplay", m);
 }
 
 void() mode_updatecvars =
@@ -265,19 +273,19 @@ void() mode_updatecvars =
 	else if (cvar("deathmatch") == 30) setdm("30?Dark Places - Role Playing Game");
 	else                               setdm("1?Dark Places - Deathmatch");
 
-	/*if (deathmatch == 8) cvar_set("teamplay", "3?Dark Places - Elimination");
-	else if (deathmatch == 9) cvar_set("teamplay", "3?Dark Places - Kill The Leader");
-	else*/ if (deathmatch == 10) cvar_set("teamplay", "3?Dark Places - Capture The Flag - 2 Team");
-	else if (deathmatch == 11) cvar_set("teamplay", "3?Dark Places - Capture The Flag - 3 Team");
-	else if (deathmatch == 12) cvar_set("teamplay", "3?Dark Places - Domination");
-	else if (deathmatch == 13) cvar_set("teamplay", "3?Dark Places - Monster Capture The Flag - 2 Team");
+	/*if (deathmatch == 8) setteamplay("3?Dark Places - Elimination");
+	else if (deathmatch == 9) setteamplay("3?Dark Places - Kill The Leader");
+	else*/ if (deathmatch == 10) setteamplay("3?Dark Places - Capture The Flag - 2 Team");
+	else if (deathmatch == 11) setteamplay("3?Dark Places - Capture The Flag - 3 Team");
+	else if (deathmatch == 12) setteamplay("3?Dark Places - Domination");
+	else if (deathmatch == 13) setteamplay("3?Dark Places - Monster Capture The Flag - 2 Team");
 	else 
 	{
-		     if (cvar("teamplay") == 0) cvar_set("teamplay", "0?Dark Places - No Teamplay");
-		else if (cvar("teamplay") == 1) cvar_set("teamplay", "1?Dark Places - No team damage");
-		else if (cvar("teamplay") == 2) cvar_set("teamplay", "2?Dark Places - Can hurt anyone");
-		else if (cvar("teamplay") == 3) cvar_set("teamplay", "3?Dark Places - No team damage, but can hurt self");
-		else                            cvar_set("teamplay", "0?Dark Places - No Teamplay");
+		     if (cvar("teamplay") == 0) setteamplay("0?Dark Places - No Teamplay");
+		else if (cvar("teamplay") == 1) setteamplay("1?Dark Places - No team damage");
+		else if (cvar("teamplay") == 2) setteamplay("2?Dark Places - Can hurt anyone");
+		else if (cvar("teamplay") == 3) setteamplay("3?Dark Places - No team damage, but can hurt self");
+		else                            setteamplay("0?Dark Places - No Teamplay");
 	}
 };
 
@@ -308,7 +316,7 @@ void() modesetup =
 
 	// don't spawn any monsters until 15 seconds
 	spawnchecktime = 15;
-	if (deathmatch == 7 || cvar("scratch1") >= 1 || cvar("spawnmonsters") >= 1)
+	if (deathmatch == 7 || cvar("spawnmonsters") >= 1)
 		precachemonsters();
 };
 
@@ -523,9 +531,6 @@ void() deathmatch7update =
 	monsters = 0;
 	if (deathmatch == 7)
 		monsters = 50;
-	f = cvar("scratch1");
-	if (f >= 1)
-		monsters = f;
 	f = cvar("spawnmonsters");
 	if (f >= 1)
 		monsters = f;

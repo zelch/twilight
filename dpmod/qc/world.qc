@@ -120,7 +120,7 @@ void() CheckRules =
 	timelimit = cvar("timelimit") * 60;
 	fraglimit = cvar("fraglimit");
 
-	if (timelimit >= 60)
+	if (timelimit > 0)
 	if (time >= timelimit)
 	{
 		NextLevel ();
@@ -348,11 +348,6 @@ void() worldspawn =
 		c = c + 1;
 	}
 	maxclients = c;
-
-	registercvar("spawnmonsters", "0");
-	registercvar("damagescale_playerdamage", "0");
-	registercvar("damagescale_monsterdamage", "0");
-	registercvar("damagescale_monsterhealth", "0");
 
 	lastspawn = world;
 	InitDecors ();
@@ -834,29 +829,14 @@ void() damagescaleupdate =
 	// skill 2 =  75%
 	// skill 3 = 100%
 	if (skill >= 0)
-	if (skill < 4)
-		monsterdamagescale = (skill + 1) / 4;
-	f = cvar("damagescale_monsterdamage");
-	if (f >= 0.01)
-		monsterdamagescale = f;
+		monsterdamagescale = monsterdamagescale * (skill * 0.25 + 0.25);
+	f = f * cvar("damagescale_monsterdamage");
 
 	// monster health multiplier (implemented by resisting player damage)
-	monsterresistancescale = 1;
-	f = cvar("coop"); // 1 = 1x health, and so on up
-	if (f >= 0.01)
-		monsterresistancescale = 1 / f;
-	f = cvar("damagescale_monsterhealth"); // 1 = 1x health, and so on up
-	if (f >= 0.01)
-		monsterresistancescale = 1 / f;
+	monsterresistancescale = 1 / cvar("damagescale_monsterhealth"); // 1 = 1x health, and so on up
 
 	// damage multiplier
-	playerdamagescale = 1.0;
-	f = (cvar("temp1") & 127) * 0.05;
-	if (f >= 0.01)
-		playerdamagescale = f;
-	f = cvar("damagescale_playerdamage");
-	if (f >= 0.01)
-		playerdamagescale = f;
+	playerdamagescale = cvar("damagescale_playerdamage");
 
 	/*
 	bprint("monsterdamagescale ");
