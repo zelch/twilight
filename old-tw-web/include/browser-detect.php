@@ -63,11 +63,11 @@ if ($use_css == "no")
 	$browser_css = TRUE;
 }
 
-
+/*
 echo "Agent: $HTTP_USER_AGENT";
 echo "<br />Browser: " . $browser_name;
 echo "<br />Version: " . $browser_version;
 echo "<br />Platform: " . $browser_platform;
 echo "<br />CSS: " . (int)$browser_css;
-
+*/
 ?>
