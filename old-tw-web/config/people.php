@@ -20,7 +20,8 @@
 		) ,
 		"Elric" => array (
 			"Name" => "Mathieu Olivier" ,
-			"Email" => "molivier@users.sourceforge.net"
+			"Email" => "molivier@users.sourceforge.net" ,
+			"Web" => "http://www.planetblood.com/qblood/"
 		),
 		"zinx" => array (
 			"Name" => "Zinx Verituse" ,
