@@ -78,7 +78,7 @@ void() W_NailgunGrenadeFireCode =
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
 	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80 * damagescale, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200 * damagescale, 70, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200 * damagescale, 70, 20 * damagescale, 10 * damagescale, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
 };
 
 

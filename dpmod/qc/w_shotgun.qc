@@ -12,8 +12,8 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Shotgun =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-float SHOTGUNBUCKSHOT = 75;
-float SHOTGUNEXPLOSIVESLUG = 120;
+//float SHOTGUNBUCKSHOT = 75;
+float SHOTGUNEXPLOSIVESLUG = 95;
 
 .float shotgunmode;
 void() W_SingleShotgunFireCode =
@@ -21,13 +21,15 @@ void() W_SingleShotgunFireCode =
 	self.wfiretime = time;
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	w_muzzleflash(shotorg, 2);
-	if (self.shotgunmode)
+	//if (self.shotgunmode)
 		FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.8 * damagescale, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
+	/*
 	else
 	{
 		FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 		FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 	}
+	*/
 	self.wload = -1;
 };
 
@@ -41,6 +43,7 @@ void() w_shotgun =
 	if (widle(w_shotgundrop1))
 		return;
 
+	/*
 	if (self.button5)
 	if (time > self.attack_finished)
 	{
@@ -52,6 +55,7 @@ void() w_shotgun =
 		else
 			sprint(self, "Ammo: Buckshot\n");
 	}
+	*/
 
 	if (self.wload > self.ammo_shells)
 		self.wload = self.ammo_shells;

@@ -65,8 +65,8 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunD
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-float DBSHOTGUNBUCKSHOT = 60;
-float DBSHOTGUNEXPLOSIVESLUG = 85;
+float DBSHOTGUNBUCKSHOT = 80;
+//float DBSHOTGUNEXPLOSIVESLUG = 85;
 
 .float shotgunmode, shotgunshells;
 void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost) W_DBShotgunFireShell =
@@ -85,15 +85,19 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost)
 		shotorg = shotorg + v_right;
 	}
 	self.wload = self.wload - 1;
+	/*
 	if (self.shotgunmode)
 		self.currentammo = self.ammo_xshells = self.ammo_xshells - 1;
 	else
+	*/
 		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	self.wfiretime = time;
 	w_muzzleflash(v, 4);
+	/*
 	if (self.shotgunmode)
 		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG * damagescale, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
 	else
+	*/
 	{
 		FireBullets(self, self, 1, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
 		FireBullets(self, self, 0, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
@@ -123,12 +127,13 @@ void() w_dbshotgunraise1;
 void() w_dbshotgunraise2;
 void() w_dbshotgun =
 {
-	local float swapmode, otherammo;
+	//local float swapmode, otherammo;
 	local vector v;
 
 	if (widle(w_dbshotgundrop1))
 		return;
 
+	/*
 	if (self.shotgunmode)
 	{
 		swapmode = self.ammo_xshells < 1 && self.ammo_shells >= 1;
@@ -153,6 +158,7 @@ void() w_dbshotgun =
 		else
 			sprint(self, "Ammo: Buckshot\n");
 	}
+	*/
 
 	if (self.wload > 0)
 	{
@@ -176,6 +182,7 @@ void() w_dbshotgun =
 			}
 			else
 			{
+				/*
 				if (self.shotgunmode)
 				{
 					if (self.ammo_xshells >= 1)
@@ -186,6 +193,7 @@ void() w_dbshotgun =
 					}
 				}
 				else
+				*/
 				{
 					if (self.ammo_shells >= 1)
 					{
@@ -224,12 +232,14 @@ void() weapon3_precache =
 float() w_dbshotgunrating = {return genericweaponrating(0, 250, 175);};
 void() w_dbshotgunsetup =
 {
+	/*
 	if (self.shotgunmode)
 		wset(IT_WEAPON3, IT_SHELLS, self.ammo_xshells, VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
 	else
+	*/
 		wset(IT_WEAPON3, IT_SHELLS, self.ammo_shells, VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
 };
-float(float request) setweapon3 = {return weapongeneric(IT_WEAPON3, self.ammo_shells >= 1 || self.ammo_xshells >= 1, request, w_dbshotgunsetup, w_dbshotgun, w_dbshotgunraise1, w_directaim, w_dbshotgunrating, "Double Barrel Shotgun");};
+float(float request) setweapon3 = {return weapongeneric(IT_WEAPON3, self.ammo_shells >= 1/* || self.ammo_xshells >= 1*/, request, w_dbshotgunsetup, w_dbshotgun, w_dbshotgunraise1, w_directaim, w_dbshotgunrating, "Double Barrel Shotgun");};
 
 void() w_dbshotgunraise1 = {self.wload = 0;self.shotgunshells = 0;wraise(9, w_dbshotgunraise2, 0.1);};
 void() w_dbshotgunraise2 = {wraise(8, w_dbshotgun, 0.1);};

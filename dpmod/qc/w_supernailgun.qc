@@ -76,7 +76,7 @@ void() W_SuperNailgunMineFireCode =
 		a = self.ammo_rockets;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - a;
 	w_muzzleflash(shotorg, 3);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100 * damagescale, a * 100 + 50, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100 * damagescale, a * 100 + 50, 20 * damagescale, 10 * damagescale, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
 };
 
 void() w_snailgundrop1;

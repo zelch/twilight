@@ -5,10 +5,12 @@ float MINE_IMMUNETODAMAGE = 4;
 float MINE_TENWARHEAD = 8;
 float MINE_DETONATEONBUTTON3 = 16;
 
+.float activemines;
 void() MineExplode =
 {
 	local vector v, basevel;
 	local float t;
+	self.owner.activemines = self.owner.activemines - 1;
 	if (self.weapon & MINE_TENWARHEAD)
 	{
 		basevel = '0 0 250' + '0 0 0.2' * cvar("sv_gravity");
@@ -60,9 +62,15 @@ void() MineThink =
 	local vector v;
 	self.nextthink = time;
 	fightdone = time + 1; // delay stuff until fighting is over
+	if (time > self.cnt)
+	{
+		self.th_die();
+		return;
+	}
 	p = pointcontents(self.origin);
 	if (p == CONTENT_SKY)
 	{
+		self.owner.activemines = self.owner.activemines - 1;
 		remove(self);
 		return;
 	}
@@ -78,18 +86,17 @@ void() MineThink =
 		MineExplode();
 		return;
 	}
-	if (self.lefty == 3)
+	if (self.lefty)
+	if (time >= self.count)
 	{
+		self.count = time + 0.05;
+		if (self.lefty == 3)
 		if (!self.enemy.takedamage)
 		{
 			MineExplode();
 			return;
 		}
-	}
-	if (time >= self.count)
-	{
-		self.count = time + 0.05;
-		if (self.lefty)
+		if (self.weapon & (MINE_PROXIMITY | MINE_LASERTRIP))
 		{
 			head = findradius(self.origin, self.dmg2 * 0.5);
 			while (head)
@@ -111,32 +118,27 @@ void() MineThink =
 				}
 				head = head.chain;
 			}
-		}
-		if (self.lefty == 2)
-		{
-			v = self.angles;
-			v_x = 0 - v_x;
-			makevectors(v);
-			newmis = self.owner;
-			self.owner = world;
-			traceline(self.origin, self.origin + v_forward * 65536, FALSE, self);
-			self.owner = newmis;
-			self.dest = trace_endpos;
-			if (trace_ent)
-			if ((trace_ent.flags & FL_MONSTER) || trace_ent.classname == "player")
-			if (trace_ent.team == 0 || trace_ent.team != self.owner.team)
+			if (self.lefty == 2)
 			{
-				// trigger
-				self.count = time + 1000;
-				self.cnt = 0;
-				sound(self, CHAN_VOICE, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
+				v = self.angles;
+				v_x = 0 - v_x;
+				makevectors(v);
+				newmis = self.owner;
+				self.owner = world;
+				traceline(self.origin, self.origin + v_forward * 65536, FALSE, self);
+				self.owner = newmis;
+				self.dest = trace_endpos;
+				if (trace_ent)
+				if ((trace_ent.flags & FL_MONSTER) || trace_ent.classname == "player")
+				if (trace_ent.team == 0 || trace_ent.team != self.owner.team)
+				{
+					// trigger
+					self.count = time + 1000;
+					self.cnt = 0;
+					sound(self, CHAN_VOICE, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
+				}
 			}
 		}
-	}
-	if (time > self.cnt)
-	{
-		self.th_die();
-		return;
 	}
 };
 
@@ -210,21 +212,26 @@ void() laserdotthink =
 	//self.angles = self.owner.angles;
 };
 
+.float count3, count4;
 void() MineTouch =
 {
+	local vector v;
 	if (other == self.owner)
 		return; // don't hit owner
 	if (other.solid == SOLID_BSP)
 	{
 		findnearestsurface(16, self.origin, 32);
 		self.angles = vectoangles(trace_plane_normal);
-		newmis = spawn();
-		newmis.classname = "laserdot";
-		newmis.owner = self;
-		newmis.think = laserdotthink;
-		newmis.nextthink = time;
-		setmodel(newmis, "progs/s_bubble.spr");
-		setsize(newmis, '0 0 0', '0 0 0');
+		if (self.weapon & MINE_LASERTRIP)
+		{
+			newmis = spawn();
+			newmis.classname = "laserdot";
+			newmis.owner = self;
+			newmis.think = laserdotthink;
+			newmis.nextthink = time;
+			setmodel(newmis, "progs/s_bubble.spr");
+			setsize(newmis, '0 0 0', '0 0 0');
+		}
 		if (self.weapon & MINE_LASERTRIP)
 			self.lefty = 2;
 		else
@@ -235,22 +242,30 @@ void() MineTouch =
 	if ((other.flags & FL_MONSTER) || other.classname == "player")
 	if (other.team == 0 || other.team != self.owner.team)
 	{
+		if (self.count3)
+		{
+			v = normalize(self.velocity) * self.count4;
+			T_Damage(other, self, self.owner, self.count3, self.count4, self.deathtype, DT_IMPACT, self.origin, v, self.obitfunc1);
+			if (!other.takedamage)
+				return;
+		}
 		if (self.weapon & (MINE_PROXIMITY | MINE_LASERTRIP))
 		{
 			MineExplode();
 			return;
 		}
-		self.weapon = self.weapon | MINE_PROXIMITY;
 		self.lefty = 3;
 		MineAttach(other);
 		return;
 	}
 };
 
-void(vector org, vector vel, entity own, float damage, float damage2, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMine =
+void(vector org, vector vel, entity own, float damage, float damage2, float impactdamage, float impactbodydamage, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMine =
 {
 	local   vector  v;
 	DelayGibComment();      // make him wait before commenting on gibs so it's not drown out by explosions etc
+
+	own.activemines = own.activemines + 1;
 
 	fightdone = time + 1; // delay stuff until fighting is over
 	v = normalize(vel);
@@ -270,6 +285,8 @@ void(vector org, vector vel, entity own, float damage, float damage2, float type
 	newmis.touch = MineTouch;
 	newmis.dmg = damage;
 	newmis.dmg2 = damage2;
+	newmis.count3 = impactdamage;
+	newmis.count4 = impactbodydamage;
 	newmis.effects = EF_LOWPRECISION;
 	if (self.items & IT_QUAD)
 	{

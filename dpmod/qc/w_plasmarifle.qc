@@ -40,17 +40,12 @@ void() W_PlasmaRifleFire =
 	FirePlasma(self, shotorg, shotdir, self.wload * 30 * damagescale, 45, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
 };
 
-.float idealzoom;
-
 void() w_plasmarifledrop1;
 void() w_plasmarifledrop2;
 void() w_plasmarifleraise1;
 void() w_plasmarifleraise2;
 void() w_plasmarifle =
 {
-	if (self.button3)
-		self.idealzoom = 0.2;
-
 	/*
 	if (time > self.attack_finished)
 	{
@@ -142,18 +137,18 @@ void() w_plasmarifle =
 
 	if (time >= self.attack_finished)
 	{
-		if (self.button0 && self.wburst > 0 && self.ammo_cells > 0)
+		if (self.ammo_cells > 0 && self.wburst > 0 && (self.button0 || self.button3))
 		{
 			// fire higher powered shots if zoomed
 			// (but they use ammo faster, so the burst runs out sooner)
 			self.wload = 1;
-			if (self.idealzoom < 1)
+			if (self.button3)
 				self.wload = 3;
 			if (self.wload > self.wburst)
 				self.wload = self.wburst;
-			W_GenericSlowFireCode("plasma/plasma.wav", 0.05, W_PlasmaRifleFire);
+			W_GenericSlowFireCode("plasma/plasma.wav", 0.1, W_PlasmaRifleFire);
 		}
-		else if (self.wburst <= 0 && self.ammo_cells > 0)
+		else if (self.ammo_cells > 0 && self.wburst < 9)
 		{
 			self.wburst = 9;
 			self.attack_finished = time + 0.4;
