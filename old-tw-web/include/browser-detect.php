@@ -1,6 +1,7 @@
 <?php
 
-if (ereg( "Konqueror/([0-9].[0-9]{1,2})",$HTTP_USER_AGENT,$log_version)) {
+if (ereg( "Konqueror/([0-9].[0-9]([0-9]|beta.*))(\;|\))",$HTTP_USER_AGENT,
+		$log_version)) {
 	$browser_name="Konqueror";
 	$browser_version=$log_version[1];
 } elseif (ereg( "MSIE ([0-9].[0-9]{1,2})",$HTTP_USER_AGENT,$log_version)) {
@@ -44,6 +45,12 @@ if ($browser_name == "Mozilla") {
 		} elseif ((float)$browser_version >= 4.0) {
 			$browser_css = TRUE;
 		}
+	}
+} elseif ($browser_name == "Konqueror") {
+	if ((float)$browser_version >= 2.2) {
+		if (!ereg ($browser_version, "^2.2beta.*")) {
+			$browser_css = TRUE;
+		}	
 	}
 } elseif ($browser_name == "Opera") {
 	if ((float)$browser_version >= 3.60) {
