@@ -15,7 +15,7 @@
 		$sqlConn = twsql_connect();
 
 		if($sqlConn) {
-			$sqlQuery = "SELECT n_date, n_user, n_news FROM news_main ORDER BY n_date DESC IGNORE";
+			$sqlQuery = "SELECT n_date, n_user, n_news FROM news_main ORDER BY n_date DESC";
 			$res = twsql_query($sqlQuery, $sqlConn);
 
 			if($res) {
