@@ -10,7 +10,7 @@ How to use:
 Basically just this:
 hmap2 mymap
 hmap2 -vis mymap
-hmap2 -light -extra mymap
+hmap2 -light -extra4x4 mymap
 Would compile mymap.map to mymap.bsp and mymap.lit, the other files (.prt, .pts) can be discarded for map releases (.pts is debugging info for finding leaks, go in quake and type pointfile in the console to use it, .prt is for vis compilation).
 
 Re-vising a map:
@@ -40,7 +40,7 @@ Faster lighting - uses vis data to optimize lighting, be sure to run -vis before
 Faster vis - uses rvis optimization which has no impact on quality and is around 30% faster
 More lightmap antialiasing modes - in addition to -extra there are -extra4x4 and -extra8x8 (Vic added -extra8x8)
 Able to make higher performance largescale maps with -darkplaces option (most other engines can't handle huge lightmaps like this produces, be warned)
-Huge map support - up to +-32768 coordinates, make those huge levels you dreamed of!
+Huge map support - up to +-32768 coordinates, make huge levels like you always wanted (warning: quake's networking limits playable area to +-4096 coordinates, except in darkplaces which fully supports huge maps)
 Increased limits to the very max of the .bsp format
 Hipnotic compatible rotating bmodel support - any entity classname beginning with rotate_ will check for a target to get the origin from, or you can set origin key on bmodel to make it rotate around that location
 Support for WorldCraft 'Hammer' .map enhanced texture alignment
@@ -49,9 +49,10 @@ Transparent water support (on by default)
 Better error reporting - often says where a problem occurred in the level, and some errors are now only warnings (such as point off plane, which tries to self correct)
 Multiple wad support - example: "wad" "wizard.wad;base.wad"
 Can disable liquid sounds using -noambient, -noambientwater, -noambientsky, -noambientslime, -noambientlava
-Can enable the unused slime sound channel using -ambientslime to make it use slime channel instead of water channel (if engine does not support this the slime is silent)
+Can enable the unused slime sound channel using -ambientslime to make it use slime channel instead of water channel (if engine does not support this the slime is silent) (Vic)
 Defaults to -level 4 vis instead of -level 2 like original vis did
 Compresses vis data more by merging vis data for identical parts of a map, saving a few k (Vic)
+Supports func_group entities which are merged into the world during compile, they are an editing helper (Vic)
 
 Usage info on the hmap2 utilities:
 
@@ -117,11 +118,6 @@ Options from here on are incompatible with darkplaces realtime lighting mode
 -minlight     raises darkest areas of the map to this light level (0-255)
 -ambientlight raises all of the map by this light level (0-255)
 
-Known bugs in this release:
-Occasionally surfaces are missing around complex architecture
-Occasionally collision problems around complex architecture
-(Vic and I are having trouble tracking these bugs down)
-
 Vic's changes:
 general:
 hmap2 is hqbsp + hlight + hvis + bsp2prt combined
@@ -138,7 +134,7 @@ misc bugfixes
 light:
 added -extra8x8 lightmap antialiasing option
 vis:
-better vis compression (-reuse option, DO NOT use to revis old maps)
+better vis compression (-noreuse to disable)
 fixed ambient sounds calculations (they now fade with distance)
 -ambientslime enables the unused slime sound channel (not supported by most (all?) quake engines, normally slime uses the water channel)
 
