@@ -729,7 +729,7 @@ my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time());
 $user = getpwuid($<);
 
 $filename = sprintf("%s.%04d%02d%02d.%02d%02d%02d.%s.diff", $modname,
-	$year + 1900, $mon, $mday, $hour, $min, $sec, $user);
+	$year + 1900, $mon + 1, $mday, $hour, $min, $sec, $user);
 
 push(@text, "--$boundary");
 push(@text, "Content-Type: text/plain; name=\"$filename\"");
