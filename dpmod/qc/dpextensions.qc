@@ -12,7 +12,8 @@
 //these files contain replace commands (replace meshname shadername), example:
 //replace "helmet" "progs/test/helmet1.tga"
 //replace "teamstripes" "progs/test/redstripes.tga"
-//any names that are not replaced are automatically set to nodraw (invisible).
+//replace "visor" "common/nodraw"
+//any names that are not replaced are automatically show up as a grey checkerboard to indicate the error status, and "common/nodraw" is a special case that is invisible.
 //this feature is intended to allow multiple skin sets on md3 models (which otherwise only have one skin set).
 //other commands might be added someday but it is not expected.
 
