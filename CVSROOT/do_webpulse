@@ -1,0 +1,4 @@
+#! /bin/sh
+
+curl http://twilight.sourceforge.net/update-the-f00king-website.php
+

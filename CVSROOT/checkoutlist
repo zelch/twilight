@@ -14,3 +14,4 @@
 log_accum.pl	Error checking out/updating CVSROOT/log_accum.pl
 commit_prep.pl	Error checking out/updating CVSROOT/commit_prep.pl
 do_nothing	Error checking out/updating CVSROOT/do_nothing
+do_webpulse	Error checking out/updating CVSROOT/do_webpulse
