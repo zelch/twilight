@@ -3,6 +3,7 @@
 .vector radiusdamage_force; // direction and power of blast kick
 .float radiusdamage_hit; // 1 if it was hit, reset to 0 afterward
 .vector radiusdamage_lasthit; // location
+.float radiusdamage_ownerdamagescale; // if set on inflictor this will scale damage to owner (overriding default of 0.5)
 
 /*
 ============
@@ -11,7 +12,7 @@ T_RadiusDamage
 */
 void(entity inflictor, entity attacker, float damage, float force, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage =
 {
-	local   float   damagepoints, forcepoints, wt, d, scaler;
+	local   float   damagepoints, forcepoints, wt, d, scaler, ownerdamagescale;
 	local   vector  v, l;
 	local   entity  head;
 
@@ -23,6 +24,9 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 	wt = pointcontents(inflictor.origin);
 	if ((wt != CONTENT_WATER) && (wt != CONTENT_SLIME))
 		wt = 0;
+	ownerdamagescale = inflictor.radiusdamage_ownerdamagescale;
+	if (!ownerdamagescale)
+		ownerdamagescale = 0.5;
 
 	damgtype = damgtype | DTF_INDIRECT; // splash not direct damage
 
@@ -39,7 +43,7 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 			if (damagepoints > damage)
 				damagepoints = damage;
 			if (head == attacker)
-				damagepoints = damagepoints * 0.5;
+				damagepoints = damagepoints * ownerdamagescale;
 			if (forcepoints > force)
 				forcepoints = force;
 			if (damagepoints > 0 || forcepoints > 0)

@@ -27,6 +27,7 @@ void() MineExplode =
 		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
 		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
 		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		remove(self);
 	}
 	else if (self.weapon & MINE_FIVEWARHEAD)
 	{
@@ -37,6 +38,7 @@ void() MineExplode =
 		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
 		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
 		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		remove(self);
 	}
 	else if (self.lefty == 2)
 	{
@@ -45,16 +47,15 @@ void() MineExplode =
 		makevectors(v);
 		shotorg = self.origin;
 		FireBullets(self.owner, self, -1, 4, self.dmg / 4, self.dmg / 4, 0, 0, v_forward * 10000, 0.05, "LASERTRIPMINEDIRECT", DT_NAIL, self.obitfunc1);
-		Explosion(self.origin, self.owner, self.dmg, self.count2, self.dmg2, "LASERTRIPMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, "LASERTRIPMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	}
 	else if (self.lefty == 3)
 	{
 		T_Damage(self.enemy, self, self.owner, self.dmg, self.dmg, "TAGMINEDIRECT", DT_EXPLOSION, self.origin, '0 0 0.5' * self.dmg, self.obitfunc1);
-		ExplosionIgnore(self.origin, self.owner, self.dmg, self.count2, self.dmg2, self.enemy, "TAGMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		BecomeExplosion(self, self.dmg, self.count2, self.dmg2, self.enemy, "TAGMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	}
 	else
-		Explosion(self.origin, self.owner, self.dmg, self.count2, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
-	remove(self);
+		BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 };
 
 void() MineDet =
@@ -135,7 +136,8 @@ void() MineThink =
 						// trigger
 						self.count = time + 1000;
 						self.cnt = time + 0.1;
-						sound(self, CHAN_VOICE, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
+						if (game != GAME_NEXUIZ)
+							sound(self, CHAN_VOICE, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
 						break;
 					}
 				}
@@ -158,7 +160,8 @@ void() MineThink =
 					// trigger
 					self.count = time + 1000;
 					self.cnt = 0;
-					sound(self, CHAN_VOICE, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
+					if (game != GAME_NEXUIZ)
+						sound(self, CHAN_VOICE, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
 				}
 			}
 		}
@@ -183,7 +186,8 @@ void(entity targ) MineAttach =
 	// relink
 	setorigin(self, self.origin);
 	// FIXME: this should be some kind of attach sound
-	sound (self, CHAN_WEAPON, "weapons/bounce.wav", 1, ATTN_NORM);  // bounce sound
+	if (game != GAME_NEXUIZ)
+		sound (self, CHAN_WEAPON, "weapons/bounce.wav", 1, ATTN_NORM);  // bounce sound
 };
 
 void(float tries, vector org, float rad) findnearestsurface =
@@ -329,7 +333,7 @@ void(vector org, vector vel, entity own, float damage, float force, float damage
 		newmis.takedamage = DAMAGE_NO;
 	else
 		newmis.takedamage = DAMAGE_YES;
-	newmis.health = 20; // can be shot
+	newmis.health = 1; // can be shot
 	newmis.th_die = MineDet;
 	setmodel (newmis, "progs/grenade.mdl");
 	setsize (newmis, '0 0 0', '0 0 0');

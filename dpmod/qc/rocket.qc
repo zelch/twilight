@@ -75,15 +75,13 @@ void() MissileExplodeFireballs =
 		LaunchSmallFireball(self.origin, vel, self.owner, 120, 0, 450, self.deathtype, self.obitfunc1);
 		newmis.movetype = MOVETYPE_TOSS;
 	}
-	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
-	remove(self);
+	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
 };
 
 void() MissileExplode =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
-	Explosion(self.origin, self.owner, self.dmg, self.count2, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
-	remove(self);
+	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 };
 
 void() MissileDet =
@@ -108,12 +106,15 @@ void() MissileTouch =
 	self.th_gib();
 };
 
+/*
 void() MissileThink =
 {
 	local float p;
 	local vector v;
 	self.nextthink = time;
 	fightdone = time + 1; // delay stuff until fighting is over
+*/
+	/*
 	if ((self.velocity * self.dest) < self.speed)
 	{
 		self.velocity = self.velocity + self.dest * self.speed * 2 * frametime;
@@ -124,7 +125,10 @@ void() MissileThink =
 			self.velocity = self.velocity + self.dest * p;
 		}
 	}
+	*/
+/*
 	self.angles = vectoangles(self.velocity);
+	self.angles_z = time * self.count1 - self.wait;
 	p = pointcontents(self.origin);
 	if (time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA)
 	{
@@ -135,7 +139,7 @@ void() MissileThink =
 		remove(self);
 };
 
-void(vector org, vector dir, entity own, float damg, float force, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMissile =
+void(vector org, vector dir, entity own, float damg, float force, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc, float spinspeed) LaunchMissile =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
 	newmis = spawn ();
@@ -150,7 +154,7 @@ void(vector org, vector dir, entity own, float damg, float force, float blastrad
 	newmis.deathtype = dethtype;
 	newmis.obitfunc1 = obitfunc;
 	newmis.dest = normalize(dir);
-	newmis.velocity = newmis.dest * 20;
+	newmis.velocity = dir;//newmis.dest * 20;
 	newmis.angles = vectoangles(newmis.dest);
 	newmis.touch = MissileTouch;
 	newmis.think = MissileThink;
@@ -166,6 +170,7 @@ void(vector org, vector dir, entity own, float damg, float force, float blastrad
 	newmis.wait = time;
 	newmis.effects = EF_LOWPRECISION;
 	newmis.speed = vlen(dir);
+	newmis.count1 = spinspeed;
 
 	if (own.items & IT_QUAD)
 	{
@@ -178,43 +183,34 @@ void(vector org, vector dir, entity own, float damg, float force, float blastrad
 	setsize (newmis, '0 0 0', '0 0 0');
 	setorigin (newmis, org);
 };
+*/
 
-void() MissileSpiralThink =
+void() MissileThink =
 {
 	local float p;
-
-	if (!self.enemy.health)
-	{
-		self.th_gib();
-		return;
-	}
+	local vector neworg;
 
 	self.nextthink = time;
 	fightdone = time + 1; // delay stuff until fighting is over
 
-	makevectors(self.enemy.angles + '0 0 720' * (time - self.weapon));
-	p = (time - self.weapon) * 4;
-	if (p > 1)
-		p = 1;
-	p = p * self.lefty;
-	tracebox(self.origin, self.mins, self.maxs, self.enemy.origin + v_right * p + v_up * p, FALSE, self);
-	setorigin(self, trace_endpos);
+	//self.angles = vectoangles(self.velocity) + (time - self.wait) * self.avelocity;
+	self.angles = self.angles + frametime * self.avelocity;
 
-	self.velocity = self.enemy.velocity;
-	self.angles = vectoangles(self.velocity);
+	neworg = self.origin - self.dest + frametime * self.velocity;
+	makevectors(self.angles);
+	self.dest = self.dest2_x * v_forward + self.dest2_y * v_right + self.dest2_z * v_up;
+
+	tracebox(self.origin, self.mins, self.maxs, neworg + self.dest, FALSE, self);
+	setorigin(self, trace_endpos);
 
 	p = pointcontents(self.origin);
 	if (p == CONTENT_SKY)
 		remove(self);
-	if (time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA || (trace_fraction < 1 && trace_ent != self.owner))
-	{
+	else if (time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA || (trace_fraction < 1 && trace_ent != self.owner))
 		self.th_gib();
-		return;
-	}
 };
 
-entity spiralmissile_orbitentity;
-void(vector org, vector dir, entity own, float damg, float force, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc, float orbitdistance) LaunchSpiralMissile =
+void(vector org, vector vel, entity own, float damg, float force, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMissile =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
 	newmis = spawn ();
@@ -228,14 +224,11 @@ void(vector org, vector dir, entity own, float damg, float force, float blastrad
 	newmis.classname = "missile";
 	newmis.deathtype = dethtype;
 	newmis.obitfunc1 = obitfunc;
-	newmis.velocity = dir * 20;
-	newmis.lefty = orbitdistance;
-	newmis.dest = dir;
 	newmis.weapon = time;
-	newmis.enemy = spiralmissile_orbitentity;
-	newmis.angles = vectoangles(dir);
+	newmis.velocity = vel;
+	newmis.angles = vectoangles(vel);
 	newmis.touch = MissileTouch;
-	newmis.think = MissileSpiralThink;
+	newmis.think = MissileThink;
 	newmis.th_die = MissileDet;
 	newmis.th_gib = MissileExplode;
 	newmis.nextthink = time;

@@ -211,7 +211,8 @@ void() havocbot_chooserole =
 	if (deathmatch == DM_ELIM)
 		havocbot_chooserole_elimination();
 	if (deathmatch == DM_CTF_2TEAM
-	 || deathmatch == DM_CTF_3TEAM)
+	 || deathmatch == DM_CTF_3TEAM
+	 || deathmatch == DM_MCTF_2TEAM)
 		havocbot_chooserole_ctf();
 	// assume anything else is deathmatch
 	if (self.havocbot_role == SUB_Null)

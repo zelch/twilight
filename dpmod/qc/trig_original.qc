@@ -754,14 +754,17 @@ void() trigger_push_touch =
 	}
 	else
 		other.velocity = self.movedir;
-	if (!(self.spawnflags & PUSH_SILENT))
+	if (self.noise != "")
 	if (other.classname == "player" || (other.flags & FL_MONSTER))
 	if (other.fly_sound < time)
 	{
 		if (self.target)
 		{
 			other.fly_sound = time + 0.2;
-			sound (other, CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
+			if (game == GAME_NEXUIZ)
+				sound (other, CHAN_BODY, "level/jumppad.wav", 1, ATTN_NORM);
+			else
+				sound (other, CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
 		}
 		else
 		{
@@ -818,7 +821,19 @@ void() trigger_push =
 {
 	InitTrigger ();
 	if (!(self.spawnflags & PUSH_SILENT))
-		precache_sound ("ambience/windfly.wav");
+	{
+		if (self.target)
+		{
+			if (game == GAME_NEXUIZ)
+				self.noise = "level/jumppad.wav";
+			else
+				self.noise = "player/plyrjmp8.wav";
+		}
+		else
+			self.noise = "ambience/windfly.wav";
+	}
+	if (self.noise != "")
+		precache_sound (self.noise);
 	self.touch = trigger_push_touch;
 	if (!self.speed)
 		self.speed = 1000;

@@ -73,6 +73,7 @@ void() powerup_touch =
 	SUB_UseTargets();				// fire all targets / killtargets
 };
 
+// TODO: Nexuiz items
 
 /*QUAKED item_artifact_envirosuit (0 .5 .8) (-16 -16 -24) (16 16 32)
 Player takes no damage from

@@ -1,14 +1,26 @@
 
 void() InitGore =
 {
-	precache_model("progs/gib1.mdl");
-	precache_model("progs/gib2.mdl");
-	precache_model("progs/gib3.mdl");
-	precache_model("progs/rubble1.mdl");
-	precache_model("progs/rubble2.mdl");
-	precache_model("progs/rubble3.mdl");
-	precache_model("progs/zom_gib.mdl");
-	//precache_model("progs/dust.mdl"); // little metal piece
+	if (game == GAME_NEXUIZ)
+	{
+		precache_model("models/gibs/bloodyskull.md3");
+		precache_model("models/gibs/eye.md3");
+		precache_model("models/gibs/gib1.mdl");
+		precache_model("models/gibs/gib2.mdl");
+		precache_model("models/gibs/gib3.mdl");
+		precache_model("models/gibs/gib4.mdl");
+	}
+	else
+	{
+		precache_model("progs/gib1.mdl");
+		precache_model("progs/gib2.mdl");
+		precache_model("progs/gib3.mdl");
+		precache_model("progs/rubble1.mdl");
+		precache_model("progs/rubble2.mdl");
+		precache_model("progs/rubble3.mdl");
+		precache_model("progs/zom_gib.mdl");
+		//precache_model("progs/dust.mdl"); // little metal piece
+	}
 };
 
 // make the gib spin in the air when knocked loose
@@ -320,7 +332,14 @@ void(string headname, float gibs, string gibname1, float gibs1, string gibname2,
 	// prevent gibs from replacing their corpse if their corpse is a decor
 	self.createdtime = time + 1;
 	// spawn gibs
-	while (gibs > 0) {gibs = gibs - 1;r = random() * 3;if (r < 1) ThrowGib("progs/gib1.mdl");else if (r < 2) ThrowGib("progs/gib2.mdl");else ThrowGib("progs/gib3.mdl");}
+	if (game == GAME_NEXUIZ)
+	{
+		while (gibs > 0) {gibs = gibs - 1;r = random() * 4;if (r < 1) ThrowGib("models/gibs/gib1.mdl");else if (r < 2) ThrowGib("models/gibs/gib2.mdl");else if (r < 3) ThrowGib("models/gibs/gib3.mdl");else ThrowGib("models/gibs/gib4.mdl");}
+	}
+	else
+	{
+		while (gibs > 0) {gibs = gibs - 1;r = random() * 3;if (r < 1) ThrowGib("progs/gib1.mdl");else if (r < 2) ThrowGib("progs/gib2.mdl");else ThrowGib("progs/gib3.mdl");}
+	}
 	while (gibs1 > 0) {gibs1 = gibs1 - 1;ThrowGib(gibname1);}
 	while (gibs2 > 0) {gibs2 = gibs2 - 1;ThrowGib(gibname2);}
 	// now become a head

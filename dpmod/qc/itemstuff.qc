@@ -7,7 +7,8 @@ void() SUB_regen =
 {
 	self.model = self.mdl;		// restore original model
 	self.solid = SOLID_TRIGGER;	// allow it to be touched again
-	sound (self, CHAN_VOICE, "items/itembk2.wav", 1, ATTN_NORM);	// play respawn sound
+	if (game != GAME_NEXUIZ)
+		sound (self, CHAN_VOICE, "items/itembk2.wav", 1, ATTN_NORM);	// play respawn sound
 	setorigin (self, self.origin);
 	self.health = self.max_health;
 	if (self.health >= 1)

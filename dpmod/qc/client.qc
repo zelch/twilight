@@ -41,78 +41,6 @@ void() speech_precache =
 };
 */
 
-void() player_precache =
-{
-	explosionfx_precache();
-
-// player gib sounds
-	precache_sound ("player/gib.wav");			// player gib sound
-	precache_sound ("player/udeath.wav");		// player gib sound
-	precache_sound ("player/tornoff2.wav");		// gib sound
-
-// player pain sounds
-
-	precache_sound ("player/pain1.wav");
-	precache_sound ("player/pain2.wav");
-	precache_sound ("player/pain3.wav");
-	precache_sound ("player/pain4.wav");
-	precache_sound ("player/pain5.wav");
-	precache_sound ("player/pain6.wav");
-
-// player death sounds
-	precache_sound ("player/death1.wav");
-	precache_sound ("player/death2.wav");
-	precache_sound ("player/death3.wav");
-	precache_sound ("player/death4.wav");
-	precache_sound ("player/death5.wav");
-
-//	precache_sound ("weapons/ax1.wav");			// ax swoosh
-	precache_sound ("player/axhit1.wav");		// ax hit meat
-//	precache_sound ("player/axhit2.wav");		// ax hit world
-
-	precache_sound ("player/h2ojump.wav");		// player jumping into water
-	precache_sound ("player/slimbrn2.wav");		// player enter slime
-	precache_sound ("player/inh2o.wav");		// player enter water
-	precache_sound ("player/inlava.wav");		// player enter lava
-	precache_sound ("misc/outwater.wav");		// leaving water sound
-
-	precache_sound ("player/lburn1.wav");		// lava burn
-	precache_sound ("player/lburn2.wav");		// lava burn
-
-	precache_sound ("misc/water1.wav");			// swimming
-	precache_sound ("misc/water2.wav");			// swimming
-
-	//precache_model ("progs/playersg.mdl"); // used for visible weapons
-	//precache_model ("progs/playerss.mdl"); // used for visible weapons
-	//precache_model ("progs/playernl.mdl"); // used for visible weapons
-	//precache_model ("progs/playersn.mdl"); // used for visible weapons
-	//precache_model ("progs/playergr.mdl"); // used for visible weapons
-	//precache_model ("progs/playerrl.mdl"); // used for visible weapons
-	//precache_model ("progs/playerli.mdl"); // used for visible weapons
-
-	precache_model ("progs/playernogun.mdl");
-	precache_model ("progs/playergun.mdl");
-
-	precache_model ("progs/player.mdl");
-	precache_model ("progs/eyes.mdl");
-	precache_model ("progs/h_player.mdl");
-	precache_model ("progs/gib1.mdl");
-	precache_model ("progs/gib2.mdl");
-	precache_model ("progs/gib3.mdl");
-
-	precache_model ("progs/s_bubble.spr");	// drowning bubbles
-
-	precache_model ("progs/backpack.mdl");
-
-	precache_sound("misc/foot1.wav");
-	precache_sound("misc/foot2.wav");
-	precache_sound("misc/foot3.wav");
-	precache_sound("misc/foot4.wav");
-	precache_sound("misc/foot5.wav");
-	precache_sound("misc/foot6.wav");
-	precache_sound("misc/foot7.wav");
-};
-
 /*
 =============================================================================
 
@@ -149,6 +77,20 @@ void() SetNewParms =
 		parm9 = STARTPARMSELIM_ARMORTYPE * 100;
 		parm10 = STARTPARMSELIM_MAXHEALTH;
 		parm11 = 16777215; // everything
+	}
+	else if (deathmatch == DM_MCTF_2TEAM)
+	{
+		parm1 = 0;//IT_WEAPON1 | IT_WEAPON2; //STARTPARMSMCTF_ITEMS;
+		parm2 = STARTPARMSMCTF_HEALTH;
+		parm3 = STARTPARMSMCTF_ARMORVALUE;
+		parm4 = STARTPARMSMCTF_AMMO_SHELLS;
+		parm5 = STARTPARMSMCTF_AMMO_NAILS;
+		parm6 = STARTPARMSMCTF_AMMO_ROCKETS;
+		parm7 = STARTPARMSMCTF_AMMO_CELLS;
+		parm8 = 0; // weapon
+		parm9 = STARTPARMSMCTF_ARMORTYPE * 100;
+		parm10 = STARTPARMSMCTF_MAXHEALTH;
+		parm11 = 1 | 2; // pistol, shotgun
 	}
 	else if (deathmatch)
 	{
@@ -589,7 +531,7 @@ entity() SelectSpawnPoint =
 		if (lastspawn != world)
 			return lastspawn;
 	}
-	else if (deathmatch == DM_CTF_2TEAM || deathmatch == DM_CTF_3TEAM)
+	else if (deathmatch == DM_CTF_2TEAM || deathmatch == DM_CTF_3TEAM || deathmatch == DM_MCTF_2TEAM)
 	{
 		cname = "info_player_deathmatch";
 		if (self.team == 5) // red
@@ -1043,11 +985,14 @@ void() PlayerJump =
 			if (self.swim_flag < time)
 			{
 				self.swim_flag = time + 1;
-				// FIXME: make swimming sounds when swimming normally (not jumping)?
-				if (random() < 0.5)
-					sound (self, CHAN_BODY, "misc/water1.wav", 1, ATTN_NORM);
-				else
-					sound (self, CHAN_BODY, "misc/water2.wav", 1, ATTN_NORM);
+				if (game != GAME_NEXUIZ)
+				{
+					// FIXME: make swimming sounds when swimming normally (not jumping)?
+					if (random() < 0.5)
+						sound (self, CHAN_BODY, "misc/water1.wav", 1, ATTN_NORM);
+					else
+						sound (self, CHAN_BODY, "misc/water2.wav", 1, ATTN_NORM);
+				}
 			}
 		}
 
@@ -1068,9 +1013,13 @@ void() PlayerJump =
 	if (self.solid) // silent for observers
 	{
 		// player jumping sound
-		sound (self, CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
+		if (game != GAME_NEXUIZ)
+			sound (self, CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
 	}
-	self.velocity_z = self.velocity_z + 270;
+	if (deathmatch == DM_MCTF_2TEAM)
+		self.velocity_z = self.velocity_z + 350;
+	else
+		self.velocity_z = self.velocity_z + 270;
 };
 
 // .float  steamtime;
@@ -1118,6 +1067,20 @@ Called every frame before physics are run
 void() PlayerPreThink =
 {
 	local   float   r, r1, r2, r3, t, a;
+
+	/*
+	bprint("pre : ");
+	bprintvector(self.origin);
+	bprint(" ");
+	bprintvector(self.angles);
+	bprint(" ");
+	bprintvector(self.v_angle);
+	bprint(" ");
+	bprintfloat(intermission_running);
+	bprint(" ");
+	bprintfloat(intermission_exittime);
+	bprint("\n");
+	*/
 
 	checkinvalidteam();
 
@@ -1220,7 +1183,8 @@ void() CheckPowerups =
 		// sound and screen flash when items starts to run out
 		if (self.invisible_sound < time)
 		{
-			sound (self, CHAN_AUTO, "items/inv3.wav", 0.5, ATTN_IDLE);
+			if (game != GAME_NEXUIZ)
+				sound (self, CHAN_AUTO, "items/inv3.wav", 0.5, ATTN_IDLE);
 			self.invisible_sound = time + ((random() * 3) + 1);
 		}
 
@@ -1233,7 +1197,8 @@ void() CheckPowerups =
 					sprint (self, "Ring of Shadows magic is fading\n");
 					flashscreen(self);
 				}
-				sound (self, CHAN_AUTO, "items/inv2.wav", 1, ATTN_NORM);
+				if (game != GAME_NEXUIZ)
+					sound (self, CHAN_AUTO, "items/inv2.wav", 1, ATTN_NORM);
 				self.invisible_time = time + 1;
 			}
 
@@ -1265,7 +1230,8 @@ void() CheckPowerups =
 					sprint (self, "Protection is running out\n");
 					flashscreen(self);
 				}
-				sound (self, CHAN_AUTO, "items/protect2.wav", 1, ATTN_NORM);
+				if (game != GAME_NEXUIZ)
+					sound (self, CHAN_AUTO, "items/protect2.wav", 1, ATTN_NORM);
 				self.invincible_time = time + 1;
 			}
 
@@ -1297,7 +1263,8 @@ void() CheckPowerups =
 					sprint (self, "Quad Damage is fading\n");
 					flashscreen(self);
 				}
-				sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
+				if (game != GAME_NEXUIZ)
+					sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
 				self.super_time = time + 1;
 			}
 
@@ -1332,7 +1299,8 @@ void() CheckPowerups =
 					sprint (self, "Air supply in Biosuit expiring\n");
 					flashscreen(self);
 				}
-				sound (self, CHAN_AUTO, "items/suit2.wav", 1, ATTN_NORM);
+				if (game != GAME_NEXUIZ)
+					sound (self, CHAN_AUTO, "items/suit2.wav", 1, ATTN_NORM);
 				self.rad_time = time + 1;
 			}
 
@@ -1372,6 +1340,20 @@ Called every frame after physics are run
 */
 void() PlayerPostThink =
 {
+	/*
+	bprint("post: ");
+	bprintvector(self.origin);
+	bprint(" ");
+	bprintvector(self.angles);
+	bprint(" ");
+	bprintvector(self.v_angle);
+	bprint(" ");
+	bprintfloat(intermission_running);
+	bprint(" ");
+	bprintfloat(intermission_exittime);
+	bprint("\n");
+	*/
+
 	if (self.view_ofs == '0 0 0')
 		return; // intermission or finale
 
@@ -1441,7 +1423,8 @@ void() ClientDisconnect =
 //	bprint(" left with ");
 //	bprintfloat(self.frags);
 //	bprint(" frags\n");
-	sound(self, CHAN_SPEECH, "player/tornoff2.wav", 1, ATTN_NONE);
+	if (game != GAME_NEXUIZ)
+		sound(self, CHAN_SPEECH, "player/tornoff2.wav", 1, ATTN_NONE);
 //	set_suicide_frame();
 	T_Damage(self, world, world, 0, 0, " disconnected", DT_TELEFRAG, self.origin, '0 0 0', Obituary_Generic);
 };
@@ -1584,7 +1567,7 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	else
 		dtype = DTYPE_OTHER;
 
-	if (targ.doobits || (deathmatch && (targ.flags & FL_MONSTER)))
+	if (targ.doobits || (deathmatch && (targ.flags & FL_MONSTER) && targ.netname != ""))
 	{
 		newmis = spawn();
 		newmis.classname = "obituaryentity";

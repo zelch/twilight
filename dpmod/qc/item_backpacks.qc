@@ -6,6 +6,8 @@ PLAYER BACKPACKS
 ===============================================================================
 */
 
+// TODO: Nexuiz items
+
 void() BackpackFade =
 {
 	self.nextthink = time;
@@ -157,7 +159,7 @@ void() DropBackpack =
 	local entity item, head, killent;
 	local float c, t;
 
-	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
+	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM || deathmatch == DM_MCTF_2TEAM)
 		return;
 
 	//if (deathmatch == DM_RPG)

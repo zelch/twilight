@@ -1,7 +1,7 @@
 
 void() FireballExplode =
 {
-	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, self.deathtype, '0 0 0', FALSE, self.obitfunc1);
+	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '0 0 0', FALSE, self.obitfunc1);
 };
 
 void(vector org, vector vel, entity own, float damg, float force, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchFireball =

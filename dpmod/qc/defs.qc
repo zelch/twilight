@@ -389,6 +389,7 @@ float	CHAN_BODY		= 4;
 // added for Dark Places
 float   CHAN_SPEECH             = 5;
 float   CHAN_FOOT               = 6;
+float   CHAN_WEAPON2            = 7;
 
 float	ATTN_NONE		= 0;
 float	ATTN_NORM		= 1;
@@ -1087,3 +1088,8 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Fallback =
 		deathstring4 = "";
 	}
 };
+
+float GAME_QUAKE = 0;
+float GAME_NEXUIZ = 1;
+float game;
+

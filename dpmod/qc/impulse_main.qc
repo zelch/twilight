@@ -406,6 +406,24 @@ void() ImpulseCommands =
 	if (!self.deadflag)
 	if (cvar("sv_cheats"))
 	{
+		if (self.impulse == 44)
+		{
+			n = 0;
+			while (n < 10000)
+			{
+				n = n + 1;
+				tracebox(shotorg, '-16 -16 -16', '16 16 16', shotorg + 10000 * shotdir, TRUE, self);
+			}
+		}
+		if (self.impulse == 43)
+		{
+			n = 0;
+			while (n < 10000)
+			{
+				n = n + 1;
+				tracebox(shotorg, '0 0 0', '0 0 0', shotorg + 10000 * shotdir, TRUE, self);
+			}
+		}
 		if (self.impulse == 40)
 			saveme();
 		if (self.impulse == 41)

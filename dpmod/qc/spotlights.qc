@@ -26,7 +26,7 @@ void() effect_spinningspotlight =
 	self.effects = EF_DIMLIGHT;
 	self.think = spinningspotlightthink;
 	self.nextthink = time + 0.2;
-	precache_model("progs/null.spr");
-	setmodel(self, "progs/null.spr");
+	//precache_model("progs/null.spr");
+	//setmodel(self, "progs/null.spr");
 	setorigin(self, self.origin);
 };

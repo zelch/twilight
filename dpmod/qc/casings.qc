@@ -1,10 +1,17 @@
 
 void() InitCasings =
 {
-	precache_model ("progs/casing_bronze.mdl"); // bullet casing (made by Tomaz)
-	precache_model ("progs/casing_steel.mdl"); // bullet casing (made by Tomaz)
-	precache_model ("progs/casing_shell.mdl"); // shell casing (made by Tomaz)
-	precache_sound ("weapons/tink1.wav");
+	if (game == GAME_NEXUIZ)
+	{
+		precache_model ("models/casing.mdl"); // brass bullet casing
+	}
+	else
+	{
+		precache_model ("progs/casing_bronze.mdl"); // bullet casing (made by Tomaz)
+		precache_model ("progs/casing_steel.mdl"); // bullet casing (made by Tomaz)
+		precache_model ("progs/casing_shell.mdl"); // shell casing (made by Tomaz)
+		precache_sound ("weapons/tink1.wav");
+	}
 };
 
 void() casingtouch =
@@ -14,7 +21,8 @@ void() casingtouch =
 	if (time >= self.attack_finished)
 	if (self.origin != self.dest + self.groundentity.origin)
 	{
-		sound (self, CHAN_WEAPON, "weapons/tink1.wav", 0.5, ATTN_NORM);
+		if (game != GAME_NEXUIZ)
+			sound (self, CHAN_WEAPON, "weapons/tink1.wav", 0.5, ATTN_NORM);
 		self.attack_finished = time + 0.2;
 		//self.touch = SUB_Null; // one tink is enough
 	}
@@ -79,22 +87,30 @@ void(vector org, vector vel, float randomvel, vector ang, vector avel, float ran
 	e.knockedloosefunc = casingknockedloosefunc;
 	//e.effects = EF_LOWPRECISION;
 	e.createdtime = time;
-	if (casingtype == 1)
+	if (game == GAME_NEXUIZ)
 	{
-		setmodel (e, "progs/casing_shell.mdl");
-		e.cnt = time + 30;
-		// bias to make these be considered more important than other things
-		e.createdtime = time + 1;
-	}
-	else if (casingtype == 2)
-	{
-		setmodel (e, "progs/casing_steel.mdl");
+		setmodel (e, "models/casing.mdl");
 		e.cnt = time + 10;
 	}
 	else
 	{
-		setmodel (e, "progs/casing_bronze.mdl");
-		e.cnt = time + 10;
+		if (casingtype == 1)
+		{
+			setmodel (e, "progs/casing_shell.mdl");
+			e.cnt = time + 30;
+			// bias to make these be considered more important than other things
+			e.createdtime = time + 1;
+		}
+		else if (casingtype == 2)
+		{
+			setmodel (e, "progs/casing_steel.mdl");
+			e.cnt = time + 10;
+		}
+		else
+		{
+			setmodel (e, "progs/casing_bronze.mdl");
+			e.cnt = time + 10;
+		}
 	}
 	if (maxclients == 1)
 		e.cnt = time + 3000;

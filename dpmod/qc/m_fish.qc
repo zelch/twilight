@@ -156,13 +156,14 @@ void(entity attacker, float damage)	fish_pain =
 // fish can now gib :)
 void() fish_gib =
 {
-        sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
-        MonsterGibs("", 0, "progs/gib1.mdl", 3, "", 0);
+	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+	MonsterGibs("", 0, "progs/gib1.mdl", 3, "", 0);
 };
 
 void() fish_die =
 {
-        MonsterCorpse(self, f_death1);
+	mctf_spawnpickup(self.origin, 1, 0.3, 0.05, 0.02);
+	MonsterCorpse(self, f_death1);
 };
 
 void() precachemonster_fish =

@@ -401,19 +401,20 @@ void()  ogre_bdie10     =[      $bdeath10,      ogre_bdie10     ] {body_nonsolid
 
 void() ogre_gib =
 {
-        self.solid = SOLID_NOT;
-        sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
-        MonsterGibs("progs/h_ogre.mdl", 9, "", 0, "", 0);
+	self.solid = SOLID_NOT;
+	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+	MonsterGibs("progs/h_ogre.mdl", 9, "", 0, "", 0);
 };
 
 void() ogre_die =
 {
-        DropBackpack();
+	mctf_spawnpickup(self.origin, 2, 0, 0.3, 0.1);
+	DropBackpack();
 	sound (self, CHAN_VOICE, "ogre/ogdth.wav", 1, ATTN_NORM);
 	if (random() < 0.5)
-                MonsterCorpse(self, ogre_die1);
+		MonsterCorpse(self, ogre_die1);
 	else
-                MonsterCorpse(self, ogre_bdie1);
+		MonsterCorpse(self, ogre_bdie1);
 };
 
 void() ogre_melee =

@@ -11,8 +11,11 @@ FIRE
 
 void() fire_precache =
 {
-	precache_model("progs/flame2.mdl");
-	precache_sound("fire/burn.wav");
+	if (game != GAME_NEXUIZ)
+	{
+		precache_model("progs/flame2.mdl");
+		precache_sound("fire/burn.wav");
+	}
 };
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Fire =
@@ -125,6 +128,8 @@ void() Fire_burnthink =
 
 float(entity victim, entity attacker, float amount, string dt, vector v) SpawnFire =
 {
+	if (game == GAME_NEXUIZ)
+		return 0;
 	if (victim.flame != world)
 	{
 		victim.flame.cnt = victim.flame.cnt + amount;

@@ -72,6 +72,8 @@ void() ammo_touch =
 
 float WEAPON_BIG2 = 1;
 
+// TODO: Nexuiz items
+
 float(entity player, entity item) item_shells_pickupeval = {if (Inventory_Quantity(player, "shells") < AMMOMAX_SHELLS) return (AMMOMAX_SHELLS - Inventory_Quantity(player, "shells")) * (AMMOMAX_SHELLS - Inventory_Quantity(player, "shells")) * item.dmg;else return 0;};
 float(entity player, entity item) item_nails_pickupeval = {if (Inventory_Quantity(player, "nails") < AMMOMAX_NAILS) return (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * item.dmg;else return 0;};
 float(entity player, entity item) item_rockets_pickupeval = {if (Inventory_Quantity(player, "rockets") < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * item.dmg;else return 0;};
@@ -82,25 +84,46 @@ float(entity player, entity item) item_cells_pickupeval = {if (Inventory_Quantit
 
 void() item_shells =
 {
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.touch = ammo_touch;
 
 	self.ammo_typestring = "shells";
 	self.weapon = 1;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
-		precache_model ("progs/a_shell2.mdl");
-		setmodel (self, "progs/a_shell2.mdl");
+		if (game == GAME_NEXUIZ)
+		{
+			precache_model ("models/items/a_shells.md3");
+			setmodel (self, "models/items/a_shells.md3");
+		}
+		else
+		{
+			precache_model ("progs/a_shell2.mdl");
+			setmodel (self, "progs/a_shell2.mdl");
+			self.netname = "You got some shotgun shells\n";
+		}
 		if (self.aflag < 1)
 			self.aflag = AMMO_SHELLS * 2;
-		self.netname = "You got some shotgun shells\n";
 	}
 	else
 	{
-		precache_model ("progs/a_shell1.mdl");
-		setmodel (self, "progs/a_shell1.mdl");
+		if (game == GAME_NEXUIZ)
+		{
+			precache_model ("models/items/a_shells.md3");
+			setmodel (self, "models/items/a_shells.md3");
+		}
+		else
+		{
+			precache_model ("progs/a_shell1.mdl");
+			setmodel (self, "progs/a_shell1.mdl");
+			self.netname = "You got some shotgun shells\n";
+		}
 		if (self.aflag < 1)
 			self.aflag = AMMO_SHELLS;
-		self.netname = "You got some shotgun shells\n";
 	}
 	setsize (self, '-16 -16 0', '16 16 8');
 	setorigin(self, self.origin + '16 16 0');
@@ -117,27 +140,48 @@ void() item_shells =
 
 void() item_spikes =
 {
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.touch = ammo_touch;
 
 	self.ammo_typestring = "nails";
 	self.weapon = 2;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
-		precache_model ("maps/b_nail1.bsp");
-		setmodel (self, "maps/b_nail1.bsp");
+		if (game == GAME_NEXUIZ)
+		{
+			precache_model ("models/items/a_bullets.zym");
+			setmodel (self, "models/items/a_bullets.zym");
+		}
+		else
+		{
+			precache_model ("maps/b_nail1.bsp");
+			setmodel (self, "maps/b_nail1.bsp");
+			self.netname = "You got a large box of nails\n";
+		}
 		if (self.aflag < 1)
 			self.aflag = AMMO_NAILS * 2;
 		setsize (self, '0 0 0', '32 32 24');
-		self.netname = "You got a large box of nails\n";
 	}
 	else
 	{
-		precache_model ("maps/b_nail0.bsp");
-		setmodel (self, "maps/b_nail0.bsp");
+		if (game == GAME_NEXUIZ)
+		{
+			precache_model ("models/items/a_bullets.zym");
+			setmodel (self, "models/items/a_bullets.zym");
+		}
+		else
+		{
+			precache_model ("maps/b_nail0.bsp");
+			setmodel (self, "maps/b_nail0.bsp");
+			self.netname = "You got a small box of nails\n";
+		}
 		if (self.aflag < 1)
 			self.aflag = AMMO_NAILS;
 		setsize (self, '0 0 0', '24 24 24');
-		self.netname = "You got a small box of nails\n";
 	}
 
 	self.havocpickup = TRUE;
@@ -152,25 +196,46 @@ void() item_spikes =
 
 void() item_rockets =
 {
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.touch = ammo_touch;
 
 	self.ammo_typestring = "rockets";
 	self.weapon = 3;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
-		precache_model ("progs/a_rock8.mdl");
-		setmodel (self, "progs/a_rock8.mdl");
+		if (game == GAME_NEXUIZ)
+		{
+			precache_model ("models/items/a_rockets.md3");
+			setmodel (self, "models/items/a_rockets.md3");
+		}
+		else
+		{
+			precache_model ("progs/a_rock8.mdl");
+			setmodel (self, "progs/a_rock8.mdl");
+			self.netname = "You got some rockets\n";
+		}
 		if (self.aflag < 1)
 			self.aflag = AMMO_ROCKETS * 2;
-		self.netname = "You got some rockets\n";
 	}
 	else
 	{
-		precache_model ("progs/a_rock4.mdl");
-		setmodel (self, "progs/a_rock4.mdl");
+		if (game == GAME_NEXUIZ)
+		{
+			precache_model ("models/items/a_rockets.md3");
+			setmodel (self, "models/items/a_rockets.md3");
+		}
+		else
+		{
+			precache_model ("progs/a_rock4.mdl");
+			setmodel (self, "progs/a_rock4.mdl");
+			self.netname = "You got some rockets\n";
+		}
 		if (self.aflag < 1)
 			self.aflag = AMMO_ROCKETS;
-		self.netname = "You got some rockets\n";
 	}
 	setsize (self, '-16 -16 0', '16 16 16');
 	setorigin(self, self.origin + '16 16 0');
@@ -187,27 +252,48 @@ void() item_rockets =
 
 void() item_cells =
 {
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.touch = ammo_touch;
 
 	self.ammo_typestring = "cells";
 	self.weapon = 4;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
-		precache_model ("maps/b_batt1.bsp");
-		setmodel (self, "maps/b_batt1.bsp");
+		if (game == GAME_NEXUIZ)
+		{
+			precache_model ("models/items/a_cells.md3");
+			setmodel (self, "models/items/a_cells.md3");
+		}
+		else
+		{
+			precache_model ("maps/b_batt1.bsp");
+			setmodel (self, "maps/b_batt1.bsp");
+			self.netname = "You got a large energy cell\n";
+		}
 		if (self.aflag < 1)
 			self.aflag = AMMO_CELLS * 2;
 		setsize (self, '0 0 0', '32 32 24');
-		self.netname = "You got a large energy cell\n";
 	}
 	else
 	{
-		precache_model ("maps/b_batt0.bsp");
-		setmodel (self, "maps/b_batt0.bsp");
+		if (game == GAME_NEXUIZ)
+		{
+			precache_model ("models/items/a_cells.md3");
+			setmodel (self, "models/items/a_cells.md3");
+		}
+		else
+		{
+			precache_model ("maps/b_batt0.bsp");
+			setmodel (self, "maps/b_batt0.bsp");
+			self.netname = "You got a small energy cell\n";
+		}
 		if (self.aflag < 1)
 			self.aflag = AMMO_CELLS;
 		setsize (self, '0 0 0', '24 24 24');
-		self.netname = "You got a small energy cell\n";
 	}
 
 	self.havocpickup = TRUE;

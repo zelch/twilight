@@ -98,24 +98,24 @@ void() spawnteams =
 	}
 };
 
-entity(float color) teamentityforcolor =
+entity(float c) teamentityforcolor =
 {
-	if (color ==  0) return team0;
-	if (color ==  1) return team1;
-	if (color ==  2) return team2;
-	if (color ==  3) return team3;
-	if (color ==  4) return team4;
-	if (color ==  5) return team5;
-	if (color ==  6) return team6;
-	if (color ==  7) return team7;
-	if (color ==  8) return team8;
-	if (color ==  9) return team9;
-	if (color == 10) return team10;
-	if (color == 11) return team11;
-	if (color == 12) return team12;
-	if (color == 13) return team13;
-	if (color == 14) return team14;
-	if (color == 15) return team15;
+	if (c ==  0) return team0;
+	if (c ==  1) return team1;
+	if (c ==  2) return team2;
+	if (c ==  3) return team3;
+	if (c ==  4) return team4;
+	if (c ==  5) return team5;
+	if (c ==  6) return team6;
+	if (c ==  7) return team7;
+	if (c ==  8) return team8;
+	if (c ==  9) return team9;
+	if (c == 10) return team10;
+	if (c == 11) return team11;
+	if (c == 12) return team12;
+	if (c == 13) return team13;
+	if (c == 14) return team14;
+	if (c == 15) return team15;
 	return world;
 };
 
@@ -205,13 +205,13 @@ void(entity e, float pants, float shirt) setplayercolor =
 		setcolor(e, e.colormap - 1024);
 };
 
-void(float color) SV_ChangeTeam =
+void(float c) SV_ChangeTeam =
 {
 	local float pants, shirt, old;
-	if (color >= 0)
+	if (c >= 0)
 	{
-		pants = color & 15;
-		shirt = (color / 16) & 15;
+		pants = c & 15;
+		shirt = (c / 16) & 15;
 	}
 	else
 	{
@@ -261,6 +261,7 @@ void() mode_updatecvars =
 	else if (cvar("deathmatch") == 10) setdm("10?Dark Places - Capture The Flag - 2 Team");
 	else if (cvar("deathmatch") == 11) setdm("11?Dark Places - Capture The Flag - 3 Team");
 	else if (cvar("deathmatch") == 12) setdm("12?Dark Places - Domination");
+	else if (cvar("deathmatch") == 13) setdm("13?Dark Places - Monster Capture The Flag - 2 Team");
 	else if (cvar("deathmatch") == 30) setdm("30?Dark Places - Role Playing Game");
 	else                               setdm("1?Dark Places - Deathmatch");
 
@@ -269,7 +270,8 @@ void() mode_updatecvars =
 	else*/ if (deathmatch == 10) cvar_set("teamplay", "3?Dark Places - Capture The Flag - 2 Team");
 	else if (deathmatch == 11) cvar_set("teamplay", "3?Dark Places - Capture The Flag - 3 Team");
 	else if (deathmatch == 12) cvar_set("teamplay", "3?Dark Places - Domination");
-	else
+	else if (deathmatch == 13) cvar_set("teamplay", "3?Dark Places - Monster Capture The Flag - 2 Team");
+	else 
 	{
 		     if (cvar("teamplay") == 0) cvar_set("teamplay", "0?Dark Places - No Teamplay");
 		else if (cvar("teamplay") == 1) cvar_set("teamplay", "1?Dark Places - No team damage");

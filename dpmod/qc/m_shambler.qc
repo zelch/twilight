@@ -453,6 +453,7 @@ void() sham_gib =
 
 void() sham_die =
 {
+	mctf_spawnpickup(self.origin, 5, 0, 1, 0.4);
 	sound (self, CHAN_VOICE, "shambler/sdeath.wav", 1, ATTN_NORM);
 	MonsterCorpse(self, sham_death1);
 };

@@ -1,12 +1,15 @@
 
 void() lightning_precache =
 {
-	precache_model("progs/v_light.mdl");
-	precache_model("progs/bolt.mdl"); // actually this is the hook chain
-	precache_model("progs/bolt2.mdl");
-	precache_model("progs/bolt3.mdl");
-	precache_sound("weapons/lhit.wav");
-	precache_sound("weapons/lstart.wav");
+	if (game != GAME_NEXUIZ)
+	{
+		//precache_model("progs/v_light.mdl");
+		precache_model("progs/bolt.mdl"); // actually this is the hook chain
+		precache_model("progs/bolt2.mdl");
+		precache_model("progs/bolt3.mdl");
+		precache_sound("weapons/lhit.wav");
+		precache_sound("weapons/lstart.wav");
+	}
 };
 
 /*

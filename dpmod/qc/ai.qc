@@ -25,47 +25,47 @@ float   weaponwakeupcount;
 // (unless their AMBUSH flag is set)
 void(vector org, entity own) weaponwakeup =
 {
-        // disabled
-        /*
-        local   float   dist;
-        local   entity  head, saveself;
-        if (own.health < 1)
-                return;
-        if (own.classname != "player")
-                return;
-        if (time != lastweaponwakeup)
-                weaponwakeupcount = 0;
-        if (weaponwakeupcount >= 5) // ignore it
-                return;
-        weaponwakeupcount = weaponwakeupcount + 1;
-        lastweaponwakeup = time;
-        saveself = self;
-        head = findfloat(world, ismonster, TRUE);
-        while (head != world)
-        {
-                if (head.health >= 1)
-                if (!head.monsterawaitingteleport)
-                if (head.enemy != own)
-                if ((head.spawnflags & 3) == 0) // see elsewhere for the reason it's & 3 instead of & 1
-                {
-                        dist = vlen(head.origin - org);
-                        if (dist < 1000)
-                        if (head.enemy.classname != "player")
-                        {
-                                traceline(org, head.origin, TRUE, own);
-                                if ((trace_fraction == 1.0) || (dist < 500)) // sound
-                                {
-                                        head.oldenemy = head.enemy;
-                                        head.enemy = own;
-                                        self = head;
-                                        FoundTarget();
-                                }
-                        }
-                }
-                head = findfloat(head, ismonster, TRUE);
-        }
-        self = saveself;
-        */
+	// disabled
+	/*
+	local float dist;
+	local entity head, saveself;
+	if (own.health < 1)
+		return;
+	if (own.classname != "player")
+		return;
+	if (time != lastweaponwakeup)
+		weaponwakeupcount = 0;
+	if (weaponwakeupcount >= 5) // ignore it
+		return;
+	weaponwakeupcount = weaponwakeupcount + 1;
+	lastweaponwakeup = time;
+	saveself = self;
+	head = findfloat(world, ismonster, TRUE);
+	while (head != world)
+	{
+		if (head.health >= 1)
+		if (!head.monsterawaitingteleport)
+		if (head.enemy != own)
+		if ((head.spawnflags & 3) == 0) // see elsewhere for the reason it's & 3 instead of & 1
+		{
+			dist = vlen(head.origin - org);
+			if (dist < 1000)
+			if (head.enemy.classname != "player")
+			{
+				traceline(org, head.origin, TRUE, own);
+				if ((trace_fraction == 1.0) || (dist < 500)) // sound
+				{
+					head.oldenemy = head.enemy;
+					head.enemy = own;
+					self = head;
+					FoundTarget();
+				}
+			}
+		}
+		head = findfloat(head, ismonster, TRUE);
+	}
+	self = saveself;
+	*/
 };
 
 
@@ -158,10 +158,10 @@ moving towards it, change the next destination and continue.
 */
 void() t_movetarget =
 {
-local entity	temp;
+	local entity temp;
 
-        if (other.health < 1)
-                return;
+	if (other.health < 1)
+		return;
 	if (other.movetarget != self)
 		return;
  
@@ -400,7 +400,7 @@ void() SightSound =
 
 void() FoundTarget =
 {
-	if (self.health < 1)
+	if (self.health < 1 || !self.th_run)
 		return;
 	if (self.enemy.classname == "player")
 	{

@@ -11,6 +11,7 @@ float GRENADE_DETONATEONCREATURE = 32;
 void() GrenadeExplode =
 {
 	local vector v;
+	self.owner.activemines = self.owner.activemines - 1;
 	if (self.weapon & GRENADE_TENWARHEAD)
 	{
 		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
@@ -23,18 +24,17 @@ void() GrenadeExplode =
 		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
 		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
 		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
+		remove(self);
 	}
 	else if (self.deathtype == "GRENADE")
 	{
 		if (self.lefty)
-			Explosion(self.origin, self.owner, self.dmg, self.count2, self.dmg2, "GRENADEBOUNCED", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+			BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, "GRENADEBOUNCED", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 		else
-			Explosion(self.origin, self.owner, self.dmg, self.count2, self.dmg2, "GRENADEDIRECT", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+			BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, "GRENADEDIRECT", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	}
 	else
-		Explosion(self.origin, self.owner, self.dmg, self.count2, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
-	self.owner.activemines = self.owner.activemines - 1;
-	remove(self);
+		BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 };
 
 void() GrenadeDet =

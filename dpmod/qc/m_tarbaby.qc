@@ -190,10 +190,11 @@ void()  tbaby_die1      =[      $exp,           tbaby_die2      ]
 };
 void()  tbaby_die2      =[      $exp,           tbaby_die2      ]
 {
+	mctf_spawnpickup(self.origin, 1, 0.3, 0.2, 0.1);
 	MonsterGibs("", 0, "progs/tar_gib.mdl", 4, "", 0);
 	self.skin = 0;
 	self.owner = self;
-	TarbabyExplosion (self, DMG_TARBABY_DAMAGE, DMG_TARBABY_FORCE, DMG_TARBABY_RADIUS, self.deathtype);
+	BecomeExplosion(self, DMG_TARBABY_DAMAGE, DMG_TARBABY_FORCE, DMG_TARBABY_RADIUS, world, self.deathtype, '-2 0 0', FALSE, Obituary_Generic);
 };
 
 void() tarbaby_sightsound =

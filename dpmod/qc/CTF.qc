@@ -46,7 +46,8 @@ void(entity e) RegenFlag =
 {
 	e.movetype = MOVETYPE_TOSS;
 	e.solid = SOLID_TRIGGER;
-	sound(e, CHAN_AUTO, "items/itembk2.wav", 1, ATTN_NORM);
+	if (game != GAME_NEXUIZ)
+		sound(e, CHAN_AUTO, "items/itembk2.wav", 1, ATTN_NORM);
 	setorigin(e, e.oldorigin);
 	e.angles = e.mangle;
 	e.cnt = FLAG_BASE;
@@ -308,7 +309,7 @@ Keys:
 
 void() item_flag_team1 =
 {
-	if (cvar("deathmatch") != DM_CTF_2TEAM && cvar("deathmatch") != DM_CTF_3TEAM)
+	if (cvar("deathmatch") != DM_CTF_2TEAM && cvar("deathmatch") != DM_CTF_3TEAM && cvar("deathmatch") != DM_MCTF_2TEAM)
 	{
 		remove(self);
 		return;
@@ -341,7 +342,7 @@ Keys:
 
 void() item_flag_team2 =
 {
-	if (cvar("deathmatch") != DM_CTF_2TEAM && cvar("deathmatch") != DM_CTF_3TEAM)
+	if (cvar("deathmatch") != DM_CTF_2TEAM && cvar("deathmatch") != DM_CTF_3TEAM && cvar("deathmatch") != DM_MCTF_2TEAM)
 	{
 		remove(self);
 		return;

@@ -98,12 +98,11 @@ w_system.qc
 //w_plasmarifle.qc // 9
 //w_plasmawave.qc // 10
 
-w_grapple.qc // +button5
-
 //w_info.qc   // must be after the weapons themselves
 
 
 CTF.qc
+mctf.qc
 
 regen.qc
 
@@ -111,8 +110,6 @@ superdamagesound.qc
 cheatcode.qc
 impulse_main.qc
 //w_frame.qc
-
-music.qc // music :)
 
 // waypoint files for the bots go here
 waypoint_spawnformap.qc

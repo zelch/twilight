@@ -730,7 +730,8 @@ void(entity character, entity item) Inventory_DropItem =
 	item.model = item.mdl;
 	item.lefty = time + 0.1;
 	setorigin(item, character.origin);
-	sound(item, CHAN_BODY, item.noise2, 1, ATTN_STATIC);
+	if (item.noise2 != "")
+		sound(item, CHAN_BODY, item.noise2, 1, ATTN_STATIC);
 };
 
 void(entity character, entity item) Inventory_PickupItem =
@@ -740,7 +741,8 @@ void(entity character, entity item) Inventory_PickupItem =
 	c = Inventory_AbsorbItem(character, item);
 	if (c)
 	{
-		sound(item, CHAN_BODY, item.noise1, 1, ATTN_STATIC);
+		if (item.noise1 != "")
+			sound(item, CHAN_BODY, item.noise1, 1, ATTN_STATIC);
 		if (character.flags & FL_CLIENT)
 		{
 			s = ftos(c);

@@ -315,6 +315,7 @@ void() enf_gib =
 
 void() enf_die =
 {
+	mctf_spawnpickup(self.origin, 2, 0.3, 0.2, 0.15);
 	DropBackpack();
 	sound (self, CHAN_VOICE, "enforcer/death1.wav", 1, ATTN_NORM);
 	if (random() > 0.5)

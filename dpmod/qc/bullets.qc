@@ -21,7 +21,7 @@ void() bullet_touch =
 	}
 	setorigin(self, self.origin - dir * 8);
 	if (self.count2)
-		BecomeExplosion(self, self.dmg2, self.dmg2, self.count2, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		BecomeExplosion(self, self.dmg2, self.dmg2, self.count2, world, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	else
 		remove(self);
 };
@@ -64,6 +64,7 @@ void(entity realbulletowner, entity bulletowner, float bullettype, float shotcou
 		//	newmis.movetype = MOVETYPE_TOSS;
 		//if (self.lefty >= 0)
 		if (maxclients == 1)
+		if (game != GAME_NEXUIZ)
 		{
 			// only visible in singleplayer (network bandwidth reasons)
 			setmodel(newmis, "progs/s_spike.mdl");

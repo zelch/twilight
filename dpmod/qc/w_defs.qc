@@ -29,10 +29,11 @@ entity w_chain;
 .entity w_prev;
 .float(float request) w_func;
 .float wanim_id;
-.float wanim_starttime;
-.float wanim_endtime;
-.float wanim_startframe;
-.float wanim_deltaframe;
+.float wanim_lasttime;
+.float wanim_accumulator;
+.float wanim_frameseconds;
+.float wanim_finalframe;
+.float wanim_increment;
 
 .entity weaponclass; // current weapon
 .entity switchweaponclass; // desired weapon (current weapon will switch to it when idle)
@@ -50,6 +51,7 @@ float WR_FRAME = 3;
 float WR_SETUP = 4;
 float WR_INSTANTSETUP = 5;
 float WR_ANIMATIONFRAME = 6;
+float WR_ANIMATIONFINISH = 7;
 
 float WANIM_READY = 0;
 float WANIM_RAISE = 1;

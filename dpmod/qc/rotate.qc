@@ -133,9 +133,15 @@ void() rotate_door_stateupdate =
 	{
 		self.cnt = s;
 		if (s == 1)
-			sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+		{
+			if (self.noise2 != "")
+				sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+		}
 		else
-			sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+		{
+			if (self.noise3 != "")
+				sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+		}
 	}
 	if (self.state == STATE_CLOSED || self.state == STATE_CLOSING)
 		self.frame = 0;
@@ -304,28 +310,31 @@ void() func_rotatingdoor =
 	else if (self.dmg < 0)
 		self.dmg = 0;
 
-	if (self.sounds == 0)
-		self.sounds = 1;
-	if (self.sounds == 1)
+	if (game != GAME_NEXUIZ)
 	{
-		precache_sound ("doors/winch2.wav");
-		precache_sound ("doors/drclos4.wav");
-		self.noise2 = "doors/winch2.wav";
-		self.noise3 = "doors/drclos4.wav";
-	}
-	if (self.sounds == 2)
-	{
-		precache_sound ("doors/airdoor1.wav");
-		precache_sound ("doors/airdoor2.wav");
-		self.noise2 = "doors/airdoor1.wav";
-		self.noise3 = "doors/airdoor2.wav";
-	}
-	if (self.sounds == 3)
-	{
-		precache_sound ("doors/basesec1.wav");
-		precache_sound ("doors/basesec2.wav");
-		self.noise2 = "doors/basesec1.wav";
-		self.noise3 = "doors/basesec2.wav";
+		if (self.sounds == 0)
+			self.sounds = 1;
+		if (self.sounds == 1)
+		{
+			precache_sound ("doors/winch2.wav");
+			precache_sound ("doors/drclos4.wav");
+			self.noise2 = "doors/winch2.wav";
+			self.noise3 = "doors/drclos4.wav";
+		}
+		if (self.sounds == 2)
+		{
+			precache_sound ("doors/airdoor1.wav");
+			precache_sound ("doors/airdoor2.wav");
+			self.noise2 = "doors/airdoor1.wav";
+			self.noise3 = "doors/airdoor2.wav";
+		}
+		if (self.sounds == 3)
+		{
+			precache_sound ("doors/basesec1.wav");
+			precache_sound ("doors/basesec2.wav");
+			self.noise2 = "doors/basesec1.wav";
+			self.noise3 = "doors/basesec2.wav";
+		}
 	}
 
 	rotate_setup(FALSE);

@@ -44,7 +44,8 @@ void() plat_spawn_inside_trigger =
 
 void() plat_hit_top =
 {
-	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	if (self.noise1 != "")
+		sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	self.state = STATE_TOP;
 	self.think = plat_go_down;
 	self.nextthink = self.ltime + 3;
@@ -52,33 +53,36 @@ void() plat_hit_top =
 
 void() plat_hit_bottom =
 {
-	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	if (self.noise1 != "")
+		sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	self.state = STATE_BOTTOM;
 };
 
 void() plat_go_down =
 {
-	sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+	if (self.noise != "")
+		sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 	self.state = STATE_DOWN;
 	SUB_CalcMove (self.pos2, self.speed, plat_hit_bottom);
 };
 
 void() plat_go_up =
 {
-	sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+	if (self.noise != "")
+		sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 	self.state = STATE_UP;
 	SUB_CalcMove (self.pos1, self.speed, plat_hit_top);
 };
 
 void() plat_center_touch =
 {
-        //if (other.classname != "player")
-        if (!other.cantrigger)
+	//if (other.classname != "player")
+	if (!other.cantrigger)
 		return;
-		
-        if (other.health < 1)
+	
+	if (other.health < 1)
 		return;
-
+	
 	self = self.enemy;
 	if (self.state == STATE_BOTTOM)
 		plat_go_up ();
@@ -88,14 +92,14 @@ void() plat_center_touch =
 
 void() plat_outside_touch =
 {
-        //if (other.classname != "player")
-        if (!other.cantrigger)
+	//if (other.classname != "player")
+	if (!other.cantrigger)
 		return;
-
-        if (other.health < 1)
+	
+	if (other.health < 1)
 		return;
-		
-//dprint ("plat_outside_touch\n");
+	
+	//dprint ("plat_outside_touch\n");
 	self = self.enemy;
 	if (self.state == STATE_TOP)
 		plat_go_down ();
@@ -161,24 +165,26 @@ void() func_plat =
 	if (!self.t_width)
 		self.t_width = 10;
 
-	if (self.sounds == 0)
-		self.sounds = 2;
 // FIX THIS TO LOAD A GENERIC PLAT SOUND
 
-	if (self.sounds == 1)
+	if (game != GAME_NEXUIZ)
 	{
-		precache_sound ("plats/plat1.wav");
-		precache_sound ("plats/plat2.wav");
-		self.noise = "plats/plat1.wav";
-		self.noise1 = "plats/plat2.wav";
-	}
-
-	if (self.sounds == 2)
-	{
-		precache_sound ("plats/medplat1.wav");
-		precache_sound ("plats/medplat2.wav");
-		self.noise = "plats/medplat1.wav";
-		self.noise1 = "plats/medplat2.wav";
+		if (self.sounds == 0)
+			self.sounds = 2;
+		if (self.sounds == 1)
+		{
+			precache_sound ("plats/plat1.wav");
+			precache_sound ("plats/plat2.wav");
+			self.noise = "plats/plat1.wav";
+			self.noise1 = "plats/plat2.wav";
+		}
+		if (self.sounds == 2)
+		{
+			precache_sound ("plats/medplat1.wav");
+			precache_sound ("plats/medplat2.wav");
+			self.noise = "plats/medplat1.wav";
+			self.noise1 = "plats/medplat2.wav";
+		}
 	}
 
 
@@ -244,7 +250,8 @@ void() train_wait =
 	if (self.wait)
 	{
 		self.nextthink = self.ltime + self.wait;
-		sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+		if (self.noise != "")
+			sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 	}
 	else
 		self.nextthink = self.ltime + 0.1;
@@ -264,24 +271,25 @@ void() train_next =
 		self.wait = targ.wait;
 	else
 		self.wait = 0;
-	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	if (self.noise1 != "")
+		sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	SUB_CalcMove (targ.origin - self.mins, self.speed, train_wait);
 };
 
 void() func_train_find =
-
 {
-	local entity	targ;
-
-        targ = find(world, targetname, self.target);
+	local entity targ;
+	
+	targ = find(world, targetname, self.target);
 	self.target = targ.target;
 	setorigin (self, targ.origin - self.mins);
-        // increased to 1 second from 0.1, now the train won't move before
-        // monsters appear, leaving them falling,
-        // or at least causing a nasty monster in wall error.
+	// increased to 1 second from 0.1, now the train won't move before
+	// monsters appear, leaving them falling,
+	// or at least causing a nasty monster in wall error.
 	if (!self.targetname)
-	{	// not triggered, so start immediately
-                self.nextthink = self.ltime + 1; 
+	{
+		// not triggered, so start immediately
+		self.nextthink = self.ltime + 1; 
 		self.think = train_next;
 	}
 };
@@ -308,20 +316,15 @@ void() func_train =
 	if (!self.dmg)
 		self.dmg = 2;
 
-	if (self.sounds == 0)
+	if (game == GAME_NEXUIZ)
 	{
-		self.noise = ("misc/null.wav");
-		precache_sound ("misc/null.wav");
-		self.noise1 = ("misc/null.wav");
-		precache_sound ("misc/null.wav");
-	}
-
-	if (self.sounds == 1)
-	{
-		self.noise = ("plats/train2.wav");
-		precache_sound ("plats/train2.wav");
-		self.noise1 = ("plats/train1.wav");
-		precache_sound ("plats/train1.wav");
+		if (self.sounds == 1)
+		{
+			self.noise = ("plats/train2.wav");
+			precache_sound ("plats/train2.wav");
+			self.noise1 = ("plats/train1.wav");
+			precache_sound ("plats/train1.wav");
+		}
 	}
 
 	self.cnt = 1;
@@ -344,13 +347,13 @@ void() func_train =
 /*
 void() misc_teleporttrain_modelentitythink =
 {
-        if (self.owner.classname != "misc_teleporttrain")
-        {
-                remove(self);
-                return;
-        }
-        self.nextthink = time;
-        setorigin (self, self.owner.origin);
+	if (self.owner.classname != "misc_teleporttrain")
+	{
+		remove(self);
+		return;
+	}
+	self.nextthink = time;
+	setorigin (self, self.owner.origin);
 };
 */
 
@@ -373,11 +376,6 @@ void() misc_teleporttrain =
 	self.use = train_use;
 //	self.avelocity = '100 200 300';
 	self.avelocity = '0 0 0';
-
-	self.noise = ("misc/null.wav");
-	precache_sound ("misc/null.wav");
-	self.noise1 = ("misc/null.wav");
-	precache_sound ("misc/null.wav");
 
 	precache_model2 ("progs/teleport.mdl");
 	setorigin (self, self.origin);
@@ -423,11 +421,6 @@ void() misc_teleporttrain =
 	self.blocked = train_blocked;
 	self.use = train_use;
 	self.avelocity = '100 200 300';
-
-	self.noise = ("misc/null.wav");
-	precache_sound ("misc/null.wav");
-	self.noise1 = ("misc/null.wav");
-	precache_sound ("misc/null.wav");
 
 	precache_model2 ("progs/teleport.mdl");
 	setmodel (self, "progs/teleport.mdl");

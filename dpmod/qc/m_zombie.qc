@@ -451,6 +451,7 @@ void() zombie_paine30 =[$paine30, zombie_run1   ] {zombie_heal();};
 
 void() zombie_die =
 {
+	mctf_spawnpickup(self.origin, 1, 0.4, 0.2, 0.1);
 	// setup for recycling
 	self.classname = "decor";
 	numdecors++;

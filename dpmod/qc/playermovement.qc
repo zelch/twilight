@@ -2,6 +2,7 @@ float lastclientthink, sv_maxspeed, sv_friction, sv_accelerate, sv_stopspeed, sv
 .float ladder_time;
 .entity ladder_entity;
 
+float intermission_running;
 void() SV_PlayerPhysics =
 {
 	local   vector  wishvel, wishdir, v;
@@ -44,12 +45,12 @@ void() SV_PlayerPhysics =
 	if (self.deadflag)
 		return;
 
-	// show 1/3 the pitch angle and all the roll angle
-	// LordHavoc: no real interest in porting V_CalcRoll
-	//self.angles_z = V_CalcRoll (self.angles, self.velocity)*4;
-	self.angles_z = 0;
 	if (!self.fixangle)
 	{
+		// show 1/3 the pitch angle and all the roll angle
+		// LordHavoc: no real interest in porting V_CalcRoll
+		//self.angles_z = V_CalcRoll (self.angles, self.velocity)*4;
+		self.angles_z = 0;
 		// LordHavoc: pitch was ugly to begin with...  removed except in water
 		if (self.waterlevel >= 2)
 			self.angles_x = self.v_angle_x;

@@ -55,11 +55,6 @@ void() info_target =
 		self.use = SUB_Null;
 		self.avelocity = '100 200 300';
 
-		self.noise = ("misc/null.wav");
-		precache_sound ("misc/null.wav");
-		self.noise1 = ("misc/null.wav");
-		precache_sound ("misc/null.wav");
-
 		// this is for testing, so you can see the targets
 		// precache_model2 ("progs/teleport.mdl");
 		// setmodel (self, "progs/teleport.mdl");
@@ -490,7 +485,7 @@ void() barrel_explode =
 	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble3.mdl", 5);
 	SUB_UseTargets();
 	setorigin(self, (self.absmin + self.absmax) * 0.5);
-	BecomeExplosion (self, self.dmg, self.dmg, self.dmg * 0.5, self.deathtype, '0 0 0', FALSE, Obituary_Generic);
+	BecomeExplosion(self, self.dmg, self.dmg, self.dmg * 0.5, world, self.deathtype, '0 0 0', FALSE, Obituary_Generic);
 };
 
 void() barrel_det =
@@ -1086,3 +1081,6 @@ void() misc_noisemaker =
 	self.nextthink = time + 0.1 + random();
 	self.think = noise_think;
 };
+
+// TODO: Nexuiz stuff
+

@@ -115,6 +115,7 @@ void() shal_gib =
 
 void() shalrath_die =
 {
+	mctf_spawnpickup(self.origin, 3, 0, 0.4, 0.2);
 	sound (self, CHAN_VOICE, "shalrath/death.wav", 1, ATTN_NORM);
 	MonsterCorpse(self, shal_death1);
 };
@@ -127,7 +128,7 @@ ShalMissile
 
 void() ShalMissileDie =
 {
-	BecomeExplosion (self, DMG_SHALRATH_MISSILE_DAMAGE, DMG_SHALRATH_MISSILE_FORCE, DMG_SHALRATH_MISSILE_RADIUS, self.deathtype, '0.8 0.5 1', FALSE, Obituary_Generic);
+	BecomeExplosion(self, DMG_SHALRATH_MISSILE_DAMAGE, DMG_SHALRATH_MISSILE_FORCE, DMG_SHALRATH_MISSILE_RADIUS, world, self.deathtype, '0.8 0.5 1', FALSE, Obituary_Generic);
 };
 
 void() ShalHome =

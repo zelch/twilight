@@ -6,7 +6,6 @@ entity modechecker;
 .float candrown;
 .float drown_finished;
 
-void() player_precache;
 void() damagescaleupdate;
 
 entity lastspawn;
@@ -338,6 +337,9 @@ void() worldspawn =
 {
 	local float c;
 	local entity head;
+
+	game = GAME_QUAKE;
+
 	c = 0;
 	head = nextent(world);
 	while (head != world)
@@ -354,7 +356,6 @@ void() worldspawn =
 
 	lastspawn = world;
 	InitDecors ();
-	player_precache(); // get player precaches
 
 // custom map attributes
 	if (self.model == "maps/e1m8.bsp")
@@ -363,18 +364,57 @@ void() worldspawn =
 		cvar_set ("sv_gravity", "800");
 
 
-// player precaches
-	//precache_model("progs/player.mdl");
-	//precache_model("progs/h_player.mdl");
-	//precache_sound ("weapons/r_exp3.wav");          // new rocket explosion
 	// precache weapons
 	W_Precache ();
+	explosionfx_precache();
 
-// sounds used from C physics code
+	// sounds used from C physics code
 	precache_sound ("demon/dland2.wav");		// landing thud
 	precache_sound ("misc/h2ohit1.wav");		// landing splash
+		
+	// player gib sounds
+	precache_sound ("player/gib.wav");			// player gib sound
+	precache_sound ("player/udeath.wav");		// player gib sound
+	precache_sound ("player/tornoff2.wav");		// gib sound
 
-// setup precaches allways needed
+	// player pain sounds
+	precache_sound ("player/pain1.wav");
+	precache_sound ("player/pain2.wav");
+	precache_sound ("player/pain3.wav");
+	precache_sound ("player/pain4.wav");
+	precache_sound ("player/pain5.wav");
+	precache_sound ("player/pain6.wav");
+
+	// player death sounds
+	precache_sound ("player/death1.wav");
+	precache_sound ("player/death2.wav");
+	precache_sound ("player/death3.wav");
+	precache_sound ("player/death4.wav");
+	precache_sound ("player/death5.wav");
+
+	precache_sound ("player/h2ojump.wav");		// player jumping into water
+	precache_sound ("player/slimbrn2.wav");		// player enter slime
+	precache_sound ("player/inh2o.wav");		// player enter water
+	precache_sound ("player/inlava.wav");		// player enter lava
+	precache_sound ("misc/outwater.wav");		// leaving water sound
+
+	precache_sound ("player/lburn1.wav");		// lava burn
+	precache_sound ("player/lburn2.wav");		// lava burn
+
+	precache_sound ("misc/water1.wav");			// swimming
+	precache_sound ("misc/water2.wav");			// swimming
+
+	precache_sound ("misc/foot1.wav");
+	precache_sound ("misc/foot2.wav");
+	precache_sound ("misc/foot3.wav");
+	precache_sound ("misc/foot4.wav");
+	precache_sound ("misc/foot5.wav");
+	precache_sound ("misc/foot6.wav");
+	precache_sound ("misc/foot7.wav");
+
+	precache_sound ("weapons/r_exp3.wav");          // new rocket explosion
+
+	// setup precaches always needed
 	precache_sound ("items/itembk2.wav");		// item respawn sound
 	precache_sound ("player/plyrjmp8.wav");		// player jump
 	precache_sound ("player/land.wav");			// player landing
@@ -384,6 +424,7 @@ void() worldspawn =
 	precache_sound ("player/gasp1.wav");		// gasping for air
 	precache_sound ("player/gasp2.wav");		// taking breath
 	precache_sound ("player/h2odeath.wav");		// drowning death
+	precache_sound ("player/udeath.wav");		// gib death
 
 	precache_sound ("misc/talk.wav");			// talk
 	precache_sound ("player/teledth1.wav");		// telefrag
@@ -395,12 +436,69 @@ void() worldspawn =
 	precache_sound ("weapons/lock4.wav");		// ammo pick up
 	precache_sound ("weapons/pkup.wav");		// weapon up
 	precache_sound ("items/armor1.wav");		// armor up
-	precache_sound ("weapons/lhit.wav");		//lightning
-	precache_sound ("weapons/lstart.wav");		//lightning start
 	precache_sound ("items/damage3.wav");
+	
+	precache_model ("progs/s_bubble.spr");	// drowning bubbles
 
-	// spikey ball, used for monster in wall errors.
-	precache_model ("progs/star.mdl");
+	if (game == GAME_NEXUIZ)
+	{
+		// player precaches
+		precache_sound ("misc/bodyimpact1.wav");
+		precache_sound ("misc/bodyimpact2.wav");
+		precache_sound ("player/hitground1.wav");
+		precache_sound ("player/hitground2.wav");
+		precache_sound ("player/udeath.wav");		// gib death
+
+		precache_model("models/gibs/bloodyskull.md3");
+		precache_model("models/gibs/eye.md3");
+		precache_model("models/gibs/gib1.mdl");
+		precache_model("models/gibs/gib2.mdl");
+		precache_model("models/gibs/gib3.mdl");
+		precache_model("models/gibs/gib4.mdl");
+
+		precache_model("models/player/dummy.zym");
+		precache_model("models/player/grunt.zym");
+		precache_model("models/player/headhunter.zym");
+		precache_model("models/player/joandarc.zym");
+		precache_model("models/player/marine.zym");
+		precache_model("models/player/player.zym");
+		precache_model("models/player/pryia.zym");
+		precache_model("models/player/shock.zym");
+		precache_model("models/player/visitant.zym");
+	}
+	else
+	{
+		// player precaches
+		precache_sound ("weapons/ax1.wav");			// ax swoosh
+		precache_sound ("player/axhit1.wav");		// ax hit meat
+		precache_sound ("player/axhit2.wav");		// ax hit world
+
+		//precache_model ("progs/playersg.mdl"); // used for visible weapons
+		//precache_model ("progs/playerss.mdl"); // used for visible weapons
+		//precache_model ("progs/playernl.mdl"); // used for visible weapons
+		//precache_model ("progs/playersn.mdl"); // used for visible weapons
+		//precache_model ("progs/playergr.mdl"); // used for visible weapons
+		//precache_model ("progs/playerrl.mdl"); // used for visible weapons
+		//precache_model ("progs/playerli.mdl"); // used for visible weapons
+	
+		precache_model ("progs/playernogun.mdl");
+		precache_model ("progs/playergun.mdl");
+	
+		precache_model ("progs/player.mdl");
+		precache_model ("progs/eyes.mdl");
+		precache_model ("progs/h_player.mdl");
+		precache_model ("progs/gib1.mdl");
+		precache_model ("progs/gib2.mdl");
+		precache_model ("progs/gib3.mdl");
+	
+		precache_model ("progs/backpack.mdl");
+
+		precache_sound ("weapons/lhit.wav");		//lightning
+		precache_sound ("weapons/lstart.wav");		//lightning start
+	
+		// spikey ball, used for monster in wall errors.
+		precache_model ("progs/star.mdl");
+	}
 
 //
 // Setup light animation tables. 'a' is total darkness, 'z' is maxbright.
@@ -447,8 +545,6 @@ void() worldspawn =
 	// 63 testing
 	lightstyle(63, "a");
 
-	precache_sound ("player/udeath.wav");		// gib death
-
 	damagescaleupdate();
 
 	modesetup();
@@ -457,7 +553,15 @@ void() worldspawn =
 	waypoint_spawnformap();
 
 	// plays music for the level if there is any
-	spawnmusic();
+	if (self.noise)
+	{
+		precache_sound (self.noise);
+		// the Quake engine spatializes ATTN_NONE, so spawn it in two places to get less directional sound
+		//ambientsound ('-4095 -4095 -4095', self.noise, 1.00, ATTN_NONE);
+		//ambientsound ('4095 4095 4095', self.noise, 1.00, ATTN_NONE);
+		// the DarkPlaces engine does not spatialize ATTN_NONE.
+		ambientsound ('0 0 0', self.noise, 1.00, ATTN_NONE);
+	}
 };
 
 void() bubble_split =
@@ -516,6 +620,8 @@ void() bubble_bob =
 // split: vel current size 1
 void(vector org, vector vel, float bubblesize) makebubble =
 {
+	if (game == GAME_NEXUIZ)
+		return;
 	newmis = spawn();
 	setmodel (newmis, "progs/s_bubble.spr");
 	setorigin (newmis, org);
@@ -764,6 +870,7 @@ void() damagescaleupdate =
 };
 
 .float findtarget;
+.vector creaturecode_oldvelocity;
 entity creaturetocheck;
 void() startframe_creaturecode =
 {
@@ -827,6 +934,22 @@ void() startframe_creaturecode =
 					if (self.bubble_count < 1)
 						self.bubble_count = 0;
 				}
+				/*
+				f = vlen(self.velocity - self.creaturecode_oldvelocity);
+				if (f >= 200)
+				{
+					f = (f - 1000) * 0.05;
+					if (f > 0)
+					{
+						T_Damage (self, world, world, 5, 5, " met a flat world", DT_FALL, self.origin, '0 0 0', Obituary_Generic);
+						if (self.health > 0)
+							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
+					}
+					else if (self.health > 0)
+						sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
+				}
+				self.creaturecode_oldvelocity = self.velocity;
+				*/
 				if (self.jump_flag < -200)
 				if (self.flags & FL_ONGROUND)
 				if (self.solid) // ignore observers
@@ -852,7 +975,7 @@ void() startframe_creaturecode =
 						if (!self.deadflag)
 							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
 					}
-					else
+					else if (!self.deadflag)
 						sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
 				}
 				self.jump_flag = self.velocity_z;

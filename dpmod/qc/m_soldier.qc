@@ -398,6 +398,7 @@ void() army_gib =
 
 void() army_die =
 {
+	mctf_spawnpickup(self.origin, 1, 0.3, 0.1, 0.05);
 	DropBackpack();
 	sound (self, CHAN_VOICE, "soldier/death1.wav", 1, ATTN_NORM);
 	if (random() < 0.5)

@@ -62,16 +62,31 @@ float(entity player, entity item) item_armor_pickupeval =
 		return (new - old) * (new - old) * item.dmg2;
 };
 
+// TODO: Nexuiz items
+
 /*QUAKED item_armor_green (0 .5 .8) (-16 -16 0) (16 16 32)
 100 green armor, 30% absorb
 */
 void() item_armor_green =
 {
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.classname = "item_armor_green";
 	self.touch = armor_touch;
-	precache_model ("progs/armor.mdl");
-	setmodel (self, "progs/armor.mdl");
-	self.skin = 0;
+	if (game == GAME_NEXUIZ)
+	{
+		precache_model ("models/items/g_a25.md3");
+		setmodel (self, "models/items/g_a25.md3");
+	}
+	else
+	{
+		precache_model ("progs/armor.mdl");
+		setmodel (self, "progs/armor.mdl");
+		self.skin = 0;
+	}
 	self.frame = 0;
 	self.armortype = GREENARMOR_TYPE;
 	if (self.armorvalue < 1)
@@ -93,11 +108,24 @@ void() item_armor_green =
 */
 void() item_armor_yellow =
 {
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.classname = "item_armor_yellow";
 	self.touch = armor_touch;
-	precache_model ("progs/armor.mdl");
-	setmodel (self, "progs/armor.mdl");
-	self.skin = 1;
+	if (game == GAME_NEXUIZ)
+	{
+		precache_model ("models/items/g_a25.md3");
+		setmodel (self, "models/items/g_a25.md3");
+	}
+	else
+	{
+		precache_model ("progs/armor.mdl");
+		setmodel (self, "progs/armor.mdl");
+		self.skin = 1;
+	}
 	self.frame = 0;
 	self.armortype = YELLOWARMOR_TYPE;
 	if (self.armorvalue < 1)
@@ -119,11 +147,24 @@ void() item_armor_yellow =
 */
 void() item_armor_red =
 {
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.classname = "item_armor_red";
 	self.touch = armor_touch;
-	precache_model ("progs/armor.mdl");
-	setmodel (self, "progs/armor.mdl");
-	self.skin = 2;
+	if (game == GAME_NEXUIZ)
+	{
+		precache_model ("models/items/g_a25.md3");
+		setmodel (self, "models/items/g_a25.md3");
+	}
+	else
+	{
+		precache_model ("progs/armor.mdl");
+		setmodel (self, "progs/armor.mdl");
+		self.skin = 2;
+	}
 	self.armortype = REDARMOR_TYPE;
 	if (self.armorvalue < 1)
 		self.armorvalue = REDARMOR_VALUE;
@@ -144,11 +185,24 @@ void() item_armor_red =
 */
 void() item_armor_glow =
 {
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.classname = "item_armor_glow";
 	self.touch = armor_touch;
-	precache_model ("progs/armor.mdl");
-	setmodel (self, "progs/armor.mdl");
-	self.skin = 2;
+	if (game == GAME_NEXUIZ)
+	{
+		precache_model ("models/items/g_a25.md3");
+		setmodel (self, "models/items/g_a25.md3");
+	}
+	else
+	{
+		precache_model ("progs/armor.mdl");
+		setmodel (self, "progs/armor.mdl");
+		self.skin = 2;
+	}
 	self.frame = 0;
 	self.armortype = GLOWARMOR_TYPE;
 	if (self.armorvalue < 1)

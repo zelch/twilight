@@ -10,54 +10,101 @@ float	H_ROTTEN = 1;
 float	H_MEGA = 2;
 void() health_touch;
 
+// TODO: Nexuiz items
+
 float(entity player, entity item) item_health_pickupeval = {if (player.health >= player.max_health) return -1;return (player.max_health - player.health) * (player.max_health - player.health) * item.dmg / (player.max_health * player.max_health);};
 float(entity player, entity item) item_megahealth_pickupeval = {if (player.health >= (HEALTHMEGAMAX + player.max_health) * 0.5) return -1;return (HEALTHMEGAMAX - player.health) * (HEALTHMEGAMAX - player.health) * item.dmg / (HEALTHMEGAMAX * HEALTHMEGAMAX);};
 
 void() item_health =
 {	
+	if (deathmatch == DM_MCTF_2TEAM)
+	{
+		remove(self);
+		return;
+	}
 	self.touch = health_touch;
 
-	if (self.spawnflags & H_ROTTEN)
+	if (game == GAME_NEXUIZ)
 	{
-		precache_model("maps/b_bh10.bsp");
-
-		precache_sound("items/r_item1.wav");
-		setmodel(self, "maps/b_bh10.bsp");
-		self.noise = "items/r_item1.wav";
-		self.netname = "+15 health\n";
-		self.count2 = 15;
-		self.cnt2 = FALSE;
-		self.havocpickup = TRUE;
-		self.dmg = 7500;
-		self.pickupevalfunc = item_health_pickupeval;
-	}
-	else if (self.spawnflags & H_MEGA)
-	{
-		precache_model("maps/b_bh100.bsp");
-		precache_sound("items/r_item2.wav");
-		setmodel(self, "maps/b_bh100.bsp");
-		self.noise = "items/r_item2.wav";
-		self.netname = "+100 health\n";
-		self.count2 = 100;
-		self.cnt2 = TRUE;
-		self.havocpickup = TRUE;
-		self.dmg = 25000;
-		self.pickupevalfunc = item_megahealth_pickupeval;
+		// TODO: Nexuiz health items
+		if (self.spawnflags & H_ROTTEN)
+		{
+			precache_model("models/items/g_h1.md3");
+			setmodel(self, "models/items/g_h1.md3");
+			self.netname = "+5 health\n";
+			self.count2 = 5;
+			self.cnt2 = TRUE;
+			self.havocpickup = TRUE;
+			self.dmg = 7500;
+			self.pickupevalfunc = item_health_pickupeval;
+		}
+		else if (self.spawnflags & H_MEGA)
+		{
+			precache_model("models/items/g_h100.md3");
+			setmodel(self, "models/items/g_h100.md3");
+			self.netname = "+100 health\n";
+			self.count2 = 100;
+			self.cnt2 = TRUE;
+			self.havocpickup = TRUE;
+			self.dmg = 25000;
+			self.pickupevalfunc = item_megahealth_pickupeval;
+		}
+		else
+		{
+			precache_model("models/items/g_h25.md3");
+			setmodel(self, "models/items/g_h25.md3");
+			self.netname = "+25 health\n";
+			self.count2 = 25;
+			self.cnt2 = FALSE;
+			self.havocpickup = TRUE;
+			self.dmg = 12500;
+			self.pickupevalfunc = item_health_pickupeval;
+		}
+		setsize (self, '0 0 0', '32 32 16');
 	}
 	else
 	{
-		precache_model("maps/b_bh25.bsp");
-		precache_sound("items/health1.wav");
-		setmodel(self, "maps/b_bh25.bsp");
-		self.noise = "items/health1.wav";
-		self.netname = "+25 health\n";
-		self.count2 = 25;
-		self.cnt2 = FALSE;
-		self.havocpickup = TRUE;
-		self.dmg = 12500;
-		self.pickupevalfunc = item_health_pickupeval;
+		if (self.spawnflags & H_ROTTEN)
+		{
+			precache_model("maps/b_bh10.bsp");
+			precache_sound("items/r_item1.wav");
+			setmodel(self, "maps/b_bh10.bsp");
+			self.noise = "items/r_item1.wav";
+			self.netname = "+15 health\n";
+			self.count2 = 15;
+			self.cnt2 = FALSE;
+			self.havocpickup = TRUE;
+			self.dmg = 7500;
+			self.pickupevalfunc = item_health_pickupeval;
+		}
+		else if (self.spawnflags & H_MEGA)
+		{
+			precache_model("maps/b_bh100.bsp");
+			precache_sound("items/r_item2.wav");
+			setmodel(self, "maps/b_bh100.bsp");
+			self.noise = "items/r_item2.wav";
+			self.netname = "+100 health\n";
+			self.count2 = 100;
+			self.cnt2 = TRUE;
+			self.havocpickup = TRUE;
+			self.dmg = 25000;
+			self.pickupevalfunc = item_megahealth_pickupeval;
+		}
+		else
+		{
+			precache_model("maps/b_bh25.bsp");
+			precache_sound("items/health1.wav");
+			setmodel(self, "maps/b_bh25.bsp");
+			self.noise = "items/health1.wav";
+			self.netname = "+25 health\n";
+			self.count2 = 25;
+			self.cnt2 = FALSE;
+			self.havocpickup = TRUE;
+			self.dmg = 12500;
+			self.pickupevalfunc = item_health_pickupeval;
+		}
+		setsize (self, '0 0 0', '32 32 16');
 	}
-	setsize (self, '0 0 0', '32 32 16');
 
 	StartItem ();
 };

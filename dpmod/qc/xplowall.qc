@@ -60,7 +60,10 @@ void() xwall_breakthink =
 	{
 		t3 = FALSE; // spawn rubble from each explosion
 		self.cnt2 = self.cnt2 - 1;
-		Explosion(v, self.owner, self.owner.dmg, self.owner.dmg, self.owner.dmg, self.owner.deathtype, '0 0 0', FALSE, Obituary_Generic);
+		newmis = spawn();
+		newmis.owner = self.owner;
+		setorigin(newmis, v);
+		BecomeExplosion(newmis, self.owner.dmg, self.owner.dmg, self.owner.dmg, world, self.owner.deathtype, '0 0 0', FALSE, Obituary_Generic);
 	}
 	t2 = floor(self.cnt);
 	self.cnt = self.cnt + self.count;
@@ -326,82 +329,82 @@ Keys:
 
 void() func_xplowall =
 {
-        if (!self.deathtype) // map makers can override this
-                self.deathtype = " was splattered by a wall";
-        if (!self.count)
-                self.count = 5;
-        if (!self.count2)
-                self.count2 = 5;
-        if (self.delay < 0.1)
-                self.delay = 0.1;
-        if (!self.health)
-                self.health = 100;
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " was splattered by a wall";
+	if (!self.count)
+		self.count = 5;
+	if (!self.count2)
+		self.count2 = 5;
+	if (self.delay < 0.1)
+		self.delay = 0.1;
+	if (!self.health)
+		self.health = 100;
 
+	if (self.count2 >= 1)
+		self.count = self.count / self.count2;
 
-        if (self.count2 >= 1)
-                self.count = self.count / self.count2;
+	precache_sound ("weapons/r_exp3.wav");
+	precache_model ("progs/rubble1.mdl");
+	precache_model ("progs/rubble2.mdl");
+	precache_model ("progs/rubble3.mdl");
 
-        precache_sound ("weapons/r_exp3.wav");
-        precache_model ("progs/rubble1.mdl");
-        precache_model ("progs/rubble2.mdl");
-        precache_model ("progs/rubble3.mdl");
-
-        self.mdl = self.model;
+	self.mdl = self.model;
 	self.max_health = self.health;
 
-        if (self.spawnflags & XWALL_SILVERKEY)
-                self.items = IT_KEY1;
-        if (self.spawnflags & XWALL_GOLDKEY)
-                self.items = IT_KEY2;
-        if (self.items)
-        {
-                if (world.worldtype == 0)
-                {
-                        precache_sound ("doors/medtry.wav");
-                        precache_sound ("doors/meduse.wav");
-                        self.noise3 = "doors/medtry.wav";
-                        self.noise4 = "doors/meduse.wav";
-                }
-                else if (world.worldtype == 1)
-                {
-                        precache_sound ("doors/runetry.wav");
-                        precache_sound ("doors/runeuse.wav");
-                        self.noise3 = "doors/runetry.wav";
-                        self.noise4 = "doors/runeuse.wav";
-                }
-                else if (world.worldtype == 2)
-                {
-                        precache_sound ("doors/basetry.wav");
-                        precache_sound ("doors/baseuse.wav");
-                        self.noise3 = "doors/basetry.wav";
-                        self.noise4 = "doors/baseuse.wav";
-                }
-                else if (world.worldtype == 3)
-                {
-                        precache_sound ("doors/medtry.wav");
-                        precache_sound ("doors/meduse.wav");
-                        self.noise3 = "doors/medtry.wav";
-                        self.noise4 = "doors/meduse.wav";
-                }
-                else if (world.worldtype == 4)
-                {
-                        precache_sound ("doors/runetry.wav");
-                        precache_sound ("doors/runeuse.wav");
-                        self.noise3 = "doors/runetry.wav";
-                        self.noise4 = "doors/runeuse.wav";
-                }
-                else if (world.worldtype == 5)
-                {
-                        precache_sound ("doors/basetry.wav");
-                        precache_sound ("doors/baseuse.wav");
-                        self.noise3 = "doors/basetry.wav";
-                        self.noise4 = "doors/baseuse.wav";
-                }
-                else
-                        dprint ("no worldtype set!\n");
-        }
-
-        xwall_respawn();
+	if (self.spawnflags & XWALL_SILVERKEY)
+		self.items = IT_KEY1;
+	if (self.spawnflags & XWALL_GOLDKEY)
+		self.items = IT_KEY2;
+	if (self.items)
+	if (game != GAME_NEXUIZ)
+	{
+		if (world.worldtype == 0)
+		{
+			precache_sound ("doors/medtry.wav");
+			precache_sound ("doors/meduse.wav");
+			self.noise3 = "doors/medtry.wav";
+			self.noise4 = "doors/meduse.wav";
+		}
+		else if (world.worldtype == 1)
+		{
+			precache_sound ("doors/runetry.wav");
+			precache_sound ("doors/runeuse.wav");
+			self.noise3 = "doors/runetry.wav";
+			self.noise4 = "doors/runeuse.wav";
+		}
+		else if (world.worldtype == 2)
+		{
+			precache_sound ("doors/basetry.wav");
+			precache_sound ("doors/baseuse.wav");
+			self.noise3 = "doors/basetry.wav";
+			self.noise4 = "doors/baseuse.wav";
+		}
+		else if (world.worldtype == 3)
+		{
+			precache_sound ("doors/medtry.wav");
+			precache_sound ("doors/meduse.wav");
+			self.noise3 = "doors/medtry.wav";
+			self.noise4 = "doors/meduse.wav";
+		}
+		else if (world.worldtype == 4)
+		{
+			precache_sound ("doors/runetry.wav");
+			precache_sound ("doors/runeuse.wav");
+			self.noise3 = "doors/runetry.wav";
+			self.noise4 = "doors/runeuse.wav";
+		}
+		else if (world.worldtype == 5)
+		{
+			precache_sound ("doors/basetry.wav");
+			precache_sound ("doors/baseuse.wav");
+			self.noise3 = "doors/basetry.wav";
+			self.noise4 = "doors/baseuse.wav";
+		}
+		else
+			dprint ("no worldtype set!\n");
+	}
+	
+	xwall_respawn();
 };
 
 /*QUAKED func_wallchunk (0 .5 .8) ?
@@ -446,12 +449,12 @@ Keys:
 
 void() func_wallchunk =
 {
-        self.spawnflags = XWALL_NOHEAL;
-        if (self.count == 0)
-                self.count = 5;
-        self.count2 = -1;
-        self.health = 150;
-        func_xplowall();
+	self.spawnflags = XWALL_NOHEAL;
+	if (self.count == 0)
+		self.count = 5;
+	self.count2 = -1;
+	self.health = 150;
+	func_xplowall();
 };
         
 

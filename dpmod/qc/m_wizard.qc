@@ -291,6 +291,7 @@ void() wiz_gib =
 
 void() wiz_die =
 {
+	mctf_spawnpickup(self.origin, 1, 0.2, 0.2, 0.1);
 	MonsterCorpse(self, wiz_death1);
 };
 
