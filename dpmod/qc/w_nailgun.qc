@@ -137,7 +137,7 @@ void() w_nailgun =
 	havoc_nailanimupdate(self.weaponframe);
 };
 
-void() weapon4_precache =
+void() w_nailgunprecache =
 {
 	precache_model("progs/v_dpnail.mdl");
 	precache_model("progs/s_spike.mdl");
@@ -152,7 +152,6 @@ void() w_nailgunraise2 = {wraise( 9, w_nailgun, 0.1);};
 void() w_nailgundrop1 = {wdrop( 9, w_nailgundrop2, 0.1);};
 void() w_nailgundrop2 = {wdropped(10, 0.1);};
 
-float() w_nailgunrating = {return genericweaponrating(0, 1200, 150);};
-void() w_nailgunsetup = {wset(IT_WEAPON4, IT_NAILS, Inventory_Quantity(self, "nails"), VWEP_NAILGUN, "progs/v_dpnail.mdl");};
-float(float request) setweapon4 = {return weapongeneric(IT_WEAPON4, Inventory_Quantity(self, "nails") >= 1 || Inventory_Quantity(self, "rockets") >= 1, request, w_nailgunsetup, w_nailgun, w_nailgunraise1, w_directaim, w_nailgunrating, "Nailgun");};
+void() w_nailgunsetup = {wset("nailgun", IT_NAILS, Inventory_Quantity(self, "nails"), VWEP_NAILGUN, "progs/v_dpnail.mdl");};
+float(float request) setupweapon_nailgun = {return weapongeneric("nailgun", Inventory_Quantity(self, "nails") >= 1 || Inventory_Quantity(self, "rockets") >= 1, request, w_nailgunsetup, w_nailgun, w_nailgunraise1, "Nailgun", 0, 1200, 150, w_nailgunprecache);};
 

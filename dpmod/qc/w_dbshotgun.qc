@@ -179,7 +179,7 @@ void() w_dbshotgun =
 		havoc_shotanimupdate(0);
 };
 
-void() weapon3_precache =
+void() w_dbshotgunprecache =
 {
 	precache_model("progs/v_dpshot2.mdl");
 	precache_sound("weapons/shotgn2.wav");
@@ -198,9 +198,8 @@ vector(vector srcvec, vector dstvec, vector dstvel) w_dbshotgunaim =
 };
 */
 
-float() w_dbshotgunrating = {return genericweaponrating(0, 250, 175);};
-void() w_dbshotgunsetup = {wset(IT_WEAPON3, IT_SHELLS, Inventory_Quantity(self, "shells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");};
-float(float request) setweapon3 = {return weapongeneric(IT_WEAPON3, Inventory_Quantity(self, "shells") >= 1, request, w_dbshotgunsetup, w_dbshotgun, w_dbshotgunraise1, w_directaim, w_dbshotgunrating, "Double Barrel Shotgun");};
+void() w_dbshotgunsetup = {wset("supershotgun", IT_SHELLS, Inventory_Quantity(self, "shells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");};
+float(float request) setupweapon_supershotgun = {return weapongeneric("supershotgun", Inventory_Quantity(self, "shells") >= 1, request, w_dbshotgunsetup, w_dbshotgun, w_dbshotgunraise1, "Double Barrel Shotgun", 0, 250, 175, w_dbshotgunprecache);};
 
 void() w_dbshotgunraise1 = {self.wload = 0;self.shotgunshells = 0;wraise(9, w_dbshotgunraise2, 0.1);};
 void() w_dbshotgunraise2 = {wraise(8, w_dbshotgun, 0.1);};

@@ -30,9 +30,9 @@ void() BackpackRemove =
 
 void() BackpackTouch =
 {
-	local entity oself, item;
+	local entity stemp, item;
 	local string s;
-	local float best, old, new;
+	local float best, old, new, switchweapon;
 	local float acount, d;
 
 	if (other.classname != "player")
@@ -40,14 +40,19 @@ void() BackpackTouch =
 	if (other.health < 1)
 		return;
 
-	oself = self;
 	acount = 0;
 	self.items = self.items - (self.items & other.items);
 
+	/*
 	// if the player was using his best weapon, change up to the new one if better
 	self = other;
 	best = W_BestWeapon(TRUE);
 	self = oself;
+	*/
+	stemp = self;
+	self = other;
+	switchweapon = self.switchweaponclass == W_BestWeaponClass(TRUE);
+	self = stemp;
 
 	new = self.items;
 	old = other.items;
@@ -116,15 +121,23 @@ void() BackpackTouch =
 	// backpack touch sound
 	sound (other, CHAN_ITEM, "weapons/lock4.wav", 1, ATTN_NORM);
 
-	// remove the backpack, change self to the player
+	// if the player was using their best weapon, change up to the new one if better
+	if (switchweapon)
+	{
+		self = other;
+		self.switchweaponclass = W_BestWeaponClass(TRUE);
+		self = stemp;
+	}
+	/*
 	self = other;
-
 	// change to the weapon
 	best = W_BestWeapon(TRUE);
 	if (best & new) // is the best weapon in the pack?
 		self.switchweapon = best; // yep, change to it.
-
 	self = oself;
+	*/
+
+	// remove the backpack
 	BackpackRemove();
 };
 
@@ -152,7 +165,7 @@ void() DropBackpack =
 
 	if (!Inventory_GetNextItem(self, world))
 	//if (!(Inventory_Quantity(self, "shells") + Inventory_Quantity(self, "nails") + Inventory_Quantity(self, "rockets") + Inventory_Quantity(self, "cells")))
-	if (!(self.items & (IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10)))
+	//if (!(self.items & (IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10)))
 		return; // nothing in it
 
 	c = 0;t = time + 5;
@@ -203,7 +216,7 @@ void() DropBackpack =
 	item.think = BackpackRemove;
 
 	// this transfers legacy items
-	item.items = self.items & (IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10);
+	//item.items = self.items & (IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10);
 	// this transfers all inventory items (ammo, etc)
 	Inventory_AbsorbInventory(item, self);
 };

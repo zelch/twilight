@@ -251,7 +251,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 			else
 				save = 0;
 		}
-		if (take < 0.1)
+		if (take <= 0)
 			take = 0;
 		if (take == 0)
 		if (save == 0)

@@ -405,6 +405,7 @@ void() monster_enforcer =
 	{
 		self.th_missile = enf_missile_rocket;
 		Inventory_SetQuantity(self, "rockets", AMMO_ENFORCER_ROCKETS);
+		Inventory_SetQuantity(self, "rocketlauncher", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was blasted by an enforcer";
 	}
@@ -412,6 +413,7 @@ void() monster_enforcer =
 	{
 		self.th_missile = enf_missile_plasma;
 		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_PLASMACELLS);
+		Inventory_SetQuantity(self, "plasmarifle", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was scorched by an enforcer";
 	}
@@ -419,6 +421,7 @@ void() monster_enforcer =
 	{
 		self.th_missile = enf_missile_laser;
 		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_LASERCELLS);
+		Inventory_SetQuantity(self, "laserrifle", 1);
 		self.items = 0;
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was blasted by an enforcer";

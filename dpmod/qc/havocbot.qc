@@ -1116,7 +1116,7 @@ void() havocbot_chooseenemy =
 
 void() havocbot_chooseweapon =
 {
-	self.switchweapon = W_BestWeapon(TRUE);
+	self.switchweaponclass = W_BestWeaponClass(TRUE);
 };
 
 .float nextaim;

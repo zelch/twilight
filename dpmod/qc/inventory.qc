@@ -29,6 +29,7 @@ float(entity character, string name, float itemcount) Inventory_DropByName;
 float(entity character, string name, float itemcount) Inventory_DestroyByName;
 
 float(entity character, entity absorbcharacter) Inventory_AbsorbInventory;
+float(entity character, entity absorbcharacter) Inventory_AbsorbCloneInventory;
 float(entity character, string name) Inventory_Quantity;
 float(entity character, string name, float adjust) Inventory_AdjustQuantity;
 float(entity character, string name, float n) Inventory_SetQuantity;
@@ -146,6 +147,105 @@ void() ItemClass_RegisterDefaultClasses =
 	item.model = "";
 	setsize(item, '-16 -16 -24', '16 16 8');
 	item.count1 = AMMOMAX_CELLS;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("pistol");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("shotgun");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("supershotgun");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("nailgun");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("supernailgun");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("grenadelauncher");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("rocketlauncher");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("thunderbolt");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("plasmarifle");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("plasmawave");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("laserrifle");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
 };
@@ -504,6 +604,25 @@ float(entity character, entity absorbcharacter) Inventory_AbsorbInventory =
 	return c;
 }
 
+float(entity character, entity absorbcharacter) Inventory_AbsorbCloneInventory =
+{
+	local float c, quantity;
+	local entity item, cloneitem;
+
+	c = 0;
+	item = Inventory_GetNextItem(absorbcharacter, world);
+	while (item)
+	{
+		quantity = item.count;
+		Inventory_AbsorbItem(character, item);
+		if (item.count < quantity)
+			c = c + 1;
+		item.count = quantity;
+		item = Inventory_GetNextItem(absorbcharacter, item);
+	}
+	return c;
+}
+
 float(entity character, string name) Inventory_Quantity =
 {
 	local float c;
@@ -741,16 +860,123 @@ void(entity character) Inventory_ConvertFromQuakeInventory =
 	if (character.ammo_cells > 0)
 		Inventory_AdjustQuantity(character, "cells", character.ammo_cells);
 	character.ammo_cells = 0;
-	// TODO: convert .items
-	// TODO: convert .armorvalue/.armortype
+	if (character.items & IT_WEAPON1)
+		Inventory_AdjustQuantity(character, "pistol", 1);
+	if (character.items & IT_WEAPON2)
+		Inventory_AdjustQuantity(character, "shotgun", 1);
+	if (character.items & IT_WEAPON3)
+		Inventory_AdjustQuantity(character, "supershotgun", 1);
+	if (character.items & IT_WEAPON4)
+		Inventory_AdjustQuantity(character, "nailgun", 1);
+	if (character.items & IT_WEAPON5)
+		Inventory_AdjustQuantity(character, "supernailgun", 1);
+	if (character.items & IT_WEAPON6)
+		Inventory_AdjustQuantity(character, "grenadelauncher", 1);
+	if (character.items & IT_WEAPON7)
+		Inventory_AdjustQuantity(character, "rocketlauncher", 1);
+	if (character.items & IT_WEAPON8)
+		Inventory_AdjustQuantity(character, "thunderbolt", 1);
+	if (character.items & IT_WEAPON9)
+		Inventory_AdjustQuantity(character, "plasmarifle", 1);
+	if (character.items & IT_WEAPON10)
+		Inventory_AdjustQuantity(character, "plasmawave", 1);
+	// TODO: convert other items? (powerups)
+	character.items = character.items - (character.items & (IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10));
+	// TODO: convert .armorvalue/.armortype?
+};
+
+/*
+float(string s) WeaponToNumber =
+{
+	if (s == "pistol") return 1;
+	if (s == "shotgun") return 2;
+	if (s == "supershotgun") return 4;
+	if (s == "nailgun") return 8;
+	if (s == "supernailgun") return 16;
+	if (s == "grenadelauncher") return 32;
+	if (s == "rocketlauncher") return 64;
+	if (s == "thunderbolt") return 128;
+	if (s == "plasmarifle") return 256;
+	if (s == "plasmawave") return 512;
+	return 0;
+};
+
+string(float bit) NumberToWeapon =
+{
+	if (bit == 1) return "pistol";
+	if (bit == 2) return "shotgun";
+	if (bit == 4) return "supershotgun";
+	if (bit == 8) return "nailgun";
+	if (bit == 16) return "supernailgun";
+	if (bit == 32) return "grenadelauncher";
+	if (bit == 64) return "rocketlauncher";
+	if (bit == 128) return "thunderbolt";
+	if (bit == 256) return "plasmarifle";
+	if (bit == 512) return "plasmawave";
+	return "";
+};
+*/
+
+void(entity player) Inventory_ToParms =
+{
+	local float bit;
+	local entity wclass;
+	parm1 = player.items;
+	parm2 = player.health;
+	parm3 = player.armorvalue;
+	parm4 = Inventory_Quantity(player, "shells");
+	parm5 = Inventory_Quantity(player, "nails");
+	parm6 = Inventory_Quantity(player, "rockets");
+	parm7 = Inventory_Quantity(player, "cells");
+	parm8 = WeaponClassToNumber(player.weaponclass);
+	parm9 = player.armortype * 100;
+	parm10 = player.max_health;
+	parm11 = 0;
+	bit = 1;
+	wclass = w_chain;
+	do
+	{
+		if (Inventory_Quantity(player, wclass.w_item))
+			parm11 = parm11 | bit;
+		bit = bit * 2;
+		wclass = wclass.w_next;
+	}
+	while (wclass != w_chain);
+};
+
+void(entity player) Inventory_FromParms =
+{
+	local float bit;
+	local entity wclass;
+	Inventory_DestroyByName(player, "", 9999);
+	player.items = parm1;
+	player.health = parm2;
+	player.armorvalue = parm3;
+	Inventory_SetQuantity(player, "shells", parm4);
+	Inventory_SetQuantity(player, "nails", parm5);
+	Inventory_SetQuantity(player, "rockets", parm6);
+	Inventory_SetQuantity(player, "cells", parm7);
+	player.weaponclass = NumberToWeaponClass(parm8);
+	player.armortype = parm9 / 100;
+	player.max_health = parm10;
+	bit = 1;
+	wclass = w_chain;
+	do
+	{
+		if (parm11 & bit)
+			Inventory_SetQuantity(player, wclass.w_item, 1);
+		bit = bit * 2;
+		wclass = wclass.w_next;
+	}
+	while (wclass != w_chain);
 };
 
 void(entity character) updateammodisplay =
 {
-	character.ammo_shells = Inventory_Quantity(character, "shells");
-	character.ammo_nails = Inventory_Quantity(character, "nails");
-	character.ammo_rockets = Inventory_Quantity(character, "rockets");
-	character.ammo_cells = Inventory_Quantity(character, "cells");
+	//character.ammo_shells = Inventory_Quantity(character, "shells");
+	//character.ammo_nails = Inventory_Quantity(character, "nails");
+	//character.ammo_rockets = Inventory_Quantity(character, "rockets");
+	//character.ammo_cells = Inventory_Quantity(character, "cells");
 };
 
 

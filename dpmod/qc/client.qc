@@ -23,7 +23,7 @@ float modelindex_eyes/*, modelindex_player*/;
 
 float modelindex_nogun;
 
-/*c
+/*
 void() speech_precache =
 {
 	gibcomment_precache();
@@ -138,7 +138,7 @@ void() SetNewParms =
 {
 	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
 	{
-		parm1 = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10; //STARTPARMSELIM_ITEMS;
+		parm1 = 0;//IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10; //STARTPARMSELIM_ITEMS;
 		parm2 = STARTPARMSELIM_HEALTH;
 		parm3 = STARTPARMSELIM_ARMORVALUE;
 		parm4 = STARTPARMSELIM_AMMO_SHELLS;
@@ -148,10 +148,11 @@ void() SetNewParms =
 		parm8 = 0; // weapon
 		parm9 = STARTPARMSELIM_ARMORTYPE * 100;
 		parm10 = STARTPARMSELIM_MAXHEALTH;
+		parm11 = 16777215; // everything
 	}
 	else if (deathmatch)
 	{
-		parm1 = IT_WEAPON1 | IT_WEAPON2; //STARTPARMSDM_ITEMS;
+		parm1 = 0;//IT_WEAPON1 | IT_WEAPON2; //STARTPARMSDM_ITEMS;
 		parm2 = STARTPARMSDM_HEALTH;
 		parm3 = STARTPARMSDM_ARMORVALUE;
 		parm4 = STARTPARMSDM_AMMO_SHELLS;
@@ -161,10 +162,11 @@ void() SetNewParms =
 		parm8 = 0; // weapon
 		parm9 = STARTPARMSDM_ARMORTYPE * 100;
 		parm10 = STARTPARMSDM_MAXHEALTH;
+		parm11 = 1 | 2; // pistol, shotgun
 	}
 	else
 	{
-		parm1 = IT_WEAPON1 | IT_WEAPON2; //STARTPARMSSP_ITEMS;
+		parm1 = 0;//IT_WEAPON1 | IT_WEAPON2; //STARTPARMSSP_ITEMS;
 		parm2 = STARTPARMSSP_HEALTH;
 		parm3 = STARTPARMSSP_ARMORVALUE;
 		parm4 = STARTPARMSSP_AMMO_SHELLS;
@@ -174,6 +176,7 @@ void() SetNewParms =
 		parm8 = 0; // weapon
 		parm9 = STARTPARMSSP_ARMORTYPE * 100;
 		parm10 = STARTPARMSSP_MAXHEALTH;
+		parm11 = 1 | 2; // pistol, shotgun
 	}
 };
 
@@ -188,16 +191,7 @@ void() SetChangeParms =
 	// remove items
 	self.items = self.items - (self.items & (IT_KEY1 | IT_KEY2 | IT_INVISIBILITY | IT_INVULNERABILITY | IT_SUIT | IT_QUAD));
 
-	parm1 = self.items;
-	parm2 = self.health;
-	parm3 = self.armorvalue;
-	parm4 = Inventory_Quantity(self, "shells");
-	parm5 = Inventory_Quantity(self, "nails");
-	parm6 = Inventory_Quantity(self, "rockets");
-	parm7 = Inventory_Quantity(self, "cells");
-	parm8 = self.weapon;
-	parm9 = self.armortype * 100;
-	parm10 = self.max_health;
+	Inventory_ToParms(self);
 };
 
 void() DecodeLevelParms =
@@ -205,26 +199,17 @@ void() DecodeLevelParms =
 	// reset equipment in some cases
 	if (deathmatch || self.isbot || world.model == "maps/start.bsp")
 		SetNewParms();
-	self.items = parm1;
-	self.health = parm2;
-	self.armorvalue = parm3;
-	Inventory_SetQuantity(self, "shells", parm4);
-	Inventory_SetQuantity(self, "nails", parm5);
-	Inventory_SetQuantity(self, "rockets", parm6);
-	Inventory_SetQuantity(self, "cells", parm7);
-	self.weapon = parm8;
-	self.armortype = parm9 / 100;
-	self.max_health = parm10;
+
+	Inventory_FromParms(self);
+
 	// safety checks
 	if (self.health < 1)
 		self.health = 1;
 	if (self.max_health < 1)
 		self.max_health = 100;
 	self.bodyhealth = self.health + 100;
-	if ((self.items & self.weapon) == 0)
-		self.weapon = W_BestWeapon(TRUE);
-	self.switchweapon = self.weapon;
-	setweapon(self.weapon, WR_INSTANT);
+
+	wsetweapon(W_BestWeaponClass(TRUE), TRUE);
 };
 
 /*
@@ -830,8 +815,6 @@ void() PutClientInServer =
 	setorigin(self, spot.origin + '0 0 1');
 
 	self.iscorpse = FALSE;
-
-	setweapon(self.weapon, WR_INSTANT);
 
 	/*
 	if (deathmatch == DM_ELIM)

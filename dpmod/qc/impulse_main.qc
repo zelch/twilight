@@ -191,22 +191,23 @@ ImpulseCommands
 void() ImpulseCommands =
 {
 	local float n;
+	local string s;
+	local entity wclass;
 	if (self.impulse == 250)
 	{
-		// FIXME: print weapon names by requesting WR_NAME
-		//            12345678901234567890123456789012345678
 		sprint(self, "Weapons:\n");
-		setweapon(IT_WEAPON1, WR_NAME);sprint(self, "1:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON2, WR_NAME);sprint(self, " 2:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON3, WR_NAME);sprint(self, " 3:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON4, WR_NAME);sprint(self, " 4:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON5, WR_NAME);sprint(self, " 5:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON6, WR_NAME);sprint(self, " 6:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON7, WR_NAME);sprint(self, " 7:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON8, WR_NAME);sprint(self, " 8:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON9, WR_NAME);sprint(self, " 9:");sprint(self, weaponstring);
-		setweapon(IT_WEAPON10, WR_NAME);sprint(self, " 10:");sprint(self, weaponstring);
-		sprint(self, "\nImpulses:\n");
+		wclass = w_chain;
+		do
+		{
+			s = ftos(wclass.impulse);
+			sprint(self, s);
+			sprint(self, ": ");
+			sprint(self, wclass.netname);
+			sprint(self, "\n");
+			wclass = wclass.w_next;
+		}
+		while (wclass != w_chain);
+		sprint(self, "Impulses:\n");
 		sprint(self, "stats - shows current kill/death stats\n");
 		sprint(self, "addbot - adds a bot\n");
 		sprint(self, "+button3 - secondary fire (used by some weapons)\n");
@@ -403,6 +404,7 @@ void() ImpulseCommands =
 	havocbot_impulses();
 
 	if (!self.deadflag)
+	if (cvar("sv_cheats"))
 	{
 		if (self.impulse == 40)
 			saveme();
@@ -537,13 +539,13 @@ void() ImpulseCommands =
 			if (trace_fraction < 1)
 				printsurfaceinfo(trace_ent, trace_endpos);
 		}
-		if ((self.impulse >= 1 && self.impulse <= 9) || (self.impulse >= 201 && self.impulse <= 211)) W_ChangeWeapon ();
-		else if (self.impulse == 10) CycleWeaponCommand ();
-		else if (self.impulse == 11) ServerflagsCommand ();
-		else if (self.impulse == 12) CycleWeaponReverseCommand ();
-		else if (self.impulse == 234) CheatCommand ();
-		else if (self.impulse == 255) QuadCheat ();
+		if (self.impulse == 11) ServerflagsCommand ();
+		if (self.impulse == 234) CheatCommand ();
+		if (self.impulse == 255) QuadCheat ();
 	}
+	if ((self.impulse >= 1 && self.impulse <= 9) || (self.impulse >= 201 && self.impulse <= 220)) W_ChangeWeapon();
+	else if (self.impulse == 10) CycleWeaponCommand ();
+	else if (self.impulse == 12) CycleWeaponReverseCommand ();
 
 	self.impulse = 0;
 };

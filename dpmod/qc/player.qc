@@ -356,6 +356,7 @@ void() player_updatebounds =
 
 .float  playermovestate, playermovebegin;
 
+void() wanimate;
 void() player_move =
 {
 	local float m, n, t;
@@ -378,7 +379,7 @@ void() player_move =
 	t = (time - self.playermovebegin) * 10;
 	t = t - (floor(t / n) * n);
 	self.frame = floor(self.frame + t);
-	self.weaponframe = 0;
+	wanimate();
 	dovisibleweapon();
 };
 

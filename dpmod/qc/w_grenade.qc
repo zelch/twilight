@@ -254,7 +254,7 @@ void() w_grenade =
 	havoc_rockanimupdate(self.weaponframe);
 };
 
-void() weapon6_precache =
+void() w_grenadeprecache =
 {
 	precache_model("progs/v_dprock.mdl");
 	precache_model("progs/grenade.mdl");
@@ -265,9 +265,8 @@ void() weapon6_precache =
 	precache_sound("weapons/bounce.wav");
 };
 
-float() w_grenaderating = {return genericweaponrating(200, 500, 300);};
-void() w_grenadesetup = {wset(IT_WEAPON6, IT_ROCKETS, Inventory_Quantity(self, "rockets"), VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl");};
-float(float request) setweapon6 = {return weapongeneric(IT_WEAPON6, Inventory_Quantity(self, "rockets") >= 1/* || self.activemines > 0*/, request, w_grenadesetup, w_grenade, w_grenaderaise1, w_grenadeaim, w_grenaderating, "Grenade Launcher");};
+void() w_grenadesetup = {wset("grenadelauncher", IT_ROCKETS, Inventory_Quantity(self, "rockets"), VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl");};
+float(float request) setupweapon_grenadelauncher = {return weapongeneric("grenadelauncher", Inventory_Quantity(self, "rockets") >= 1/* || self.activemines > 0*/, request, w_grenadesetup, w_grenade, w_grenaderaise1, "Grenade Launcher", 200, 500, 300, w_grenadeprecache);};
 
 void() w_grenaderaise1 = {wraise(8, w_grenaderaise2, 0.1);};
 void() w_grenaderaise2 = {wraise(7, w_grenade, 0.1);};

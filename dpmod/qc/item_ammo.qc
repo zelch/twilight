@@ -14,6 +14,7 @@ void() ammo_touch =
 	local entity stemp;
 	local float best;
 	local float used;
+	local float switchweapon;
 	local string s;
 
 	if (other.classname != "player")
@@ -21,15 +22,22 @@ void() ammo_touch =
 	if (other.health < 1)
 		return;
 
+	stemp = self;
+	self = other;
+	switchweapon = self.switchweaponclass == W_BestWeaponClass(TRUE);
+	self = stemp;
+
 	used = Inventory_AdjustQuantity(other, self.ammo_typestring, self.aflag);
 	if (used < 1)
 		return;
 
 	// if the player was using his best weapon, change up to the new one if better
-	stemp = self;
-	self = other;
-	best = W_BestWeapon(TRUE);
-	self = stemp;
+	if (switchweapon)
+	{
+		self = other;
+		self.switchweaponclass = W_BestWeaponClass(TRUE);
+		self = stemp;
+	}
 
 	if (other.flags & FL_CLIENT)
 	{
@@ -38,15 +46,6 @@ void() ammo_touch =
 	}
 	// ammo touch sound
 	sound (other, CHAN_ITEM, "weapons/lock4.wav", 1, ATTN_NORM);
-
-	// change to a better weapon if appropriate
-	if (other.switchweapon == best)
-	{
-		stemp = self;
-		self = other;
-		self.switchweapon = W_BestWeapon(TRUE);
-		self = stemp;
-	}
 
 	activator = other;
 	SUB_UseTargets();				// fire all targets / killtargets

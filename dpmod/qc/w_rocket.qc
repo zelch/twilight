@@ -175,16 +175,15 @@ void() w_rocket =
 	havoc_rockanimupdate(self.weaponframe);
 };
 
-void() weapon7_precache =
+void() w_rocketprecache =
 {
 	precache_model("progs/missile.mdl");
 	precache_model("progs/v_dprock2.mdl");
 	precache_sound("weapons/sgun1.wav");
 };
 
-float() w_rocketrating = {return genericweaponrating(200, 1000, 240);};
-void() w_rocketsetup = {wset(IT_WEAPON7, IT_ROCKETS, Inventory_Quantity(self, "rockets"), VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl");};
-float(float request) setweapon7 = {return weapongeneric(IT_WEAPON7, Inventory_Quantity(self, "rockets") >= 1, request, w_rocketsetup, w_rocket, w_rocketraise1, w_rocketaim, w_rocketrating, "Rocket Launcher");};
+void() w_rocketsetup = {wset("rocketlauncher", IT_ROCKETS, Inventory_Quantity(self, "rockets"), VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl");};
+float(float request) setupweapon_rocketlauncher = {return weapongeneric("rocketlauncher", Inventory_Quantity(self, "rockets") >= 1, request, w_rocketsetup, w_rocket, w_rocketraise1, "Rocket Launcher", 200, 1000, 240, w_rocketprecache);};
 
 void() w_rocketraise1 = {wraise(8, w_rocketraise2, 0.1);};
 void() w_rocketraise2 = {self.wload = 0;wraise(7, w_rocket, 0.1);};

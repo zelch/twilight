@@ -16,6 +16,8 @@ damagetype.qc   // deathtype, damagetype, etcetera...
 //localdamage.qc  // head/chest/foot/whatever shots
 damage.qc       // max ammo amounts, how much damage, starting health, etc
 
+w_defs.qc
+
 inventory.qc
 
 util.qc         // useful functions (trajectory tracing for example)
@@ -29,8 +31,6 @@ playermovement.qc
 subs.qc
 fight.qc
 ai.qc
-
-w_defs.qc
 
 gibcomments.qc
 
@@ -82,23 +82,26 @@ item_artifacts.qc
 item_legacystuff.qc
 item_backpacks.qc
 
-w_common.qc
+w_system.qc
 
-//w_fake1.qc // 1
-w_pistol.qc // 1
-w_shotgun.qc // 2
-w_dbshotgun.qc // 3
-w_nailgun.qc // 4
-w_supernailgun.qc // 5
-w_grenade.qc // 6
-w_rocket.qc // 7
-w_lightning.qc // 8
-w_plasmarifle.qc // 9
-w_plasmawave.qc // 10
+//w_common.qc
+
+////w_fake1.qc // 1
+//w_pistol.qc // 1
+//w_shotgun.qc // 2
+//w_dbshotgun.qc // 3
+//w_nailgun.qc // 4
+//w_supernailgun.qc // 5
+//w_grenade.qc // 6
+//w_rocket.qc // 7
+//w_lightning.qc // 8
+//w_plasmarifle.qc // 9
+//w_plasmawave.qc // 10
 
 w_grapple.qc // +button5
 
-w_info.qc   // must be after the weapons themselves
+//w_info.qc   // must be after the weapons themselves
+
 
 CTF.qc
 
@@ -107,7 +110,7 @@ regen.qc
 superdamagesound.qc
 cheatcode.qc
 impulse_main.qc
-w_frame.qc
+//w_frame.qc
 
 music.qc // music :)
 

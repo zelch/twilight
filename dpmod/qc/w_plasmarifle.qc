@@ -158,7 +158,7 @@ void() w_plasmarifle =
 	havoc_shotanimupdate(self.weaponframe);
 };
 
-void() weapon9_precache =
+void() w_plasmarifleprecache =
 {
 	precache_model("progs/v_dpshot.mdl");
 	precache_model("progs/s_bubble.spr");
@@ -168,9 +168,8 @@ void() weapon9_precache =
 	precache_sound("plasma/plasexpl.wav");
 };
 
-float() w_plasmariflerating = {return genericweaponrating(0, 1500, 200);};
-void() w_plasmariflesetup = {wset(IT_WEAPON9, IT_CELLS, Inventory_Quantity(self, "cells"), VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
-float(float request) setweapon9 = {return weapongeneric(IT_WEAPON9, Inventory_Quantity(self, "cells") >= 1, request, w_plasmariflesetup, w_plasmarifle, w_plasmarifleraise1, w_directaim, w_plasmariflerating, "PlasmaRifle");};
+void() w_plasmariflesetup = {wset("plasmarifle", IT_CELLS, Inventory_Quantity(self, "cells"), VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
+float(float request) setupweapon_plasmarifle = {return weapongeneric("plasmarifle", Inventory_Quantity(self, "cells") >= 1, request, w_plasmariflesetup, w_plasmarifle, w_plasmarifleraise1, "PlasmaRifle", 0, 1500, 200, w_plasmarifleprecache);};
 
 void() w_plasmarifleraise1 = {wraise(8, w_plasmarifleraise2, 0.1);};
 void() w_plasmarifleraise2 = {self.wburst = 9;wraise(7, w_plasmarifle, 0.1);};

@@ -180,7 +180,7 @@ void() w_lightning =
 	havoc_lightanimupdate(self.weaponframe);
 };
 
-void() weapon8_precache =
+void() w_lightningprecache =
 {
 	precache_model("progs/v_dplight.mdl");
 	precache_sound("weapons/lhit.wav");
@@ -193,6 +193,5 @@ void() w_lightningraise2 = {wraise( 5, w_lightning, 0.1);};
 void() w_lightningdrop1 = {wdrop( 5, w_lightningdrop2, 0.1);};
 void() w_lightningdrop2 = {wdropped(6, 0.1);};
 
-float() w_lightningrating = {return genericweaponrating(0, 1000, 300);};
-void() w_lightningsetup = {wset(IT_WEAPON8, IT_CELLS, Inventory_Quantity(self, "cells"), VWEP_LIGHTNING, "progs/v_dplight.mdl");};
-float(float request) setweapon8 = {return weapongeneric(IT_WEAPON8, Inventory_Quantity(self, "cells") >= 1, request, w_lightningsetup, w_lightning, w_lightningraise1, w_directaim, w_lightningrating, "Thunderbolt");};
+void() w_lightningsetup = {wset("thunderbolt", IT_CELLS, Inventory_Quantity(self, "cells"), VWEP_LIGHTNING, "progs/v_dplight.mdl");};
+float(float request) setupweapon_thunderbolt = {return weapongeneric("thunderbolt", Inventory_Quantity(self, "cells") >= 1, request, w_lightningsetup, w_lightning, w_lightningraise1, "Thunderbolt", 0, 1000, 300, w_lightningprecache);};

@@ -465,6 +465,7 @@ void() monster_ogre =
 	if (!self.deathtype) // map makers can override this
 		self.deathtype = " was destroyed by an ogre";
 	Inventory_SetQuantity(self, "rockets", AMMO_OGRE_GRENADES);
+	Inventory_SetQuantity(self, "grenadelauncher", 1);
 	//Inventory_SetQuantity(self, "nails", 0);
 
 	self.shoulddodge = TRUE;

@@ -136,7 +136,7 @@ void() w_snailgun =
 	havoc_nailanimupdate(self.weaponframe);
 };
 
-void() weapon5_precache =
+void() w_snailgunprecache =
 {
 	precache_model("progs/v_dpnail2.mdl");
 	precache_model("progs/s_spike.mdl");
@@ -150,6 +150,5 @@ void() w_snailgunraise2 = {wraise( 9, w_snailgun      , 0.1);};
 void() w_snailgundrop1 = {wdrop( 9, w_snailgundrop2, 0.1);};
 void() w_snailgundrop2 = {wdropped(10, 0.1);};
 
-float() w_snailgunrating = {return genericweaponrating(0, 1000, 300);};
-void() w_snailgunsetup = {wset(IT_WEAPON5, IT_NAILS, Inventory_Quantity(self, "nails"), VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl");};
-float(float request) setweapon5 = {return weapongeneric(IT_WEAPON5, Inventory_Quantity(self, "nails") >= 1 || Inventory_Quantity(self, "rockets") >= 1, request, w_snailgunsetup, w_snailgun, w_snailgunraise1, w_directaim, w_snailgunrating, "Super Nailgun");};
+void() w_snailgunsetup = {wset("supernailgun", IT_NAILS, Inventory_Quantity(self, "nails"), VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl");};
+float(float request) setupweapon_supernailgun = {return weapongeneric("supernailgun", Inventory_Quantity(self, "nails") >= 1 || Inventory_Quantity(self, "rockets") >= 1, request, w_snailgunsetup, w_snailgun, w_snailgunraise1, "Super Nailgun", 0, 1000, 300, w_snailgunprecache);};

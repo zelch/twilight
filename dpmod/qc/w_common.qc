@@ -219,8 +219,13 @@ float(float haveammo) W_CheckNoAmmo =
 vector weaponaimdir;
 vector weaponaimtarget;
 
-float(float w, float hasammo, float request, void() setupfunc, void() activefunc, void() raisefunc, vector(vector srcvec, vector dstvec, vector dstvel, float shotspeed) aimfunc, float() ratingfunc, string wname) weapongeneric =
+float(string wname, float hasammo, float request, void() setupfunc, void() activefunc, void() raisefunc, string name, float minrange, float preferredrange, float baserating, void() precachefunc) weapongeneric =
 {
+	if (request == WR_PRECACHE)
+	{
+		precachefunc();
+		return TRUE;
+	}
 	if (request == WR_SETUP)
 	{
 		setupfunc();
@@ -228,23 +233,23 @@ float(float w, float hasammo, float request, void() setupfunc, void() activefunc
 	}
 	if (request == WR_SELECTABLE)
 	{
-		if (!(self.items & w))
+		if (!Inventory_Quantity(self, wname))
 			return FALSE;
 		return hasammo;
 	}
 	if (request == WR_SWITCH)
 	{
-		if (self.items & w)
+		if (Inventory_Quantity(self, wname))
 		if (hasammo)
 		{
-			self.switchweapon = w;
+			self.switchweapon = WeaponToNumber(wname);
 			return TRUE;
 		}
 		return FALSE;
 	}
 	if (request == WR_RAISE)
 	{
-		self.weapon = self.switchweapon;
+		self.activeweapon = self.switchweapon;
 		self.weaponframecode = raisefunc;
 		self.wburst = 0;
 		self.wload = 0;
@@ -253,34 +258,28 @@ float(float w, float hasammo, float request, void() setupfunc, void() activefunc
 	}
 	if (request == WR_INSTANT)
 	{
-		self.weapon = self.switchweapon;
+		self.activeweapon = self.switchweapon;
 		self.weaponframecode = activefunc;
 		raisefunc(); // sometimes needed to initialize some variables (whether a shotgun is loaded, etc)
 		activefunc();
 		return TRUE;
 	}
-	// FIXME: get rid of WR_AIM
-	if (request == WR_AIM)
-	{
-		weaponaimdir = aimfunc(self.origin + '0 0 16', weaponaimtarget, '0 0 0', 10000);
-		return weaponaimdir != '0 0 0';
-	}
 	if (request == WR_NAME)
 	{
-		weaponstring = wname;
+		weaponstring = name;
 		return TRUE;
 	}
 	if (request == WR_WEAPONRATING)
-		return ratingfunc();
+		return genericweaponrating(minrange, preferredrange, baserating);
 	bprint("weapongeneric: invalid request number: ");
 	bprintfloat(request);
 	bprint("\n");
 	return FALSE;
 };
 
-void(float w, float ammotype, float ammo, float vwep, string m) wset =
+void(string wname, float ammotype, float ammo, float vwep, string m) wset =
 {
-	self.weapon = w;
+	self.activeweapon = WeaponToNumber(wname);
 	self.items = (self.items - (self.items & (IT_SHELLS | IT_NAILS | IT_ROCKETS | IT_CELLS))) | ammotype;
 	self.currentammo = ammo;
 	self.visibleweapon = vwep;
@@ -297,7 +296,7 @@ void() w_animcode =
 	self.attack_finished = time; // avoid double shot if holding fire while switching weapons
 	self.weaponframe = self.wanimframe;
 	if (self.wstate == WS_RAISE)
-	if (self.weapon != self.switchweapon)
+	if (self.activeweapon != self.switchweapon)
 	{
 		w_switchcode();
 		return;
@@ -312,7 +311,7 @@ void() w_animcode =
 void(float f, void() framefunc, float t) wraise =
 {
 	self.attack_finished = time; // avoid double shot if holding fire while switching weapons
-	if (self.weapon != self.switchweapon)
+	if (self.activeweapon != self.switchweapon)
 	{
 		w_switchcode();
 		return;
@@ -339,12 +338,12 @@ void(float f, float t) wdropped = {wdrop(f, w_switchcode, t);};
 float(void() dropfunc) widle =
 {
 	self.wstate = WS_ACTIVE;
-	if (self.switchweapon == self.weapon)
-	if (!setweapon(self.weapon, WR_SELECTABLE))
+	if (self.switchweapon == self.activeweapon)
+	if (!setweapon(self.activeweapon, WR_SELECTABLE))
 		self.switchweapon = W_BestWeapon(TRUE);
 	if (!setweapon(self.switchweapon, WR_SELECTABLE))
-		self.switchweapon = self.weapon;
-	if (self.switchweapon != self.weapon)
+		self.switchweapon = self.activeweapon;
+	if (self.switchweapon != self.activeweapon)
 	if (self.wstate == WS_ACTIVE)
 	if (time > self.attack_finished)
 	{

@@ -58,7 +58,7 @@ void() grapplepull =
 	else
 		self.effects = self.effects - (self.effects & EF_BLUE);
 	if (self.enemy.solid == SOLID_NOT || self.owner.deadflag || self.owner.button5 == 0)
-	//if (self.enemy.solid == SOLID_NOT || self.owner.deadflag || (self.owner.button0 == 0 && self.owner.weapon == IT_WEAPON10 && self.owner.switchweapon == IT_WEAPON10))
+	//if (self.enemy.solid == SOLID_NOT || self.owner.deadflag || (self.owner.button0 == 0 && self.owner.activeweapon == IT_WEAPON10 && self.owner.switchweapon == IT_WEAPON10))
 	{
 		grapplereturn();
 		return;
@@ -259,7 +259,7 @@ void() w_grapple =
 	havoc_shotanimupdate(self.weaponframe);
 };
 
-void() weapon10_precache =
+void() w_grappleprecache =
 {
 	precache_model("progs/v_dpshot.mdl");
 	precache_model("progs/star.mdl");
@@ -271,9 +271,8 @@ void() weapon10_precache =
 	precache_sound("weapons/bounce2.wav");
 };
 
-float() w_grapplerating = {return genericweaponrating(0, 500, 50);};
-void() w_grapplesetup = {wset(IT_WEAPON10, 0, 0, VWEP_GENERIC, "progs/v_dpshot.mdl");};
-float(float request) setweapon10 = {return weapongeneric(IT_WEAPON10, TRUE, request, w_grapplesetup, w_grapple, w_grappleraise1, w_directaim, w_grapplerating, "Grapple");};
+void() w_grapplesetup = {wset("grapple", 0, 0, VWEP_GENERIC, "progs/v_dpshot.mdl");};
+float(float request) setupweapon_grapple = {return weapongeneric("grapple", TRUE, request, w_grapplesetup, w_grapple, w_grappleraise1, "Grapple", 0, 500, 50, w_grappleprecache);};
 
 void() w_grappleraise1 = {wraise(8, w_grappleraise2, 0.1);};
 void() w_grappleraise2 = {wraise(7, w_grapple, 0.1);};

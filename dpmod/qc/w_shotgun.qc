@@ -84,15 +84,14 @@ void() w_shotgun =
 	havoc_shotanimupdate(self.weaponframe);
 };
 
-void() weapon2_precache =
+void() w_shotgunprecache =
 {
 	precache_model("progs/v_dpshot.mdl");
 	precache_sound("weapons/shotgn2.wav");
 };
 
-float() w_shotgunrating = {return genericweaponrating(0, 2000, 128);};
-void() w_shotgunsetup = {wset(IT_WEAPON2, IT_SHELLS, Inventory_Quantity(self, "shells"), VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
-float(float request) setweapon2 = {return weapongeneric(IT_WEAPON2, Inventory_Quantity(self, "shells") >= 1, request, w_shotgunsetup, w_shotgun, w_shotgunraise1, w_directaim, w_shotgunrating, "Shotgun");};
+void() w_shotgunsetup = {wset("shotgun", IT_SHELLS, Inventory_Quantity(self, "shells"), VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
+float(float request) setupweapon_shotgun = {return weapongeneric("shotgun", Inventory_Quantity(self, "shells") >= 1, request, w_shotgunsetup, w_shotgun, w_shotgunraise1, "Shotgun", 0, 2000, 128, w_shotgunprecache);};
 
 void() w_shotgunraise1 = {self.wload = 1;wraise(8, w_shotgunraise2, 0.1);};
 void() w_shotgunraise2 = {wraise(7, w_shotgun, 0.1);};

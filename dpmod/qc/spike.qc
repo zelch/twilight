@@ -1,10 +1,4 @@
 
-void() spike_precache =
-{
-        precache_model("progs/spike.mdl");
-        precache_model("progs/s_spike.mdl");
-};
-
 void() spike_touch =
 {
 	if (other == self.owner)
@@ -47,7 +41,7 @@ void(vector org, vector vel, entity own, float damage, float super, string detht
 	}
 	else
 		setmodel (newmis, "progs/s_spike.mdl");
-	setsize (newmis, VEC_ORIGIN, VEC_ORIGIN);               
+	setsize (newmis, VEC_ORIGIN, VEC_ORIGIN);
 	setorigin (newmis, org);
 	newmis.velocity = vel;
 	newmis.speed = vlen(vel);

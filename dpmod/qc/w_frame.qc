@@ -102,11 +102,11 @@ void() W_WeaponFrame =
 	w_frame_grapple();
 
 	// weapon animation, firing, etc
-	setweapon(self.weapon, WR_SETUP);
+	setweapon(self.activeweapon, WR_SETUP);
 	self.oldfiring = self.firing;
 	self.firing = FALSE;
 	self.weaponframecode();
-	setweapon(self.weapon, WR_SETUP);
+	setweapon(self.activeweapon, WR_SETUP);
 
 	if (self.viewzoom != self.idealzoom)
 	{
