@@ -1081,9 +1081,11 @@ void() havocbot_chooseenemy =
 	head = findchainfloat(havocattack, TRUE);
 	while (head)
 	{
+		if (head.takedamage == DAMAGE_AIM)
 		if (head != self)
 		if (!head.deadflag)
 		if (head.health < besthealth)
+		if (head.classname != "player" || !coop)
 		if (head.team != self.team || self.team == 0 || teamplay == 0)
 		{
 			traceline(self.origin + self.view_ofs, (head.absmin + head.absmax) * 0.5, FALSE, self);
