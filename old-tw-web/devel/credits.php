@@ -37,7 +37,8 @@
 	{
 		if (ereg ("^      (.*)  +(.*)$", $item)) {
 			echo (ereg_replace ("^      (.*)  +(.*)$",
-				"<tr><td>\\1</td><td>\\2</td></tr>\n")
+				"<tr><td>\\1</td><td>\\2</td></tr>\n",
+				$item)
 			);
 		}
 	}
