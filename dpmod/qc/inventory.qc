@@ -17,6 +17,7 @@ float(entity item, float adjust) Item_AdjustQuantity;
 
 float(entity character) Inventory_GetBulk;
 float(entity character) Inventory_GetBulkLimit;
+
 entity(entity character, entity item) Inventory_GetNextItem;
 entity(entity character, string name) Inventory_ItemByName;
 void(entity character, entity item) Inventory_AttachItem;
@@ -26,14 +27,18 @@ void(entity character, entity item) Inventory_DropItem;
 void(entity character, entity item) Inventory_PickupItem;
 float(entity character, string name, float itemcount) Inventory_DropByName;
 float(entity character, string name, float itemcount) Inventory_DestroyByName;
+
 float(entity character, entity absorbcharacter) Inventory_AbsorbInventory;
 float(entity character, string name) Inventory_Quantity;
 float(entity character, string name, float adjust) Inventory_AdjustQuantity;
 float(entity character, string name, float n) Inventory_SetQuantity;
+
+/*
 entity(entity character, string name, float chooseempty) Inventory_ItemWithMostCapacity;
 entity(entity character, string name, float choosefull) Inventory_ItemWithLeastCapacity;
 entity(entity character, string name, float choosefull) Inventory_ItemWithMostQuantity;
 entity(entity character, string name, float chooseempty) Inventory_ItemWithLeastQuantity;
+*/
 
 void(entity character) updateammodisplay;
 
@@ -462,6 +467,7 @@ float(entity character, string name, float itemcount) Inventory_DestroyByName =
 {
 	local float c;
 	local entity item;
+
 	c = 0;
 	item = Inventory_GetNextItem(character, world);
 	while (item)
@@ -483,6 +489,7 @@ float(entity character, entity absorbcharacter) Inventory_AbsorbInventory =
 {
 	local float c;
 	local entity item;
+
 	c = 0;
 	item = Inventory_GetNextItem(absorbcharacter, world);
 	while (item)
@@ -503,85 +510,59 @@ float(entity character, string name) Inventory_Quantity =
 {
 	local float c;
 	local entity item;
-	if (name == "shells")
-		return character.ammo_shells;
-	else if (name == "nails")
-		return character.ammo_nails;
-	else if (name == "rockets")
-		return character.ammo_rockets;
-	else if (name == "cells")
-		return character.ammo_cells;
-	else if (name == "xshells")
-		return character.ammo_xshells;
-	else
+	c = 0;
+	item = character.inventory_next;
+	if (item == world)
+		item = character.inventory_next = character.inventory_prev = character;
+	while (item != character)
 	{
-		c = 0;
-		item = character.inventory_next;
-		if (item == world)
-			item = character.inventory_next = character.inventory_prev = character;
-		while (item != character)
-		{
-			if (item.netname == name)
-				c = c + item.count;
-			item = item.inventory_next;
-		}
-		return c;
+		if (item.netname == name)
+			c = c + item.count;
+		item = item.inventory_next;
 	}
+	return c;
 };
 
 float(entity character, string name, float adjust) Inventory_AdjustQuantity =
 {
 	local entity item, aitemclass;
 	local float c, total;
-	if (name == "shells")
-		return character.ammo_shells = bound(0, character.ammo_shells + adjust, AMMOMAX_SHELLS);
-	else if (name == "nails")
-		return character.ammo_nails = bound(0, character.ammo_nails + adjust, AMMOMAX_NAILS);
-	else if (name == "rockets")
-		return character.ammo_rockets = bound(0, character.ammo_rockets + adjust, AMMOMAX_ROCKETS);
-	else if (name == "cells")
-		return character.ammo_cells = bound(0, character.ammo_cells + adjust, AMMOMAX_CELLS);
-	else if (name == "xshells")
-		return character.ammo_xshells = bound(0, character.ammo_xshells + adjust, AMMOMAX_XSHELLS);
-	else
+	c = 0;
+	total = adjust;
+	item = Inventory_GetNextItem(character, world);
+	while (item && adjust != 0)
 	{
-		c = 0;
-		total = adjust;
-		item = Inventory_GetNextItem(character, world);
-		while (item && adjust != 0)
+		if (item.itemclass.netname == name)
 		{
-			if (item.itemclass.netname == name)
+			c = c + 1;
+			adjust = adjust - Item_AdjustQuantity(item, adjust);
+			if (item.count == 0)
 			{
-				c = c + 1;
-				adjust = adjust - Item_AdjustQuantity(item, adjust);
-				if (item.count == 0)
-				{
-					Item_Destroy(item);
-					item = world;
-					c = 0;
-				}
-			}
-			item = Inventory_GetNextItem(character, item);
-		}
-		// some may remain, check if we can spawn an item to hold it
-		if (adjust > 0)
-		{
-			aitemclass = ItemClass_FindByName(name);
-			//eprint(aitemclass);
-			if (c < aitemclass.count2)
-			if (aitemclass.bulkbase + aitemclass.bulkpercount * adjust <= character.bulklimit - Inventory_GetBulk(character))
-			{
-				// create item and add it to inventory
-				item = Item_Create(aitemclass);
-				item.count = adjust;
-				adjust = 0;
-				//eprint(item);
-				Inventory_AttachItem(character, item);
+				Item_Destroy(item);
+				item = world;
+				c = 0;
 			}
 		}
-		total = total - adjust;
-		return total;
+		item = Inventory_GetNextItem(character, item);
 	}
+	// some may remain, check if we can spawn an item to hold it
+	if (adjust > 0)
+	{
+		aitemclass = ItemClass_FindByName(name);
+		//eprint(aitemclass);
+		if (c < aitemclass.count2)
+		if (aitemclass.bulkbase + aitemclass.bulkpercount * adjust <= character.bulklimit - Inventory_GetBulk(character))
+		{
+			// create item and add it to inventory
+			item = Item_Create(aitemclass);
+			item.count = adjust;
+			adjust = 0;
+			//eprint(item);
+			Inventory_AttachItem(character, item);
+		}
+	}
+	total = total - adjust;
+	return total;
 };
 
 float(entity character, string name, float n) Inventory_SetQuantity =
@@ -590,6 +571,7 @@ float(entity character, string name, float n) Inventory_SetQuantity =
 	return Inventory_AdjustQuantity(character, name, n);
 }
 
+/*
 entity(entity character, string name, float chooseempty) Inventory_ItemWithMostCapacity =
 {
 	local entity item, best;
@@ -693,6 +675,7 @@ entity(entity character, string name, float chooseempty) Inventory_ItemWithLeast
 	}
 	return best;
 };
+*/
 
 /*
 float(entity character, string name, float n) Inventory_AdjustQuantityAllByName =
@@ -773,6 +756,24 @@ float(entity character, string name, float n) Inventory_SetQuantity =
 /*
 };
 */
+
+void(entity character) Inventory_ConvertFromQuakeInventory =
+{
+	if (character.ammo_shells > 0)
+		Inventory_AdjustQuantity(character, "shells", character.ammo_shells);
+	character.ammo_shells = 0;
+	if (character.ammo_nails > 0)
+		Inventory_AdjustQuantity(character, "nails", character.ammo_nails);
+	character.ammo_nails = 0;
+	if (character.ammo_rockets > 0)
+		Inventory_AdjustQuantity(character, "rockets", character.ammo_rockets);
+	character.ammo_rockets = 0;
+	if (character.ammo_cells > 0)
+		Inventory_AdjustQuantity(character, "cells", character.ammo_cells);
+	character.ammo_cells = 0;
+	// TODO: convert .items
+	// TODO: convert .armorvalue/.armortype
+};
 
 void(entity character) updateammodisplay =
 {

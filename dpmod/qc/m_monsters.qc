@@ -206,6 +206,7 @@ void() walkmonster_start_go =
 
 void() walkmonster_start =
 {
+	Inventory_ConvertFromQuakeInventory(self);
 	self.candrown = 1; // this is turned off by some monsters like zombies
 	// delay drop to floor to make sure all doors have been spawned
 	// spread think times so they don't all happen at same time
@@ -297,6 +298,7 @@ void() flymonster_start_go =
 
 void() flymonster_start =
 {
+	Inventory_ConvertFromQuakeInventory(self);
 	self.candrown = 1;
 	// spread think times so they don't all happen at same time
 	self.nextthink = time + random()*0.5 + 0.1;
@@ -384,6 +386,7 @@ void() swimmonster_start_go =
 
 void() swimmonster_start =
 {
+	Inventory_ConvertFromQuakeInventory(self);
 	// spread think times so they don't all happen at same time
 	self.candrown = 0;
 	self.nextthink = time + random()*0.5 + 0.1;
