@@ -74,13 +74,13 @@ winding_t *BaseWindingForPlane (plane_t *p)
 	if (x==-1)
 		Error ("BaseWindingForPlane: no axis found");
 
-	VectorClear (vup);	
+	VectorClear (vup);
 	switch (x)
 	{
 	case 0:
 	case 1:
 		vup[2] = 1;
-		break;		
+		break;
 	case 2:
 		vup[0] = 1;
 		break;
@@ -94,8 +94,8 @@ winding_t *BaseWindingForPlane (plane_t *p)
 
 	CrossProduct (vup, p->normal, vright);
 
-	VectorScale (vup, 8192, vup);
-	VectorScale (vright, 8192, vright);
+	VectorScale (vup, BOGUS_RANGE, vup);
+	VectorScale (vright, BOGUS_RANGE, vright);
 
 	// project a really big	axis aligned box onto the plane
 	w = NewWinding (4);
@@ -114,7 +114,7 @@ winding_t *BaseWindingForPlane (plane_t *p)
 
 	w->numpoints = 4;
 
-	return w;	
+	return w;
 }
 
 
