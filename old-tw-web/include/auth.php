@@ -22,10 +22,21 @@
                 exit;
 	}
 
+
+	function checkauth() {
+		global $usertable, $PHP_AUTH_USER, $PHP_AUTH_PW;
+
+		$query = "SELECT u_username, 1 as auth FROM $usertable " . 
+			"WHERE u_username='$PHP_AUTH_USER' " .
+			"AND u_password=ENCRYPT('$PHP_AUTH_PW','$PHP_AUTH_USER')";
+		print $query;
+	}
+
 	if(sqlAvail) {
 		if(!isset($PHP_AUTH_USER)) {
 			notauth();
 		} else {
+			checkauth();
 		}
 	} else {
 		$title = "Authorization system error";
