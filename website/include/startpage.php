@@ -87,7 +87,7 @@ function startpage ($title)
 
 	/* Page title image */
 	/* Courier New bold, 48pt, white on black */
-	echo ("<img alt=\"$title\" src=\"image/$title-title.png\" />\n");
+#	echo ("<img alt=\"$title\" src=\"image/$title-title.png\" />\n");
 
 	echo ("<div class=\"content\">");
 }
