@@ -28,7 +28,7 @@
 			boxstart ("uinfodata");
 			switch ($item) {
 				case "Email":
-					echo ("<a href=\"mailto:" . spamarmor($val) . "\">" . spamarmor($val) .
+					echo ("<a href=\"mailto:" . spamarmor_url($val) . "\">" . spamarmor($val) .
 						"</a>\n");
 					break;
 				case "Web":
@@ -39,7 +39,7 @@
 			}
 			boxend ("uinfodata");
 		}
-		echo ("</td></tr></table>\n");
+		echo ("</td></tr></table>");
 		boxend ("uinfo");
 	}
 

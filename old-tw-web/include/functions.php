@@ -3,24 +3,15 @@
 	{
 		global $userinfo;
 
-		return "<a href=\"mailto:" . spamarmor($userinfo[$person]["Email"]) . "\">" .
+		return "<a href=\"mailto:" . spamarmor_url($userinfo[$person]["Email"]) . "\">" .
 			$person . "</a>";
 	}
 
 	function spamarmor ($address) {
-		srand ((double) microtime() * 1000000);
-		switch (rand(0, 4)) {
-			case 0:
-				return ereg_replace("@", "[at]", $address);
-			case 1:
-				return ereg_replace("@", "SPAM@SPAM", $address);
-			case 2:
-				return strrev($address);
-			case 3:
-				return ereg_replace("@", ".nospam@nospam.", $address);
-			case 4:
-				return ereg_replace("@", " at ", $address);
-		}
+		return ereg_replace("@", " at ", ereg_replace("\.", " dot ", $address));
+	}
+	function spamarmor_url ($address) {
+		return ereg_replace("@", "%40", ereg_replace("\.", "%2e", $address));
 	}
 
 	function boxstart ($style)
@@ -87,12 +78,10 @@
 	}
 
 	function htmlify_line ($line) {
-		$line = ereg_replace ("<", "&lt;", $line);
-		$line = ereg_replace (">", "&gt;", $line);
-		$line = ereg_replace ("&lt;(.*@.*)&gt;",
-			"&lt;<a href=\"mailto:\\1\">\\1</a>&gt;",$line
-		);
-		return $line;
+		if (ereg ("^  (.*) <(.*@.*)>", $line, $parts)) {
+			list($discard, $name, $email) = $parts;
+			return sprintf("%s &lt;<a href=\"mailto:%s\">%s</a>&gt;", $name, spamarmor_url($email), spamarmor($email));
+		}
 	}
 
 ?>
