@@ -158,6 +158,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
 
 	item = ItemClass_Register("shotgun");
 	setmodel(item, "progs/backpack.mdl");
@@ -167,6 +168,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON2;
 
 	item = ItemClass_Register("supershotgun");
 	setmodel(item, "progs/backpack.mdl");
@@ -176,6 +178,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON3;
 
 	item = ItemClass_Register("nailgun");
 	setmodel(item, "progs/backpack.mdl");
@@ -185,6 +188,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON4;
 
 	item = ItemClass_Register("supernailgun");
 	setmodel(item, "progs/backpack.mdl");
@@ -194,6 +198,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON5;
 
 	item = ItemClass_Register("grenadelauncher");
 	setmodel(item, "progs/backpack.mdl");
@@ -203,6 +208,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON6;
 
 	item = ItemClass_Register("rocketlauncher");
 	setmodel(item, "progs/backpack.mdl");
@@ -212,6 +218,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON7;
 
 	item = ItemClass_Register("thunderbolt");
 	setmodel(item, "progs/backpack.mdl");
@@ -221,6 +228,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON8;
 
 	item = ItemClass_Register("plasmarifle");
 	setmodel(item, "progs/backpack.mdl");
@@ -230,6 +238,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON8;
 
 	item = ItemClass_Register("plasmawave");
 	setmodel(item, "progs/backpack.mdl");
@@ -239,6 +248,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON8;
 
 	item = ItemClass_Register("laserrifle");
 	setmodel(item, "progs/backpack.mdl");
@@ -248,6 +258,7 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = 1;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON3;
 };
 
 entity(string name) ItemClass_FindByName =
@@ -973,10 +984,25 @@ void(entity player) Inventory_FromParms =
 
 void(entity character) updateammodisplay =
 {
-	//character.ammo_shells = Inventory_Quantity(character, "shells");
-	//character.ammo_nails = Inventory_Quantity(character, "nails");
-	//character.ammo_rockets = Inventory_Quantity(character, "rockets");
-	//character.ammo_cells = Inventory_Quantity(character, "cells");
+	local entity item;
+	character.ammo_shells = Inventory_Quantity(character, "shells");
+	character.ammo_nails = Inventory_Quantity(character, "nails");
+	character.ammo_rockets = Inventory_Quantity(character, "rockets");
+	character.ammo_cells = Inventory_Quantity(character, "cells");
+	character.weapon = 0;
+	if (character.weaponclass)
+	{
+		item = Inventory_ItemByName(character, character.weaponclass.w_item);
+		character.weapon = item.itemclass.items;
+	}
+	character.items = character.items - (character.items & (IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10));
+	item = Inventory_GetNextItem(character, world);
+	while (item)
+	{
+		if (item.itemclass.items)
+			character.items = character.items | item.itemclass.items;
+		item = Inventory_GetNextItem(character, item);
+	}
 };
 
 
