@@ -40,8 +40,6 @@ float()	WizardCheckAttack =
 
 	if (time < self.attack_finished)
 		return FALSE;
-	if (!enemy_vis)
-		return FALSE;
 
 	if (enemy_range == RANGE_FAR)
 	{
@@ -113,7 +111,8 @@ WizardAttackFinished
 */
 void() WizardAttackFinished =
 {
-	if (enemy_range >= RANGE_MID || !enemy_vis)
+	//if (range(self.enemy) >= RANGE_MID || !visible(self.enemy))
+	if (vlen ((self.origin + self.view_ofs) - (self.enemy.origin + self.enemy.view_ofs)) >= 500 || !visible(self.enemy))
 	{
 		self.attack_state = AS_STRAIGHT;
 		self.think = wiz_run1;
