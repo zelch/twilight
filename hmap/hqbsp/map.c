@@ -537,17 +537,17 @@ void LoadMapFile (char *filename)
 
 void PrintEntity (entity_t *ent)
 {
-  epair_t	*ep;
+	epair_t	*ep;
 
-  for (ep=ent->epairs ; ep ; ep=ep->next)
-    printf ("%20s : %s\n", ep->key, ep->value);
+	for (ep=ent->epairs ; ep ; ep=ep->next)
+		printf ("%20s : %s\n", ep->key, ep->value);
 }
 
 
 char 	*ValueForKey (entity_t *ent, char *key)
 {
   epair_t	*ep;
-	
+
   for (ep=ent->epairs ; ep ; ep=ep->next)
     if (!strcmp (ep->key, key) )
       return ep->value;
@@ -556,77 +556,77 @@ char 	*ValueForKey (entity_t *ent, char *key)
 
 void 	SetKeyValue (entity_t *ent, char *key, char *value)
 {
-  epair_t	*ep;
-	
-  for (ep=ent->epairs ; ep ; ep=ep->next)
-    if (!strcmp (ep->key, key) )
-      {
-	free (ep->value);
+	epair_t	*ep;
+
+	for (ep=ent->epairs ; ep ; ep=ep->next)
+		if (!strcmp (ep->key, key) )
+		{
+			free (ep->value);
+			ep->value = copystring(value);
+			return;
+		}
+	ep = malloc (sizeof(*ep));
+	ep->next = ent->epairs;
+	ent->epairs = ep;
+	ep->key = copystring(key);
 	ep->value = copystring(value);
-	return;
-      }
-  ep = malloc (sizeof(*ep));
-  ep->next = ent->epairs;
-  ent->epairs = ep;
-  ep->key = copystring(key);
-  ep->value = copystring(value);
 }
 
 double DoubleForKey (entity_t *ent, char *key)
 {
-  char	*k;
+	char	*k;
 
-  k = ValueForKey (ent, key);
-  return atof(k);
+	k = ValueForKey (ent, key);
+	return atof(k);
 }
 
 void 	GetVectorForKey (entity_t *ent, char *key, vec3_t vec)
 {
-  char	*k;
-  double	v1, v2, v3;
+	char	*k;
+	double	v1, v2, v3;
 
-  k = ValueForKey (ent, key);
-  v1 = v2 = v3 = 0;
-  // scanf into doubles, then assign, so it is vec_t size independent
-  sscanf (k, "%lf %lf %lf", &v1, &v2, &v3);
-  vec[0] = v1;
-  vec[1] = v2;
-  vec[2] = v3;
+	k = ValueForKey (ent, key);
+	v1 = v2 = v3 = 0;
+	// scanf into doubles, then assign, so it is vec_t size independent
+	sscanf (k, "%lf %lf %lf", &v1, &v2, &v3);
+	vec[0] = v1;
+	vec[1] = v2;
+	vec[2] = v3;
 }
 
 
 void WriteEntitiesToString (void)
 {
-  char	*buf, *end;
-  epair_t	*ep;
-  char	line[128];
-  int		i;
-	
-  buf = dentdata;
-  end = buf;
-  *end = 0;
-	
-  for (i=0 ; i<num_entities ; i++)
-    {
-      ep = entities[i].epairs;
-      if (!ep)
-	continue;	// ent got removed
-		
-      strcat (end,"{\n");
-      end += 2;
-				
-      for (ep = entities[i].epairs ; ep ; ep=ep->next)
-	{
-	  sprintf (line, "\"%s\" \"%s\"\n", ep->key, ep->value);
-	  strcat (end, line);
-	  end += strlen(line);
-	}
-      strcat (end,"}\n");
-      end += 2;
+	char	*buf, *end;
+	epair_t	*ep;
+	char	line[16384];
+	int		i;
 
-      if (end > buf + MAX_MAP_ENTSTRING)
-	Error ("Entity text too long");
-    }
-  entdatasize = end - buf + 1;
+	buf = dentdata;
+	end = buf;
+	*end = 0;
+
+	for (i=0 ; i<num_entities ; i++)
+	{
+		ep = entities[i].epairs;
+		if (!ep)
+			continue;	// ent got removed
+
+		strcat (end,"{\n");
+		end += 2;
+
+		for (ep = entities[i].epairs ; ep ; ep=ep->next)
+		{
+			sprintf (line, "\"%s\" \"%s\"\n", ep->key, ep->value);
+			strcat (end, line);
+			end += strlen(line);
+		}
+		strcat (end,"}\n");
+		end += 2;
+
+		if (end > buf + MAX_MAP_ENTSTRING)
+			Error ("Entity text too long");
+	}
+	entdatasize = end - buf + 1;
 }
 
