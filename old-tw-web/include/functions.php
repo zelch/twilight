@@ -5,13 +5,6 @@
 			$person . "</a>";
 	}
 
-	function in_array($needle,$haystack)
-	{
-		for($i = 0; $i < count($haystack) && $haystack[$i] != $needle; $i++);
-
-		return ($i != count($haystack));
-	}
-
 	function boxstart ($style)
 	{
 		global $browser_css;
