@@ -20,7 +20,7 @@
 		}
 		boxstart ("uinfo");
 		echo ("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n" .
-			"<tr><td width=\"20%\">\n");
+			"<tr><td width=\"20%\" valign=\"top\">\n");
 		box ("uinfonick", $nick);
 		echo ("</td><td>\n");
 		
@@ -28,15 +28,14 @@
 			boxstart ("uinfodata");
 			switch ($item) {
 				case "Email":
-					echo ($item . ": <a href=\"mailto:" . $val . "\">" .
-						$val . "</a>\n");
-					break;
-				case "Web":
-					echo ($item . ": <a href=\"" . $val . "\">" . $val .
+					echo ("<a href=\"mailto:" . $val . "\">" . $val .
 						"</a>\n");
 					break;
+				case "Web":
+					echo ("<a href=\"" . $val . "\">" . $val . "</a>\n");
+					break;
 				default:
-					echo ($item . ": " . $val . "\n");
+					echo ($val . "\n");
 			}
 			boxend ("uinfodata");
 		}

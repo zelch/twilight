@@ -12,6 +12,7 @@
 		footerpost => "</font></center>",
 
 		uinfo => "width=\"100%\" bgcolor=\"#000fb5\" cellspacing=\"1\"" ,
+		uinfonick => "valign=\"top\"" ,
 		uinfodata => "width=\"100%\" bgcolor=\"#000440\"" ,
 
 		nav => "bgcolor=\"#000430\" width=\"100%\" valign=\"top\"" ,
@@ -101,6 +102,7 @@ div.uinfo {
 
 div.uinfonick {
 	border-left: solid 3px #000fb5;
+	vertical-align: top;
 }
 
 div.uinfodata {
