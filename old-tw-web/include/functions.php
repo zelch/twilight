@@ -2,7 +2,7 @@
 	function SQLtoNewsDate($date)
 	{
 		$time = explode(' ',$date);
-		$webdate = explode('-',$time);
+		$webdate = explode('-',$time[0]);
 		return strftime ( '%d %b %Y', mktime (0, 0, 0, $webdate[1], $webdate[2], $webdate[0]));
 	}
 
