@@ -114,6 +114,14 @@ float   EF_NODRAW       = 16;
 //description:
 //prevents server from sending entity to client (forced invisible, even if it would have been a light source or other such things)
 
+//DP_EF_NOSHADOW
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//effects bit:
+float   EF_NOSHADOW     = 4096;
+//description:
+//realtime lights will not cast shadows from this entity (but can still illuminate it)
+
 //DP_EF_RED
 //idea: id Software
 //darkplaces implementation: LordHavoc
@@ -606,6 +614,13 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //void() SV_PlayerPhysics;
 //description:
 //.movement vector contains the movement input from the player, allowing QC to do as it wishs with the input, and SV_PlayerPhysics will completely replace the player physics if present (works for all MOVETYPE's), see darkplaces mod source for example of this function (in playermovement.qc, adds HalfLife ladders support, as well as acceleration/deceleration while airborn (rather than the quake sudden-stop while airborn), and simplifies the physics a bit)
+
+//DP_SV_ROTATINGBMODEL
+//idea: id Software
+//darkplaces implementation: LordHavoc
+//description:
+//this extension merely indicates that MOVETYPE_PUSH supports avelocity, allowing rotating brush models to be created, they rotate around their origin (needs rotation supporting qbsp/light utilities because id ones expected bmodel entity origins to be '0 0 0', recommend setting "origin" key in the entity fields in the map before compiling, there may be other methods depending on your qbsp, most are more complicated however).
+//tip: level designers can create a func_wall with an origin, and avelocity (for example "avelocity" "0 90 0"), and "nextthink" "99999999" to make a rotating bmodel without any qc modifications, such entities will be solid in stock quake but will not rotate)
 
 //DP_SV_SETCOLOR
 //idea: LordHavoc
