@@ -510,7 +510,13 @@ brush_t *LoadBrush (mbrush_t *mb, int hullnum)
 
 	if (hullnum)
 	{
+		face_t *face, *next;
 		ExpandBrush (hullnum);
+		for (face=brush_faces ; face ; face=next)
+		{
+			next = face->next;
+			FreeFace( face );
+		}
 		CreateBrushFaces ();
 	}
 
