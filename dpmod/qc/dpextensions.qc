@@ -358,6 +358,49 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 //description:
 //set to the state of the +button3, +button4, +button5, +button6, +button7, and +button8 buttons from the client, this does not involve protocol changes (the extra 6 button bits were simply not used).
 
+//DP_MD3_TAGSINFO
+//idea: VorteX, LordHavoc (somebody else?)
+//DarkPlaces implementation: VorteX
+//builtin definitions:
+float(entity ent, string tagname) gettagindex = #451;
+vector(entity ent, float tagindex) gettaginfo = #452;
+//description:
+//gettagindex returns the number of a tag on an entity, this number is the same as set by setattachment (in the .tag_index field), allowing the qc to save a little cpu time by keeping the number around if it wishes.
+//gettaginfo returns the origin of the tag and sets v_forward, v_right, and v_up to the current orientation of the tag in model space (similar to makevectors with the tag's angles, but tags do not have angles, only vectors).
+// IMPORTANT NOTE: these return data in MODELSPACE (coordinates relative to the entity), not worldspace, the entity's origin and angles are *ignored*, only modelindex and frame matter, it is up to you to put this in worldspace by transforming these vectors by the entity and anything it's attached to if using tag_entity/tag_index/viewmodelforclient, this can be even more difficult due to sa.
+/*
+Examples:
+Calculating origin (with rotation) of flying axe:
+vector() axe_getbladeorg =
+{
+	local float tindex;
+	local vector org;
+	tindex = gettagindex(self, "tag_blade");
+	org = gettaginfo(self, tindex);
+	makevectors(self.angles);
+	return self.origin + v_forward*org_x + v_right*org_y + v_up*org_z;
+};
+
+Calculating shot origin for first-person weapon (self.weaponentity attached to player via .viewmodelforclient)
+void(vector rel) weapon_fp_shotdata =
+{
+	local float tindex;
+	local vector org;
+	tindex = gettagindex(self.weaponentity, "tag_flash");
+	org = gettaginfo(self.weaponentity, tindex) + self.weaponentity.origin + rel;
+	self.weaponentity.mangle = self.v_angle + self.punchangle;
+	makevectors(self.weaponentity.mangle);
+	self.shotorg  = self.origin + self.view_ofs + v_forward*(org_x) - v_right*(org_y) + v_up*(org_z + 2*self.weaponentity.view_ofs_z - self.v_angle_x/30);
+	self.shotdir = aim(self, 1000);
+};
+*/
+//provides access to tags orientation in MD3 structure, allows calculating world origin coordinates of any tag in md3
+//Functions return relative to center of model coordinates and set v_forward, v_right and v_up globals to rotation matrix of tag
+//Note: gettaginfo returns RELATIVE to the center of model coordinates
+//to get real cooridinates (in most cases) tag relative coordinates must be bumped with entity world coordinates (in other worlds tagorigin = self.origin + gettagorigin(x, y))
+//but some cases (like multiple md3 tag attachments) needs special formulas to calculate real origin...
+//Note: also you must apply rotation of tag in QC to get real coordinate of tag (if model rotates).
+
 //DP_MONSTERWALK
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -954,7 +997,7 @@ string(float n) argv = #442;
 .float style; // light style (like normal light entities, flickering torches or switchable, etc)
 .float pflags; // flags (see PFLAGS_ constants)
 .vector angles; // orientation of the light
-.float skin; // cubemap filter number (filter disabled if skin < 16), this selects a projective light filter, a value of 16 loads cubemaps/16posx.tga and cubemaps/16negx.tga and posy, negy, posz, and negz, similar to skybox but some sides need to be rotated or flipped
+.float skin; // cubemap filter number, can be 1-255 (0 is assumed to be none, and tenebrae only allows 16-255), this selects a projective light filter, a value of 1 loads cubemaps/1posx.tga and cubemaps/1negx.tga and posy, negy, posz, and negz, similar to skybox but some sides need to be rotated or flipped
 //constants:
 float PFLAGS_NOSHADOW = 1; // light does not cast shadows
 float PFLAGS_CORONA = 2; // light has a corona flare
