@@ -31,7 +31,7 @@ if (strstr($HTTP_USER_AGENT,"Win")) {
 
 $browser_css = FALSE;
 if ($browser_name == "Mozilla") {
-	if ((float)$browser_version > 4.0) {
+	if ((float)$browser_version >= 5.0) {
 		$browser_css = TRUE;
 	}
 } elseif ($browser_name == "MSIE") {
