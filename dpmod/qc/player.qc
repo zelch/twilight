@@ -354,7 +354,7 @@ void() player_updatebounds =
 	*/
 };
 
-.float  playermovestate, playermovebegin, playermovebase;
+.float  playermovestate, playermovebegin;
 
 void() player_move =
 {
@@ -368,20 +368,15 @@ void() player_move =
 	{
 		self.playermovebegin = time;
 		self.playermovestate = m;
-		self.playermovebase = 0;
 	}
-	t = (time - self.playermovebegin) * 10 - self.playermovebase;
 
 	     if (m == 0) {n =  5;self.frame = $stand1;  } // gun stand
 	else if (m == 1) {n =  6;self.frame = $rockrun1;} // gun run
 //	else if (m == 2) {n = 12;self.frame = $axstnd1; } // axe stand
 //	else             {n =  6;self.frame = $axrun1;  } // axe run
 
-	while (t >= n)
-	{
-		t = t - n;
-		self.playermovebase = self.playermovebase + n;
-	}
+	t = (time - self.playermovebegin) * 10;
+	t = t - (floor(t / n) * n);
 	self.frame = floor(self.frame + t);
 	self.weaponframe = 0;
 	dovisibleweapon();
