@@ -20,8 +20,7 @@
 		global $endofheader;
 		if ($endofheader) {
 			box ("line", htmlify_line ($item));
-		}
-		if (ereg ("^[[:space:]]*$", $item1)) {
+		} elseif (ereg ("^[[:space:]]*$", $item)) {
 			$endofheader = true;
 		}
 	}
