@@ -30,9 +30,9 @@ fixed ambient sounds calculations (they now fade with distance)
 
 -=================-
 
-hmap utilities by Forest "LordHavoc" Hale ( lordhavoc@users.sourceforge.net )
+hmap utilities by Forest "LordHavoc" Hale ( havoc@telefragged.com )
 Based on source code from id Software (Quake utilities) and Ritual Entertainment (Scourge of Armagon mission pack)
-Website: http://darkplaces.gamevisions.com
+Website: http://icculus.org/twilight/darkplaces
 
 Run the utilities with no parameters in a DOS prompt or Linux/UNIX terminal to get information about each.
 
