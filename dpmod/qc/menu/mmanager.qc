@@ -324,22 +324,25 @@ void(entity par) menu_processmouse =
 	// loop through all childs
 	// and try to find an object whose click rect fits to the mouse coords
 	entity ent, old_history, old_selected;
+	vector old_cursor, local_cursor;
 
 	ent = par.child;
 	if(ent == null_entity)
 		return;
 
-	menu_localorigin = menu_localorigin + par.origin;
+	menu_localorigin = menu_localorigin + par.origin + par.pos;
 
-	menu_cursor = gfx_congfxtomen(cursor);
+	old_cursor = menu_cursor;
+	local_cursor = gfx_congfxtomen(cursor);
 
 	do
 	{
 		// if not visible, continue to the next item
 		if(menu_isvisible(ent))
 		{
-
-			if(inrect(menu_cursor, ent.click_pos, ent.click_size))
+			old_cursor = menu_cursor;
+			menu_cursor = local_cursor;
+			if(inrect(local_cursor, ent.click_pos, ent.click_size))
 			{
 				// call mouse_enter event ?
 				if(!(ent.flag & _FLAG_MOUSEINAREA) && menu_hasevents(ent))
@@ -372,6 +375,10 @@ void(entity par) menu_processmouse =
 					ent.flag = ent.flag - _FLAG_MOUSEINAREA;
 				}
 			}
+
+			if(menu_selected != ent)
+				menu_cursor = old_cursor;
+
 
 			// if ent has children recurse through them
 			if(ent.child != null_entity)
@@ -456,8 +463,12 @@ void(entity menu) menu_drawwindow =
 		{
 			self = ent;
 			if(menu_hasevents(ent))
+			{
 				if(ent._refresh)
+				{
 					self._refresh();
+				}
+			}
 			if(ent._draw)
 				ent._draw();
 

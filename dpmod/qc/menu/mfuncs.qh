@@ -45,3 +45,7 @@ float(vector point, vector r_xy, vector r_size) inrect;
 // cliprectsize returns '0 0 0' if it is clipped totally
 vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectpos;
 vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectsize;
+
+// used to extract 'string' strings from a normal string
+float(string s) getaltstringcount;
+string(float c, string s) getaltstring;

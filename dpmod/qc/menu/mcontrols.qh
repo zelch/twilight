@@ -16,36 +16,61 @@ The rest is not required:
 ITEM_CUSTIOM
 
 ITEM_PICTURE
+
 ITEM_TEXT
+
 ITEM_BUTTON
 ITEM_TEXTBUTTON
+
 ITEM_RECTANGLE
+
+ITEM_SLIDER
+ITEM_TEXTSLIDER
+
+ITEM_TEXTSWITCH
 */
+
 // item constants
 
-// ITEM_PICTURE
-const vector 	ITEM_PICTURE_DEFAULT_COLOR 		= '1 1 1';
-const float 	ITEM_PICTURE_DEFAULT_ALPHA		= 1;
+// colors
 
-// ITEM_BUTTON
-const vector 	ITEM_BUTTON_DEFAULT_COLOR 			= '1 1 1';
-const float 	ITEM_BUTTON_DEFAULT_ALPHA			= 1;
-const vector 	ITEM_BUTTON_DEFAULT_COLOR_SELECTED	= '1 1 1';
-const float 	ITEM_BUTTON_DEFAULT_ALPHA_SELECTED	= 1;
-const vector 	ITEM_BUTTON_DEFAULT_COLOR_PRESSED	= '1 1 1';
-const float 	ITEM_BUTTON_DEFAULT_ALPHA_PRESSED	= 1;
+// text colors
+const vector ITEM_TEXT_NORMAL_COLOR 	= '1 1 1';
+const float	 ITEM_TEXT_NORMAL_ALPHA		= 1;
 
-const float		ITEM_BUTTON_DEFAULT_HOLD_PRESSED	= 0.2;
+const vector ITEM_TEXT_SELECTED_COLOR	= '0.5 0 0';
+const float	 ITEM_TEXT_SELECTED_ALPHA	= 1;
 
-// ITEM_TEXTBUTTON
-const vector 	ITEM_TEXTBUTTON_DEFAULT_COLOR 			= '1 1 1';
-const float 	ITEM_TEXTBUTTON_DEFAULT_ALPHA			= 1;
-const vector 	ITEM_TEXTBUTTON_DEFAULT_COLOR_SELECTED	= '0.5 0 0';
-const float 	ITEM_TEXTBUTTON_DEFAULT_ALPHA_SELECTED	= 1;
-const vector 	ITEM_TEXTBUTTON_DEFAULT_COLOR_PRESSED	= '1 0 0';
-const float 	ITEM_TEXTBUTTON_DEFAULT_ALPHA_PRESSED	= 1;
+const vector ITEM_TEXT_PRESSED_COLOR	= '1 0 0';
+const float	 ITEM_TEXT_PRESSED_ALPHA	= 1;
 
-const float		ITEM_TEXTBUTTON_DEFAULT_HOLD_PRESSED	= 0.2;
+
+// pitures
+const vector ITEM_PICTURE_NORMAL_COLOR = '1 1 1'
+const float	 ITEM_PICTURE_NORMAL_ALPHA = 1;
+
+const vector ITEM_PICTURE_SELECTED_COLOR = '1 1 1'
+const float	 ITEM_PICTURE_SELECTED_ALPHA = 1;
+
+const vector ITEM_PICTURE_PRESSED_COLOR = '1 1 1'
+const float	 ITEM_PICTURE_PRESSED_ALPHA = 1;
+
+// slider color
+const vector ITEM_SLIDER_COLOR	= '1 1 1';
+const float	 ITEM_SLIDER_ALPHA	= 1;
+
+// ITEM_SLIDER/ITEM_TEXTSLIDER
+const float	 ITEM_SLIDER_STEP		= 1;
+const float	 ITEM_SLIDER_MAXLEN		= 4;
+
+// used only in non-picture mode
+const vector ITEM_SLIDER_BAR_COLOR_DELTA = '-0.8 -0.8 0';
+
+const vector ITEM_SLIDER_SIZE 		= '10 10 0';
+
+// ITEM_BUTTON/ITEM_TEXTBUTTON
+
+const float		ITEM_BUTTON_HOLD_PRESSED	= 0.2;
 
 const float		TEXTBUTTON_STYLE_BOX 		= 2;
 const float		TEXTBUTTON_STYLE_OUTLINE 	= 1;
@@ -54,9 +79,7 @@ const float		TEXTBUTTON_STYLE_TEXT		= 0;
 const float		TEXTBUTTON_OUTLINE_WIDTH	= 1.0;
 
 //ITEM_TEXT
-const vector 	ITEM_TEXT_DEFAULT_COLOR 	= '1 1 1';
-const float 	ITEM_TEXT_DEFAULT_ALPHA		= 1;
-const vector	ITEM_TEXT_DEFAULT_FONT_SIZE = '8 8 0';
+const vector	ITEM_TEXT_FONT_SIZE = '8 8 0';
 
 const float 	TEXT_ALIGN_LEFT		= 0;
 const float		TEXT_ALIGN_CENTER	= 1;
@@ -73,7 +96,7 @@ const float		BUTTON_PRESSED	= 2;
 const float	FLAG_STANDARD		= 1;	// use this flag if you want the standard behavior and not what the control recommends
 const float FLAG_HIDDEN 		= 2;	// events wont be called and it wont be drawn, etc.
 const float FLAG_NOSELECT 		= 4; 	// cant be selected (but events will be called)
-const float FLAG_CONNECTEDONLY	= 8
+const float FLAG_CONNECTEDONLY	= 8;	// only if connected (i.e. playing)
 const float FLAG_SERVERONLY		= 16;	// only displayed if server
 const float FLAG_DEVELOPERONLY  = 32;	// only displayed if developer
 const float _FLAG_MOUSEINAREA 	= 64; 	// used to determine wheter to call mouse_enter/_leave
@@ -107,12 +130,12 @@ const float FLAG_CHILDDRAWONLY	= 1024;	// used to make the children
 .string sound_selected;
 .string sound_pressed;
 
-.vector		color_selected;
-.vector		color_pressed;
-.float		alpha_selected;
-.float 		alpha_pressed;
-.float		drawflag_selected;
-.float		drawflag_pressed;
+.vector	color_selected;
+.vector	color_pressed;
+.float	alpha_selected;
+.float 	alpha_pressed;
+.float	drawflag_selected;
+.float	drawflag_pressed;
 
 .float	_press_time;
 .float 	hold_pressed;
@@ -125,5 +148,51 @@ const float FLAG_CHILDDRAWONLY	= 1024;	// used to make the children
 //.float	alignment;
 .float		style;
 
+// ITEM_SLIDER
+//.string 	picture_slider; = picture
+.string		picture_bar;
+
+.float		min_value;
+.float		max_value;
+.float		value;
+
+.float		step;
+
+.vector		text_pos;
+//.vector	font_size;
+
+.vector		slider_size;
+
+.float		maxlen;
+
+.void(void) slidermove;
+
+// ITEM_TEXTSLIDER
+//.string 	picture_slider; = picture
+//.string		picture_bar;
+
+//.float	min_value;
+//.float	max_value;
+//.float	value;
+
+//.float	step;
+
+//.vector	text_pos;
+//.vector	font_size;
+
+//.vector	slider_size;
+
+//.float	maxlen;
+
+//.void(void) slidermove;
+
+//.string	text;	// will be parsed with tokenize and the specific text will displayed for the specific integer
+					// the text has to have the following "format": "'text1' 'text2' 'text3'..."
+
+// ITEM_TEXTSLIDER (derived from ITEM_TEXT mostly)
+.string	text;	// like above
+.float	value;	// the current displayed/selected text
+
+.void(void) selectionchanged;
 
 

@@ -237,3 +237,49 @@ float(float tfactor) getflicker =
 	// TODO: use tfactor to vary the result
 	return (sin(tfactor * time) + 1)/2;
 };
+
+float(string s) getaltstringcount =
+{
+	float len;
+	float count;
+	float pos;
+
+	len = strlen(s);
+	count = 0;
+	for(pos = 0; pos < len; pos = pos + 1)
+	{
+		if(substring(s,pos,1) == "'")
+			count = count + 1;
+	}
+
+	if(mod(count,2) == 1)
+		return 0; // bad string
+
+	return (count / 2);
+};
+
+string(float n, string s) getaltstring =
+{
+	float start, length;
+	float tmp;
+
+	n = rint(n);
+
+	if(n >= getaltstringcount(s) || n < 0)
+		return "";
+
+	// go to the beginning of the altstring
+	tmp = 0;
+	for(start = 0;tmp <= n * 2 ; start = start + 1)
+	{
+		if(substring(s, start, 1) == "'")
+			tmp = tmp + 1;
+	}
+
+	for(length = 0; substring(s, start + length, 1) != "'"; length = length + 1)
+	{
+	}
+
+	return substring(s, start, length);
+};
+

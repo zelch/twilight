@@ -6,6 +6,16 @@
 // AK this file is used e.g. for defining some special event functions
 ////////////////////////////////////////////////
 
+void(void) initbrightness =
+{
+	self.value = cvar("scr_conbrightness");
+};
+
+void(void) setbrightness =
+{
+	cvar_set("scr_conbrightness",ftos(self.value));
+};
+
 void(void)	dpmod_main_exit =
 {
 	entity e;

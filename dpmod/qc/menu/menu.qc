@@ -18,17 +18,26 @@ void(void) m_init =
 
 	// init menu
 	menu_init();
+
+	// init editor
+	//editor_init();
 };
 
 // required menu functions
 void(float keynr, float ascii) m_keydown =
 {
+	if(!menu_active)
+		return;
+
 	// let also the gfx and sound know
 	gfx_keydown(keynr, ascii);
 	snd_keydown(keynr, ascii);
 
 	// actually only the menu may react on keydown messages
 	menu_keydown(keynr, ascii);
+
+	// let the editor also know
+	//editor_keydown(keynr, ascii);
 };
 
 void(void) m_frame =
@@ -44,6 +53,9 @@ void(void) m_frame =
 
 	// menu frame
 	menu_frame();
+
+	// editor frame
+	//editor_frame();
 };
 
 void(void) m_draw =
@@ -56,6 +68,9 @@ void(void) m_draw =
 
 	// now the drawing code
 	menu_draw();
+
+	// editor drawing code
+	//editor_draw();
 
 	// draw the cursor on top of the menu
 	cursor_draw();
@@ -100,6 +115,9 @@ void(void) m_toggle =
 
 void(void) m_shutdown =
 {
+	// shutdown editor
+	//editor_shutdown();
+
 	// shutdown menu
 	menu_shutdown();
 
