@@ -354,7 +354,7 @@ sub build_header ($@) {
 	push(@text, "Branch tags: " . join(' ', @branch_tags[1..$#branch_tags]))
 	if (@branch_tags > 0);
 		push(@text, sprintf("Commit time: %04d-%02d-%02d %02d:%02d:%02d UTC",
-			$year + 1900, $mon, $mday, $hour, $min, $sec));
+			$year + 1900, $mon + 1, $mday, $hour, $min, $sec));
 
 	return @text, "";
 }
