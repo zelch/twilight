@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -557,7 +556,7 @@ void ConvertWAD(char *filename)
 	numlumps = LittleLong(wad->numlumps);
 	printf("ConvertWAD: converting \"%s\" (%i lumps)\n", filename, numlumps);
 	lump = (void *)((int) waddata + wad->infotableofs);
-	for (i = 0;i < numlumps;i++)
+	for (i = 0;i < numlumps;i++, lump++)
 	{
 		wad_cleanname(lump->name, tempname);
 		if (lump->compression != CMP_NONE)
@@ -600,23 +599,30 @@ void ConvertWAD(char *filename)
 			break;
 		case TYP_MIPTEX:
 //			printf("encountered lump type 'MIPTEX' named \"%s\"\n", tempname);
-			strcat(tempname, ".mip");
-			writefile(tempname, data, size);
-			strcat(tempname, ".pcx");
-			width = LittleLong(((int *)data)[4]);
-			height = LittleLong(((int *)data)[5]);
-			if (width < 0 || height < 0 || width > 512 || height > 512)
+			if (!strcmp(tempname, "conchars"))
 			{
-				printf("\"%s\" is not a valid miptex\n", tempname);
-				continue;
+				strcat(tempname, ".pcx");
+				WritePCX(tempname, data, 128, 128, quakepalette);
 			}
-			WritePCX(tempname, data+40, width, height, quakepalette);
+			else
+			{
+				strcat(tempname, ".mip");
+				writefile(tempname, data, size);
+				strcat(tempname, ".pcx");
+				width = LittleLong(((int *)data)[4]);
+				height = LittleLong(((int *)data)[5]);
+				if (width < 0 || height < 0 || width > 512 || height > 512)
+				{
+					printf("\"%s\" is not a valid miptex\n", tempname);
+					continue;
+				}
+				WritePCX(tempname, data+40, width, height, quakepalette);
+			}
 			break;
 		default:
 			printf("encountered unknown lump type named \"%s\"\n", tempname);
 			break;
 		}
-		lump++;
 	}
 	free(waddata);
 }
@@ -642,7 +648,7 @@ void lmp2pcx()
 int main(int argc, char **argv)
 {
 	if (argc != 1)
-		Error("lmp2pcx v1.01 by Forest \"LordHavoc\" Hale\nconverts all .lmp and .wad files in current directory to pcx files\nno commandline options\n");
+		Error("lmp2pcx v1.02 by Forest \"LordHavoc\" Hale\nconverts all .lmp and .wad files in current directory to pcx files and tga files\nno commandline options\n");
 	SwapDetect();
 	lmp2pcx();
 #if _DEBUG && WIN32
@@ -651,4 +657,3 @@ int main(int argc, char **argv)
 #endif
 	return 0;
 }
-
