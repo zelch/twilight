@@ -105,7 +105,10 @@ void CalcNodeBounds (node_t *node)
 		else if (p->nodes[1] == node)
 			side = 1;
 		else
+		{
 			Error ("CalcNodeBounds: mislinked portal");
+			return; // hush compiler about side uninitialized
+		}
 
 		w = p->winding;
 		for (i = 0; i < w->numpoints; i++)
