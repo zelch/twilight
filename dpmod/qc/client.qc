@@ -23,6 +23,13 @@ float modelindex_eyes/*, modelindex_player*/;
 
 float modelindex_nogun;
 
+//used for combo kills
+.float combo_time;
+.float combo_amount;
+//used for killing sprees
+.float spree_amount;
+.float spree_count;
+
 /*
 void() speech_precache =
 {
@@ -667,6 +674,9 @@ void() PutClientInServer =
 	self.localdamage_body_mul = 1.0;
 	self.localdamage_hit = LD_NORMAL;
 	*/
+
+	self.spree_amount = 0;
+	self.spree_count = 0;
 
 	self.show_hostile = 0;
 	self.air_finished = time + 12;
@@ -1530,6 +1540,68 @@ void() ObituaryEntity_Think =
 	remove(self);
 };
 
+void(entity dude, float howmany) killcombomsg =
+{
+	if (howmany == 11)
+		centerprint(dude, "Humongous Hemorraghe!\n");
+	else if (howmany == 10)
+		centerprint(dude, "Total Havoc!\n");
+	else if (howmany == 9)
+		centerprint(dude, "Serious Dismemberment!\n");
+	else if (howmany == 8)
+		centerprint(dude, "Massive Destruction!\n");
+	else if (howmany == 7)
+		centerprint(dude, "Major Demolish!\n");
+	else if (howmany == 6)
+		centerprint(dude, "Death wake!\n");
+	else if (howmany == 5)
+		centerprint(dude, "Murder mall!\n");
+	else if (howmany == 4)
+		centerprint(dude, "Riot kill!\n");
+	else if (howmany == 3)
+		centerprint(dude, "Twitch kill!\n");
+	else if (howmany == 2)
+		centerprint(dude, "Double kill!\n");
+	else
+		return;
+};
+
+void(entity dude, float howmany) spreemessage =
+{
+	if (howmany >= 50)
+	{
+		bprint(dude.netname);
+		bprint(" is Death incarnate!\n");
+		centerprint(dude, "Death incarnate!\n");
+	}
+	if (howmany >= 40)
+	{
+		bprint(dude.netname);
+		bprint(" is Mowing the lawn!\n");
+		centerprint(dude, "Mowing the lawn!\n");
+	}
+	if (howmany >= 30)
+	{
+		bprint(dude.netname);
+		bprint(" is Making rivers red!\n");
+		centerprint(dude, "Making rivers red!\n");
+	}
+	if (howmany >= 20)
+	{
+		bprint(dude.netname);
+		bprint(" is Trigger happy!\n");
+		centerprint(dude, "Trigger happy!\n");
+	}
+	else if (howmany >= 10)
+	{
+		bprint(dude.netname);
+		bprint(" is on a Killing spree!\n");
+		centerprint(dude, "Killing spree!\n");
+	}
+
+	dude.spree_count = 0;
+};
+
 /*
 ===========
 ClientObituary
@@ -1560,11 +1632,48 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	{
 		ChangeFrags(attacker, 1);
 		dtype = DTYPE_PLAYER;
+
+		if (deathmatch == 7)
+		{
+			if (attacker.combo_time >= time)
+			{
+				attacker.combo_amount = attacker.combo_amount + 1;
+				killcombomsg(attacker, attacker.combo_amount);
+			}
+			else
+				attacker.combo_amount = 1;
+		
+			attacker.combo_time = time + 1.5;
+	
+			if (attacker.spree_count >= 10)
+				spreemessage(attacker, attacker.spree_amount);
+			else
+				attacker.spree_count = attacker.spree_count + 0.6;
+
+			attacker.spree_amount = attacker.spree_amount + 1;
+		}
 	}
 	else if (targ.classname == "player" && attacker.classname == "player")
 	{
 		ChangeFrags(attacker, 1);
 		dtype = DTYPE_PLAYER;
+
+		if (attacker.combo_time >= time)
+		{
+			attacker.combo_amount = attacker.combo_amount + 1;
+			killcombomsg(attacker, attacker.combo_amount);
+		}
+		else
+			attacker.combo_amount = 1;
+	
+		attacker.combo_time = time + 2;
+
+		if (attacker.spree_count >= 10)
+			spreemessage(attacker, attacker.spree_amount);
+		else
+			attacker.spree_count = attacker.spree_count + 1;
+
+		attacker.spree_amount = attacker.spree_amount + 1;
 	}
 	else
 		dtype = DTYPE_OTHER;
