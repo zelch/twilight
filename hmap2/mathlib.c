@@ -142,14 +142,17 @@ void NormalizePlane( plane_t *dp )
 
 	if( dp->normal[0] == 1.0 ) {
 		dp->type = PLANE_X;
+		VectorSet(dp->normal, 1, 0, 0);
 		return;
 	}
 	if( dp->normal[1] == 1.0 ) {
 		dp->type = PLANE_Y;
+		VectorSet(dp->normal, 0, 1, 0);
 		return;
 	}
 	if( dp->normal[2] == 1.0 ) {
 		dp->type = PLANE_Z;
+		VectorSet(dp->normal, 0, 0, 1);
 		return;
 	}
 
