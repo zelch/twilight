@@ -34,10 +34,10 @@
 
 		title => "width=\"100%\"" ,
 		titlepre => "<font face=\"verdana,arial\" size=\"+3\"><strong>" ,
-		titlepost => "</strong></font><img width=\"100%\" height=\"1\" " .
-			"src=\"/images/whitepix.gif\" alt=\"------\">\n<img " .
-			"width=\"100%\" height=\"10\" src=\"/images/clearpix.gif\" " .
-			"alt=\"\">" ,
+		titlepost => "</strong></font>" . ($browser_name == lynx ?
+			"<hr>\n" : "<img width=\"100%\" height=\"1\" " .
+			"src=\"/images/whitepix.gif\" alt=\"\">\n<img width=\"100%\" " .
+			"height=\"10\" src=\"/images/clearpix.gif\" alt=\"\">") ,
 
 		para => "width=\"100%\" cellspacing=\"10\"" ,
 		parapre => "<font face=\"verdana,arial\">" ,
