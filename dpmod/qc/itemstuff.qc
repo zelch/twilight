@@ -16,7 +16,7 @@ void() SUB_regen =
 		self.solid = SOLID_BBOX;
 	}
 
-	te_teleport(self.origin);
+	//te_teleport(self.origin);
 };
 
 
