@@ -104,6 +104,7 @@ float	current_yaw;
 float(float v) anglemod =
 {
 	v = v - 360 * floor(v / 360);
+	return v;
 };
 
 /*
