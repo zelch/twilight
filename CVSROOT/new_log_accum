@@ -363,8 +363,8 @@ sub build_header ($@) {
 sub send_mail {
     my (@mailto, @text) = @_;
 
-foreach my $item (@text) { print "before.data: $item\n"; }
-foreach my $item (@mailto) { print "mailto: $item\n"; }
+foreach my $item (@mailto) { print "send_mail/mailto: $item\n"; }
+foreach my $item (@text) { print "send_mail/text: $item\n"; }
     open(MAIL, "|$MAILER " . join(' ', @mailto));
 #    push(@data, $boundary);
     print MAIL join("\n", @text), "\n";
@@ -745,6 +745,9 @@ foreach my $file (@files) {
     close(DIFF);
 }
 #push(@text, $boundary);
+
+foreach my $item (@mailto) { print "main/mailto: $item\n"; }
+foreach my $item (@text) { print "main/text: $item\n"; }
 
 # send the mail...
 send_mail(@mailto, @text);
