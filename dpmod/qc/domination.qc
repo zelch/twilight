@@ -167,7 +167,7 @@ void(string teamname, float teamcolor, string pointmodel, float pointskin, strin
 	// this would have to be changed if used in quakeworld
 	self.team = self.cnt + 1;
 
-	eprint(self);
+	//eprint(self);
 	self = oldself;
 };
 
