@@ -18,7 +18,7 @@ foreach (glob("$webspace/release/*.zip") as $filename)
 echo ("</div>");
 
 echo ("<p>Some older releases can be found "
-		. "<a href=\"$urlbase/release/archive\">here</a></p>\n");
+		. "<a href=\"$urlbase/release/archive\">here</a>.</p>\n");
 
 echo ("<p>Other files which might come in handy:</p>\n");
 echo ("<div class=\"files\">\n");
