@@ -620,41 +620,35 @@ entity(entity e) findnearestwaysurface =
 
 .float wpfire, wpcost;
 
-void(entity head, entity w) havocbot_checkwaysurface =
+float(entity head, entity w) havocbot_checkwaysurface =
 {
-	local vector o, m1, m2;
+	local vector o;
 	local float cost;
+	if(!w)
+		return FALSE;
 	cost = head.wpcost + head.dmg;
-	//if(cost < w.wpcost)
-	{
-		o = head.dest - w.owner.origin;
-		m1 = w.mins;m2 = w.maxs;
-		if (o_x < m1_x) o_x = m1_x;if (o_x > m2_x) o_x = m2_x;
-		if (o_y < m1_y) o_y = m1_y;if (o_y > m2_y) o_y = m2_y;
-		//if (o_z < m1_z) o_z = m1_z;if (o_z > m2_z) o_z = m2_z;
-		//o = getsurfaceclippedpoint(w.owner, w.dmg2, head.dest - w.owner.origin);
-		o_z = o_x * w.dest5_x + o_y * w.dest5_y + w.dest5_z;
-		cost = cost + vlen(o + w.owner.origin - head.dest);
-		if(cost < w.wpcost)
-		{
-			//te_smallflash(o);
-			w.dest = o;
-			w.wpcost = cost;
-			w.enemy = head;
-			w.wpfire = 1;
-		}
-	}
+	if (w.wpcost <= cost)
+		return TRUE;
+	o_x = bound(w.mins_x, head.dest_x - w.owner.origin_x, w.maxs_x);
+	o_y = bound(w.mins_y, head.dest_y - w.owner.origin_y, w.maxs_y);
+	o_z = o_x * w.dest5_x + o_y * w.dest5_y + w.dest5_z;
+	//o = getsurfaceclippedpoint(w.owner, w.dmg2, head.dest - w.owner.origin);
+	cost = cost + vlen(o + w.owner.origin - head.dest);
+	if (w.wpcost <= cost)
+		return TRUE;
+	w.dest = o;
+	w.wpcost = cost;
+	w.enemy = head;
+	w.wpfire = 1;
+	return TRUE;
 }
 
+// scanning markroutes
 void() markroutes =
 {
-	local entity start, head, w;
-	local vector o, m1, m2;
-	local float d, dist, cost, c;
-	w = findwaysurface(self.origin, self.absmin, self.absmax);
-	if (w == world)
-		return;
-	//te_smallflash(self.origin);
+	local entity head, waylist;
+	local float searching;
+	waylist = findchain(classname, "waysurface");
 	head = findchain(classname, "waysurface");
 	while (head)
 	{
@@ -664,59 +658,58 @@ void() markroutes =
 		head.enemy = world;
 		head = head.chain;
 	}
-	w.dest = self.origin;
-	w.dest_z = self.dest_x * w.dest5_x + self.dest_y * w.dest5_y + w.dest5_z;
-	w.wpcost = vlen(w.dest - self.origin) + w.dmg;
-	w.wpfire = 1;
-	//w.enemy = world;
-	//c = 0;
-	while (1)
+	head = findwaysurface(self.origin, self.absmin, self.absmax);
+	if (head == world)
+		return;
+	head.dest = self.origin;
+	head.dest_z = self.dest_x * head.dest5_x + self.dest_y * head.dest5_y + head.dest5_z;
+	head.wpcost = vlen(head.dest - self.origin) + head.dmg;
+	head.wpfire = 1;
+	head.enemy = world;
+	searching = TRUE;
+	while (searching)
 	{
-		head = findchainfloat(wpfire, 1);
-		if (head == world)
-		{
-			//bprintfloat(c);
-			//bprint("\n");
-			return;
-		}
+		searching = FALSE;
+		head = waylist;
 		while (head)
 		{
-			//c = c + 1;
-			//te_smallflash(head.dest);
-			head.wpfire = 0;
-			w = head.wp0;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp1;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp2;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp3;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp4;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp5;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp6;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp7;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp8;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp9;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp10;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp11;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp12;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp13;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp14;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp15;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp16;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp17;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp18;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp19;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp20;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp21;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp22;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp23;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp24;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp25;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp26;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp27;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp28;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp29;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp30;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			w = head.wp31;if(w){if(head.wpcost + head.dmg < w.wpcost) havocbot_checkwaysurface(head, w);
-			}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+			if (head.wpfire)
+			{
+				searching = TRUE;
+				head.wpfire = 0;
+				if (havocbot_checkwaysurface(head, head.wp0))
+				if (havocbot_checkwaysurface(head, head.wp1))
+				if (havocbot_checkwaysurface(head, head.wp2))
+				if (havocbot_checkwaysurface(head, head.wp3))
+				if (havocbot_checkwaysurface(head, head.wp4))
+				if (havocbot_checkwaysurface(head, head.wp5))
+				if (havocbot_checkwaysurface(head, head.wp6))
+				if (havocbot_checkwaysurface(head, head.wp7))
+				if (havocbot_checkwaysurface(head, head.wp8))
+				if (havocbot_checkwaysurface(head, head.wp9))
+				if (havocbot_checkwaysurface(head, head.wp10))
+				if (havocbot_checkwaysurface(head, head.wp11))
+				if (havocbot_checkwaysurface(head, head.wp12))
+				if (havocbot_checkwaysurface(head, head.wp13))
+				if (havocbot_checkwaysurface(head, head.wp14))
+				if (havocbot_checkwaysurface(head, head.wp15))
+				if (havocbot_checkwaysurface(head, head.wp16))
+				if (havocbot_checkwaysurface(head, head.wp17))
+				if (havocbot_checkwaysurface(head, head.wp18))
+				if (havocbot_checkwaysurface(head, head.wp19))
+				if (havocbot_checkwaysurface(head, head.wp20))
+				if (havocbot_checkwaysurface(head, head.wp21))
+				if (havocbot_checkwaysurface(head, head.wp22))
+				if (havocbot_checkwaysurface(head, head.wp23))
+				if (havocbot_checkwaysurface(head, head.wp24))
+				if (havocbot_checkwaysurface(head, head.wp25))
+				if (havocbot_checkwaysurface(head, head.wp26))
+				if (havocbot_checkwaysurface(head, head.wp27))
+				if (havocbot_checkwaysurface(head, head.wp28))
+				if (havocbot_checkwaysurface(head, head.wp29))
+				if (havocbot_checkwaysurface(head, head.wp30))
+					havocbot_checkwaysurface(head, head.wp31);
+			}
 			head = head.chain;
 		}
 	}
