@@ -332,12 +332,12 @@ sub build_header ($@) {
 	$boundary = "----=MIME." . unpack("H*", $digest->digest());
 	
 	# Build the mail header
-	push(@text, "X-Mailer: cvs/new_log_accum");
-	push(@text, "From: $gecos <$user>");
+	push(@text, "From: testing $gecos <$user>");
 	push(@text, "To: " . join(' ', @mailto));
-	push(@text, "Subject: $subject");
+	push(@text, "Subject: [commit] $subject");
 	push(@text, "MIME-Version: 1.0");
 	push(@text, "Content-Type: multipart/alternative; boundary=\"$boundary\"");
+	push(@text, "X-Mailer: cvs/new_log_accum");
 	push(@text, "");
 	push(@text, "This is a multipart message as defined by RFC2049 (MIME)");
 	push(@text, "");
