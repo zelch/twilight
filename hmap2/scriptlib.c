@@ -1,8 +1,5 @@
 #include "cmdlib.h"
 
-// LordHavoc: increased maximum token length from 128 to 1024
-#define	MAXTOKEN	1024
-
 char	token[MAXTOKEN];
 qboolean	unget;
 char	*script_p;
