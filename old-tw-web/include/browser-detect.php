@@ -39,12 +39,10 @@ if ($browser_name == "Mozilla") {
 	}
 } elseif ($browser_name == "MSIE") {
 	if ($browser_platform = "Mac") {
-		if ((float)$browser_version >= 5.0) {
+		if ((float)$browser_version >= 5.0)
 			$browser_css = TRUE;
-		} elseif ((float)$browser_version >= 4.0) {
-			$browser_css = TRUE;
-		}
-	}
+	} elseif ((float)$browser_version >= 4.0)
+		$browser_css = TRUE;
 } elseif ($browser_name == "Konqueror") {
 	if ((float)$browser_version >= 2.2) {
 		if (!ereg ("^2\.2beta.*", $browser_version)) {
@@ -65,11 +63,11 @@ if ($use_css == "no")
 	$browser_css = TRUE;
 }
 
-/*
+
 echo "Agent: $HTTP_USER_AGENT";
 echo "<br />Browser: " . $browser_name;
 echo "<br />Version: " . $browser_version;
 echo "<br />Platform: " . $browser_platform;
 echo "<br />CSS: " . (int)$browser_css;
-*/
+
 ?>
