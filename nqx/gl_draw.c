@@ -48,7 +48,6 @@ extern cvar_t *crosshair, *cl_crossx, *cl_crossy, *crosshaircolor;
 
 cvar_t *gl_max_size;
 cvar_t *gl_picmip;
-cvar_t *gl_constretch;
 cvar_t *gl_texturemode;
 cvar_t *cl_verstring;					/* FIXME: Move this? */
 cvar_t *r_lerpimages;
@@ -65,6 +64,8 @@ qpic_t *draw_backtile;
 int         translate_texture;
 int         char_texture;
 int         ch_texture;					// crosshair texture
+int title_texture;
+int titlebg_texture;
 
 typedef struct {
 	int		texnum;
@@ -297,11 +298,10 @@ Draw_Init_Cvars (void)
 	gl_max_size = Cvar_Get ("gl_max_size", va("%d", max_tex_size), CVAR_NONE,
 			NULL);
 	gl_picmip = Cvar_Get ("gl_picmip", "0", CVAR_NONE, NULL);
-	gl_constretch = Cvar_Get ("gl_constretch", "1", CVAR_ARCHIVE, NULL);
 	gl_texturemode = Cvar_Get ("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST",
 			CVAR_ARCHIVE, Set_TextureMode_f);
 	cl_verstring = Cvar_Get ("cl_verstring",
-			"Project Twilight v" VERSION " NQ", CVAR_NONE, NULL);
+			"NQX build " VERSION , CVAR_NONE, NULL);
 	r_lerpimages = Cvar_Get ("r_lerpimages", "1", CVAR_ARCHIVE, NULL);
 	r_colormiplevels = Cvar_Get ("r_colormiplevels", "0", CVAR_NONE, NULL);
 
@@ -332,6 +332,22 @@ Draw_Init (void)
 	
 	char_texture = R_LoadTexture ("charset", img, TEX_ALPHA);
 
+	free (img);
+
+	img = Image_Load ("nqx/title");
+	if (!img)
+		Sys_Error ("Draw_Init: Unable to load title image\n");
+
+	title_texture = R_LoadTexture ("title", img, TEX_ALPHA);
+	free (img);
+
+	img = Image_Load ("nqx/title-back");
+	if (!img)
+		Sys_Error ("Draw_Init: Unable to load background image\n");
+
+	titlebg_texture = R_LoadTexture ("titlebg", img, TEX_NONE);
+	free (img);
+	
 	// Keep track of the first crosshair texture
 	ch_texture = texture_extension_number;
 	for (i = 0; i < NUM_CROSSHAIRS; i++)
@@ -528,6 +544,9 @@ Draw_Crosshair (void)
 	float			ofs;
 	int				ctexture;
 
+	if (cls.state != ca_connected)
+		// Just don't.
+		return;
 	if (crosshair->ivalue < 1)
 		return;
 
@@ -606,6 +625,26 @@ Draw_Pic (int x, int y, qpic_t *pic)
 	qglDisable (GL_BLEND);
 }
 
+void
+Draw_Texture (int x, int y, int width, int height, int texid)
+{
+	qglBindTexture (GL_TEXTURE_2D, texid);
+	qglEnable (GL_BLEND);
+
+	VectorSet2 (tc_array_v(0), 0.0f, 0.0f);
+	VectorSet2 (v_array_v(0), x, y);
+	VectorSet2 (tc_array_v(1), 1.0f, 0.0f);
+	VectorSet2 (v_array_v(1), x + width, y);
+	VectorSet2 (tc_array_v(2), 1.0f, 1.0f);
+	VectorSet2 (v_array_v(2), x + width, y + height);
+	VectorSet2 (tc_array_v(3), 0.0f, 1.0f);
+	VectorSet2 (v_array_v(3), x, y + height);
+	TWI_PreVDraw (0, 4);
+	qglDrawArrays (GL_QUADS, 0, 4);
+	TWI_PostVDraw ();
+
+	qglDisable (GL_BLEND);
+}
 
 void
 Draw_SubPic (int x, int y, qpic_t *pic, int srcx, int srcy, int width,
@@ -702,57 +741,20 @@ Draw_ConsoleBackground
 void
 Draw_ConsoleBackground (int lines)
 {
-	int         y;
-	qpic_t	   *conback;
-	glpic_t	   *gl;
-	float		alpha;
-	float		ofs;
+	vec4_t		color;
 
-	conback = Draw_CachePic ("gfx/conback.lmp");
-	gl = (glpic_t *) conback->data;
+	qglEnable (GL_BLEND);
 
-	y = (vid.height_2d * 3) >> 2;
+	VectorSet4 (color, 0.0f, 0.0f, 0.0f, 0.6f);
+	Draw_Fill (0, 0, vid.width_2d, lines, color);
+	VectorSet4 (color, 0.0f, 0.6f, 0.6f, 0.6f);
+	Draw_Fill (0, lines, vid.width_2d, 1, color);
 
-	if (cls.state != ca_connected || lines > y)
-		alpha = 1.0;
-	else
-		alpha = (float) (0.6 * lines / y);
+//	ver_len = strlen (cl_verstring->svalue);
+//	Draw_Alt_String_Len (vid.width_2d - (ver_len * con->tsize) - 16,
+//			lines - 14, cl_verstring->svalue, ver_len, con->tsize);
 
-	if (gl_constretch->ivalue)
-		ofs = 0.0f;
-	else
-		ofs = (float) ((vid.height_2d - lines) / vid.height_2d);
-
-	if (alpha != 1.0f) {
-		qglColor4f (1.0f, 1.0f, 1.0f, alpha);
-		qglEnable (GL_BLEND);
-	}
-
-	qglBindTexture (GL_TEXTURE_2D, gl->texnum);
-	VectorSet2 (tc_array_v(0), gl->sl, gl->tl + ofs);
-	VectorSet2 (v_array_v(0), 0, 0);
-	VectorSet2 (tc_array_v(1), gl->sh, gl->tl + ofs);
-	VectorSet2 (v_array_v(1), vid.width_2d, 0);
-	VectorSet2 (tc_array_v(2), gl->sh, gl->th);
-	VectorSet2 (v_array_v(2), vid.width_2d, lines);
-	VectorSet2 (tc_array_v(3), gl->sl, gl->th);
-	VectorSet2 (v_array_v(3), 0, lines);
-	TWI_PreVDraw (0, 4);
-	qglDrawArrays (GL_QUADS, 0, 4);
-	TWI_PostVDraw ();
-
-	/* hack the version number directly into the pic */
-	{
-		int	ver_len = strlen (cl_verstring->svalue);
-
-		Draw_Alt_String_Len (vid.width_2d - (ver_len * con->tsize) - 16,
-				lines - 14, cl_verstring->svalue, ver_len, con->tsize);
-	}
-
-	if (alpha != 1.0f)
-		qglDisable (GL_BLEND);
-
-	qglColor4fv (whitev);
+	qglDisable (GL_BLEND);
 }
 
 
@@ -819,20 +821,11 @@ Draw_FadeScreen
 void
 Draw_FadeScreen (void)
 {
+	vec4_t		fadecolor;
+
+	VectorSet4 (fadecolor, 0.0f, 0.0f, 0.0f, 0.8f);
 	qglEnable (GL_BLEND);
-	qglDisable (GL_TEXTURE_2D);
-	qglColor4f (0, 0, 0, 0.8);
-
-	VectorSet2 (v_array_v(0), 0, 0);
-	VectorSet2 (v_array_v(1), vid.width_2d, 0);
-	VectorSet2 (v_array_v(2), vid.width_2d, vid.height_2d);
-	VectorSet2 (v_array_v(3), 0, vid.height_2d);
-	TWI_PreVDraw (0, 4);
-	qglDrawArrays (GL_QUADS, 0, 4);
-	TWI_PostVDraw ();
-
-	qglColor4fv (whitev);
-	qglEnable (GL_TEXTURE_2D);
+	Draw_Fill (0, 0, vid.width_2d, vid.height_2d, fadecolor);
 	qglDisable (GL_BLEND);
 }
 
@@ -865,13 +858,11 @@ Setup for single-pixel units
 ================
 */
 void
-GL_Set2D (void)
+GL_Set2D (Uint x, Uint y, Uint w, Uint h)
 {
-	qglViewport (glx, gly, vid.width, vid.height);
-
 	qglMatrixMode (GL_PROJECTION);
 	qglLoadIdentity ();
-	qglOrtho (0, vid.width_2d, vid.height_2d, 0, -99999, 99999);
+	qglOrtho (x, w, h, y, -99999, 99999);
 
 	qglMatrixMode (GL_MODELVIEW);
 	qglLoadIdentity ();

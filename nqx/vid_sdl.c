@@ -313,7 +313,7 @@ GL_Init (void)
 	CheckDriverQuirks ();
 	CheckExtensions ();
 
-	qglClearColor (0.3f, 0.3f, 0.3f, 0.5f);
+	qglClearColor (0.0f, 0.0f, 0.0f, 1.0f);
 	qglCullFace (GL_FRONT);
 	qglEnable (GL_TEXTURE_2D);
 

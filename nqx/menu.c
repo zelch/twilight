@@ -127,38 +127,6 @@ char        m_return_reason[32];
 
 void        M_ConfigureNetSubsystem (void);
 
-/*
-================
-M_DrawCharacter
-
-Draws one solid graphics character
-================
-*/
-void
-M_DrawCharacter (int cx, int line, int num)
-{
-	Draw_Character (cx + ((vid.width_2d - 320) >> 1), line, num, 8);
-}
-
-void
-M_Print (int cx, int cy, char *str)
-{
-	Draw_String (cx + ((vid.width_2d - 320) >> 1), cy, str, 8);
-}
-
-void
-M_PrintAlt (int cx, int cy, char *str)
-{
-	Draw_Alt_String (cx + ((vid.width_2d - 320) >> 1), cy, str, 8);
-}
-
-void
-M_DrawPic (int x, int y, qpic_t *pic)
-{
-	Draw_Pic (x + ((vid.width_2d - 320) >> 1), y, pic);
-}
-
-
 static int
 M_ModalMessage (char *text)
 {
@@ -236,30 +204,30 @@ M_DrawTextBox (int x, int y, int width, int lines)
 	cx = x;
 	cy = y;
 	p = Draw_CachePic ("gfx/box_tl.lmp");
-	M_DrawPic (cx, cy, p);
+	Draw_Pic (cx, cy, p);
 	p = Draw_CachePic ("gfx/box_ml.lmp");
 	for (n = 0; n < lines; n++) {
 		cy += 8;
-		M_DrawPic (cx, cy, p);
+		Draw_Pic (cx, cy, p);
 	}
 	p = Draw_CachePic ("gfx/box_bl.lmp");
-	M_DrawPic (cx, cy + 8, p);
+	Draw_Pic (cx, cy + 8, p);
 
 	// draw middle
 	cx += 8;
 	while (width > 0) {
 		cy = y;
 		p = Draw_CachePic ("gfx/box_tm.lmp");
-		M_DrawPic (cx, cy, p);
+		Draw_Pic (cx, cy, p);
 		p = Draw_CachePic ("gfx/box_mm.lmp");
 		for (n = 0; n < lines; n++) {
 			cy += 8;
 			if (n == 1)
 				p = Draw_CachePic ("gfx/box_mm2.lmp");
-			M_DrawPic (cx, cy, p);
+			Draw_Pic (cx, cy, p);
 		}
 		p = Draw_CachePic ("gfx/box_bm.lmp");
-		M_DrawPic (cx, cy + 8, p);
+		Draw_Pic (cx, cy + 8, p);
 		width -= 2;
 		cx += 16;
 	}
@@ -267,14 +235,14 @@ M_DrawTextBox (int x, int y, int width, int lines)
 	// draw right side
 	cy = y;
 	p = Draw_CachePic ("gfx/box_tr.lmp");
-	M_DrawPic (cx, cy, p);
+	Draw_Pic (cx, cy, p);
 	p = Draw_CachePic ("gfx/box_mr.lmp");
 	for (n = 0; n < lines; n++) {
 		cy += 8;
-		M_DrawPic (cx, cy, p);
+		Draw_Pic (cx, cy, p);
 	}
 	p = Draw_CachePic ("gfx/box_br.lmp");
-	M_DrawPic (cx, cy + 8, p);
+	Draw_Pic (cx, cy + 8, p);
 }
 
 //=============================================================================
@@ -335,14 +303,14 @@ M_Main_Draw (void)
 	int         f;
 	qpic_t     *p;
 
-	M_DrawPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
+	Draw_Pic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
 	p = Draw_CachePic ("gfx/ttl_main.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
-	M_DrawPic (72, 32, Draw_CachePic ("gfx/mainmenu.lmp"));
+	Draw_Pic ((320 - p->width) / 2, 4, p);
+	Draw_Pic (72, 32, Draw_CachePic ("gfx/mainmenu.lmp"));
 
 	f = (int) (host_time * 10) % 6;
 
-	M_DrawPic (54, 32 + m_main_cursor * 20,
+	Draw_Pic (54, 32 + m_main_cursor * 20,
 					Draw_CachePic (va ("gfx/menudot%i.lmp", f + 1)));
 }
 
@@ -422,14 +390,14 @@ M_SinglePlayer_Draw (void)
 	int         f;
 	qpic_t     *p;
 
-	M_DrawPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
+	Draw_Pic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
 	p = Draw_CachePic ("gfx/ttl_sgl.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
-	M_DrawPic (72, 32, Draw_CachePic ("gfx/sp_menu.lmp"));
+	Draw_Pic ((320 - p->width) / 2, 4, p);
+	Draw_Pic (72, 32, Draw_CachePic ("gfx/sp_menu.lmp"));
 
 	f = (int) (host_time * 10) % 6;
 
-	M_DrawPic (54, 32 + m_singleplayer_cursor * 20,
+	Draw_Pic (54, 32 + m_singleplayer_cursor * 20,
 					Draw_CachePic (va ("gfx/menudot%i.lmp", f + 1)));
 }
 
@@ -551,13 +519,13 @@ M_Load_Draw (void)
 	qpic_t     *p;
 
 	p = Draw_CachePic ("gfx/p_load.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 
 	for (i = 0; i < MAX_SAVEGAMES; i++)
-		M_Print (16, 32 + 8 * i, m_filenames[i]);
+		Draw_String (16, 32 + 8 * i, m_filenames[i], 8);
 
 // line cursor
-	M_DrawCharacter (8, 32 + load_cursor * 8, 12 + ((int) (host_realtime * 4) & 1));
+	Draw_Character (8, 32 + load_cursor * 8, 12 + ((int) (host_realtime * 4) & 1), 8);
 }
 
 
@@ -568,13 +536,13 @@ M_Save_Draw (void)
 	qpic_t     *p;
 
 	p = Draw_CachePic ("gfx/p_save.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 
 	for (i = 0; i < MAX_SAVEGAMES; i++)
-		M_Print (16, 32 + 8 * i, m_filenames[i]);
+		Draw_String (16, 32 + 8 * i, m_filenames[i], 8);
 
 // line cursor
-	M_DrawCharacter (8, 32 + load_cursor * 8, 12 + ((int) (host_realtime * 4) & 1));
+	Draw_Character (8, 32 + load_cursor * 8, 12 + ((int) (host_realtime * 4) & 1), 8);
 }
 
 
@@ -675,20 +643,20 @@ M_MultiPlayer_Draw (void)
 	int         f;
 	qpic_t     *p;
 
-	M_DrawPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
+	Draw_Pic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
 	p = Draw_CachePic ("gfx/p_multi.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
-	M_DrawPic (72, 32, Draw_CachePic ("gfx/mp_menu.lmp"));
+	Draw_Pic ((320 - p->width) / 2, 4, p);
+	Draw_Pic (72, 32, Draw_CachePic ("gfx/mp_menu.lmp"));
 
 	f = (int) (host_time * 10) % 6;
 
-	M_DrawPic (54, 32 + m_multiplayer_cursor * 20,
+	Draw_Pic (54, 32 + m_multiplayer_cursor * 20,
 					Draw_CachePic (va ("gfx/menudot%i.lmp", f + 1)));
 
 	if (tcpipAvailable)
 		return;
-	M_PrintAlt ((320 / 2) - ((27 * 8) / 2), 148,
-			"No Communications Available");
+	Draw_Alt_String ((320 / 2) - ((27 * 8) / 2), 148,
+			"No Communications Available", 8);
 }
 
 
@@ -765,42 +733,42 @@ M_Setup_Draw (void)
 {
 	qpic_t     *p;
 
-	M_DrawPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
+	Draw_Pic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
 	p = Draw_CachePic ("gfx/p_multi.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 
-	M_Print (64, 40, "Hostname");
+	Draw_String (64, 40, "Hostname", 8);
 	M_DrawTextBox (160, 32, 16, 1);
-	M_Print (168, 40, setup_hostname);
+	Draw_String (168, 40, setup_hostname, 8);
 
-	M_Print (64, 56, "Your name");
+	Draw_String (64, 56, "Your name", 8);
 	M_DrawTextBox (160, 48, 16, 1);
-	M_Print (168, 56, setup_myname);
+	Draw_String (168, 56, setup_myname, 8);
 
-	M_Print (64, 80, "Shirt color");
-	M_Print (64, 104, "Pants color");
+	Draw_String (64, 80, "Shirt color", 8);
+	Draw_String (64, 104, "Pants color", 8);
 
 	M_DrawTextBox (64, 140 - 8, 14, 1);
-	M_Print (72, 140, "Accept Changes");
+	Draw_String (72, 140, "Accept Changes", 8);
 
 	p = Draw_CachePic ("gfx/bigbox.lmp");
-	M_DrawPic (160, 64, p);
+	Draw_Pic (160, 64, p);
 	p = Draw_CachePic ("gfx/menuplyr.lmp");
 	M_BuildTranslationTable (setup_top * 16, setup_bottom * 16);
 	M_DrawTransPicTranslate (172, 72, p);
 
-	M_DrawCharacter (56, setup_cursor_table[setup_cursor],
-					 12 + ((int) (host_realtime * 4) & 1));
+	Draw_Character (56, setup_cursor_table[setup_cursor],
+					 12 + ((int) (host_realtime * 4) & 1), 8);
 
 	if (setup_cursor == 0)
-		M_DrawCharacter (168 + 8 * strlen (setup_hostname),
+		Draw_Character (168 + 8 * strlen (setup_hostname),
 						 setup_cursor_table[setup_cursor],
-						 10 + ((int) (host_realtime * 4) & 1));
+						 10 + ((int) (host_realtime * 4) & 1), 8);
 
 	if (setup_cursor == 1)
-		M_DrawCharacter (168 + 8 * strlen (setup_myname),
+		Draw_Character (168 + 8 * strlen (setup_myname),
 						 setup_cursor_table[setup_cursor],
-						 10 + ((int) (host_realtime * 4) & 1));
+						 10 + ((int) (host_realtime * 4) & 1), 8);
 }
 
 
@@ -1046,17 +1014,17 @@ M_DrawSlider (int x, int y, float range)
 
 	range = bound (0, range, 1);
 
-	M_DrawCharacter (x - 8, y, 128);
+	Draw_Character (x - 8, y, 128, 8);
 	for (i = 0; i < SLIDER_RANGE; i++)
-		M_DrawCharacter (x + i * 8, y, 129);
-	M_DrawCharacter (x + i * 8, y, 130);
-	M_DrawCharacter (x + (SLIDER_RANGE - 1) * 8 * range, y, 131);
+		Draw_Character (x + i * 8, y, 129, 8);
+	Draw_Character (x + i * 8, y, 130, 8);
+	Draw_Character (x + (SLIDER_RANGE - 1) * 8 * range, y, 131, 8);
 }
 
 void
 M_DrawCheckbox (int x, int y, int on)
 {
-	M_Print (x, y, (on) ? "on" : "off");
+	Draw_String (x, y, (on) ? "on" : "off", 8);
 }
 
 void
@@ -1065,41 +1033,41 @@ M_Options_Draw (void)
 	int 	y, scrap;
 	qpic_t	*p;
 
-	M_DrawPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
+	Draw_Pic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
 	p = Draw_CachePic ("gfx/p_option.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 
 	y = 32;
-	M_Print (16, y, "    Customize controls"); y += 8;
-	M_Print (16, y, "         Go to console"); y += 8;
-	M_Print (16, y, "     Reset to defaults"); y += 8;
+	Draw_String (16, y, "    Customize controls", 8); y += 8;
+	Draw_String (16, y, "         Go to console", 8); y += 8;
+	Draw_String (16, y, "     Reset to defaults", 8); y += 8;
 
 	scrap = (width_2d->ivalue == -1) ? (int)vid.width : (width_2d->ivalue);
-	M_Print (16, y, "   2D Resolution Width"); M_DrawSlider (220, y, scrap / 1000.0f); y += 8;
+	Draw_String (16, y, "   2D Resolution Width", 8); M_DrawSlider (220, y, scrap / 1000.0f); y += 8;
 	scrap = (height_2d->ivalue == -1) ? (int)vid.height : (height_2d->ivalue);
-	M_Print (16, y, "  2D Resolution Height"); M_DrawSlider (220, y, scrap / 1000.0f); y += 8;
-	M_Print (16, y, "             Text Size"); M_DrawSlider (220, y, text_scale->fvalue / 3.0f); y += 8;
+	Draw_String (16, y, "  2D Resolution Height", 8); M_DrawSlider (220, y, scrap / 1000.0f); y += 8;
+	Draw_String (16, y, "             Text Size", 8); M_DrawSlider (220, y, text_scale->fvalue / 3.0f); y += 8;
 
-	M_Print (16, y, "           Screen size"); M_DrawSlider (220, y, (scr_viewsize->ivalue - 30) / (120 - 30)); y += 8;
-	M_Print (16, y, "        Hardware Gamma"); M_DrawSlider (220, y, v_gamma->fvalue - 1.0); y += 8;
-	M_Print (16, y, "   Software Brightness"); M_DrawSlider (220, y, (r_brightness->fvalue - 1) / 4); y += 8;
-	M_Print (16, y, "     Software Contrast"); M_DrawSlider (220, y, (r_contrast->fvalue - 0.75) * 4); y += 8;
-	M_Print (16, y, "           Mouse Speed"); M_DrawSlider (220, y, (sensitivity->fvalue - 1) / 10); y += 8;
-	M_Print (16, y, "       CD Music Volume"); M_DrawSlider (220, y, bgmvolume->fvalue); y += 8;
-	M_Print (16, y, "          Sound Volume"); M_DrawSlider (220, y, volume->fvalue); y += 8;
-	M_Print (16, y, "            Always Run"); M_DrawCheckbox (220, y, cl_forwardspeed->fvalue > 200); y += 8;
-	M_Print (16, y, "            Mouse Look"); M_DrawCheckbox (220, y, m_freelook->ivalue); y += 8;
-	M_Print (16, y, "    Smooth Mouse Input"); M_DrawCheckbox (220, y, m_filter->ivalue); y += 8;
-	M_Print (16, y, "          Invert Mouse"); M_DrawCheckbox (220, y, m_pitch->fvalue < 0); y += 8;
-	M_Print (16, y, "            Lookspring"); M_DrawCheckbox (220, y, lookspring->ivalue); y += 8;
-	M_Print (16, y, "            Lookstrafe"); M_DrawCheckbox (220, y, lookstrafe->ivalue); y += 8;
-	M_Print (16, y, "    Use old status bar"); M_DrawCheckbox (220, y, cl_sbar->ivalue); y += 8;
-	M_Print (16, y, "      HUD on left side"); M_DrawCheckbox (220, y, cl_hudswap->ivalue); y += 8;
-	M_Print (16, y, "             Use Mouse"); M_DrawCheckbox (220, y, _windowed_mouse->ivalue); y += 8;
-	M_Print (16, y, "      Graphics Options"); y += 8;
+	Draw_String (16, y, "           Screen size", 8); M_DrawSlider (220, y, (scr_viewsize->ivalue - 30) / (120 - 30)); y += 8;
+	Draw_String (16, y, "        Hardware Gamma", 8); M_DrawSlider (220, y, v_gamma->fvalue - 1.0); y += 8;
+	Draw_String (16, y, "   Software Brightness", 8); M_DrawSlider (220, y, (r_brightness->fvalue - 1) / 4); y += 8;
+	Draw_String (16, y, "     Software Contrast", 8); M_DrawSlider (220, y, (r_contrast->fvalue - 0.75) * 4); y += 8;
+	Draw_String (16, y, "           Mouse Speed", 8); M_DrawSlider (220, y, (sensitivity->fvalue - 1) / 10); y += 8;
+	Draw_String (16, y, "       CD Music Volume", 8); M_DrawSlider (220, y, bgmvolume->fvalue); y += 8;
+	Draw_String (16, y, "          Sound Volume", 8); M_DrawSlider (220, y, volume->fvalue); y += 8;
+	Draw_String (16, y, "            Always Run", 8); M_DrawCheckbox (220, y, cl_forwardspeed->fvalue > 200); y += 8;
+	Draw_String (16, y, "            Mouse Look", 8); M_DrawCheckbox (220, y, m_freelook->ivalue); y += 8;
+	Draw_String (16, y, "    Smooth Mouse Input", 8); M_DrawCheckbox (220, y, m_filter->ivalue); y += 8;
+	Draw_String (16, y, "          Invert Mouse", 8); M_DrawCheckbox (220, y, m_pitch->fvalue < 0); y += 8;
+	Draw_String (16, y, "            Lookspring", 8); M_DrawCheckbox (220, y, lookspring->ivalue); y += 8;
+	Draw_String (16, y, "            Lookstrafe", 8); M_DrawCheckbox (220, y, lookstrafe->ivalue); y += 8;
+	Draw_String (16, y, "    Use old status bar", 8); M_DrawCheckbox (220, y, cl_sbar->ivalue); y += 8;
+	Draw_String (16, y, "      HUD on left side", 8); M_DrawCheckbox (220, y, cl_hudswap->ivalue); y += 8;
+	Draw_String (16, y, "             Use Mouse", 8); M_DrawCheckbox (220, y, _windowed_mouse->ivalue); y += 8;
+	Draw_String (16, y, "      Graphics Options", 8); y += 8;
 
 	// cursor
-	M_DrawCharacter (200, 32 + options_cursor * 8, 12 + ((int) (host_realtime * 4) & 1));
+	Draw_Character (200, 32 + options_cursor * 8, 12 + ((int) (host_realtime * 4) & 1), 8);
 }
 
 
@@ -1206,21 +1174,21 @@ M_Gfx_Draw (void)
 
 	if (!p) p = Draw_CachePic ("gfx/p_option.lmp");
 
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 
 	y = 32;
-	M_Print (16, y, "         Affine models"); M_DrawCheckbox (220, y, gl_affinemodels->ivalue); y += 8;
-	M_Print (16, y, "     Fullbright models"); M_DrawCheckbox (220, y, gl_fb_models->ivalue); y += 8;
-	M_Print (16, y, "    Fullbright bmodels"); M_DrawCheckbox (220, y, gl_fb_bmodels->ivalue); y += 8;
-	M_Print (16, y, "   Fast dynamic lights"); M_DrawCheckbox (220, y, gl_flashblend->ivalue); y += 8;
-	M_Print (16, y, "               Shadows"); M_Print (220, y, (r_shadows->ivalue) ? (r_shadows->ivalue == 2 ? "nice" : "fast") : "off"); y += 8;
-	M_Print (16, y, "   Frame interpolation"); M_DrawCheckbox (220, y, gl_im_animation->ivalue); y += 8;
-	M_Print (16, y, "  Motion interpolation"); M_DrawCheckbox (220, y, gl_im_transform->ivalue); y += 8;
-	M_Print (16, y, "          Texture mode"); M_Print (220, y, gl_texturemode->svalue); y += 8;
-	M_Print (16, y, "      Particle torches"); M_DrawCheckbox (220, y, gl_particletorches->ivalue);
+	Draw_String (16, y, "         Affine models", 8); M_DrawCheckbox (220, y, gl_affinemodels->ivalue); y += 8;
+	Draw_String (16, y, "     Fullbright models", 8); M_DrawCheckbox (220, y, gl_fb_models->ivalue); y += 8;
+	Draw_String (16, y, "    Fullbright bmodels", 8); M_DrawCheckbox (220, y, gl_fb_bmodels->ivalue); y += 8;
+	Draw_String (16, y, "   Fast dynamic lights", 8); M_DrawCheckbox (220, y, gl_flashblend->ivalue); y += 8;
+	Draw_String (16, y, "               Shadows", 8); Draw_String (220, y, (r_shadows->ivalue) ? (r_shadows->ivalue == 2 ? "nice" : "fast") : "off", 8); y += 8;
+	Draw_String (16, y, "   Frame interpolation", 8); M_DrawCheckbox (220, y, gl_im_animation->ivalue); y += 8;
+	Draw_String (16, y, "  Motion interpolation", 8); M_DrawCheckbox (220, y, gl_im_transform->ivalue); y += 8;
+	Draw_String (16, y, "          Texture mode", 8); Draw_String (220, y, gl_texturemode->svalue, 8); y += 8;
+	Draw_String (16, y, "      Particle torches", 8); M_DrawCheckbox (220, y, gl_particletorches->ivalue);
 
 	// cursor
-	M_DrawCharacter (200, 32 + gfx_cursor * 8, 12 + ((int) (host_realtime * 4) & 1));
+	Draw_Character (200, 32 + gfx_cursor * 8, 12 + ((int) (host_realtime * 4) & 1), 8);
 }
 
 void
@@ -1418,41 +1386,41 @@ M_Keys_Draw (void)
 	qpic_t		*p;
 
 	p = Draw_CachePic ("gfx/ttl_cstm.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 
 	if (bind_grab)
-		M_Print (12, 32, "Press a key or button for this action");
+		Draw_String (12, 32, "Press a key or button for this action", 8);
 	else
-		M_Print (18, 32, "Enter to change, backspace to clear");
+		Draw_String (18, 32, "Enter to change, backspace to clear", 8);
 
 	// search for known bindings
 	for (i = 0; i < NUMCOMMANDS; i++) {
 		y = 48 + 8 * i;
 
-		M_Print (16, y, bindnames[i][1]);
+		Draw_String (16, y, bindnames[i][1], 8);
 
 		l = strlen (bindnames[i][0]);
 
 		M_FindKeysForCommand (bindnames[i][0], keys);
 
 		if (keys[0] == -1) {
-			M_Print (140, y, "???");
+			Draw_String (140, y, "???", 8);
 		} else {
 			name = Key_KeynumToString (keys[0]);
-			M_Print (140, y, name);
+			Draw_String (140, y, name, 8);
 			x = strlen (name) * 8;
 			if (keys[1] != -1) {
-				M_Print (140 + x + 8, y, "or");
-				M_Print (140 + x + 32, y, Key_KeynumToString (keys[1]));
+				Draw_String (140 + x + 8, y, "or", 8);
+				Draw_String (140 + x + 32, y, Key_KeynumToString (keys[1]), 8);
 			}
 		}
 	}
 
 	if (bind_grab)
-		M_DrawCharacter (130, 48 + keys_cursor * 8, '=');
+		Draw_Character (130, 48 + keys_cursor * 8, '=', 8);
 	else
-		M_DrawCharacter (130, 48 + keys_cursor * 8,
-						 12 + ((int) (host_realtime * 4) & 1));
+		Draw_Character (130, 48 + keys_cursor * 8,
+						 12 + ((int) (host_realtime * 4) & 1), 8);
 }
 
 
@@ -1533,7 +1501,7 @@ M_Menu_Help_f (void)
 void
 M_Help_Draw (void)
 {
-	M_DrawPic (0, 0, Draw_CachePic (va ("gfx/help%i.lmp", help_page)));
+	Draw_Pic (0, 0, Draw_CachePic (va ("gfx/help%i.lmp", help_page)));
 }
 
 
@@ -1664,11 +1632,14 @@ M_Quit_Draw (void)
 		M_Draw ();
 		m_state = m_quit;
 	}
+	qglPushMatrix ();
+	GL_Set2D (0, 0, 320, 240);
 	M_DrawTextBox (56, 76, 24, 4);
-	M_Print (64, 84, quitMessage[msgNumber * 4 + 0]);
-	M_Print (64, 92, quitMessage[msgNumber * 4 + 1]);
-	M_Print (64, 100, quitMessage[msgNumber * 4 + 2]);
-	M_Print (64, 108, quitMessage[msgNumber * 4 + 3]);
+	Draw_String (64, 84, quitMessage[msgNumber * 4 + 0], 8);
+	Draw_String (64, 92, quitMessage[msgNumber * 4 + 1], 8);
+	Draw_String (64, 100, quitMessage[msgNumber * 4 + 2], 8);
+	Draw_String (64, 108, quitMessage[msgNumber * 4 + 3], 8);
+	qglPopMatrix ();
 }
 
 
@@ -1715,51 +1686,51 @@ M_LanConfig_Draw (void)
 	char       *startJoin;
 	char       *protocol;
 
-	M_DrawPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
+	Draw_Pic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
 	p = Draw_CachePic ("gfx/p_multi.lmp");
 	basex = (320 - p->width) / 2;
-	M_DrawPic (basex, 4, p);
+	Draw_Pic (basex, 4, p);
 
 	if (StartingGame)
 		startJoin = "New Game";
 	else
 		startJoin = "Join Game";
 	protocol = "TCP/IP";
-	M_Print (basex, 32, va ("%s - %s", startJoin, protocol));
+	Draw_String (basex, 32, va ("%s - %s", startJoin, protocol), 8);
 	basex += 8;
 
-	M_Print (basex, 52, "Address:");
-	M_Print (basex + 9 * 8, 52, my_tcpip_address);
+	Draw_String (basex, 52, "Address:", 8);
+	Draw_String (basex + 9 * 8, 52, my_tcpip_address, 8);
 
-	M_Print (basex, lanConfig_cursor_table[0], "Port");
+	Draw_String (basex, lanConfig_cursor_table[0], "Port", 8);
 	M_DrawTextBox (basex + 8 * 8, lanConfig_cursor_table[0] - 8, 6, 1);
-	M_Print (basex + 9 * 8, lanConfig_cursor_table[0], lanConfig_portname);
+	Draw_String (basex + 9 * 8, lanConfig_cursor_table[0], lanConfig_portname, 8);
 
 	if (JoiningGame) {
-		M_Print (basex, lanConfig_cursor_table[1], "Search for local games...");
-		M_Print (basex, 108, "Join game at:");
+		Draw_String (basex, lanConfig_cursor_table[1], "Search for local games...", 8);
+		Draw_String (basex, 108, "Join game at:", 8);
 		M_DrawTextBox (basex + 8, lanConfig_cursor_table[2] - 8, 22, 1);
-		M_Print (basex + 16, lanConfig_cursor_table[2], lanConfig_joinname);
+		Draw_String (basex + 16, lanConfig_cursor_table[2], lanConfig_joinname, 8);
 	} else {
 		M_DrawTextBox (basex, lanConfig_cursor_table[1] - 8, 2, 1);
-		M_Print (basex + 8, lanConfig_cursor_table[1], "OK");
+		Draw_String (basex + 8, lanConfig_cursor_table[1], "OK", 8);
 	}
 
-	M_DrawCharacter (basex - 8, lanConfig_cursor_table[lanConfig_cursor],
-					 12 + ((int) (host_realtime * 4) & 1));
+	Draw_Character (basex - 8, lanConfig_cursor_table[lanConfig_cursor],
+					 12 + ((int) (host_realtime * 4) & 1), 8);
 
 	if (lanConfig_cursor == 0)
-		M_DrawCharacter (basex + 9 * 8 + 8 * strlen (lanConfig_portname),
+		Draw_Character (basex + 9 * 8 + 8 * strlen (lanConfig_portname),
 						 lanConfig_cursor_table[0],
-						 10 + ((int) (host_realtime * 4) & 1));
+						 10 + ((int) (host_realtime * 4) & 1), 8);
 
 	if (lanConfig_cursor == 2)
-		M_DrawCharacter (basex + 16 + 8 * strlen (lanConfig_joinname),
+		Draw_Character (basex + 16 + 8 * strlen (lanConfig_joinname),
 						 lanConfig_cursor_table[2],
-						 10 + ((int) (host_realtime * 4) & 1));
+						 10 + ((int) (host_realtime * 4) & 1), 8);
 
 	if (*m_return_reason)
-		M_PrintAlt (basex, 148, m_return_reason);
+		Draw_Alt_String (basex, 148, m_return_reason, 8);
 }
 
 
@@ -2035,23 +2006,23 @@ M_GameOptions_Draw (void)
 	qpic_t     *p;
 	int         x;
 
-	M_DrawPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
+	Draw_Pic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"));
 	p = Draw_CachePic ("gfx/p_multi.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 
 	M_DrawTextBox (152, 32, 10, 1);
-	M_Print (160, 40, "begin game");
+	Draw_String (160, 40, "begin game", 8);
 
-	M_Print (0, 56, "      Max players");
-	M_Print (160, 56, va ("%i", maxplayers));
+	Draw_String (0, 56, "      Max players", 8);
+	Draw_String (160, 56, va ("%i", maxplayers), 8);
 
-	M_Print (0, 64, "        Game Type");
+	Draw_String (0, 64, "        Game Type", 8);
 	if (coop->ivalue)
-		M_Print (160, 64, "Cooperative");
+		Draw_String (160, 64, "Cooperative", 8);
 	else
-		M_Print (160, 64, "Deathmatch");
+		Draw_String (160, 64, "Deathmatch", 8);
 
-	M_Print (0, 72, "        Teamplay");
+	Draw_String (0, 72, "        Teamplay", 8);
 	if (rogue) {
 		char       *msg;
 
@@ -2078,7 +2049,7 @@ M_GameOptions_Draw (void)
 				msg = "Off";
 				break;
 		}
-		M_Print (160, 72, msg);
+		Draw_String (160, 72, msg, 8);
 	} else {
 		char       *msg;
 
@@ -2093,80 +2064,80 @@ M_GameOptions_Draw (void)
 				msg = "Off";
 				break;
 		}
-		M_Print (160, 72, msg);
+		Draw_String (160, 72, msg, 8);
 	}
 
-	M_Print (0, 80, "            Skill");
+	Draw_String (0, 80, "            Skill", 8);
 	if (skill->ivalue == 0)
-		M_Print (160, 80, "Easy difficulty");
+		Draw_String (160, 80, "Easy difficulty", 8);
 	else if (skill->ivalue == 1)
-		M_Print (160, 80, "Normal difficulty");
+		Draw_String (160, 80, "Normal difficulty", 8);
 	else if (skill->ivalue == 2)
-		M_Print (160, 80, "Hard difficulty");
+		Draw_String (160, 80, "Hard difficulty", 8);
 	else
-		M_Print (160, 80, "Nightmare difficulty");
+		Draw_String (160, 80, "Nightmare difficulty", 8);
 
-	M_Print (0, 88, "       Frag Limit");
+	Draw_String (0, 88, "       Frag Limit", 8);
 	if (fraglimit->ivalue == 0)
-		M_Print (160, 88, "none");
+		Draw_String (160, 88, "none", 8);
 	else
-		M_Print (160, 88, va ("%i frags", (int) fraglimit->ivalue));
+		Draw_String (160, 88, va ("%i frags", (int) fraglimit->ivalue), 8);
 
-	M_Print (0, 96, "       Time Limit");
+	Draw_String (0, 96, "       Time Limit", 8);
 	if (timelimit->ivalue == 0)
-		M_Print (160, 96, "none");
+		Draw_String (160, 96, "none", 8);
 	else
-		M_Print (160, 96, va ("%i minutes", (int) timelimit->ivalue));
+		Draw_String (160, 96, va ("%i minutes", (int) timelimit->ivalue), 8);
 
-	M_Print (0, 112, "         Episode");
+	Draw_String (0, 112, "         Episode", 8);
 	// MED 01/06/97 added hipnotic episodes
 	if (hipnotic)
-		M_Print (160, 112, hipnoticepisodes[startepisode].description);
+		Draw_String (160, 112, hipnoticepisodes[startepisode].description, 8);
 	// PGM 01/07/97 added rogue episodes
 	else if (rogue)
-		M_Print (160, 112, rogueepisodes[startepisode].description);
+		Draw_String (160, 112, rogueepisodes[startepisode].description, 8);
 	else
-		M_Print (160, 112, episodes[startepisode].description);
+		Draw_String (160, 112, episodes[startepisode].description, 8);
 
-	M_Print (0, 120, "           Level");
+	Draw_String (0, 120, "           Level", 8);
 	// MED 01/06/97 added hipnotic episodes
 	if (hipnotic) {
-		M_Print (160, 120,
+		Draw_String (160, 120,
 				 hipnoticlevels[hipnoticepisodes[startepisode].firstLevel +
-								startlevel].description);
-		M_Print (160, 128,
+								startlevel].description, 8);
+		Draw_String (160, 128,
 				 hipnoticlevels[hipnoticepisodes[startepisode].firstLevel +
-								startlevel].name);
+								startlevel].name, 8);
 	}
 	// PGM 01/07/97 added rogue episodes
 	else if (rogue) {
-		M_Print (160, 120,
+		Draw_String (160, 120,
 				 roguelevels[rogueepisodes[startepisode].firstLevel +
-							 startlevel].description);
-		M_Print (160, 128,
+							 startlevel].description, 8);
+		Draw_String (160, 128,
 				 roguelevels[rogueepisodes[startepisode].firstLevel +
-							 startlevel].name);
+							 startlevel].name, 8);
 	} else {
-		M_Print (160, 120,
+		Draw_String (160, 120,
 				 levels[episodes[startepisode].firstLevel +
-						startlevel].description);
-		M_Print (160, 128,
-				 levels[episodes[startepisode].firstLevel + startlevel].name);
+						startlevel].description, 8);
+		Draw_String (160, 128,
+				 levels[episodes[startepisode].firstLevel + startlevel].name, 8);
 	}
 
 // line cursor
-	M_DrawCharacter (144, gameoptions_cursor_table[gameoptions_cursor],
-					 12 + ((int) (host_realtime * 4) & 1));
+	Draw_Character (144, gameoptions_cursor_table[gameoptions_cursor],
+					 12 + ((int) (host_realtime * 4) & 1), 8);
 
 	if (m_serverInfoMessage) {
 		if ((host_realtime - m_serverInfoMessageTime) < 5.0) {
 			x = (320 - 26 * 8) / 2;
 			M_DrawTextBox (x, 138, 24, 4);
 			x += 8;
-			M_Print (x, 146, "  More than 4 players   ");
-			M_Print (x, 154, " requires using command ");
-			M_Print (x, 162, "line parameters; please ");
-			M_Print (x, 170, "   see techinfo.txt.    ");
+			Draw_String (x, 146, "  More than 4 players   ", 8);
+			Draw_String (x, 154, " requires using command ", 8);
+			Draw_String (x, 162, "line parameters; please ", 8);
+			Draw_String (x, 170, "   see techinfo.txt.    ", 8);
 		} else {
 			m_serverInfoMessage = false;
 		}
@@ -2355,10 +2326,10 @@ M_Search_Draw (void)
 	int         x;
 
 	p = Draw_CachePic ("gfx/p_multi.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 	x = (320 / 2) - ((12 * 8) / 2) + 4;
 	M_DrawTextBox (x - 8, 32, 12, 1);
-	M_Print (x, 40, "Searching...");
+	Draw_String (x, 40, "Searching...", 8);
 
 	if (slistInProgress) {
 		NET_Poll ();
@@ -2375,7 +2346,7 @@ M_Search_Draw (void)
 		return;
 	}
 
-	M_PrintAlt ((320 / 2) - ((22 * 8) / 2), 64, "No Quake servers found");
+	Draw_Alt_String ((320 / 2) - ((22 * 8) / 2), 64, "No Quake servers found", 8);
 	if ((host_realtime - searchCompleteTime) < 3.0)
 		return;
 
@@ -2432,7 +2403,7 @@ M_ServerList_Draw (void)
 	}
 
 	p = Draw_CachePic ("gfx/p_multi.lmp");
-	M_DrawPic ((320 - p->width) / 2, 4, p);
+	Draw_Pic ((320 - p->width) / 2, 4, p);
 	for (n = 0; n < hostCacheCount; n++) {
 		if (hostcache[n].maxusers)
 			snprintf (string, sizeof (string), "%-15.15s %-15.15s %2u/%2u\n",
@@ -2441,12 +2412,12 @@ M_ServerList_Draw (void)
 		else
 			snprintf (string, sizeof (string), "%-15.15s %-15.15s\n",
 					  hostcache[n].name, hostcache[n].map);
-		M_Print (16, 32 + 8 * n, string);
+		Draw_String (16, 32 + 8 * n, string, 8);
 	}
-	M_DrawCharacter (0, 32 + slist_cursor * 8, 12 + ((int) (host_realtime * 4) & 1));
+	Draw_Character (0, 32 + slist_cursor * 8, 12 + ((int) (host_realtime * 4) & 1), 8);
 
 	if (*m_return_reason)
-		M_PrintAlt (16, 148, m_return_reason);
+		Draw_Alt_String (16, 148, m_return_reason, 8);
 }
 
 
@@ -2526,6 +2497,8 @@ M_Draw (void)
 {
 	if (m_state == m_none || key_dest != key_menu)
 		return;
+
+	GL_Set2D (0, 0, 320, 240);
 
 	if (!m_recursiveDraw) {
 		if (scr_con_current) {
@@ -2607,6 +2580,8 @@ M_Draw (void)
 		m_entersound = false;
 	}
 
+	GL_Set2D (0, 0, vid.width, vid.height);
+	qglPopMatrix ();
 	S_ExtraUpdate ();
 }
 

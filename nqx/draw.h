@@ -32,12 +32,16 @@ extern struct qpic_s *draw_disc;				// also used on sbar
 // Need to make sure this structure exists
 struct image_s;
 
+extern int title_texture;
+extern int titlebg_texture;
+
 void Draw_Init_Cvars (void);
 void Draw_Init (void);
 void Draw_Character (float x, float y, int num, float text_size);
 void Draw_SubPic (int x, int y, struct qpic_s *pic,
 		int srcx, int srcy, int width, int height);
 void Draw_Pic (int x, int y, struct qpic_s *pic);
+void Draw_Texture (int x, int y, int width, int height, int texid);
 void Draw_TransPicTranslate (int x, int y, struct qpic_s *pic,
 		Uint8 *translation);
 void Draw_ConsoleBackground (int lines);
@@ -56,7 +60,7 @@ void Draw_Crosshair (void);
 int GL_LoadTexture (const char *identifier, int width, int height,
 		Uint8 *data, int flags, int bpp);
 int GL_LoadPicTexture (struct qpic_s *pic);
-void GL_Set2D (void);
+void GL_Set2D (Uint x, Uint y, Uint w, Uint h);
 
 int R_LoadTexture (const char *identifier, struct image_s *img, int flags);
 

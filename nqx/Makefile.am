@@ -2,14 +2,16 @@
 ##
 ## This file is intended to be processed by automake
 
-AUTOMAKE_OPTIONS=foreign dist-zip
+AUTOMAKE_OPTIONS = foreign dist-zip
 
-LIBS=@SDL_LIBS@ @LIBS@ -lm
-CFLAGS=@CFLAGS@ @SDL_CFLAGS@
+SUBDIRS = gamedata
 
-bin_PROGRAMS=nqx
+LIBS = @SDL_LIBS@ @LIBS@ -lm
+CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-nqx_SOURCES= \
+bin_PROGRAMS = nqx
+
+nqx_SOURCES = \
 	chase.c \
 	cl_demo.c cl_input.c cl_main.c cl_model.c cl_parse.c cl_ents.c \
 	cl_tent.c \
@@ -37,6 +39,6 @@ nqx_SOURCES= \
 	buildnum.c cmd.c collision.c crc.c cvar.c locs.c mathlib.c \
 	model.c parm.c strlib.c wad.c zone.c
 
-EXTRA_DIST= \
+EXTRA_DIST = \
 	COPYING.BSD bootstrap
 

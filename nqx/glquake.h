@@ -114,7 +114,6 @@ extern struct cvar_s *r_netgraph;
 extern struct cvar_s *r_skyname;
 extern struct cvar_s *r_fastsky;
 
-extern struct cvar_s *gl_clear;
 extern struct cvar_s *gl_cull;
 extern struct cvar_s *gl_affinemodels;
 extern struct cvar_s *gl_polyblend;

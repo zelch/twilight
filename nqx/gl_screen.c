@@ -375,6 +375,21 @@ SCR_CalcRefdef (void)
 			r_refdef.fov_y *= (Q_sin(cl.time * 3.0) * 0.015 + 0.985);
 		}
 	}
+
+	qglViewport (0, 0, vid.width, vid.height);
+	qglClear (GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	if ((key_dest == key_menu || cls.demoplayback) && !cls.timedemo)
+	{
+		qglDisable (GL_DEPTH_TEST);
+		qglEnable (GL_BLEND);
+		Draw_Texture (0, 0, vid.width, 32, titlebg_texture);
+		Draw_Texture (0, 0, 512, 32, title_texture);
+		Draw_Fill (0, 32, vid.width, 1, whitev);
+		Draw_Fill (0, vid.height - 17, vid.width, 1, whitev);
+		Draw_String (8, vid.height - 17, "NQX build " VERSION, 16);
+		qglDisable (GL_BLEND);
+		qglViewport (25, 17, vid.width - 50, vid.height - 50);
+	}
 }
 
 
@@ -431,7 +446,7 @@ SCR_Init_Cvars (void)
 {
 	scr_viewsize = Cvar_Get ("viewsize", "100", CVAR_ARCHIVE, SCR_viewsize_CB);
 	scr_fov = Cvar_Get ("fov", "90", CVAR_NONE, SCR_fov_CB);	/* 10-170 */
-	scr_conspeed = Cvar_Get ("scr_conspeed", "300", CVAR_NONE, NULL);
+	scr_conspeed = Cvar_Get ("scr_conspeed", "3000", CVAR_NONE, NULL);
 	scr_centertime = Cvar_Get ("scr_centertime", "2", CVAR_NONE, NULL);
 	scr_showram = Cvar_Get ("showram", "1", CVAR_NONE, NULL);
 	scr_showturtle = Cvar_Get ("showturtle", "0", CVAR_NONE, NULL);
@@ -503,6 +518,8 @@ SCR_DrawNet
 void
 SCR_DrawNet (void)
 {
+	if (cls.state != ca_connected)
+		return;
 	if (host_realtime - cl.last_received_message < 0.3)
 		return;
 	if (cls.demoplayback)
@@ -522,6 +539,8 @@ SCR_DrawFPS (void)
 	int					x, y, st_len;
 	char				st[80];
 
+	if (cls.state != ca_connected)
+		return;
 	if (!show_fps->ivalue)
 		return;
 
@@ -665,7 +684,7 @@ SCR_ScreenShot_f (void)
 	 */
 	for (; i < 10000; i++)
 	{
-		snprintf (name, sizeof (name), "%s/tw%04i.tga", com_gamedir, i);
+		snprintf (name, sizeof (name), "%s/nqx%04i.tga", com_gamedir, i);
 		if (Sys_FileTime (name) == -1)
 			break;	/* Doesn't exist */
 	}
@@ -834,6 +853,7 @@ SCR_UpdateScreen (void)
 		SCR_CaptureAviDemo ();
 
 	qglEnable (GL_DEPTH_TEST);
+	qglDepthFunc (GL_LEQUAL);
 
 	SCR_CalcRefdef ();
 
@@ -844,7 +864,7 @@ SCR_UpdateScreen (void)
 
 	V_RenderView ();
 
-	GL_Set2D ();
+	GL_Set2D (0, 0, vid.width_2d, vid.height_2d);
 
 	/*
 	 * draw any areas not covered by the refresh

@@ -6,7 +6,7 @@ AC_PREREQ(2.13)
 AC_INIT(sv_main.c)
 AC_REVISION($Revision$)
 
-VERSION=0
+VERSION=6
 
 dnl Checks for system type first
 AC_CANONICAL_HOST
@@ -160,7 +160,11 @@ if test "x$GCC" = "xyes"; then
 	CFLAGS="$CFLAGS -fno-strict-aliasing"
 fi
 
-AC_OUTPUT(Makefile)
+AC_OUTPUT(
+	Makefile
+	gamedata/Makefile
+	gamedata/nqx/Makefile
+)
 
 AC_MSG_RESULT([
   nqx build number $VERSION configuration:

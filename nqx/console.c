@@ -171,14 +171,14 @@ Con_Resize (console_t *con)
 	int         i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	char        tbuf[CON_TEXTSIZE];
 
-	width = (vid.width_2d / con->tsize) - 2;
+	width = (vid.width_2d / con->tsize) - (int)((con->tsize + 0.5f) / 16.0f);
 
 	if (width == con_linewidth)
 		return;
 
 	if (width < 1)						// video hasn't been initialized yet
 	{
-		width = 38;
+		width = 39;
 		con_linewidth = width;
 		con_totallines = CON_TEXTSIZE / con_linewidth;
 		memset (con->text, ' ', CON_TEXTSIZE);
@@ -401,12 +401,12 @@ Con_DrawInput (void)
 		text += 1 + key_linepos - con_linewidth;
 
 	// draw it
-	Draw_String_Len(con->tsize, con_vislines - (con->tsize * 2.75), text,
+	Draw_String_Len(8, con_vislines - (con->tsize * 1.5), text,
 			con_linewidth, con->tsize);
 
 	if ((int) (host_realtime * con_cursorspeed) & 1)
-		Draw_Character ((1 + key_linepos) * con->tsize,
-				con_vislines - (con->tsize * 2.65), 11, con->tsize);
+		Draw_Character (8 + (key_linepos * con->tsize),
+				con_vislines - (con->tsize * 1.5), 11, con->tsize);
 }
 
 
@@ -441,7 +441,7 @@ Con_DrawNotify (void)
 
 		clearnotify = 0;
 
-		Draw_String_Len(con->tsize, v, text, con_linewidth, con->tsize);
+		Draw_String_Len(8, v, text, con_linewidth, con->tsize);
 
 		v += con->tsize;
 	}
@@ -452,10 +452,10 @@ Con_DrawNotify (void)
 
 		if (chat_team) {
 			Draw_String (con->tsize, v, "say_team:", con->tsize);
-			skip = 11;
+			skip = 10;
 		} else {
 			Draw_String (con->tsize, v, "say:", con->tsize);
-			skip = 5;
+			skip = 4;
 		}
 
 		s = chat_buffer;
@@ -463,9 +463,9 @@ Con_DrawNotify (void)
 			s += chat_bufferlen -
 				((int) (vid.width_2d / con->tsize) - (skip + 1));
 
-		Draw_String (skip * con->tsize, v, s, con->tsize);
+		Draw_String (8 + skip * con->tsize, v, s, con->tsize);
 
-		Draw_Character ((strlen(s) + skip) * con->tsize, v,
+		Draw_Character (8 + (strlen(s) + skip) * con->tsize, v,
 						10 + ((int) (host_realtime * con_cursorspeed) & 1),
 						con->tsize);
 		v += con->tsize;
@@ -501,15 +501,15 @@ Con_DrawConsole (int lines)
 	con_vislines = lines;
 
 // changed to line things up better
-	rows = (lines - (con->tsize * 2.75)) / con->tsize;	// rows of text to draw
+	rows = (lines - (con->tsize * 1.5)) / con->tsize;	// rows of text to draw
 
-	y = lines - (con->tsize * 3.75);
+	y = lines - (con->tsize * 2.5);
 
 // draw from the bottom up
 	if (con->display != con->current) {
 		// draw arrows to show the buffer is backscrolled
 		for (x = 0; x < con_linewidth; x += 4)
-			Draw_Character ((x + 1) * con->tsize, y, '^', con->tsize);
+			Draw_Character (8 + x * con->tsize, y, '^', con->tsize);
 
 		y -= con->tsize;
 		rows--;
@@ -524,7 +524,7 @@ Con_DrawConsole (int lines)
 
 		text = con->text + (row % con_totallines) * con_linewidth;
 
-		Draw_String_Len(con->tsize, y, text, con_linewidth, con->tsize);
+		Draw_String_Len(8, y, text, con_linewidth, con->tsize);
 	}
 
 // draw the input prompt, user text, and cursor if desired

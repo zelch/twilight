@@ -103,7 +103,6 @@ cvar_t *r_dynamic;
 cvar_t *r_novis;
 cvar_t *r_stainmaps;
 
-cvar_t *gl_clear;
 cvar_t *gl_cull;
 cvar_t *gl_affinemodels;
 cvar_t *gl_polyblend;
@@ -737,8 +736,6 @@ R_SetupGL (void)
 	qglMatrixMode (GL_PROJECTION);
 	qglLoadIdentity ();
 
-	qglViewport (0, 0, vid.width, vid.height);
-
 	xmax = Q_tan (r_refdef.fov_x * M_PI / 360.0) * (vid.width / vid.height);
 	ymax = Q_tan (r_refdef.fov_y * M_PI / 360.0);
 
@@ -769,22 +766,6 @@ R_SetupGL (void)
 	qglDisable (GL_BLEND);
 	qglEnable (GL_DEPTH_TEST);
 }
-
-/*
-=============
-R_Clear
-=============
-*/
-static void
-R_Clear (void)
-{
-	if (gl_clear->ivalue)
-		qglClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	else
-		qglClear (GL_DEPTH_BUFFER_BIT);
-	qglDepthFunc (GL_LEQUAL);
-}
-
 
 // XXX
 extern void R_DrawSkyBox (void);
@@ -849,8 +830,6 @@ R_RenderView (void)
 	}
 	else if (gl_finish->ivalue)
 		qglFinish ();
-
-	R_Clear ();
 
 	// render normal view
 	R_SetupFrame ();
@@ -988,7 +967,6 @@ R_Init_Cvars (void)
 	r_skyname = Cvar_Get ("r_skyname", "", CVAR_NONE, &R_SkyBoxChanged);
 	r_fastsky = Cvar_Get ("r_fastsky", "0", CVAR_NONE, NULL);
 
-	gl_clear = Cvar_Get ("gl_clear", "0", CVAR_ARCHIVE, NULL);
 	gl_cull = Cvar_Get ("gl_cull", "1", CVAR_NONE, NULL);
 	gl_affinemodels = Cvar_Get ("gl_affinemodels", "0", CVAR_ARCHIVE, NULL);
 	gl_polyblend = Cvar_Get ("gl_polyblend", "1", CVAR_NONE, NULL);
