@@ -192,6 +192,12 @@ void(void) menu_linkwindows =
 			continue;
 		}
 
+		if(!isfunction(self.type))
+		{
+			objerror("Control ", self.type, " not found !\n");
+			continue;
+		}
+
 		// find parent
 		// if parent_name is "" do nothing else set parent
 		if(self.parent != "")
