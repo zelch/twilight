@@ -83,7 +83,31 @@ void() listfile =
 	fclose(file);
 };
 
-
+//KRIMZON_SV_PARSECLIENTCOMMAND test
+void SV_ParseClientCommand (string s)
+{
+	local float args;
+	local string c;
+	args = tokenize(s);
+	c = argv(0);
+	     if (c == "say") clientcommand(self, s);
+	else if (c == "say_team") clientcommand(self, s);
+	else if (c == "name") clientcommand(self, s);
+	else if (c == "color") clientcommand(self, s);
+	else if (c == "tell") clientcommand(self, s);
+	else if (c == "kill") clientcommand(self, s);
+	else if (c == "status") clientcommand(self, s);
+	else if (c == "pause") clientcommand(self, s);
+	else if (c == "kick") clientcommand(self, s);
+	else if (c == "ping") clientcommand(self, s);
+	else if (c == "ban") clientcommand(self, s);
+	else if (c == "pmodel") clientcommand(self, s);
+	else if (c == "god") clientcommand(self, s);
+	else if (c == "fly") clientcommand(self, s);
+	else if (c == "noclip") clientcommand(self, s);
+	else if (c == "notarget") clientcommand(self, s);
+	else if (c == "give") clientcommand(self, s);
+}
 
 .float isadmin, adminnumber, admindigits, adminattempts;
 
