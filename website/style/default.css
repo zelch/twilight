@@ -70,4 +70,6 @@ div.files {
 	background: #172b3f;
 	margin: 5px;
 	margin-bottom: 10px;
+	padding: 1px 5px;
+	text-align: center;
 }
