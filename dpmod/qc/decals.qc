@@ -93,7 +93,6 @@ void(vector org, entity en, vector dir, float splattype, float importance) newbl
 */
 
 // make a spike in the wall
-/*
 void(vector org, entity en, vector dir) newwallspike =
 {
 	local   vector  vdir;
@@ -118,7 +117,7 @@ void(vector org, entity en, vector dir) newwallspike =
 	e.touch = casingtouch;
 	e.knockedloosefunc = casingknockedloosefunc;
 	e.cnt = time; // used for bounce noise
-	e.effects = EF_DELTA;
+	e.effects = EF_LOWPRECISION;
 	setmodel (e, "progs/s_spike.mdl");
 	setsize (e, '0 0 0', '0 0 0');
 	setorigin (e, org - dir * 3);
@@ -130,7 +129,7 @@ void(vector org, entity en, vector dir) newwallspike =
 		e.movetype = MOVETYPE_FOLLOW;
 	}
 };
-*/
+
 
 // puts bullet holes on the nearest walls
 /*

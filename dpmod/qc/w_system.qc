@@ -1241,13 +1241,13 @@ float(float request) w_nailgun =
 				if (self.weaponframe & 1)
 				{
 					shotorg = shotorg + v_right;
-					FireBullets(self, self, 1, 1, NAILGUN_NAIL, NAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+					FireBullets(self, self, 4, 1, NAILGUN_NAIL, NAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
 					ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				}
 				else
 				{
 					shotorg = shotorg - v_right;
-					FireBullets(self, self, 1, 1, NAILGUN_NAIL, NAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+					FireBullets(self, self, 4, 1, NAILGUN_NAIL, NAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
 					ejectcasing(shotorg + v_forward * -5, v_right * -150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 0);
 				}
 				shotorg = v;
@@ -1388,7 +1388,7 @@ float(float request) w_supernailgun =
 				sound(self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
 				w_muzzleflash(shotorg, 2);
 				Inventory_AdjustQuantity(self, "nails", -1);
-				FireBullets(self, self, 1, 1, SUPERNAILGUN_NAIL, SUPERNAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
+				FireBullets(self, self, 4, 1, SUPERNAILGUN_NAIL, SUPERNAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
 				ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				return TRUE;
 			}

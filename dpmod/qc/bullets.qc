@@ -13,8 +13,9 @@ void() bullet_touch =
 	{
 		if (self.lefty == 4) // nail
 		{
-			nailpuff(self.origin - dir * 4, self.effects & EF_BLUE);
-			//newwallspike (self.origin, other, dir);
+//			nailpuff(self.origin - dir * 4, self.effects & EF_BLUE);
+			if (maxclients == 1)
+				newwallspike (self.origin, other, dir);
 		}
 		else if (self.lefty == 1) // shotgun pellet
 			bulletpuff(self.origin - dir * 4, self.effects & EF_BLUE);
