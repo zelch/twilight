@@ -1,0 +1,396 @@
+/* ALL MONSTERS SHOULD BE 1 0 0 IN COLOR */
+
+// name =[framenum,	nexttime, nextthink] {code}
+// expands to:
+// name ()
+// {
+//		self.frame=framenum;
+//		self.nextthink = time + nexttime;
+//		self.think = nextthink
+//		<code>
+// };
+
+.float ismonster;
+
+.float modelindex2;
+
+/*
+================
+monster_use
+
+Using a monster makes it angry at the current activator
+LordHavoc: using a monster with the spawnflag 'Appear' makes it appear
+================
+*/
+void() monster_use =
+{
+	if (self.enemy)
+		return;
+	if (self.health < 1)
+		return;
+	if (self.mdl)
+	if (self.spawnflags & MONSTER_APPEAR)
+	{
+		self.nextthink = time + 0.1;
+		self.spawnflags = self.spawnflags - MONSTER_APPEAR;
+		self.solid = SOLID_SLIDEBOX;
+		self.takedamage = DAMAGE_AIM;
+		//self.movetype = MOVETYPE_STEP;
+		self.model = self.mdl;
+		self.mdl = "";
+		self.modelindex = self.modelindex2;
+		self.modelindex2 = 0;
+		//setorigin(self, self.origin + '0 0 1');
+		spawn_tdeath(self.origin, self, self.origin);
+		return;
+	}
+
+	if (activator.items & IT_INVISIBILITY)
+		return;
+	if (activator.flags & FL_NOTARGET)
+		return;
+	if (activator.classname != "player")
+		return;
+
+	// delay reaction so if the monster is teleported, its sound is still heard
+	self.enemy = activator;
+	self.nextthink = time + 0.1;
+	self.think = FoundTarget;
+};
+
+void() monster_appearsetup =
+{
+	if ((self.spawnflags & MONSTER_APPEAR) == 0)
+		return;
+	self.mdl = self.model;
+	self.modelindex2 = self.modelindex;
+	self.modelindex = 0;
+	self.solid = SOLID_NOT;
+	self.takedamage = DAMAGE_NO;
+	//self.movetype = MOVETYPE_NONE;
+	self.nextthink = -1;
+	self.model = "";
+};
+
+/*
+================
+monster_death_use
+
+When a mosnter dies, it fires all of its targets with the current
+enemy as activator.
+================
+*/
+void() monster_death_use =
+{
+	local entity 	ent, otemp, stemp;
+
+// fall to ground
+	if (self.flags & FL_FLY)
+		self.flags = self.flags - FL_FLY;
+	if (self.flags & FL_SWIM)
+		self.flags = self.flags - FL_SWIM;
+
+	if (!self.target)
+		return;
+
+	activator = self.enemy;
+	SUB_UseTargets ();
+};
+
+
+void() monsterinwall =
+{
+	local   entity  e;
+	// this is handy for level designers,
+	// puts a spikey ball where the error is...
+	e = spawn();
+	setorigin(e, self.origin);
+	setmodel (e, "progs/star.mdl");
+	e.movetype = MOVETYPE_NONE;
+	e.solid = SOLID_NOT;
+	e.think = SUB_Null;
+	e.nextthink = -1;
+};
+
+//============================================================================
+
+void() walkmonster_start_go =
+{
+	local string	stemp;
+	local entity	etemp;
+
+        //self.origin_z = self.origin_z + 1;
+        //droptofloor();
+        setorigin(self, self.origin + '0 0 1');      // raise off floor a bit
+        tracebox(self.origin, self.mins, self.maxs, self.origin + '0 0 -256', TRUE, self);
+        if (!trace_startsolid)
+              setorigin(self, trace_endpos);
+
+	if (!walkmove(0,0))
+	{
+		dprint("walkmonster in wall at: ");
+		dprintvector(self.origin);
+		dprint("\n");
+		monsterinwall();
+	}
+
+	//self.cantrigger = TRUE;
+
+	self.takedamage = DAMAGE_AIM;
+
+	self.ideal_yaw = self.angles * '0 1 0';
+	if (!self.yaw_speed)
+		self.yaw_speed = 20;
+	self.view_ofs = '0 0 25';
+	self.use = monster_use;
+
+	self.flags = self.flags | FL_MONSTER;
+
+	if (self.target)
+	{
+		self.goalentity = self.movetarget = find(world, targetname, self.target);
+		self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
+		if (!self.movetarget)
+		{
+			dprint("Monster can't find target at ");
+			dprintvector(self.origin);
+			dprint("\n");
+		}
+		// this used to be an objerror
+		if (self.movetarget.classname == "path_corner")
+			self.th_walk ();
+		else
+		{
+			/*
+			//if ((self.spawnflags & MONSTER_WANDER) && (!self.monsterawaitingteleport))
+			if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+			{
+				monster_spawnwanderpath();
+				self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
+				self.th_walk ();
+			}
+			else
+			*/
+			{
+				self.pausetime = 99999999;
+				self.th_stand ();
+			}
+		}
+	}
+	else
+	{
+		/*
+		if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+		{
+			monster_spawnwanderpath();
+			self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
+			self.th_walk ();
+		}
+		else
+		*/
+		{
+			self.pausetime = 99999999;
+			self.th_stand ();
+		}
+	}
+
+// spread think times so they don't all happen at same time
+	self.nextthink = self.nextthink + random()*0.5 + 0.1;
+	self.iscreature = TRUE;
+
+	force_retouch = 2; // mainly to detect teleports
+
+	monster_appearsetup();
+};
+
+
+void() walkmonster_start =
+{
+	self.candrown = 1; // this is turned off by some monsters like zombies
+	// delay drop to floor to make sure all doors have been spawned
+	// spread think times so they don't all happen at same time
+	self.nextthink = time + random()*0.5 + 0.3;
+	self.think = walkmonster_start_go;
+	total_monsters = total_monsters + 1;
+	self.havocattack = TRUE;
+	self.frags = 2; // actually just used to get havocbots to attack it...
+	self.bleedfunc = genericbleedfunc;
+	self.ismonster = TRUE;
+};
+
+
+
+void() flymonster_start_go =
+{
+	self.takedamage = DAMAGE_AIM;
+
+	self.ideal_yaw = self.angles * '0 1 0';
+	if (!self.yaw_speed)
+		self.yaw_speed = 10;
+	self.view_ofs = '0 0 25';
+	self.use = monster_use;
+
+	self.flags = self.flags | FL_FLY;
+	self.flags = self.flags | FL_MONSTER;
+
+	if (!walkmove(0,0))
+	{
+		dprint("flymonster in wall at: ");
+		dprintvector(self.origin);
+		dprint("\n");
+		monsterinwall();
+	}
+
+	//self.cantrigger = TRUE;
+
+	if (self.target)
+	{
+		self.goalentity = self.movetarget = find(world, targetname, self.target);
+		if (!self.movetarget)
+		{
+			dprint("Monster can't find target at ");
+			dprintvector(self.origin);
+			dprint("\n");
+		}
+		// this used to be an objerror
+		if (self.movetarget.classname == "path_corner")
+			self.th_walk ();
+		else
+		{
+			/*
+			if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+			{
+				monster_spawnwanderpath();
+				self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
+				self.th_walk ();
+			}
+			else
+			*/
+			{
+				self.pausetime = 99999999;
+				self.th_stand ();
+			}
+		}
+	}
+	else
+	{
+		/*
+		if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+		{
+			monster_spawnwanderpath();
+			self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
+			self.th_walk ();
+		}
+		else
+		*/
+		{
+			self.pausetime = 99999999;
+			self.th_stand ();
+		}
+	}
+	self.iscreature = TRUE;
+
+	force_retouch = 2; // mainly to detect teleports
+
+	monster_appearsetup();
+};
+
+void() flymonster_start =
+{
+	self.candrown = 1;
+	// spread think times so they don't all happen at same time
+	self.nextthink = time + random()*0.5 + 0.1;
+	self.think = flymonster_start_go;
+	total_monsters = total_monsters + 1;
+	self.havocattack = TRUE;
+	self.frags = 2; // actually just used to get havocbots to attack it...
+	self.bleedfunc = genericbleedfunc;
+	self.ismonster = TRUE;
+};
+
+
+void() swimmonster_start_go =
+{
+	if (deathmatch)
+	{
+		remove(self);
+		return;
+	}
+
+	//self.cantrigger = TRUE;
+
+	self.takedamage = DAMAGE_AIM;
+
+	self.ideal_yaw = self.angles * '0 1 0';
+	if (!self.yaw_speed)
+		self.yaw_speed = 10;
+	self.view_ofs = '0 0 10';
+	self.use = monster_use;
+
+	self.flags = self.flags | FL_SWIM;
+	self.flags = self.flags | FL_MONSTER;
+
+	if (self.target)
+	{
+		self.goalentity = self.movetarget = find(world, targetname, self.target);
+		if (!self.movetarget)
+		{
+			dprint("Monster can't find target at ");
+			dprintvector(self.origin);
+			dprint("\n");
+		}
+		// this used to be an objerror
+		if (self.movetarget.classname == "path_corner")
+			self.th_walk ();
+		else
+		{
+			/*
+			if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+			{
+				monster_spawnwanderpath();
+				self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
+				self.th_walk ();
+			}
+			else
+			*/
+			{
+				self.pausetime = 99999999;
+				self.th_stand ();
+			}
+		}
+	}
+	else
+	{
+		/*
+		if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+		{
+			monster_spawnwanderpath();
+			self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
+			self.th_walk ();
+		}
+		else
+		*/
+		{
+			self.pausetime = 99999999;
+			self.th_stand ();
+		}
+	}
+	self.iscreature = TRUE;
+
+	force_retouch = 2; // mainly to detect teleports
+
+	monster_appearsetup();
+};
+
+void() swimmonster_start =
+{
+	// spread think times so they don't all happen at same time
+	self.candrown = 0;
+	self.nextthink = time + random()*0.5 + 0.1;
+	self.think = swimmonster_start_go;
+	total_monsters = total_monsters + 1;
+	self.havocattack = TRUE;
+	self.frags = 2; // actually just used to get havocbots to attack it...
+	self.bleedfunc = genericbleedfunc;
+	self.ismonster = TRUE;
+};

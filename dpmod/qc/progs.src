@@ -1,0 +1,155 @@
+../progs.dat
+
+// Lord Havoc here,
+// I'll be your rambling host for this,
+// and all the rest of Dark Places
+
+defs.qc
+
+dpextensions.qc // engine features
+
+modedefs.qc     // deathmatch and teamplay settings
+
+sprintnumdigits.qc
+
+damagetype.qc   // deathtype, damagetype, etcetera...
+//localdamage.qc  // head/chest/foot/whatever shots
+damage.qc       // max ammo amounts, how much damage, starting health, etc
+
+util.qc         // useful functions (trajectory tracing for example)
+
+think.qc        // the extrathink function, which lets you use multiple thinks
+
+footstep.qc
+
+playermovement.qc
+
+subs.qc
+fight.qc
+ai.qc
+
+w_defs.qc
+
+gibcomments.qc
+
+stats.qc        // Dark Places stats system
+
+lag.qc          // lag for bots etc
+
+fog.qc
+
+flash.qc
+
+t_damage.qc
+raddamage.qc
+t_radiusdamage.qc
+
+decors.qc
+casings.qc
+decals.qc
+gore.qc
+
+fire.qc
+explosion.qc
+
+bullets.qc
+plasma.qc
+rocket.qc
+grenade.qc
+mine.qc
+laser.qc
+spike.qc
+lightning.qc
+fireball.qc
+
+visibleweapons.qc
+
+mode_management.qc
+//mode_elimination.qc
+
+halflife.qc // for testing HalfLife map loading
+
+itemstuff.qc
+item_health.qc
+item_armor.qc
+item_weapons.qc
+item_ammo.qc
+item_keys.qc
+item_sigil.qc
+item_artifacts.qc
+item_legacystuff.qc
+item_backpacks.qc
+
+w_common.qc
+
+w_pistol.qc // 1
+w_shotgun.qc // 2
+w_dbshotgun.qc // 3
+w_nailgun.qc // 4
+w_supernailgun.qc // 5
+w_grenade.qc // 6
+w_rocket.qc // 7
+w_plasmarifle.qc // 8
+w_grapple.qc // 9
+w_fake10.qc // 10
+
+w_info.qc   // must be after the weapons themselves
+
+CTF.qc
+
+regen.qc
+
+superdamagesound.qc
+cheatcode.qc
+impulse_main.qc
+impulse_dead.qc
+w_frame.qc
+
+music.qc // music :)
+
+// waypoint files for the bots go here
+waypoint_spawnformap.qc
+
+world.qc
+client.qc
+player.qc
+havocbot_roles.qc
+havocbot.qc
+m_monsters.qc
+doors.qc
+buttons.qc
+trig_original.qc
+trig_playercount.qc
+trig_stuffcmd.qc
+trig_ticker.qc
+
+rain.qc         // particle rain and particle cube
+
+rotate.qc       // rotating doors etc
+spotlights.qc   // spinning spot lights etc
+invisiblewall.qc // invisible walls
+forcefield.qc   // force fields
+shake.qc        // earthquake effects
+
+plats.qc
+misc.qc
+
+xplowall.qc     // breakable walls
+
+m_ogre.qc
+m_demon.qc
+m_shambler.qc
+m_knight.qc
+m_soldier.qc
+m_wizard.qc
+m_dog.qc
+m_zombie.qc
+m_boss.qc
+
+m_tarbaby.qc      // registered
+m_hknight.qc      // registered
+m_fish.qc         // registered
+m_shalrath.qc     // registered
+m_enforcer.qc     // registered
+m_oldone.qc       // registered
+

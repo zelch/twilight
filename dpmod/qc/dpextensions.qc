@@ -1,0 +1,497 @@
+
+//DarkPlaces supported extension list, draft version 1.03
+
+//unassigned stuff:  (need to write up specs but haven't yet)
+float   EF_NODRAW       = 16;
+float   EF_ADDITIVE     = 32;
+float   EF_BLUE         = 64;
+float   EF_RED          = 128;
+float   EF_FULLBRIGHT   = 512;
+float   EF_FLAME        = 1024;
+float   EF_STARDUST     = 2048;
+float   TE_FLAMEJET     = 74;
+.vector punchvector;
+.float  ping;
+float(entity e, float s) getsurfacenumpoints = #434;
+vector(entity e, float s, float n) getsurfacepoint = #435;
+vector(entity e, float s) getsurfacenormal = #436;
+string(entity e, float s) getsurfacetexture = #437;
+float(entity e, vector p) getsurfacenearpoint = #438;
+vector(entity e, float s, vector p) getsurfaceclippedpoint = #439;
+
+//checkextension function
+float(string s) checkextension = #99;
+//description: check if (cvar("pr_checkextension")) before calling this, this is the only guarenteed extension to be present in the extension system, it allows you to check if an extension is available, by name, to check for an extension use code like this:
+//// (it is recommended this code be placed in worldspawn or a worldspawn called function somewhere)
+//if (cvar("pr_checkextension"))
+//if (checkextension("DP_SV_SETCOLOR"))
+//	ext_setcolor = TRUE;
+//from then on you can check ext_setcolor to know if that extension is available
+
+
+//entity attributes used for rendering/networking:
+//DP_ENT_ALPHA
+//field definition:
+.float alpha;
+//description:
+//controls opacity of the entity, 0.0 is forced to be 1.0 (otherwise everything would be invisible), use -1 if you want to make something invisible, 1.0 is solid (like normal).
+
+/*
+//NOTE: no longer supported by darkplaces because no one used it
+//DP_ENT_COLORMOD
+//field definition:
+.vector colormod;
+//description:
+//controls color of the entity, '0 0 0', is forced to be '1 1 1' (otherwise everything would be black), used for tinting objects, for instance using '1 0.6 0.4' on an ogre would give you an orange ogre (order is red green blue).
+*/
+
+//DP_ENT_CUSTOMCOLORMAP
+//description:
+//if .colormap is set to 1024 + pants + shirt * 16, those colors will be used for colormapping the entity, rather than looking up a colormap by player number.
+
+/*
+//NOTE: no longer supported by darkplaces because all entities are delta compressed now
+//DP_ENT_DELTACOMPRESS
+//effects bit:
+float EF_DELTA = 8388608;
+//description:
+//(obsolete) applies delta compression to the network updates of the entity, making updates smaller, this might cause some unreliable behavior in packet loss situations, so it should only be used on numerous (nails/plasma shots/etc) or unimportant objects (gibs/shell casings/bullet holes/etc).
+*/
+
+//DP_ENT_EXTERIORMODELTOCLIENT
+//fields:
+.entity exteriormodeltoclient;
+//description:
+//the entity is visible to all clients with one exception: if the specified client is using first person view (not using chase_active) the entity will not be shown.
+
+//DP_ENT_LOWPRECISION
+//effects bit:
+float EF_LOWPRECISION = 4194304;
+//description:
+//uses low quality origin coordinates, reducing network traffic compared to the default high precision, intended for numerous objects (projectiles/gibs/bullet holes/etc).
+
+//DP_ENT_GLOW
+//field definitions:
+.float glow_color;
+.float glow_size;
+.float glow_trail;
+//description:
+//customizable glowing light effect on the entity, glow_color is a paletted (8bit) color in the range 0-255 (note: 0 and 254 are white), glow_size is 0 or higher (up to the engine what limit to cap it to, darkplaces imposes a 1020 limit), if glow_trail is true it will leave a trail of particles of the same color as the light.
+
+//DP_ENT_SCALE
+//field definitions:
+.float scale;
+//description:
+//controls rendering scale of the object, 0 is forced to be 1, darkplaces uses 1/16th accuracy and a limit of 15.9375, can be used to make an object larger or smaller.
+
+//DP_ENT_VIEWMODEL
+//field definitions:
+.entity viewmodelforclient;
+//description:
+//this is a very special capability, attachs the entity to the view of the client specified, origin and angles become relative to the view of that client, all effects can be used (multiple skins on a weapon model etc)...  the entity is not visible to any other client.
+
+//DP_GFX_FOG
+//worldspawn fields:
+//"fog" (parameters: "density red green blue", example: "0.1 0.3 0.3 0.3")
+//description:
+//global fog for the map, can not be changed by QC
+
+//DP_HALFLIFE_MAP
+//description:
+//simply indicates that the engine supports HalfLife maps (BSP version 30, NOT the QER RGBA ones which are also version 30).
+
+//DP_INPUTBUTTONS
+//field definitions:
+.float button3;
+.float button4;
+.float button5;
+.float button6;
+.float button7;
+.float button8;
+//description:
+//set to the state of the +button3, +button4, +button5, +button6, +button7, and +button8 buttons from the client, this does not involve protocol changes (the extra 6 button bits were simply not used).
+
+//DP_MONSTERWALK
+//description:
+//MOVETYPE_WALK is permitted on non-clients, so bots can move smoothly, run off ledges, etc, just like a real player.
+
+//DP_MOVETYPEBOUNCEMISSILE
+//movetype definitions:
+float MOVETYPE_BOUNCEMISSILE = 11;
+//description:
+//MOVETYPE_BOUNCE but without gravity, and with full reflection (no speed loss like grenades have), in other words - bouncing laser bolts.
+
+//DP_MOVETYPEFOLLOW
+//movetype definitions:
+float MOVETYPE_FOLLOW = 12;
+//description:
+//MOVETYPE_FOLLOW implemented, this uses existing entity fields in unusual ways:
+//aiment - the entity this is attached to.
+//punchangle - the original angles when the follow began.
+//view_ofs - the relative origin (note that this is un-rotated by punchangle, and that is actually the only purpose of punchangle).
+//v_angle - the relative angles.
+//here's an example of how you would set a bullet hole sprite to follow a bmodel it was created on, even if the bmodel rotates:
+//hole.movetype = MOVETYPE_FOLLOW; // make the hole follow
+//hole.solid = SOLID_NOT; // MOVETYPE_FOLLOW is always non-solid
+//hole.aiment = bmodel; // make the hole follow bmodel
+//hole.punchangle = bmodel.angles; // the original angles of bmodel
+//hole.view_ofs = hole.origin - bmodel.origin; // relative origin
+//hole.v_angle = hole.angles - bmodel.angles; // relative angles
+
+//DP_SOLIDCORPSE
+//solid definitions:
+float SOLID_CORPSE = 5;
+//description:
+//the entity will not collide with SOLID_CORPSE and SOLID_SLIDEBOX entities (and likewise they will not collide with it), this is useful if you want dead bodies that are shootable but do not obstruct movement by players and monsters, note that if you traceline with a SOLID_SLIDEBOX entity as the ignoreent, it will ignore SOLID_CORPSE entities, this is desirable for visibility and movement traces, but not for bullets, for the traceline to hit SOLID_CORPSE you must temporarily force the player (or whatever) to SOLID_BBOX and then restore to SOLID_SLIDEBOX after the traceline.
+
+//DP_REGISTERCVAR
+//builtin definitions:
+float(string name, string value) registercvar = #93;
+//description:
+//adds a new console cvar to the server console (in singleplayer this is the player's console), the cvar exists until the mod is unloaded or the game quits.
+
+//DP_SPRITE32
+//description:
+//the engine supports .spr32 sprites.
+
+//DP_SV_DRAWONLYTOCLIENT
+//field definitions:
+.entity drawonlytoclient;
+//description:
+//the entity is only visible to the specified client.
+
+//DP_SV_NODRAWTOCLIENT
+//field definitions:
+.entity nodrawtoclient;
+//description:
+//the entity is not visible to the specified client.
+
+//DP_SV_PLAYERPHYSICS
+//field definitions:
+.vector movement;
+//engine-called QC prototypes:
+//void() SV_PlayerPhysics;
+//description:
+//.movement vector contains the movement input from the player, allowing QC to do as it wishs with the input, and SV_PlayerPhysics will completely replace the player physics if present (works for all MOVETYPE's), see darkplaces mod source for example of this function (in playermovement.qc, adds HalfLife ladders support, as well as acceleration/deceleration while airborn (rather than the quake sudden-stop while airborn), and simplifies the physics a bit)
+
+//DP_SV_SETCOLOR
+//builtin definitions:
+void(entity ent, float colors) setcolor = #401;
+//engine called QC functions (optional):
+//void(float color) SV_ChangeTeam;
+//description:
+//setcolor sets the color on a client and updates internal color information accordingly (equivilant to stuffing a "color" command but immediate)
+//SV_ChangeTeam is called by the engine whenever a "color" command is recieved, it may decide to do anything it pleases with the color passed by the client, including rejecting it (by doing nothing), or calling setcolor to apply it, preventing team changes is one use for this.
+
+//DP_SV_SLOWMO
+//cvars:
+//"slowmo"
+//description:
+//sets the time scale of the server, mainly intended for use in singleplayer by the player, however potentially useful for mods, so here's an extension for it.
+//range is 0 to infinite, recommended values to try are 0.1 (very slow, 10% speed), 1 (normal speed), 5 (500% speed).
+
+//DP_QC_FINDCHAIN
+//builtin definitions:
+entity(.string fld, string match) findchain = #402;
+//description:
+//similar to find() but returns a chain of entities like findradius.
+
+//DP_QC_FINDCHAINFLOAT
+//builtin definitions:
+entity(.entity fld, entity match) findchainentity = #403;
+entity(.float fld, float match) findchainfloat = #403;
+//description:
+//similar to findentity()/findfloat() but returns a chain of entities like findradius.
+
+//DP_SV_EFFECT
+//builtin definitions:
+void(vector org, string modelname, float startframe, float endframe, float framerate) effect = #404;
+//SVC definitions:
+//float svc_effect = #52; // [vector] org [byte] modelindex [byte] startframe [byte] framecount [byte] framerate
+//float svc_effect2 = #53; // [vector] org [short] modelindex [byte] startframe [byte] framecount [byte] framerate
+//description:
+//clientside playback of simple custom sprite effects (explosion sprites, etc).
+
+//DP_TE_BLOOD
+//builtin definitions:
+void(vector org, vector velocity, float howmany) te_blood = #405;
+//temp entity definitions:
+float TE_BLOOD = 50;
+//protocol:
+//vector origin
+//byte xvelocity (-128 to +127)
+//byte yvelocity (-128 to +127)
+//byte zvelocity (-128 to +127)
+//byte count (0 to 255, how much blood)
+//description:
+//creates a blood effect.
+
+//DP_TE_BLOODSHOWER
+//builtin definitions:
+void(vector mincorner, vector maxcorner, float explosionspeed, float howmany) te_bloodshower = #406;
+//temp entity definitions:
+//float TE_BLOODSHOWER = 52;
+//protocol:
+//vector mins (minimum corner of the cube)
+//vector maxs (maximum corner of the cube)
+//coord explosionspeed (velocity of blood particles flying out of the center)
+//short count (number of blood particles)
+//description:
+//creates an exploding shower of blood, for making gibbings more convincing.
+
+//DP_TE_EXPLOSIONRGB
+//builtin definitions:
+void(vector org, vector color) te_explosionrgb = #407;
+//temp entity definitions:
+//float TE_EXPLOSIONRGB = 53;
+//protocol:
+//vector origin
+//byte red (0.0 to 1.0 converted to 0 to 255)
+//byte green (0.0 to 1.0 converted to 0 to 255)
+//byte blue (0.0 to 1.0 converted to 0 to 255)
+//description:
+//creates a colored explosion effect.
+
+//DP_TE_PARTICLECUBE
+//builtin definitions:
+void(vector mincorner, vector maxcorner, vector vel, float howmany, float color, float gravityflag, float randomveljitter) te_particlecube = #408;
+//temp entity definitions:
+//float TE_PARTICLECUBE = 54;
+//protocol:
+//vector mins (minimum corner of the cube)
+//vector maxs (maximum corner of the cube)
+//vector velocity
+//short count
+//byte color (palette color)
+//byte gravity (TRUE or FALSE, FIXME should this be a scaler instead?)
+//coord randomvel (how much to jitter the velocity)
+//description:
+//creates a cloud of particles, useful for forcefields but quite customizable.
+
+//DP_TE_PARTICLERAIN
+//builtin definitions:
+void(vector mincorner, vector maxcorner, vector vel, float howmany, float color) te_particlerain = #409;
+//temp entity definitions:
+//float TE_PARTICLERAIN = 55;
+//protocol:
+//vector mins (minimum corner of the cube)
+//vector maxs (maximum corner of the cube)
+//vector velocity (velocity of particles)
+//short count (number of particles)
+//byte color (8bit palette color)
+//description:
+//creates a shower of rain, the rain will appear either at the top (if falling down) or bottom (if falling up) of the cube.
+
+//DP_TE_PARTICLESNOW
+//builtin definitions:
+void(vector mincorner, vector maxcorner, vector vel, float howmany, float color) te_particlesnow = #410;
+//temp entity definitions:
+//float TE_PARTICLERAIN = 56;
+//protocol:
+//vector mins (minimum corner of the cube)
+//vector maxs (maximum corner of the cube)
+//vector velocity (velocity of particles)
+//short count (number of particles)
+//byte color (8bit palette color)
+//description:
+//creates a shower of snow, the snow will appear either at the top (if falling down) or bottom (if falling up) of the cube, low velocities are advisable for convincing snow.
+
+//DP_TE_SPARK
+//builtin definitions:
+void(vector org, vector vel, float howmany) te_spark = #411;
+//temp entity definitions:
+//float TE_SPARK = 51;
+//protocol:
+//vector origin
+//byte xvelocity (-128 to 127)
+//byte yvelocity (-128 to 127)
+//byte zvelocity (-128 to 127)
+//byte count (number of sparks)
+//description:
+//creates a shower of sparks and a smoke puff.
+
+//DP_TE_QUADEFFECTS1
+//builtin definitions:
+void(vector org) te_gunshotquad = #412;
+void(vector org) te_spikequad = #413;
+void(vector org) te_superspikequad = #414;
+void(vector org) te_explosionquad = #415;
+//temp entity definitions:
+//float   TE_GUNSHOTQUAD  = 57; // [vector] origin
+//float   TE_SPIKEQUAD    = 58; // [vector] origin
+//float   TE_SUPERSPIKEQUAD = 59; // [vector] origin
+//float   TE_EXPLOSIONQUAD = 70; // [vector] origin
+//protocol:
+//vector origin
+//description:
+//all of these just take a location, and are equivilant in function (but not appearance :) to the original TE_GUNSHOT, etc.
+
+//DP_TE_STANDARDEFFECTBUILTINS
+//builtin definitions:
+void(vector org) te_gunshot = #418;
+void(vector org) te_spike = #419;
+void(vector org) te_superspike = #420;
+void(vector org) te_explosion = #421;
+void(vector org) te_tarexplosion = #422;
+void(vector org) te_wizspike = #423;
+void(vector org) te_knightspike = #424;
+void(vector org) te_lavasplash = #425;
+void(vector org) te_teleport = #426;
+void(vector org, float color) te_explosion2 = #427;
+void(entity own, vector start, vector end) te_lightning1 = #428;
+void(entity own, vector start, vector end) te_lightning2 = #429;
+void(entity own, vector start, vector end) te_lightning3 = #430;
+void(entity own, vector start, vector end) te_beam = #431;
+//description:
+//to make life easier on mod coders.
+
+//DP_TE_SMALLFLASH
+//builtin definitions:
+void(vector org) te_smallflash = #416;
+//temp entity definitions:
+//float TE_SMALLFLASH = 71;
+//protocol:
+//vector origin
+//description:
+//creates a small light flash (radius 200, time 0.2).
+
+//DP_TE_CUSTOMFLASH
+//builtin definitions:
+void(vector org, float radius, float lifetime, vector color) te_customflash = #417;
+//temp entity definitions:
+//float TE_CUSTOMFLASH = 72;
+//protocol:
+//vector origin
+//byte radius ((MSG_ReadByte() + 1) * 8, meaning 8-2048 unit radius)
+//byte lifetime ((MSG_ReadByte() + 1) / 256.0, meaning approximately 0-1 second lifetime)
+//byte red (0.0 to 1.0 converted to 0-255)
+//byte green (0.0 to 1.0 converted to 0-255)
+//byte blue (0.0 to 1.0 converted to 0-255)
+//description:
+//creates a customized light flash.
+
+//DP_QC_CHANGEPITCH
+//field definitions:
+.float idealpitch;
+.float pitch_speed;
+//builtin definitions:
+void(entity ent) changepitch = #63;
+//description:
+//equivilant to changeyaw, ent is normally self. (this was a Q2 builtin)
+
+//DP_QC_COPYENTITY
+//builtin definitions:
+void(entity from, entity to) copyentity = #400;
+//description:
+//copies all data in the entity to another entity.
+
+//DP_QC_ETOS
+//builtin definitions:
+string(entity ent) etos = #65;
+//description:
+//lists all of the entity's fields into a string (similar to edict command in console). (this was a Q2 builtin)
+
+//DP_QC_FINDFLOAT
+//builtin definitions:
+entity(entity start, .entity fld, entity match) findentity = #98;
+entity(entity start, .float fld, float match) findfloat = #98;
+//description:
+//finds an entity or float field value, similar to find(), but for entity and float fields.
+
+//DP_QC_GETLIGHT
+//builtin definitions:
+vector(vector org) getlight = #92;
+//description:
+//returns the lighting at the requested location (in color), 0-255 range (can exceed 255).
+
+//DP_QC_SINCOSSQRTPOW
+//builtin definitions:
+float(float val) sin = #60;
+float(float val) cos = #61;
+float(float val) sqrt = #62;
+float(float a, float b) pow = #97;
+//description:
+//useful math functions, sine of val, cosine of val, square root of val, and raise a to power b, respectively.
+
+//DP_QC_MINMAXBOUND
+//builtin definitions:
+float(float a, float b) min = #94;
+float(float a, float b, float c) min3 = #94;
+float(float a, float b, float c, float d) min4 = #94;
+float(float a, float b, float c, float d, float e) min5 = #94;
+float(float a, float b, float c, float d, float e, float f) min6 = #94;
+float(float a, float b, float c, float d, float e, float f, float g) min7 = #94;
+float(float a, float b, float c, float d, float e, float f, float g, float h) min8 = #94;
+float(float a, float b) max = #95;
+float(float a, float b, float c) max3 = #95;
+float(float a, float b, float c, float d) max4 = #95;
+float(float a, float b, float c, float d, float e) max5 = #95;
+float(float a, float b, float c, float d, float e, float f) max6 = #95;
+float(float a, float b, float c, float d, float e, float f, float g) max7 = #95;
+float(float a, float b, float c, float d, float e, float f, float g, float h) max8 = #95;
+float(float minimum, float val, float maximum) bound = #96;
+//description:
+//min returns the lowest of all the supplied numbers.
+//max returns the highest of all the supplied numbers.
+//bound clamps the value to the range and returns it.
+
+//DP_QC_RANDOMVEC
+//builtin definitions:
+vector() randomvec = #91;
+//description:
+//returns a vector of length < 1, much quicker version of this QC: do {v_x = random();v_y = random();v_z = random();} while(vlen(v) > 1)
+
+//DP_QC_TRACEBOX
+//builtin definitions:
+void(vector v1, vector min, vector max, vector v2, float nomonsters, entity forent) tracebox = #90;
+//description:
+//similar to traceline but much more useful, traces a box of the size specified (technical note: currently the hull size can only be one of the sizes used in the map for bmodel collisions, entity collisions will pay attention to the exact size specified however, this is a collision code limitation in quake itself, and will be fixed eventually).
+
+//DP_QC_TRACETOSS
+//builtin definitions:
+void(entity ent, entity ignore) tracetoss = #64;
+//description:
+//simulates movement of the entity as if it is MOVETYPE_TOSS and starting with it's current state (location, velocity, etc), returns relevant trace_ variables (trace_fraction is always 0, all other values are supported - trace_ent, trace_endpos, trace_plane_normal), does not actually alter the entity.
+
+//DP_QC_VECTORVECTORS
+//builtin definitions:
+void(vector dir) vectorvectors = #432;
+//description:
+//creates v_forward, v_right, and v_up vectors given a forward vector, similar to makevectors except it takes a forward direction vector instead of angles.
+
+//DP_QUAKE2_MODEL
+//description:
+//shows that the engine supports Quake2 .md2 files.
+
+//NEH_RESTOREGAME
+//engine-called QC prototypes:
+//void() RestoreGame;
+//description:
+//when a savegame is loaded, this function is called
+
+//NEH_CMD_PLAY2
+//description:
+//shows that the engine supports the "play2" console command (plays a sound without spatialization).
+
+//DP_TE_PLASMABURN
+//builtin definitions:
+void(vector org) te_plasmaburn = #433;
+//temp entity definitions:
+//float TE_PLASMABURN = 75;
+//protocol:
+//vector origin
+//description:
+//creates a small light flash (radius 200, time 0.2) and marks the walls.
+
+// LordHavoc: HIGHLY experimental, do not implement this in other engines
+//DP_CGAME
+//SVC definitions:
+float svc_cgame = 50; // [short] length [bytes] data
+//description:
+//contains network messages to client gamecode.
+
+//DP_VIEWZOOM
+//field definitions:
+.float viewzoom;
+//description:
+//scales fov and sensitivity of player, valid range is 0 to 1 (intended for sniper rifle zooming, and such)

@@ -1,0 +1,37 @@
+
+void() FireballExplode =
+{
+	BecomeExplosion(self, self.dmg, self.dmg2, self.deathtype, '0 0 0', FALSE, self.obitfunc1);
+};
+
+void(vector org, vector vel, entity own, float damg, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchFireball =
+{
+	newmis = spawn ();
+	newmis.deathtype = dethtype;
+	newmis.obitfunc1 = obitfunc;
+	newmis.shoulddodge = TRUE;
+	newmis.dangerrating = blastradius;
+	newmis.owner = own;
+	newmis.createdtime = time;
+	newmis.movetype = MOVETYPE_FLYMISSILE;
+	newmis.solid = SOLID_BBOX;
+	newmis.classname = "fireball";
+	newmis.velocity = vel;
+	newmis.angles = vectoangles(newmis.velocity);
+	newmis.touch = FireballExplode;
+	newmis.think = FireballExplode;
+	newmis.nextthink = time + 15;
+	newmis.dmg = damg;
+	newmis.dmg2 = blastradius;
+	newmis.effects = EF_RED | EF_FULLBRIGHT;
+
+	if (own.items & IT_QUAD)
+	{
+		newmis.dmg = newmis.dmg * 4;
+		newmis.effects = EF_RED | EF_BLUE | EF_FULLBRIGHT;
+	}
+
+	setmodel (newmis, "progs/lavaball.mdl");
+	setsize (newmis, '0 0 0', '0 0 0');    
+	setorigin (newmis, org);
+};
