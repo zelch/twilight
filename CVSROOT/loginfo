@@ -29,4 +29,4 @@
 DEFAULT $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@icculus.org %{sVv}
 CVSROOT $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@icculus.org %{sVv}
 website $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@icculus.org %{sVv} && $CVSROOT/CVSROOT/do_webpulse
-
+ALL /usr/bin/perl $CVSROOT/CVSROOT/ciabot_cvs.pl %s $USER
