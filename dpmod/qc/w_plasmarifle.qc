@@ -30,14 +30,106 @@ void() W_PlasmaRifleFire1 =
 };
 */
 
-void() W_PlasmaRifleFire =
+/*
+void(float a, float d, float r) W_PlasmaRifleFireShot =
 {
-	if (self.wload > self.ammo_cells)
-		self.wload = self.ammo_cells;
+	local vector v;
+	if (self.ammo_cells <= 0)
+		return;
+	if (a > self.ammo_cells)
+		a = self.ammo_cells;
 	self.wfiretime = time;
-	self.currentammo = self.ammo_cells = self.ammo_cells - self.wload;
-	self.wburst = self.wburst - self.wload;
-	FirePlasma(self, shotorg, shotdir, self.wload * 30 * damagescale, 45, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	self.currentammo = self.ammo_cells = self.ammo_cells - a;
+	self.wburst = self.wburst - a;
+	if (self.plasmabarrel == 0)
+	{
+		self.plasmabarrel = 1;
+		v = v_up * 2;
+	}
+	else if (self.plasmabarrel == 1)
+	{
+		self.plasmabarrel = 2;
+		v = v_right * 1.4 + v_up * -1.4;
+	}
+	else
+	{
+		self.plasmabarrel = 0;
+		v = v_right * -1.4 + v_up * -1.4;
+	}
+	FirePlasma(self, shotorg + v, shotdir + v * 0.005, a * d * damagescale, r, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+};
+
+void() W_PlasmaRifleFireRapid =
+{
+	if (self.ammo_cells <= 0)
+	{
+		stopfiring = TRUE;
+		return;
+	}
+	W_PlasmaRifleFireShot(1, 30, 60);
+};
+
+void() W_PlasmaRifleFireBlast =
+{
+	W_PlasmaRifleFireShot(2, 25, 120);
+	W_PlasmaRifleFireShot(2, 25, 120);
+	W_PlasmaRifleFireShot(2, 25, 120);
+};
+
+void() W_PlasmaRifleFireBlast2 =
+{
+	local float d, r;
+	local vector v;
+	self.wfiretime = time;
+	d = 50;
+	r = 120;
+	v = v_up    *  2                ;FirePlasma(self, shotorg + v, shotdir + v * 0.005, d * damagescale, r, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	v = v_right *  1.4 + v_up * -1.4;FirePlasma(self, shotorg + v, shotdir + v * 0.005, d * damagescale, r, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	v = v_right * -1.4 + v_up * -1.4;FirePlasma(self, shotorg + v, shotdir + v * 0.005, d * damagescale, r, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+};
+*/
+
+.float plasmabarrel;
+void() W_PlasmaRifleFireRapid2 =
+{
+	local float d, r;
+	local vector v;
+	self.currentammo = self.ammo_cells = self.ammo_cells - 1;
+	self.wfiretime = time;
+	if (self.plasmabarrel == 0)
+	{
+		self.plasmabarrel = 1;
+		v = v_up * 2;
+	}
+	else if (self.plasmabarrel == 1)
+	{
+		self.plasmabarrel = 2;
+		v = v_right * 1.4 + v_up * -1.4;
+	}
+	else
+	{
+		self.plasmabarrel = 0;
+		v = v_right * -1.4 + v_up * -1.4;
+	}
+	d = 30;
+	r = 60;
+	FirePlasma(self, shotorg + v, shotdir + v * 0.005, d * damagescale, r, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	if (self.ammo_cells <= 0)
+		stopfiring = TRUE;
+};
+
+.float woverload;
+void() W_PlasmaRifleFireOverload2 =
+{
+	local float d, r;
+	local vector v;
+	self.wfiretime = time;
+	d = self.woverload * 10;
+	r = 120;
+	v = v_up    *  2                    ;FirePlasma(self, shotorg + v, shotdir + v * 0.005, d * damagescale, r, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	v = v_right *  1.414 + v_up * -1.414;FirePlasma(self, shotorg + v, shotdir + v * 0.005, d * damagescale, r, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	v = v_right * -1.414 + v_up * -1.414;FirePlasma(self, shotorg + v, shotdir + v * 0.005, d * damagescale, r, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	self.woverload = 0;
 };
 
 void() w_plasmarifledrop1;
@@ -135,6 +227,7 @@ void() w_plasmarifle =
 	}
 	*/
 
+	/*
 	if (time >= self.attack_finished)
 	{
 		if (self.ammo_cells > 0 && self.wburst > 0 && (self.button0 || self.button3))
@@ -146,12 +239,81 @@ void() w_plasmarifle =
 				self.wload = 3;
 			if (self.wload > self.wburst)
 				self.wload = self.wburst;
-			W_GenericSlowFireCode("plasma/plasma.wav", 0.1, W_PlasmaRifleFire);
+			W_GenericSlowFireCode("plasma/plasma.wav", 0.1 * self.wload, W_PlasmaRifleFire);
 		}
 		else if (self.ammo_cells > 0 && self.wburst < 9)
 		{
 			self.wburst = 9;
 			self.attack_finished = time + 0.4;
+		}
+		else if (widle(w_plasmarifledrop1))
+			return;
+	}
+	*/
+
+	/*
+	if (self.button0 && self.ammo_cells > 0)
+		W_GenericRapidFireCode("plasma/plasma.wav", 0.1, W_PlasmaRifleFireRapid);
+	else
+	{
+		self.notfiring = TRUE;
+		if (self.button3 && self.ammo_cells > 0)
+			W_GenericSlowFireCode("plasma/plasma.wav", 0.8, W_PlasmaRifleFireBlast);
+		else if (time >= self.attack_finished)
+			if (widle(w_plasmarifledrop1))
+				return;
+	}
+	*/
+	/*
+	if (self.button3)
+	{
+		if (self.wburst < 9)
+		if (time > self.attack_finished)
+		{
+			self.wburst = self.wburst + 3;
+			self.currentammo = self.ammo_cells = self.ammo_cells - 1;
+			self.attack_finished = time + 0.1;
+			if (self.wburst > 9)
+				self.wburst = 9;
+			sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
+		}
+	}
+	else if (self.button0)
+	{
+		if (self.wburst <= 0)
+		if (time > self.attack_finished)
+		{
+			self.wburst = self.wburst + 3;
+			self.currentammo = self.ammo_cells = self.ammo_cells - 1;
+			self.attack_finished = time + 0.1;
+			if (self.wburst > 9)
+				self.wburst = 9;
+			//sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
+		}
+		if (self.wburst > 0)
+			W_GenericSlowFireCode("plasma/plasma.wav", 0.1, W_PlasmaRifleFireRapid2);
+	}
+	else
+	{
+	}
+	*/
+	// FIXME: need overload fire sound (second overload sound)
+	if (self.woverload > 0)
+		W_GenericSlowFireCode("plasma/plasma.wav", 1, W_PlasmaRifleFireOverload2);
+	else if (self.button0 && self.ammo_cells > 0)
+		W_GenericRapidFireCode("plasma/plasma.wav", 0.1, W_PlasmaRifleFireRapid2);
+	else if (time >= self.attack_finished)
+	{
+		self.notfiring = TRUE;
+		if (self.button3 && self.ammo_cells > 0)
+		{
+			self.woverload = 12;
+			if (self.woverload > self.ammo_cells)
+				self.woverload = self.ammo_cells;
+			self.currentammo = self.ammo_cells = self.ammo_cells - self.woverload;
+			self.attack_finished = time + 0.2;
+			// FIXME: need overload charge sound (first overload sound)
+			sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
 		}
 		else if (widle(w_plasmarifledrop1))
 			return;
