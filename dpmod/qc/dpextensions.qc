@@ -5,13 +5,16 @@
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
 //builtin definitions:
+// FIXME: these need numbers assigned, and they need to be added to the engine!
 //entity() spawnclient = #; // like spawn but for client slots (also calls relevant connect/spawn functions), returns world if no clients available
 //void(entity e) removeclient = #; // like remove but for client slots (also calls relevant disconnect functions)
 //description:
 //functions to allow bots to use client slots with no hacks, some notes:
-//.netname controls name on scoreboard (so be sure to set it)
-//.frags controls score on scoreboard (this is expected)
-//.clientcolors controls coloring on scoreboard (this determines player colors exactly like the "color" command, except for using )
+.string netname; //controls name on scoreboard (so be sure to set it for a bot)
+.float frags; //controls score on scoreboard (this is expected)
+.float clientcolors; //controls coloring on scoreboard (this determines player colors exactly like the "color" command, except for using a single number that contains pants and shirt colors (pants + shirt * 16, 0-255 potentially), so be sure to set it for a bot)
+//note also that these fields can be set on a real client to change the relevant settings.
+//see also DP_SV_SETCOLOR extension for another way to manipulate clientcolors (made obsolete by this extension).
 
 //unassigned stuff:  (need to write up specs but haven't yet)
 .vector punchvector; // DP_SV_PUNCHVECTOR
@@ -99,7 +102,7 @@ float   EF_RED          = 128;
 //effects bit:
 float   EF_STARDUST     = 2048;
 //description:
-//entity emits bouncing sparkles in every direction (it is doubtful anyone would want to use this effect)
+//entity emits bouncing sparkles in every direction
 
 //entity attributes used for rendering/networking:
 //idea: Nehahra
@@ -596,7 +599,7 @@ void(vector mincorner, vector maxcorner, float explosionspeed, float howmany) te
 //builtin definitions:
 void(vector org, float radius, float lifetime, vector color) te_customflash = #417;
 //temp entity definitions:
-//float TE_CUSTOMFLASH = 72;
+//float TE_CUSTOMFLASH = 73;
 //protocol:
 //vector origin
 //byte radius ((MSG_ReadByte() + 1) * 8, meaning 8-2048 unit radius)
@@ -708,7 +711,7 @@ void(vector org) te_explosionquad = #415;
 //builtin definitions:
 void(vector org) te_smallflash = #416;
 //temp entity definitions:
-//float TE_SMALLFLASH = 71;
+//float TE_SMALLFLASH = 72;
 //protocol:
 //vector origin
 //description:
