@@ -282,20 +282,24 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	targ.regenthink = time + 2; // stop regeneration for 2 sec
 
 	targ.deathmsg = dethtype;
-	if (targ.iscorpse)
+	if (targ.th_die)
+	if (targ.th_die != SUB_Null)
 	{
-		if (targ.bodyhealth < 1)
+		if (targ.iscorpse)
 		{
-			Killed (targ, attacker, dethtype, damgtype, obitfunc);
-			return;
+			if (targ.bodyhealth < 1)
+			{
+				Killed (targ, attacker, dethtype, damgtype, obitfunc);
+				return;
+			}
 		}
-	}
-	else
-	{
-		if (targ.health < 1)
+		else
 		{
-			Killed (targ, attacker, dethtype, damgtype, obitfunc);
-			return;
+			if (targ.health < 1)
+			{
+				Killed (targ, attacker, dethtype, damgtype, obitfunc);
+				return;
+			}
 		}
 	}
 

@@ -72,6 +72,10 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 	e.alpha = 1;
 	e.think = debristhink;
 	e.nextthink = time;
+	e.takedamage = DAMAGE_YES;
+	e.th_die = SUB_Null;
+	e.th_gib = SUB_Null;
+	e.th_pain = SUB_Null;
 	if (maxclients == 1)
 		e.cnt = time + 3000;
 	else
