@@ -195,7 +195,7 @@ qboolean FillOutside (node_t *node)
 	inside = false;
 	for (i=1 ; i<num_entities ; i++)
 	{
-		if (!VectorCompare(entities[i].origin, vec3_origin))
+		if (DotProduct (entities[i].origin, entities[i].origin) >= 0.1)
 		{
 			if (PlaceOccupant (i, entities[i].origin, node))
 				inside = true;
