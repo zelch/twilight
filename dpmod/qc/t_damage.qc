@@ -61,6 +61,8 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	// bump the monster counter
 	if (self.flags & FL_MONSTER && self.classname != "spawnedgrunt")
 	{
+		if (attacker.classname == "player")
+			attacker.frags = attacker.frags + 1;
 		killed_monsters = killed_monsters + 1;
 		WriteByte (MSG_ALL, SVC_KILLEDMONSTER);
 	}
@@ -134,11 +136,11 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	if (force != '0 0 0') // trying to push?
 	if (targ.forcescale > 0) // can it be moved?
 	{
-		if (targ.knockedloosefunc)
+		if (targ.flags & FL_ONGROUND)
 		{
-			self = targ;
-			targ.knockedloosefunc();
-			self = oldself;
+			targ.flags = targ.flags - FL_ONGROUND;
+			tracebox(targ.origin, targ.mins, targ.maxs, targ.origin + '0 0 1', FALSE, targ);
+			setorigin(targ, trace_endpos);
 		}
 		if (targ.movetype != MOVETYPE_NONE)
 		if (targ.movetype != MOVETYPE_NOCLIP)
@@ -149,6 +151,12 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 			targ.punchvector = targ.punchvector + force * targ.forcescale * -0.2;
 			if (vlen(targ.punchvector) > 4)
 				targ.punchvector = normalize(targ.punchvector) * 4;
+		}
+		if (targ.knockedloosefunc)
+		{
+			self = targ;
+			targ.knockedloosefunc();
+			self = oldself;
 		}
 	}
 
