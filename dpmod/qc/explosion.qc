@@ -109,7 +109,6 @@ void(vector org, entity attacker, float damg, float radius, entity ignore, strin
 void(entity e, float damg, float radius, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) BecomeExplosion =
 {
 	local vector org, v, v2;
-	local entity e;
 	if (e.solid == SOLID_BSP)
 	{
 		e.solid = SOLID_NOT;
