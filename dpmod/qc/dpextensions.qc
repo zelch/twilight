@@ -587,7 +587,7 @@ float(float a, float b) pow = #97;
 //builtin definitions:
 void(vector v1, vector min, vector max, vector v2, float nomonsters, entity forent) tracebox = #90;
 //description:
-//similar to traceline but much more useful, traces a box of the size specified (technical note: currently the hull size can only be one of the sizes used in the map for bmodel collisions, entity collisions will pay attention to the exact size specified however, this is a collision code limitation in quake itself, and will be fixed eventually).
+//similar to traceline but much more useful, traces a box of the size specified (technical note: in quake1 and halflife bsp maps the mins and maxs will be rounded up to one of the hull sizes, quake3 bsp does not have this problem, this is the case with normal moving entities as well).
 
 //DP_QC_TRACETOSS
 //idea: id Software
