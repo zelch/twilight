@@ -840,6 +840,7 @@ void(vector dodge) havocbot_movetogoal =
 	evadelava = '0 0 0';
 	if (self.waterlevel)
 	{
+		destorg = randompos(head.absmin, head.absmax);
 		diff = destorg - self.origin;
 		dist = vlen(diff);
 		dir = normalize(diff);
@@ -872,7 +873,8 @@ void(vector dodge) havocbot_movetogoal =
 			}
 		}
 
-		traceline(self.origin + self.velocity * 0.2, self.origin + self.velocity * 0.2 + '0 0 -1000', TRUE, world);
+		// LordHavoc: thanks to Electro for noticing that 0.3 velocity multiplier works a lot better than 0.2
+		traceline(self.origin + self.velocity * 0.3, self.origin + self.velocity * 0.3 + '0 0 -1000', TRUE, world);
 		s = pointcontents(trace_endpos + '0 0 1');
 		if (s == CONTENT_LAVA || s == CONTENT_SLIME)
 			evadelava = normalize(self.velocity) * -1;
