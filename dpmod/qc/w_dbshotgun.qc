@@ -65,8 +65,8 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunD
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-float DBSHOTGUNBUCKSHOT = 80;
-//float DBSHOTGUNEXPLOSIVESLUG = 85;
+//float DBSHOTGUNBUCKSHOT = 80;
+float DBSHOTGUNEXPLOSIVESLUG = 85;
 
 .float shotgunmode, shotgunshells;
 void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost) W_DBShotgunFireShell =
@@ -93,15 +93,15 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost)
 		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	self.wfiretime = time;
 	w_muzzleflash(v, 4);
-	/*
-	if (self.shotgunmode)
+	//if (self.shotgunmode)
 		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG * damagescale, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
+	/*
 	else
-	*/
 	{
 		FireBullets(self, self, 1, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
 		FireBullets(self, self, 0, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
 	}
+	*/
 	shotorg = v;
 };
 
