@@ -1,5 +1,6 @@
 
 .float seenhelp;
+.float idealzoom;
 
 /*
 ============
