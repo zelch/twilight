@@ -133,9 +133,9 @@ void getwadname(char *out, char **inpointer)
 	*inpointer = in;
 }
 
-void loadwad(char *filename)
+int loadwad(char *filename)
 {
-	int i;
+	int i, oldnummiptexfiles = nummiptexfiles;
 	wadinfo_t wadinfo;
 	lumpinfo_t lumpinfo;
 	FILE *file;
@@ -143,20 +143,20 @@ void loadwad(char *filename)
 	if (!file)
 	{
 		printf("unable to open wad \"%s\"\n", filename);
-		return;
+		return -1;
 	}
 	if (fread(&wadinfo, sizeof(wadinfo_t), 1, file) < 1)
 	{
 		printf("error reading wad header in \"%s\"\n", filename);
 		fclose(file);
-		return;
+		return -1;
 	}
 	// FIXME: support halflife WAD3?
 	if (memcmp(wadinfo.identification, "WAD2", 4))
 	{
 		printf("\"%s\" is not a quake WAD2 archive\n", filename);
 		fclose(file);
-		return;
+		return -1;
 	}
 
 	wadinfo.numlumps = LittleLong(wadinfo.numlumps);
@@ -165,7 +165,7 @@ void loadwad(char *filename)
 	{
 		printf("error seeking in wad \"%s\"\n", filename);
 		fclose(file);
-		return;
+		return -1;
 	}
 
 	for (i = 0;i < wadinfo.numlumps;i++)
@@ -174,7 +174,7 @@ void loadwad(char *filename)
 		{
 			printf("error reading lump header in wad \"%s\"\n", filename);
 			fclose(file);
-			return;
+			return -1;
 		}
 		lumpinfo.filepos = LittleLong(lumpinfo.filepos);
 		lumpinfo.disksize = LittleLong(lumpinfo.disksize);
@@ -196,6 +196,8 @@ void loadwad(char *filename)
 			nummiptexfiles++;
 		}
 	}
+	printf("loaded wad \"%s\" (%i miptex found)\n", filename, nummiptexfiles - oldnummiptexfiles);
+	return nummiptexfiles - oldnummiptexfiles;
 }
 
 int ReadMipTexFile(miptexfile_t *m, byte *out)
@@ -213,20 +215,22 @@ int ReadMipTexFile(miptexfile_t *m, byte *out)
 	return false;
 }
 
+static char wadname[2048], wadfilename[2048];
 void WriteMiptex (void)
 {
-	int i;
+	int i, success;
 	byte *miptex_data;
 	dmiptexlump_t *miptex_lumps;
-	char wadname[2048], *path, *currentpath;
+	char *path, *currentpath;
 	miptexfile_t *m;
+
 	path = ValueForKey (&entities[0], "_wad");
 	if (!path || !path[0])
 	{
 		path = ValueForKey (&entities[0], "wad");
 		if (!path || !path[0])
 		{
-			printf ("WARNING: no wadfile specified\n");
+			printf ("WriteMiptex: no wads specified in \"wad\" key in worldspawn\n");
 			texdatasize = 0;
 			return;
 		}
@@ -239,7 +243,47 @@ void WriteMiptex (void)
 	{
 		getwadname(wadname, &currentpath);
 		if (wadname[0])
-			loadwad(wadname);
+		{
+			success = false;
+			// try prepending each -wadpath on the commandline to the wad name
+			for (i = 1;i < myargc;i++)
+			{
+				if (!Q_strcasecmp("-wadpath", myargv[i]))
+				{
+					i++;
+					if (i < myargc)
+					{
+						sprintf(wadfilename, "%s%s", myargv[i], wadname);
+						if ((success = loadwad(wadfilename) >= 0))
+							break;
+					}
+				}
+			}
+			if (!success)
+			{
+				// if the map name has a path, we can try loading the wad from there
+				ExtractFilePath(bspfilename, wadfilename);
+				if (wadfilename[0])
+				{
+					strcat(wadfilename, wadname);
+					if (!(success = loadwad(wadfilename) >= 0))
+					{
+						// try the parent directory
+						ExtractFilePath(bspfilename, wadfilename);
+						strcat(wadfilename, "../");
+						strcat(wadfilename, wadname);
+						success = loadwad(wadfilename) >= 0;
+					}
+				}
+			}
+			if (!success)
+			{
+				// try the wadname itself
+				success = loadwad(wadname) >= 0;
+			}
+			if (!success)
+				printf("Could not find wad \"%s\" using -wadpath options or in the same directory as the map or it's parent directory, so there!\n", wadname);
+		}
 	}
 
 	for (i = 0;i < nummiptex;i++)
@@ -257,8 +301,11 @@ void WriteMiptex (void)
 		if (m)
 		{
 			if (miptex_data + m->size - dtexdata >= MAX_MAP_MIPTEX)
-				Error ("Textures exceed MAX_MAP_MIPTEX");
-			if (ReadMipTexFile(m, miptex_data))
+			{
+				miptex_lumps->dataofs[i] = -1;
+				printf(" (MAX_MAP_MIPTEX exceeded)\n");
+			}
+			else if (ReadMipTexFile(m, miptex_data))
 			{
 				miptex_lumps->dataofs[i] = -1;
 				printf(" (READ ERROR)\n");
