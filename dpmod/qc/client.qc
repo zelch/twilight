@@ -1135,6 +1135,8 @@ void() PlayerPreThink =
 {
 	local   float   r, r1, r2, r3, t, a;
 
+	checkinvalidteam();
+
 	// fade pain view kick
 	a = vlen(self.punchvector);
 	if (a)
