@@ -282,15 +282,16 @@ vec_t WindingArea( winding_t *w )
 	vec_t	total;
 	vec3_t	v1, v2, cross;
 
+	// triangle area is vectorlength(crossproduct(edge0, edge1)) * 0.5
 	total = 0;
 	for( i = 2; i < w->numpoints; i++ ) {
 		VectorSubtract( w->points[i-1], w->points[0], v1 );
 		VectorSubtract( w->points[i  ], w->points[0], v2 );
 		CrossProduct( v1, v2, cross );
-		total += VectorLength( cross ) * 0.5;
+		total += VectorLength( cross );
 	}
 
-	return total;
+	return total * 0.5;
 }
 
 /*
