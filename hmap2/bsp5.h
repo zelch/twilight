@@ -9,14 +9,12 @@
 #include "winding.h"
 #include "map.h"
 
-#define	ON_EPSILON	0.05
-
 // the exact bounding box of the brushes is expanded some for the headnode
 // volume.  is this still needed?
 #define	SIDESPACE	24
 
 //============================================================================
- 
+
 typedef struct visfacet_s
 {
 	struct visfacet_s	*next;
@@ -58,15 +56,15 @@ typedef struct brush_s
 typedef struct node_s
 {
 	vec3_t				mins, maxs;		// bounding volume, not just points inside
-	int					planenum;		// PLANENUM_LEAF = leaf node	
+	int					planenum;		// PLANENUM_LEAF = leaf node
 
-	// information for decision nodes	
+	// information for decision nodes
 	int					outputplanenum;	// only valid after EmitNodePlanes
 	int					firstface;		// decision node only
 	int					numfaces;		// decision node only
 	struct node_s		*children[2];	// only valid for decision nodes
 	face_t				*faces;			// decision nodes only, list for both sides
-	
+
 	// information for leafs
 	int					contents;		// leaf nodes (0 for decision nodes)
 	face_t				**markfaces;	// leaf nodes only, point to node faces
@@ -80,7 +78,7 @@ typedef struct portal_s
 {
 	int					planenum;
 	node_t				*nodes[2];		// [0] = front side of planenum
-	struct portal_s		*next[2];	
+	struct portal_s		*next[2];
 	winding_t			*winding;
 } portal_t;
 

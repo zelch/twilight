@@ -134,7 +134,7 @@ wedge_t	*FindEdge (vec3_t p1, vec3_t p2, vec_t *t1, vec_t *t2)
 	int		h;
 
 	VectorSubtract (p2, p1, dir);
-	
+
 	// ignore degenerate edges
 	if (!CanonicalVector (dir))
 	{
@@ -203,7 +203,6 @@ AddVert
 
 ===============
 */
-#define	T_EPSILON	0.01
 
 void AddVert (wedge_t *w, vec_t t)
 {
@@ -443,9 +442,9 @@ void tjunc_fix_r (node_t *node)
 
 	if (node->planenum == PLANENUM_LEAF)
 		return;
-		
+
 	newlist = NULL;
-	
+
 	for (f=node->faces ; f ; f=next)
 	{
 		next = f->next;
@@ -469,7 +468,7 @@ void FixTJunctions(tree_t *tree)
 	vec3_t	maxs, mins;
 
 	qprintf ("---- tjunc ----\n");
-	
+
 	if (notjunc)
 	{
 		printf ("skipped\n");

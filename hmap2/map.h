@@ -1,7 +1,4 @@
 
-#define	DISTEPSILON		0.001
-#define	ANGLEEPSILON	0.00001
-
 // LordHavoc: raised MAX_FACES From 32 to 256
 #define	MAX_FACES		256
 

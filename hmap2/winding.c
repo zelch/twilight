@@ -179,7 +179,7 @@ winding_t *BaseWindingForPlane( plane_t *p )
 
 	VectorSubtract( org, vright, w->points[3] );
 	VectorSubtract( w->points[3], vup, w->points[3] );
-	
+
 	w->numpoints = 4;
 
 	//PrintWinding(w);
@@ -604,7 +604,6 @@ Returns NULL if the windings couldn't be merged, or the new winding.
 The originals will NOT be freed.
 =============
 */
-#define CONTINUOUS_EPSILON	0.001
 
 winding_t *TryMergeWinding( winding_t *w1, winding_t *w2, vec3_t planenormal )
 {
@@ -617,7 +616,7 @@ winding_t *TryMergeWinding( winding_t *w1, winding_t *w2, vec3_t planenormal )
 
 	//
 	// find a common edge
-	//	
+	//
 	for( i = 0; i < w1->numpoints; i++ ) {
 		p1 = w1->points[i];
 		p2 = w1->points[(i + 1) % w1->numpoints];
@@ -680,7 +679,7 @@ winding_t *TryMergeWinding( winding_t *w1, winding_t *w2, vec3_t planenormal )
 	for( k = (i + 1) % w1->numpoints; k != i; k = (k + 1)%w1->numpoints ) {
 		if( k == (i + 1) % w1->numpoints && !keep2 )
 			continue;
-		
+
 		VectorCopy( w1->points[k], neww->points[neww->numpoints] );
 		neww->numpoints++;
     }

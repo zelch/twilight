@@ -35,7 +35,7 @@ void qprintf( char *fmt, ... )
 	extern qboolean verbose;
 
 	if( !verbose )
-		return;		// only print if verbose	
+		return;		// only print if verbose
 
 	va_start( argptr, fmt );
 	vprintf( fmt, argptr );

@@ -44,7 +44,7 @@ void FreeFace( face_t *f )
 ==================
 NewFaceFromFace
 
-Duplicates the non point information of a face, 
+Duplicates the non point information of a face,
 used by SplitFace and MergeFace.
 ==================
 */
@@ -107,7 +107,7 @@ void SplitFace( face_t *in, plane_t *split, face_t **front, face_t **back )
 ================
 SubdivideFace
 
-If the face is > subdivide_size in either texture direction, 
+If the face is > subdivide_size in either texture direction,
 carve a valid sized piece off and insert the remainder in the next link
 ================
 */
@@ -212,7 +212,7 @@ MergeFaceToList_r
 ===============
 */
 face_t *MergeFaceToList_r( face_t *face, face_t *list )
-{	
+{
 	face_t	*newf, *f;
 
 	for( f = list; f; f = f->next ) {
@@ -293,7 +293,7 @@ void MergeTreeFaces( tree_t *tree )
 
 	printf( "---- MergeTreeFaces ----\n" );
 
-	mergefaces = 0; 
+	mergefaces = 0;
 	for( surf = tree->surfaces; surf; surf = surf->next )
 		mergefaces += MergePlaneFaces( surf );
 
@@ -335,7 +335,7 @@ static void GatherNodeFaces_r( node_t *node, face_t **validfaces )
 ================
 GatherTreeFaces
 
-Frees the current node tree and returns a new chain of 
+Frees the current node tree and returns a new chain of
 the surfaces that have inside faces.
 ================
 */
@@ -362,8 +362,6 @@ typedef struct hashvert_s
 
 #define	NUM_HASH		8192
 
-#define	POINT_EPSILON	0.01
-
 static	hashvert_t	hvertex[MAX_MAP_VERTS];
 static	hashvert_t	*hvert_p;
 
@@ -380,30 +378,30 @@ static void InitHash( vec3_t mins, vec3_t maxs )
 	vec3_t	size;
 	vec_t	scale;
 	int		newsize[2];
-	
+
 	memset( hashverts, 0, sizeof( hashverts ) );
 
 	for( i = 0; i < 3; i++ ) {
 		hash_min[i] = mins[i];
 		size[i] = maxs[i] - mins[i];
     }
-	
+
 	scale = sqrt( size[0] * size[1] / NUM_HASH );
-	
+
 	newsize[0] = size[0] / scale;
 	newsize[1] = size[1] / scale;
-	
+
 	hash_scale[0] = newsize[0] / size[0];
 	hash_scale[1] = newsize[1] / size[1];
 	hash_scale[2] = newsize[1];
-	
+
 	hvert_p = hvertex;
 }
 
 static unsigned HashVec( vec3_t vec )
 {
 	unsigned	h;
-	
+
 	h =	hash_scale[0] * (vec[0] - hash_min[0]) * hash_scale[2] + hash_scale[1] * (vec[1] - hash_min[1]);
 	return h % NUM_HASH;
 }
@@ -421,7 +419,7 @@ static int GetVertex( vec3_t in, int planenum )
 	int			h;
 	hashvert_t	*hv;
 	vec3_t		vert;
-	
+
 	for( i = 0; i < 3; i++ ) {
 		h = Q_rint( in[i] );
 

@@ -40,7 +40,7 @@ int	FindPlane( plane_t *dplane, int *side )
 		*side = 1;
 
 	for( i = 0, dp = mapplanes; i < nummapplanes; i++, dp++ ) {
-		if( DotProduct( dp->normal, pl.normal ) > 1.0 - ANGLEEPSILON && fabs( dp->dist - pl.dist ) < DISTEPSILON )
+		if( DotProduct( dp->normal, pl.normal ) > 1.0 - ANGLE_EPSILON && fabs( dp->dist - pl.dist ) < DIST_EPSILON )
 			return i; // regular match
 	}
 
@@ -48,7 +48,7 @@ int	FindPlane( plane_t *dplane, int *side )
 		Error( "FindPlane: nummapplanes == MAX_MAP_PLANES" );
 
 	dot = VectorLength( dplane->normal );
-	if( dot < 1.0 - ANGLEEPSILON || dot > 1.0 + ANGLEEPSILON )
+	if( dot < 1.0 - ANGLE_EPSILON || dot > 1.0 + ANGLE_EPSILON )
 		Error( "FindPlane: normalization error (%f %f %f, length %f)", dplane->normal[0], dplane->normal[1], dplane->normal[2], dot );
 
 	mapplanes[nummapplanes] = pl;
@@ -162,10 +162,10 @@ void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv, qboolean q3brush)
 		int		bestaxis;
 		vec_t	dot,best;
 		int		i;
-	
+
 		best = 0;
 		bestaxis = 0;
-	
+
 		for (i=0 ; i<6 ; i++)
 		{
 			dot = DotProduct (pln->normal, baseaxis[i*3]);
@@ -175,7 +175,7 @@ void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv, qboolean q3brush)
 				bestaxis = i;
 			}
 		}
-	
+
 		VectorCopy (baseaxis[bestaxis*3+1], xv);
 		VectorCopy (baseaxis[bestaxis*3+2], yv);
 	}

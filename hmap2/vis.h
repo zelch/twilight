@@ -9,8 +9,6 @@
 
 #define	PORTALFILE	"PRT1"
 
-#define	ON_EPSILON	0.1
-
 typedef struct
 {
 	qboolean	original;			// don't free, it's part of the portal
@@ -66,7 +64,7 @@ typedef struct leaf_s
 	portal_t		*portals[MAX_PORTALS_ON_LEAF];
 } leaf_t;
 
-	
+
 typedef struct pstack_s
 {
 	struct pstack_s	*next;

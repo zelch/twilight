@@ -20,6 +20,33 @@ typedef float vec_t;
 #endif
 typedef vec_t vec3_t[3];
 
+// LordHavoc: these epsilons came from tyrqbsp by Tyrann
+// Misc EPSILON values
+// FIXME: document which to use where
+//        use float.h stuff for better choices?
+#define TIGHTER_EPSILONS
+#ifdef  TIGHTER_EPSILONS
+# define NORMAL_EPSILON     ((vec_t)0.000001)
+# define ANGLE_EPSILON      ((vec_t)0.000001)
+# define DIST_EPSILON       ((vec_t)0.0001)
+# define ZERO_EPSILON       ((vec_t)0.0001)
+# define POINT_EPSILON      ((vec_t)0.0001)
+# define ON_EPSILON         ((vec_t)0.0001)
+# define EQUAL_EPSILON      ((vec_t)0.0001)
+# define CONTINUOUS_EPSILON ((vec_t)0.0001)
+# define T_EPSILON          ((vec_t)0.0001)
+#else
+# define NORMAL_EPSILON     ((vec_t)0.00001)
+# define ANGLE_EPSILON      ((vec_t)0.00001)
+# define DIST_EPSILON       ((vec_t)0.01)
+# define ZERO_EPSILON       ((vec_t)0.001)
+# define POINT_EPSILON      ((vec_t)0.01)
+# define ON_EPSILON         ((vec_t)0.05)
+# define EQUAL_EPSILON      ((vec_t)0.001)
+# define CONTINUOUS_EPSILON ((vec_t)0.001)
+# define T_EPSILON          ((vec_t)0.01)
+#endif
+
 extern vec3_t vec3_origin;
 
 typedef struct
@@ -35,8 +62,6 @@ typedef struct
 #define	SIDE_CROSS		-2
 
 #define	Q_PI			3.14159265358979323846
-
-#define	EQUAL_EPSILON	0.001
 
 #ifndef PLANE_X
 

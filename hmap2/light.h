@@ -4,8 +4,6 @@
 #include "bspfile.h"
 #include "mem.h"
 
-#define ON_EPSILON 0.1
-
 #define MAXLIGHTS 4096
 
 #define DEFAULTLIGHTLEVEL	300

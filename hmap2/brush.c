@@ -61,7 +61,6 @@ entity_t *FindTargetEntity(char *targetname)
 CreateBrushFaces
 =================
 */
-#define	ZERO_EPSILON	0.001
 void CreateBrushFaces (void)
 {
 	int				i,j, k, rotate;
@@ -150,7 +149,7 @@ void CreateBrushFaces (void)
 				brush_faces = NULL;
 				return;
 			}
-					
+
 			AddPointToBounds( w->points[j], brush_mins, brush_maxs );
 		}
 
@@ -394,7 +393,7 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 
 				CrossProduct (planevec, edgevec, plane.normal);
 				l = VectorLength (plane.normal);
-				if (l < 1-ANGLEEPSILON || l > 1+ANGLEEPSILON)
+				if (l < ANGLE_EPSILON)
 					continue;
 				plane.dist = DotProduct (planeorg, plane.normal);
 				TestAddPlane (&plane);
@@ -478,6 +477,7 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 	int			contents;
 	char		*name;
 	mface_t		*f;
+	face_t		*face, *next;
 
 	//
 	// check texture name for attributes
@@ -549,7 +549,6 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 
 	if (hullnum)
 	{
-		face_t *face, *next;
 		ExpandBrush (hullnum);
 		for (face=brush_faces ; face ; face=next)
 		{
@@ -567,6 +566,10 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 	b->faces = brush_faces;
 	VectorCopy (brush_mins, b->mins);
 	VectorCopy (brush_maxs, b->maxs);
+	// debugging code
+	//printf("brush\n");
+	//for (f=mb->faces ; f ; f=f->next)
+	//	printf("face %f %f %f %f \"%s\"\n", f->plane.normal[0], f->plane.normal[1], f->plane.normal[2], f->plane.dist, miptex[texinfo[f->texinfo].miptex]);
 
 	return b;
 }
