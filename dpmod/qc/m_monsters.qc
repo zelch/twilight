@@ -119,12 +119,12 @@ void() walkmonster_start_go =
 	local string	stemp;
 	local entity	etemp;
 
-        //self.origin_z = self.origin_z + 1;
-        //droptofloor();
-        setorigin(self, self.origin + '0 0 1');      // raise off floor a bit
-        tracebox(self.origin, self.mins, self.maxs, self.origin + '0 0 -256', TRUE, self);
-        if (!trace_startsolid)
-              setorigin(self, trace_endpos);
+	//self.origin_z = self.origin_z + 1;
+	//droptofloor();
+	setorigin(self, self.origin + '0 0 1');      // raise off floor a bit
+	tracebox(self.origin, self.mins, self.maxs, self.origin + '0 0 -256', TRUE, self);
+	if (!trace_startsolid)
+		setorigin(self, trace_endpos);
 
 	if (!walkmove(0,0))
 	{
