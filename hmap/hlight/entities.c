@@ -333,20 +333,12 @@ entity_t *FindEntityWithKeyPair( char *key, char *value )
 			if (!strcmp (ep->key, key) )
 			{
 				if ( !strcmp( ep->value, value ) )
-					return ent;	  
+					return ent;
 				break;
 			}
 		}
 	}
 	return NULL;
-}
-
-double DoubleForKey (entity_t *ent, char *key)
-{
-	char	*k;
-
-	k = ValueForKey (ent, key);
-	return atof(k);
 }
 
 void GetVectorForKey (entity_t *ent, char *key, vec3_t vec)

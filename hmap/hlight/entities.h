@@ -37,7 +37,6 @@ extern int num_entities;
 char *ValueForKey (entity_t *ent, char *key);
 void SetKeyValue (entity_t *ent, char *key, char *value);
 entity_t *FindEntityWithKeyPair( char *key, char *value );
-double DoubleForKey (entity_t *ent, char *key);
 void GetVectorForKey (entity_t *ent, char *key, vec3_t vec);
 
 void LoadEntities (void);

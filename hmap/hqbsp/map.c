@@ -2,13 +2,16 @@
 
 #include "bsp5.h"
 
-int			nummapbrushes;
+// just for statistics
+int			nummapbrushfaces = 0;
+
+int			nummapbrushes = 0;
 mbrush_t	mapbrushes[MAX_MAP_BRUSHES];
 
-int			num_entities;
+int			num_entities = 0;
 entity_t	entities[MAX_MAP_ENTITIES];
 
-int			nummiptex;
+int			nummiptex = 0;
 char		miptex[MAX_MAP_TEXINFO][16];
 
 //============================================================================
@@ -50,7 +53,6 @@ int	FindTexinfo (texinfo_t *t)
 	// set the special flag
 	if (miptex[t->miptex][0] == '*' || !Q_strncasecmp (miptex[t->miptex], "sky",3) )
 		t->flags |= TEX_SPECIAL;
-
 
 	tex = texinfo;
 	for (i=0 ; i<numtexinfo;i++, tex++)
@@ -252,15 +254,12 @@ ParseBrush
 */
 void ParseBrush (void)
 {
+	int			i, j, sv, tv, hltexdef;
+	vec_t		planepts[3][3], t1[3], t2[3], d, rotate, scale[2], vecs[2][4], ang, sinv, cosv, ns, nt;
 	mbrush_t	*b;
 	mface_t		*f, *f2;
-	vec3_t		planepts[3];
-	vec3_t		t1, t2, t3;
-	//vec3_t		v;
-	int			i, j;
+	plane_t	plane;
 	texinfo_t	tx;
-	vec_t		d;
-	vec_t		shift[2], rotate, scale[2], iscale[2];
 
 	b = &mapbrushes[nummapbrushes];
 	nummapbrushes++;
@@ -293,16 +292,54 @@ void ParseBrush (void)
 				Error ("parsing brush on line %d\n", scriptline);
 		}
 
-		fflush(stdout);
+		//fflush(stdout);
+
+		// convert points to a plane
+		VectorSubtract(planepts[0], planepts[1], t1);
+		VectorSubtract(planepts[2], planepts[1], t2);
+		CrossProduct(t1, t2, plane.normal);
+		VectorNormalize(plane.normal);
+		plane.dist = DotProduct(planepts[1], plane.normal);
+
 		// read the texturedef
 		memset (&tx, 0, sizeof(tx));
 		GetToken (false);
 		tx.miptex = FindMiptex (token);
 		GetToken (false);
-		shift[0] = atof(token); // LordHavoc: float coords
-		GetToken (false);
-		shift[1] = atof(token); // LordHavoc: float coords
-		GetToken (false);
+		if ((hltexdef = !strcmp(token, "[")))
+		{
+			// S vector
+			GetToken(false);
+			vecs[0][0] = atof(token);
+			GetToken(false);
+			vecs[0][1] = atof(token);
+			GetToken(false);
+			vecs[0][2] = atof(token);
+			GetToken(false);
+			vecs[0][3] = atof(token);
+			// ]
+			GetToken(false);
+			// [
+			GetToken(false);
+			// T vector
+			GetToken(false);
+			vecs[1][0] = atof(token);
+			GetToken(false);
+			vecs[1][1] = atof(token);
+			GetToken(false);
+			vecs[1][2] = atof(token);
+			GetToken(false);
+			vecs[1][3] = atof(token);
+			// ]
+			GetToken(false);
+		}
+		else
+		{
+			vecs[0][3] = atof(token); // LordHavoc: float coords
+			GetToken (false);
+			vecs[1][3] = atof(token); // LordHavoc: float coords
+			GetToken (false);
+		}
 		rotate = atof(token);	 // LordHavoc: float coords
 		GetToken (false);
 		scale[0] = atof(token); // LordHavoc: was already float coords
@@ -328,145 +365,85 @@ void ParseBrush (void)
 			continue;
 		}
 
-		f = malloc(sizeof(mface_t));
-		f->next = b->faces;
-		b->faces = f;
-
-		// convert to a vector / dist plane
-		for (j = 0;j < 3;j++)
-		{
-			t1[j] = planepts[0][j] - planepts[1][j];
-			t2[j] = planepts[2][j] - planepts[1][j];
-			t3[j] = planepts[1][j];
-		}
-
-		CrossProduct(t1,t2, f->plane.normal);
-		if (DotProduct (f->plane.normal, f->plane.normal) < 0.1)
+		if (DotProduct(plane.normal, plane.normal) < 0.1)
 		{
 			printf ("WARNING: brush plane with no normal on line %d\n", scriptline);
-			b->faces = f->next;
-			free (f);
-			break;
+			continue;
 		}
-
-		VectorNormalize (f->plane.normal);
-		f->plane.dist = DotProduct (t3, f->plane.normal);
 
 		/*
 		// LordHavoc: fix for CheckFace: point off plane errors in some maps (most notably QOOLE ones),
 		// and hopefully preventing most 'portal clipped away' warnings
-		VectorNormalize (f->plane.normal);
+		VectorNormalize (plane.normal);
 		for (j = 0;j < 3;j++)
-			f->plane.normal[j] = (Q_rint((vec_t) f->plane.normal[j] * (vec_t) 8.0)) * (vec_t) (1.0 / 8.0);
-		VectorNormalize (f->plane.normal);
-		f->plane.dist = DotProduct (t3, f->plane.normal);
-		d = (Q_rint(f->plane.dist * 8.0)) * (1.0 / 8.0);
-		//if (fabs(d - f->plane.dist) >= (0.4 / 8.0))
+			plane.normal[j] = (Q_rint((vec_t) plane.normal[j] * (vec_t) 8.0)) * (vec_t) (1.0 / 8.0);
+		VectorNormalize (plane.normal);
+		plane.dist = DotProduct (t3, plane.normal);
+		d = (Q_rint(plane.dist * 8.0)) * (1.0 / 8.0);
+		//if (fabs(d - plane.dist) >= (0.4 / 8.0))
 		//	printf("WARNING: correcting minor math errors in brushface on line %d\n", scriptline);
-		f->plane.dist = d;
+		plane.dist = d;
 		*/
 
 		/*
-		VectorNormalize (f->plane.normal);
-		f->plane.dist = DotProduct (t3, f->plane.normal);
+		VectorNormalize (plane.normal);
+		plane.dist = DotProduct (t3, plane.normal);
 
-		VectorCopy(f->plane.normal, v);
+		VectorCopy(plane.normal, v);
 		//for (j = 0;j < 3;j++)
 		//	v[j] = (Q_rint((vec_t) v[j] * (vec_t) 32.0)) * (vec_t) (1.0 / 32.0);
 		VectorNormalize (v);
 		d = (Q_rint(DotProduct (t3, v) * 8.0)) * (1.0 / 8.0);
 
 		// if deviation is too high, warn  (frequently happens on QOOLE maps)
-		if (fabs(DotProduct(v, f->plane.normal) - 1.0) > (0.5 / 32.0)
-		 || fabs(d - f->plane.dist) >= (0.25 / 8.0))
+		if (fabs(DotProduct(v, plane.normal) - 1.0) > (0.5 / 32.0)
+		 || fabs(d - plane.dist) >= (0.25 / 8.0))
 			printf("WARNING: minor misalignment of brushface on line %d\n"
 			       "normal     %f %f %f (l: %f d: %f)\n"
 			       "rounded to %f %f %f (l: %f d: %f r: %f)\n",
 			       scriptline,
-			       (vec_t) f->plane.normal[0], (vec_t) f->plane.normal[1], (vec_t) f->plane.normal[2], (vec_t) sqrt(DotProduct(f->plane.normal, f->plane.normal)), (vec_t) DotProduct (t3, f->plane.normal),
+			       (vec_t) plane.normal[0], (vec_t) plane.normal[1], (vec_t) plane.normal[2], (vec_t) sqrt(DotProduct(plane.normal, plane.normal)), (vec_t) DotProduct (t3, plane.normal),
 			       (vec_t) v[0], (vec_t) v[1], (vec_t) v[2], (vec_t) sqrt(DotProduct(v, v)), (vec_t) DotProduct(t3, v), (vec_t) d);
-		//VectorCopy(v, f->plane.normal);
-		//f->plane.dist = d;
+		//VectorCopy(v, plane.normal);
+		//plane.dist = d;
 		*/
 
-		// fake proper texture vectors from QuakeEd style
+		if (!hltexdef)
 		{
-			vec3_t	vecs[2];
-			int		sv, tv;
-			vec_t	ang, sinv, cosv;
-			vec_t	ns, nt;
-
-			TextureAxisFromPlane(&f->plane, vecs[0], vecs[1]);
-
-			if (!scale[0])
-				scale[0] = 1;
-			if (!scale[1])
-				scale[1] = 1;
-
-			// rotate axis
-			if (rotate == 0)
-			{
-				sinv = 0;
-				cosv = 1;
-			}
-			else if (rotate == 90)
-			{
-				sinv = 1;
-				cosv = 0;
-			}
-			else if (rotate == 180)
-			{
-				sinv = 0;
-				cosv = -1;
-			}
-			else if (rotate == 270)
-			{
-				sinv = -1;
-				cosv = 0;
-			}
-			else
-			{
-				ang = rotate * (Q_PI / 180);
-				sinv = sin(ang);
-				cosv = cos(ang);
-			}
-
-			if (vecs[0][0])
-				sv = 0;
-			else if (vecs[0][1])
-				sv = 1;
-			else
-				sv = 2;
-
-			if (vecs[1][0])
-				tv = 0;
-			else if (vecs[1][1])
-				tv = 1;
-			else
-				tv = 2;
-
-			for (i = 0;i < 2;i++)
-			{
-				ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
-				nt = sinv * vecs[i][sv] +  cosv * vecs[i][tv];
-				vecs[i][sv] = ns;
-				vecs[i][tv] = nt;
-			}
-
-			// LordHavoc: being the optimization freak that I am, added iscale
-			for (i = 0;i < 2;i++)
-			{
-				iscale[i] = 1.0 / scale[i];
-				for (j = 0;j < 3;j++)
-					tx.vecs[i][j] = vecs[i][j] * iscale[i];
-			}
-
-			tx.vecs[0][3] = shift[0];
-			tx.vecs[1][3] = shift[1];
+			// fake proper texture vectors from QuakeEd style
+			TextureAxisFromPlane(&plane, vecs[0], vecs[1]);
 		}
 
-		// unique the texinfo
+		// rotate axis
+		     if (rotate ==  0) {sinv = 0;cosv = 1;}
+		else if (rotate == 90) {sinv = 1;cosv = 0;}
+		else if (rotate == 180) {sinv = 0;cosv = -1;}
+		else if (rotate == 270) {sinv = -1;cosv = 0;}
+		else {ang = rotate * (Q_PI / 180);sinv = sin(ang);cosv = cos(ang);}
+
+		// LordHavoc: I don't quite understand this
+		for (sv = 0;sv < 2 && !vecs[0][sv];sv++);
+		for (tv = 0;tv < 2 && !vecs[1][tv];tv++);
+
+		for (i = 0;i < 2;i++)
+		{
+			// rotate
+			ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
+			nt = sinv * vecs[i][sv] +  cosv * vecs[i][tv];
+			vecs[i][sv] = ns;
+			vecs[i][tv] = nt;
+			// scale and store into texinfo
+			d = 1.0 / (scale[i] ? scale[i] : 1.0);
+			for (j = 0;j < 3;j++)
+				tx.vecs[i][j] = vecs[i][j] * d;
+		}
+
+		f = malloc(sizeof(mface_t));
+		f->next = b->faces;
+		b->faces = f;
+		f->plane = plane;
 		f->texinfo = FindTexinfo (&tx);
+		nummapbrushfaces++;
 	}
 	while (1);
 }
@@ -515,9 +492,9 @@ LoadMapFile
 */
 void LoadMapFile (char *filename)
 {
-	char	*buf;
+	void	*buf;
 
-	LoadFile (filename, (void **)&buf);
+	LoadFile (filename, &buf);
 
 	StartTokenParsing (buf);
 
@@ -529,9 +506,10 @@ void LoadMapFile (char *filename)
 
 	qprintf ("--- LoadMapFile ---\n");
 	qprintf ("%s\n", filename);
+	qprintf ("%5i faces\n", nummapbrushfaces);
 	qprintf ("%5i brushes\n", nummapbrushes);
 	qprintf ("%5i entities\n", num_entities);
-	qprintf ("%5i miptex\n", nummiptex);
+	qprintf ("%5i textures\n", nummiptex);
 	qprintf ("%5i texinfo\n", numtexinfo);
 }
 
@@ -572,13 +550,6 @@ void 	SetKeyValue (entity_t *ent, char *key, char *value)
 	ep->value = copystring(value);
 }
 
-double DoubleForKey (entity_t *ent, char *key)
-{
-	char	*k;
-
-	k = ValueForKey (ent, key);
-	return atof(k);
-}
 
 void 	GetVectorForKey (entity_t *ent, char *key, vec3_t vec)
 {

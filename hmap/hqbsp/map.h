@@ -45,7 +45,6 @@ int		FindMiptex (char *name);
 void	PrintEntity (entity_t *ent);
 char 	*ValueForKey (entity_t *ent, char *key);
 void	SetKeyValue (entity_t *ent, char *key, char *value);
-double	DoubleForKey (entity_t *ent, char *key);
 void 	GetVectorForKey (entity_t *ent, char *key, vec3_t vec);
 
 void	WriteEntitiesToString (void);
