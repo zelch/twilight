@@ -11,7 +11,7 @@ $navsection = array (
 	"Support" => "support.php",
 	"Development" => "devel.php",
 	"CVS" => "cvs.php"
-/*	"Members" => "members.php" */
+#	"Members" => "members.php"
 );
 
 ?>

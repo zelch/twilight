@@ -33,7 +33,7 @@ function startpage_heading ($title)
 	}
 	else
 	{
-		/* FIXME: non-CSS */
+		# FIXME: non-CSS
 		echo ("<body>\n");
 	}
 
@@ -41,7 +41,7 @@ function startpage_heading ($title)
 	echo ("<img alt=\"Project: Twilight\" src=\"image/title.gif\" />\n");
 	echo ("</div>\n");
 
-	/* *sigh* Still need tables for proper layout */
+	# *sigh* Still need tables for proper layout
 	echo ("<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" " .
 		"width=\"100%\" class=\"layout\">\n<tr>\n");
 }
@@ -51,8 +51,8 @@ function startpage_nav ($title)
 	global $css_avail;
 	global $navsection;
 
-	/* FIXME: non-CSS */
-	/* Nav sidebar */
+	# FIXME: non-CSS
+	# Nav sidebar
 	echo ("<td class=\"layout\" valign=\"top\" width=\"200\">\n");
 	echo ("<div class=\"nav\">\n");
 
@@ -85,8 +85,8 @@ function startpage ($title)
 	/* Main page content */
 	echo ("<td class=\"layout\" valign=\"top\">\n<div class=\"page\">\n");
 
-	/* Page title image */
-	/* Courier New bold, 48pt, white on black */
+	# Page title image
+	# Courier New bold, 48pt, white on black
 #	echo ("<img alt=\"$title\" src=\"image/$title-title.png\" />\n");
 
 	echo ("<div class=\"content\">");
