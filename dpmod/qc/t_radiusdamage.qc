@@ -16,7 +16,8 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 	local   vector  v, l;
 	local   entity  head;
 
-	if (pointcontents(inflictor.origin) == CONTENT_SOLID)
+	traceline(inflictor.origin, inflictor.origin, TRUE, world);
+	if (trace_startsolid)
 	{
 		dprint("T_RadiusDamage: inflictor in a solid\n");
 		return; // uh, it's in a wall, uh, lets be as sensible as we can in this strange situation...
