@@ -245,6 +245,10 @@ a {
 		"Coderjoe" => array (
 			"Name" => "Thad Ward" ,
 			"Email" => "coderjoe@grnet.com"
+		) ,
+		"Elric" => array (
+			"Name" => "Mathieu Olivier" ,
+			"Email" => "molivier@users.sourceforge.net"
 		)
 	);
 
