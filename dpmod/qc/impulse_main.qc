@@ -500,6 +500,18 @@ void() ImpulseCommands =
 			setorigin(newmis, '0 0 0');
 			newmis.angles = '0 0 0';
 		}
+		if (self.impulse == 23)
+		{
+			makevectors(self.v_angle);
+			weapontraceline(self.origin + self.view_ofs, self.origin + self.view_ofs + v_forward * 1024, FALSE, self);
+			if (trace_ent)
+			{
+				if (trace_ent.effects & EF_FULLBRIGHT)
+					trace_ent.effects = trace_ent.effects - EF_FULLBRIGHT;
+				else
+					trace_ent.effects = trace_ent.effects + EF_FULLBRIGHT;
+			}
+		}
 		/*
 		if (self.impulse == 22)
 		{
