@@ -221,10 +221,8 @@ void AddBrushPlane (plane_t *plane)
 	plane_t	*pl;
 	double	l;
 
-	if (numbrushfaces == MAX_FACES)
-		Error ("AddBrushPlane: numbrushfaces == MAX_FACES");
 	l = VectorLength (plane->normal);
-	if (l < 0.999 || l > 1.001)
+	if (l < 1.0 - NORMAL_EPSILON || l > 1.0 + NORMAL_EPSILON)
 		Error ("AddBrushPlane: bad normal (%f %f %f, length %f)", plane->normal[0], plane->normal[1], plane->normal[2], l);
 
 	for (i=0 ; i<numbrushfaces ; i++)
@@ -233,8 +231,12 @@ void AddBrushPlane (plane_t *plane)
 		if (VectorCompare (pl->normal, plane->normal) && fabs(pl->dist - plane->dist) < ON_EPSILON)
 			return;
 	}
+	if (numbrushfaces == MAX_FACES)
+		Error ("AddBrushPlane: numbrushfaces == MAX_FACES");
+
 	faces[i].plane = *plane;
 	faces[i].texinfo = faces[0].texinfo;
+
 	numbrushfaces++;
 }
 
@@ -358,10 +360,10 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 	int		a, b, c, d, e;
 	vec3_t	edgevec, planeorg, planevec;
 	plane_t	plane;
-	vec_t	l;
+	vec_t	length;
 
-	pt1 = AddHullPoint (p1, hullnum);
-	pt2 = AddHullPoint (p2, hullnum);
+	pt1 = AddHullPoint(p1, hullnum);
+	pt2 = AddHullPoint(p2, hullnum);
 
 	for (i=0 ; i<num_hull_edges ; i++)
 		if ((hull_edges[i][0] == pt1 && hull_edges[i][1] == pt2) || (hull_edges[i][0] == pt2 && hull_edges[i][1] == pt1))
@@ -370,34 +372,40 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 	if (num_hull_edges == MAX_HULL_EDGES)
 		Error ("AddHullEdge: MAX_HULL_EDGES");
 
-	hull_edges[i][0] = pt1;
-	hull_edges[i][1] = pt2;
+	hull_edges[num_hull_edges][0] = pt1;
+	hull_edges[num_hull_edges][1] = pt2;
 	num_hull_edges++;
 
-	VectorSubtract (p1, p2, edgevec);
-	VectorNormalize (edgevec);
+	VectorSubtract(p1, p2, edgevec);
+	VectorNormalize(edgevec);
 
 	for (a=0 ; a<3 ; a++)
 	{
 		b = (a+1)%3;
 		c = (a+2)%3;
-		for (d=0 ; d<=1 ; d++)
-			for (e=0 ; e<=1 ; e++)
+
+		planevec[a] = 1;
+		planevec[b] = 0;
+		planevec[c] = 0;
+		CrossProduct(planevec, edgevec, plane.normal);
+		length = VectorNormalize(plane.normal);
+
+		/* If this edge is almost parallel to the hull edge, skip it. */
+		if (length < ANGLE_EPSILON)
+			continue;
+
+		for (d = 0 ; d < 2 ; d++)
+		{
+			for (e = 0 ; e < 2 ; e++)
 			{
-				VectorCopy (p1, planeorg);
+				VectorCopy(p1, planeorg);
 				planeorg[b] += hull_size[hullnum][d][b];
 				planeorg[c] += hull_size[hullnum][e][c];
+				plane.dist = DotProduct(planeorg, plane.normal);
 
-				VectorClear (planevec);
-				planevec[a] = 1;
-
-				CrossProduct (planevec, edgevec, plane.normal);
-				l = VectorLength (plane.normal);
-				if (l < ANGLE_EPSILON)
-					continue;
-				plane.dist = DotProduct (planeorg, plane.normal);
-				TestAddPlane (&plane);
+				TestAddPlane(&plane);
 			}
+		}
 	}
 }
 
