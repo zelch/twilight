@@ -48,7 +48,7 @@ yypp	- y position
 	min_value	240
 	max_value	1536
 	step		25.92
-	reinit		dpmod_cvar_slider
+	init		dpmod_cvar_slider
 }
 // Text
 {
@@ -59,7 +59,7 @@ yypp	- y position
 	pos			"120 yypp 0"
 	//font_size "10 10 0"
 	maxlen		4
-	reinit		dpmod_slidertext
+	init		dpmod_slidertext
 }
 
 Text switch with text :
@@ -116,7 +116,6 @@ const float CVAR_STEP = 4;
 .entity _link;
 .float 	maxlen;
 void(void) dpmod_cvar_slider; // set reinit to this
-void(void) _dpmod_cvar_slider_reinit;
 void(void) _dpmod_cvar_slider_refresh;
 void(void) _dpmod_cvar_slider;
 

@@ -49,6 +49,66 @@ BUT dont try to use it for ingame stuff like inventory, etc.
 The menu qc isnt made for that and it would be bad the seperation of menu qc and server qc.
 (Use the client qc for that !)
 
+Item/Object System of the menu manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First, in the menu manager every entity is called an item.
+The menu manager updates and draws the items every frame. Well, it only updates/draws them when they are visible and/or want to be updated. The visibility is determined whether the item is in the child list of the active window and/or its children and if it hasnt set the FLAG_HIDDEN flag.
+To make the creation easier each item has a type which can be e.g. ITEM_WINDOW, ITEM_BUTTON, ITEM_PICTURE, etc. The definitions of these controls are found in mcontrols.qc and mcontrols.qh. They offer a couple of default event functions, which cant(shouldnt) be changed.
+
+Event System
+~~~~~~~~~~~~~
+
+As said above event functions exist; every item has 2 sets of events:
+1. Events that belong to the controls
+2. Events that belong to the specific item
+
+(Note: The menu manager only calls the control events and the control events have to call the item events on their own (-> ctcall_*))
+
+To 1. :
+
+These are the control events :
+
+.void(void) _reinit;
+.void(void) _destroy;
+.void(void) _mouse_enter;
+.void(void) _mouse_leave;
+.void(void) _refresh;
+.void(void) _action;
+.void(void) _draw;
+.void(float keynr, float ascii) _key;
+
+_reinit is called every time the users opens the menu.
+_destroy is the counterfunction to the type function, it does all the cleaning work. It's called once when is destroyed.
+_mouse_enter is called when the mouse enters the 'click' area of the item.
+_mouse_leave is called when the mouse leaves the 'click' area of the item.
+_refresh is called once per frame before drawing (not if some special flags are set) to update the item.
+_action actually isnt called directly by the menu manager but from the key event functions or raised from other items.
+_draw is called after _refresh and draws the item
+_key is called for the selected item when a key event is received.
+
+To 2:
+
+These are the custom item events:
+
+.void(void) init;
+.void(void) reinit;
+.void(void)	destroy;
+.void(void) mouse_enter;
+.void(void) mouse_leave;
+.void(void) refresh;
+.void(void) action;
+.void(void) draw;
+.float(float keynr, float ascii) key; // if it returns TRUE, the key was processed by the function
+
+init is called upon creation from _init
+reinit is called from _reinit
+etc.
+The only special event function is key which returns a float/boolean.
+true means that it has handeled the key event on its own, and that _key shouldnt process the event.
+false means that _key should process the event.
+
+
 PS: will be continued later
 
 

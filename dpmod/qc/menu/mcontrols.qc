@@ -22,26 +22,13 @@ void(void) ITEM_WINDOW =
 		defct_mouse_leave,
 		defct_action,
 		defct_refresh);
+
+	ctcall_init();
 };
 
 //////////////////
 // ITEM_REFERENCE
 ///
-
-void(void) ITEM_REFERENCE_REINIT =
-{
-	self._child = menu_getitem(self.link);
-	if(self._child == null_entity)
-	{
-		print(self.name, " removed, cause link ", self.link, " not found\n");
-		remove(self);	// no need to call terminate
-		return;
-	}
-
-	ctcall_init();
-
-	self._reinit = defct_reinit;
-};
 
 void(void) ITEM_REFERENCE =
 {
@@ -53,8 +40,16 @@ void(void) ITEM_REFERENCE =
 		return;
 	}
 
+		self._child = menu_getitem(self.link);
+	if(self._child == null_entity)
+	{
+		print(self.name, " removed, cause link ", self.link, " not found\n");
+		remove(self);	// no need to call terminate
+		return;
+	}
+
 	item_init(
-		ITEM_REFERENCE_REINIT,
+		defct_reinit,
 		defct_destroy,
 		defct_key,
 		defct_draw,
@@ -62,6 +57,8 @@ void(void) ITEM_REFERENCE =
 		defct_mouse_leave,
 		defct_action,
 		defct_refresh);
+
+	ctcall_init();
 };
 
 ////////////////
@@ -71,6 +68,7 @@ void(void) ITEM_REFERENCE =
 void(void) ITEM_CUSTOM =
 {
 	item_init(defct_reinit,	defct_destroy, defct_key, defct_draw, defct_mouse_enter, defct_mouse_leave, defct_action, defct_refresh);
+	ctcall_init();
 };
 
 /////////////////
@@ -83,6 +81,13 @@ void(void) ITEM_PICTURE_DRAW =
 	menu_drawpic(self.pos, self.picture, self.size, self.color, self.alpha, self.drawflag);
 
 	ctcall_draw();
+};
+
+void(void) ITEM_PICTURE_DESTROY =
+{
+	gfx_unloadpic(self.picture);
+
+	ctcall_destroy();
 };
 
 void(void) ITEM_PICTURE =
@@ -105,13 +110,15 @@ void(void) ITEM_PICTURE =
 
 	item_init(
 		defct_reinit,
-		defct_destroy,
+		ITEM_PICTURE_DESTROY,
 		defct_key,
 		ITEM_PICTURE_DRAW,
 		defct_mouse_enter,
 		defct_mouse_leave,
 		defct_action,
 		defct_refresh);
+
+	ctcall_init();
 };
 
 /////////////
@@ -186,6 +193,8 @@ void(void) ITEM_TEXT =
 		defct_mouse_leave,
 		defct_action,
 		ITEM_TEXT_REFRESH);
+
+	ctcall_init();
 };
 
 /////////////////
@@ -211,6 +220,8 @@ void(void) ITEM_RECTANGLE =
 		defct_mouse_leave,
 		defct_action,
 		defct_refresh);
+
+	ctcall_init();
 };
 
 ////////////////
@@ -274,14 +285,25 @@ void(void) ITEM_BUTTON_REINIT =
 	ctcall_reinit();
 };
 
+void(void) ITEM_BUTTON_DESTROY =
+{
+	gfx_unloadpic(self.picture);
+	gfx_unloadpic(self.picture_selected);
+	gfx_unloadpic(self.picture_pressed);
+
+	ctcall_destroy();
+};
+
 void(void) ITEM_BUTTON =
 {
 	if(self.picture == "" || self.picture_selected == "" || self.picture_pressed == "")
-		// a picture has to have a picture
+		// a picture has to have pictures
 		remove(self);	// no need to call terminate
 
 	// load the picture if it isnt loaded already
 	gfx_loadpic(self.picture, MENU_ENFORCELOADING);
+	gfx_loadpic(self.picture_selected, MENU_ENFORCELOADING);
+	gfx_loadpic(self.picture_pressed, MENU_ENFORCELOADING);
 
 	if(self.sound_selected != "")
 		snd_loadsound(self.sound_selected, SOUND_ENFORCELOADING);
@@ -315,13 +337,15 @@ void(void) ITEM_BUTTON =
 
 	item_init(
 		ITEM_BUTTON_REINIT,
-		defct_destroy,
+		ITEM_BUTTON_DESTROY,
 		ITEM_BUTTON_KEY,
 		ITEM_BUTTON_DRAW,
 		defct_mouse_enter,
 		defct_mouse_leave,
 		defct_action,
 		ITEM_BUTTON_REFRESH);
+
+	ctcall_init();
 };
 
 ////////////////////
@@ -486,7 +510,7 @@ void(void) ITEM_TEXTBUTTON_REINIT =
 {
 	self._button_state = BUTTON_NORMAL;
 
-	ctcall_init();
+	ctcall_reinit();
 };
 
 void(void) ITEM_TEXTBUTTON =
@@ -538,6 +562,8 @@ void(void) ITEM_TEXTBUTTON =
 		defct_mouse_leave,
 		ITEM_TEXTBUTTON_ACTION,
 		ITEM_TEXTBUTTON_REFRESH);
+
+	ctcall_init();
 };
 
 // ITEM_SLIDER
@@ -609,6 +635,16 @@ void(float keynr, float ascii) ITEM_SLIDER_KEY =
 	ITEM_SLIDER_UPDATESLIDER();
 };
 
+void(void) ITEM_SLIDER_DESTROY =
+{
+	if(self.picture != "")
+		gfx_unloadpic(self.picture);
+	if(self.picture_bar != "")
+		gfx_unloadpic(self.picture);
+
+	ctcall_destroy();
+};
+
 void(void) ITEM_SLIDER =
 {
 	if(self.picture != "")
@@ -641,6 +677,8 @@ void(void) ITEM_SLIDER =
 		defct_mouse_leave,
 		defct_action,
 		defct_refresh);
+
+	ctcall_init();
 };
 
 // ITEM_TEXTSWITCH

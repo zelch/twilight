@@ -186,6 +186,12 @@ void(void) menu_linkwindows =
 			continue;
 		}
 
+		if(self.type == "")
+		{
+			objerror("Type is missing !\n");
+			continue;
+		}
+
 		// find parent
 		// if parent_name is "" do nothing else set parent
 		if(self.parent != "")
@@ -274,7 +280,14 @@ void(void) menu_linkwindows =
 				break;
 			}
 		}
+	}
 
+	// call the type functions (former classname functions)
+	ent = null_entity;
+	while((ent = nextent(ent)) != null_entity)
+	{
+		self = ent;
+		callfunction(self.type);
 	}
 };
 
@@ -822,7 +835,7 @@ void(void) menu_reselect =
 void(entity menu, float setactive) menu_jumptowindow =
 {
 	// only jump to windows
-	if(menu.classname != "ITEM_WINDOW")
+	if(menu.type != "ITEM_WINDOW")
 		error("Cant jump to ", menu.name, " !\n");
 
 	// add a history point
@@ -864,7 +877,7 @@ void(entity ent) menu_pushhistory =
 
 	his = spawn();
 
-	his.classname = "MMANAGER_HISTORY";
+	his.type = "MMANAGER_HISTORY";
 	his._prev = menu_history;
 	his._child = menu_selected;
 	his._parent = menu_activewindow;
@@ -906,7 +919,7 @@ void(void) menu_clearhistory =
 	entity ent;
 
 	ent = null_entity;
-	while((ent = findstring(ent, classname, "MMANAGER_HISTORY")) != null_entity)
+	while((ent = findstring(ent, type, "MMANAGER_HISTORY")) != null_entity)
 	{
 		remove(ent);
 	}

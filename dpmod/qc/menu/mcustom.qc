@@ -31,7 +31,6 @@ void(void) dpmod_slidertext =
 
 	self.flag = self.flag | FLAG_DRAWREFRESHONLY;
 
-	self.init = null_function;
 	self.refresh = _dpmod_slidertext_refresh;
 };
 
@@ -58,7 +57,6 @@ void(void) dpmod_cvar_slider =
 {
 	self.value = cvar(self.cvarname);
 	self.slidermove = self.switchchange = _dpmod_cvar_slider;
-	self.init = _dpmod_cvar_slider_reinit;
 	self.refresh = _dpmod_cvar_slider_refresh;
 };
 
@@ -66,11 +64,6 @@ void(void) _dpmod_cvar_slider_refresh =
 {
 	if(self.cvartype == CVAR_INT || self.cvartype == CVAR_FLOAT || self.cvartype == CVAR_STEP)
 		self.value = cvar(self.cvarname);
-};
-
-void(void) _dpmod_cvar_slider_reinit =
-{
-	self.value = cvar(self.cvarname);
 };
 
 void(void) _dpmod_cvar_slider =
