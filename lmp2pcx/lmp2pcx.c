@@ -382,23 +382,11 @@ void WritePCX(char *filename, unsigned char *data, int width, int height, unsign
 
 void WriteTGA(char *filename, unsigned char *data, int width, int height, const unsigned char *palettergb)
 {
-	int maxrun, run, c, x, y;
-	unsigned char *buffer, *in, *end, *out, *flipdata;
-
-	// flip the image first
-	// (the top left origin mode is not supported by Quake's TGA loader)
-	flipdata = malloc(width*height);
-
-	for (y = 0;y < height;y++)
-	{
-		in = data + (height - 1 - y) * width;
-		out = flipdata + y * width;
-		for (x = 0;x < width;x++)
-			*out++ = *in++;
-	}
+	int maxrun, run, c, y;
+	unsigned char *buffer, *in, *end, *out;
 
 	for (c = 0;c < width*height;c++)
-		if (flipdata[c] == 255)
+		if (data[c] == 255)
 			break;
 	if (c < width*height)
 	{
@@ -418,41 +406,20 @@ void WriteTGA(char *filename, unsigned char *data, int width, int height, const 
 		out = buffer + 18;
 
 		// copy image
-		in = flipdata;
-		end = flipdata + width*height;
-		while (in < end)
+		for (y = 0;y < height;y++)
 		{
-			maxrun = end - in;
-			if (maxrun > 128)
-				maxrun = 128;
-			if (maxrun >= 2 && in[1] == in[0])
+			in = data + (height - 1 - y) * width;
+			end = in + width;
+			while (in < end)
 			{
-				// run a loop that stops when the next byte is not the same
-				for (run = 1;run < maxrun && in[run] == in[0];run++);
-				*out++ = 0x80 + (run - 1);
-				if (in[0] == 255)
+				maxrun = end - in;
+				if (maxrun > 128)
+					maxrun = 128;
+				if (maxrun >= 2 && in[1] == in[0])
 				{
-					*out++ = 0;
-					*out++ = 0;
-					*out++ = 0;
-					*out++ = 0;
-				}
-				else
-				{
-					*out++ = palettergb[in[0]*3+2];
-					*out++ = palettergb[in[0]*3+1];
-					*out++ = palettergb[in[0]*3+0];
-					*out++ = 255;
-				}
-				in += run;
-			}
-			else
-			{
-				// run a loop that stops when the next two bytes are the same
-				for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
-				*out++ = 0x00 + (run - 1);
-				for (c = 0;c < run;c++)
-				{
+					// run a loop that stops when the next byte is not the same
+					for (run = 1;run < maxrun && in[run] == in[0];run++);
+					*out++ = 0x80 + (run - 1);
 					if (in[0] == 255)
 					{
 						*out++ = 0;
@@ -467,7 +434,31 @@ void WriteTGA(char *filename, unsigned char *data, int width, int height, const 
 						*out++ = palettergb[in[0]*3+0];
 						*out++ = 255;
 					}
-					in++;
+					in += run;
+				}
+				else
+				{
+					// run a loop that stops when the next two bytes are the same
+					for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
+					*out++ = 0x00 + (run - 1);
+					for (c = 0;c < run;c++)
+					{
+						if (in[0] == 255)
+						{
+							*out++ = 0;
+							*out++ = 0;
+							*out++ = 0;
+							*out++ = 0;
+						}
+						else
+						{
+							*out++ = palettergb[in[0]*3+2];
+							*out++ = palettergb[in[0]*3+1];
+							*out++ = palettergb[in[0]*3+0];
+							*out++ = 255;
+						}
+						in++;
+					}
 				}
 			}
 		}
@@ -488,34 +479,37 @@ void WriteTGA(char *filename, unsigned char *data, int width, int height, const 
 		out = buffer + 18;
 
 		// copy image
-		in = flipdata;
-		end = flipdata + width*height;
-		while (in < end)
+		for (y = 0;y < height;y++)
 		{
-			maxrun = end - in;
-			if (maxrun > 128)
-				maxrun = 128;
-			if (maxrun >= 2 && in[1] == in[0])
+			in = data + (height - 1 - y) * width;
+			end = in + width;
+			while (in < end)
 			{
-				// run a loop that stops when the next byte is not the same
-				for (run = 1;run < maxrun && in[run] == in[0];run++);
-				*out++ = 0x80 + (run - 1);
-				*out++ = palettergb[in[0]*3+2];
-				*out++ = palettergb[in[0]*3+1];
-				*out++ = palettergb[in[0]*3+0];
-				in += run;
-			}
-			else
-			{
-				// run a loop that stops when the next two bytes are the same
-				for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
-				*out++ = 0x00 + (run - 1);
-				for (c = 0;c < run;c++)
+				maxrun = end - in;
+				if (maxrun > 128)
+					maxrun = 128;
+				if (maxrun >= 2 && in[1] == in[0])
 				{
+					// run a loop that stops when the next byte is not the same
+					for (run = 1;run < maxrun && in[run] == in[0];run++);
+					*out++ = 0x80 + (run - 1);
 					*out++ = palettergb[in[0]*3+2];
 					*out++ = palettergb[in[0]*3+1];
 					*out++ = palettergb[in[0]*3+0];
-					in++;
+					in += run;
+				}
+				else
+				{
+					// run a loop that stops when the next two bytes are the same
+					for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
+					*out++ = 0x00 + (run - 1);
+					for (c = 0;c < run;c++)
+					{
+						*out++ = palettergb[in[0]*3+2];
+						*out++ = palettergb[in[0]*3+1];
+						*out++ = palettergb[in[0]*3+0];
+						in++;
+					}
 				}
 			}
 		}
@@ -552,28 +546,31 @@ void WriteTGA(char *filename, unsigned char *data, int width, int height, const 
 		}
 
 		// copy image
-		in = flipdata;
-		end = flipdata + width*height;
-		while (in < end)
+		for (y = 0;y < height;y++)
 		{
-			maxrun = end - in;
-			if (maxrun > 128)
-				maxrun = 128;
-			if (maxrun >= 2 && in[1] == in[0])
+			in = data + (height - 1 - y) * width;
+			end = in + width;
+			while (in < end)
 			{
-				// run a loop that stops when the next byte is not the same
-				for (run = 1;run < maxrun && in[run] == in[0];run++);
-				*out++ = 0x80 + (run - 1);
-				*out++ = in[0];
-				in += run;
-			}
-			else
-			{
-				// run a loop that stops when the next two bytes are the same
-				for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
-				*out++ = 0x00 + (run - 1);
-				for (c = 0;c < run;c++)
-					*out++ = *in++;
+				maxrun = end - in;
+				if (maxrun > 128)
+					maxrun = 128;
+				if (maxrun >= 2 && in[1] == in[0])
+				{
+					// run a loop that stops when the next byte is not the same
+					for (run = 1;run < maxrun && in[run] == in[0];run++);
+					*out++ = 0x80 + (run - 1);
+					*out++ = in[0];
+					in += run;
+				}
+				else
+				{
+					// run a loop that stops when the next two bytes are the same
+					for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
+					*out++ = 0x00 + (run - 1);
+					for (c = 0;c < run;c++)
+						*out++ = *in++;
+				}
 			}
 		}
 #endif
@@ -582,8 +579,6 @@ void WriteTGA(char *filename, unsigned char *data, int width, int height, const 
 	writefile(filename, buffer, out - buffer);
 
 	free(buffer);
-
-	free(flipdata);
 }
 
 
