@@ -1,11 +1,11 @@
 ##### Win32 variables #####
 
-WIN32_HMAP_EXE=hmap.exe
+WIN32_HMAP_EXE=hmap2.exe
 WIN32_LDFLAGS=-lwinmm
 
 ##### Unix variables #####
 
-UNIX_HMAP_EXE=hmap
+UNIX_HMAP_EXE=hmap2
 UNIX_LDFLAGS=-lm
 
 ##### Common variables #####
