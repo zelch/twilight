@@ -7,6 +7,8 @@ CVSROOT=/cvs/cvsroot/twilight
 set -e
 
 cd $WEBSPACE
-$CVS -q -z3 -d$CVSROOT update -dP
-echo "Website pulsed."
+echo "Pulsing the website..."
+
+# And THIS is a hack...
+$CVS -q -z3 -d$CVSROOT update -dP &
 
