@@ -35,7 +35,7 @@ $project = 'Twilight';
 $from_email = 'twilight-devel@icculus.org';
 
 # Mail all reports to this address.
-$dest_email = 'commits@picogui.org, tward+cia2@bluecherry.net';
+$dest_email = 'cia@cia.navi.cx, tward+cia2@bluecherry.net';
 
 # The maximal number of lines the log message should have.
 $max_lines = 6;
