@@ -40,6 +40,8 @@ string(string pic_name, float complain) gfx_loadpic =
 	
 	if(c == "" && complain)
 		error("Couldnt precache ", pic_name, " !\n");
+	if(c == "")
+		dprint("Couldnt precache ", pic_name, " !\n");		
 	return c;
 };
 
@@ -58,6 +60,9 @@ gfx_drawchar =
 	position = gfx_converttocon(position);
 	scale = gfx_converttocon(scale);
 	
+	if(scale == '0 0 0')
+		return;
+	
 	ret = drawcharacter(position, character, scale, rgb, alpha, flag);
 	
 	if(ret == 1)
@@ -71,7 +76,7 @@ gfx_drawchar =
 	error("Unknown error code !\n");
 };
 
-void(vector position, string text, vector scale, vector rgb, float alpha, float flag)
+void(vector position, string str, vector scale, vector rgb, float alpha, float flag)
 gfx_drawstring = 
 {
 	float ret;
@@ -79,7 +84,10 @@ gfx_drawstring =
 	position = gfx_converttocon(position);
 	scale = gfx_converttocon(scale);
 	
-	ret = drawstring(position, text, scale, rgb, alpha, flag);
+	if(scale == '0 0 0')
+		return;
+	
+	ret = drawstring(position, str, scale, rgb, alpha, flag);
 	
 	if(ret == 1)
 		return;
@@ -126,6 +134,9 @@ gfx_fillarea =
 	
 	position = gfx_converttocon(position);
 	size = gfx_converttocon(size);
+
+	if(size == '0 0 0')
+		return;
 	
 	ret = drawfill(position, size, rgb, alpha, flag);
 	
@@ -153,11 +164,11 @@ menu_drawchar =
 	gfx_drawchar(position, character, scale, rgb, alpha, flag);	
 };
 
-void(vector position, string text, vector scale, vector rgb, float alpha, float flag)
+void(vector position, string str, vector scale, vector rgb, float alpha, float flag)
 menu_drawstring =
 {
 	position = gfx_conmentogfx(position);
-	gfx_drawstring(position, text, scale, rgb, alpha, flag);
+	gfx_drawstring(position, str, scale, rgb, alpha, flag);
 }
 
 void(vector position, string pic_name, vector size, vector rgb, float alpha, float flag)
@@ -211,4 +222,9 @@ vector(vector vec) gfx_converttocon =
 vector(vector vec) gfx_conmentogfx =
 {
 	return (vec + menu_localorigin);
+};
+
+vector(vector vec) gfx_congfxtomen =
+{
+	return (vec - menu_localorigin);
 };

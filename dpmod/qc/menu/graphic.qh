@@ -5,8 +5,8 @@
 // AK contains all gfx prototypes, etc. 
 ////////////////////////////////
 
-const float GFX_WIDTH = 200;
-const float GFX_HEIGHT = 100;
+const float GFX_WIDTH = 800;
+const float GFX_HEIGHT = 600;
 
 float vid_conwidth;
 float vid_conheight;
@@ -28,6 +28,8 @@ vector(vector vec) gfx_conmentogfx;
 vector(vector vec) gfx_converttocon;
 // convert from console coords to gfx coords
 vector(vector vec) gfx_converttogfx;
+// convert to menu coords
+vector(vector vec) gfx_congfxtomen;
 
 string(string pic_name, float complain) gfx_loadpic;
 void(string pic_name) gfx_unloadpic;

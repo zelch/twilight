@@ -5,44 +5,104 @@
 // AK contains all menu controlling stuff (sub-menus)
 ////////////////////////////////
 
+
+// safe call control function functions
 // default control functions
-void(void)	defct_init = 
+void(void)	ctcall_init = 
 {
 	if(self.init)
 		self.init();
 };
 
-void(float keynr, float ascii)  defct_key =
+float(float keynr, float ascii)  ctcall_key =
 {
 	if(self.key)
-		if(self.key(keynr, ascii))
-			return;
-		
-	def_keyevent(keynr, ascii);
+		return self.key(keynr, ascii);
 };
 
-void(void)	defct_draw =
+void(void)	ctcall_draw =
 {
 	if(self.draw)
 		self.draw();
 };
 
-void(void)	defct_mouse_enter =
+void(void)	ctcall_mouse_enter =
 {
 	if(self.mouse_enter)
 		self.mouse_enter();
 };
 
-void(void)	defct_mouse_leave =
+void(void)	ctcall_mouse_leave =
 {
 	if(self.mouse_leave)
 		self.mouse_leave();
 };
 
-void(void)	defct_action =
+void(void)	ctcall_action =
 {
 	if(self.action)
 		self.action();
+};
+
+void(void) ctcall_refresh =
+{
+	if(self.refresh)
+		self.refresh();
+}
+
+// default control functions
+void(void)	defct_init = 
+{
+	ctcall_init();
+};
+
+void(float keynr, float ascii)  defct_key =
+{
+	if(!ctcall_key(keynr, ascii))
+		def_keyevent(keynr, ascii);
+};
+
+void(void)	defct_draw =
+{
+	ctcall_draw();
+};
+
+void(void)	defct_mouse_enter =
+{
+	ctcall_mouse_enter();
+};
+
+void(void)	defct_mouse_leave =
+{
+	ctcall_mouse_leave();
+};
+
+void(void)	defct_action =
+{
+	ctcall_action();
+};
+
+void(void)	defct_refresh =
+{
+	// do first the own fresh stuff and *then* call refresh 
+	def_refresh();
+	ctcall_refresh();
+}
+
+// default refresh function
+void(void)	def_refresh =
+{
+	// refresh stuff
+	if(self.flag & FLAG_AUTOSETCLICK)
+	{
+		self.click_pos = self.pos;
+		self.click_size = self.size;
+	}
+	if(self.flag & FLAG_AUTOSETCLIP)
+	{
+		self.clip_pos = self.pos;
+		self.clip_size = self.size;
+	}
 };
 
 // default key function
@@ -55,24 +115,32 @@ void(float keynr, float ascii)	def_keyevent =
 	} else if(keynr == K_LEFTARROW || keynr == K_UPARROW)
 	{
 		// move to the previous element
-		menu_selectprev();		
+		menu_loopprev();
 	} else if(keynr == K_RIGHTARROW || keynr == K_DOWNARROW)
 	{
 		// move to the  next element
-		menu_selectnext();
-	} else if(keynr == K_ENTER)
+		menu_loopnext();
+	} else if(keynr == K_ENTER || keynr == K_MOUSE1)
 	{
+		if(self._action)
+			self._action();
 		// move to the child menu
 		menu_selectdown();
 	}
 };
 
 // a rect is described by the top-left point and its size
-float(vector point, vector r_xy, vector r_size) inrect =
+float(vector point, vector r_pos, vector r_size) inrect =
 {
-	if(r_xy_x <= point_x && r_xy_y <= point_y && r_xy_x + r_size_x >= point_x && r_xy_y + r_size_y >= point_y)
-		return true;
-	return false;
+	if(point_x < r_pos_x)
+		return false;
+	if(point_y < r_pos_y)
+		return false;
+	if(point_x > (r_pos_x + r_size_x))
+		return false;
+	if(point_y > (r_pos_y + r_size_y))
+		return false;
+	return true;
 };
 
 vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectpos =
@@ -97,3 +165,21 @@ vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectsize =
 	
 	return r_size;
 }
+
+void(void(void) initevent, void(float key, float ascii) keyevent, void(void) drawevent, void(void) mouse_enterevent, void(void) mouse_leaveevent, void(void) actionevent, void(void) refreshevent)
+	item_init =
+{
+	self._init 	= initevent;
+	self._key 	= keyevent;
+	self._draw 	= drawevent;
+	self._mouse_enter = mouse_enterevent;
+	self._mouse_leave = mouse_leaveevent;
+	self._action = actionevent;
+	self._refresh = refreshevent;
+};
+
+float(float tfactor) getflicker =
+{
+	// TODO: use tfactor to vary the result
+	return (sin(tfactor * time) + 1)/2;
+};

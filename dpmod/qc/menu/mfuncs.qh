@@ -9,6 +9,10 @@
 // prototypes
 ///
 
+// some gfx helper functions
+float(float tfactor) getflicker;
+
+void(void)	def_refresh;
 void(float keynr, float ascii) def_keyevent;
 
 // default control functions - assign only to the _* event functions
@@ -20,6 +24,20 @@ void(void)	defct_draw;
 void(void)	defct_mouse_enter;
 void(void)	defct_mouse_leave;
 void(void)	defct_action;
+void(void) 	defct_refresh;
+
+// safe call the normal control functions
+void(void)	ctcall_init;
+float(float keynr, float ascii)  ctcall_key;
+void(void)	ctcall_draw;
+void(void)	ctcall_mouse_enter;
+void(void)	ctcall_mouse_leave;
+void(void)	ctcall_action;
+void(void)	ctcall_refresh;
+
+// control event function initializer
+void(void(void) initevent, void(float key, float ascii) keyevent, void(void) drawevent, void(void) mouse_enterevent, void(void) mouse_leaveevent, void(void) actionevent, void(void) refreshevent)
+	item_init;
 
 float(vector point, vector r_xy, vector r_size) inrect;
 

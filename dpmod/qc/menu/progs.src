@@ -23,6 +23,7 @@ mfuncs.qh
 mcontrols.qh
 sound.qh
 graphic.qh
+mcustom.qh
 
 // source files
 cursor.qc
@@ -32,3 +33,4 @@ mcontrols.qc
 mfuncs.qc
 sound.qc
 graphic.qc
+mcustom.qc // contains all custom functions especially made for 1 or 2 items

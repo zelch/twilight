@@ -9,6 +9,8 @@
 const float MENU_NORMAL = 0;
 const float MENU_INGAME = 1;
 
+const float MENU_ENFORCELOADING = false;
+
 // define these menus in the menu def files or dont
 // if not defined there will be added default items
 const string MENU_NORMAL_NAME = "normal";
@@ -28,7 +30,9 @@ const string MENU_INGAME_DEFAULT =
 "	\"name\"		\"ingame\"\n"
 "}";
 
-const string MENU_FILENAME_LIST = "";
+const string MENU_FILENAME_LIST = 
+"test.menu"
+"";
 
 const float MENU_ALLOWINGAME = FALSE;
 
@@ -43,6 +47,9 @@ entity menu_selected;
 vector menu_localorigin;
 
 vector menu_clip_pos, menu_clip_size; // global clip area
+
+// local coord cursor
+vector menu_cursor;
 
 ///////////
 // fields
@@ -63,18 +70,19 @@ vector menu_clip_pos, menu_clip_size; // global clip area
 
 .float orderpos;	// if FLAG_NOSELECT or FLAG_HIDDEN is set, it cant be selected
 					// has to be set always to a correct value or to 0 then it is set
-.float flags;		
+.float flag;		
 
 // drawing
 // the clip_* are only used by menu's (at the moment)
 .vector clip_pos, clip_size; // set clip_size_x or clip_size_y to 0 to disable clipping 
 
-.vector local_origin;
+.vector origin;
 
 // function pointers
 .void(void) init;
 .void(void) mouse_enter;
 .void(void) mouse_leave;
+.void(void) refresh;
 .void(void) action;
 .void(void) draw;
 .float(float keynr, float ascii) key; // if it returns TRUE, the key was processed by the function
@@ -84,6 +92,7 @@ vector menu_clip_pos, menu_clip_size; // global clip area
 .void(void) _init;
 .void(void) _mouse_enter;
 .void(void) _mouse_leave;
+.void(void) _refresh;
 .void(void) _action;
 .void(void) _draw;
 .void(float keynr, float ascii) _key;
@@ -95,6 +104,9 @@ vector menu_clip_pos, menu_clip_size; // global clip area
 // used for global managing
 void(void) menu_init;
 // used to reset the menu states everytime the menu is activated
+void(void) menu_performreinit;
+
+// decide whether to toggle the menu
 void(void) menu_toggle;
 
 // these 2 functions are pretty private, so dont call them !
@@ -107,10 +119,13 @@ void(float keynr, float ascii) menu_keydown;
 void(void) menu_shutdown;
 
 // used for menu handling
+void(void) menu_loopnext;
+void(void) menu_loopprev;
 void(void) menu_selectnext;
 void(void) menu_selectprev;
 void(void) menu_selectup;
 void(void) menu_selectdown;
+void(void) menu_reselect;
 
 void(entity menu) menu_jumptomenu;
 void(entity menu) menu_drawmenu;
@@ -121,4 +136,4 @@ float(entity e) menu_hasevents;
 float(entity e) menu_isvisible;
 float(entity e) menu_selectable;
 
-
+entity(string item_name) menu_getitem;

@@ -12,17 +12,63 @@ ITEM_MENU
 ITEM_MENU_LINK
 ITEM_CUSTIOM
 
+ITEM_PICTURE
+ITEM_TEXT
+ITEM_BUTTON
+ITEM_RECTANGLE
 */
+// item constants
+
+// ITEM_PICTURE
+const vector 	ITEM_PICTURE_DEFAULT_COLOR 		= '1 1 1';
+const float 	ITEM_PICTURE_DEFAULT_ALPHA		= 1;
+
+//ITEM_TEXT
+const vector 	ITEM_TEXT_DEFAULT_COLOR 	= '1 1 1';
+const float 	ITEM_TEXT_DEFAULT_ALPHA		= 1;
+const vector	ITEM_TEXT_DEFAULT_FONT_SIZE = '8 8 0';
+
+const float 	TEXT_ALIGN_LEFT		= 0;
+const float		TEXT_ALIGN_CENTER	= 1;
+const float 	TEXT_ALIGN_RIGHT	= 2;
+const float		TEXT_ALIGN_CENTERPOS = 4;
 
 // flags constant
 
-const float FLAG_HIDDEN 		= 1;	// events wont be called and it wont be drawn, etc.
-const float FLAG_NOSELECT 		= 2; 	// cant be selected (but events will be called)
-const float FLAG_SERVERONLY		= 4;	// only displayed if server
-const float FLAG_DEVELOPERONLY  = 8;	// only displayed if developer
-const float _FLAG_MOUSEINAREA 	= 16; 	// used to determine wheter to call mouse_enter/_leave
-const float FLAG_DRAWONLY		= 32; 	// only the draw event will be called
+const float	FLAG_STANDARD		= 1;	// use this flag if you want the standard behavior and not what the control recommends 	
+const float FLAG_HIDDEN 		= 2;	// events wont be called and it wont be drawn, etc.
+const float FLAG_NOSELECT 		= 4; 	// cant be selected (but events will be called)
+const float FLAG_SERVERONLY		= 8;	// only displayed if server
+const float FLAG_DEVELOPERONLY  = 16;	// only displayed if developer
+const float _FLAG_MOUSEINAREA 	= 32; 	// used to determine wheter to call mouse_enter/_leave
+const float FLAG_DRAWONLY		= 64; 	// only the draw event will be called
+const float	FLAG_AUTOSETCLICK 	= 128;	// used to make click_pos and click_size always the same as pos and size
+const float FLAG_AUTOSETCLIP	= 256;	// used to make clip_pos/_size always the same like pos and size
+const float FLAG_NOCHILDSELECT	= 512;	// used to make the child not selectable
 
 // control fields
-.string link;
+// fields used by multiple items
+.vector color;
+.float 	alpha;
+.float  drawflag;
+
+// ITEM_MENU_LINK
+.string link; // menu link
+.entity _link;
+
+// ITEM_PICTURE
+.string picture;
+.vector pos;
+.vector size;
+
+// ITEM_TEXT
+.string text;
+.vector font_size;
+.float	alignment;
+
+// ITEM_BUTTON
+.string picture_selected;
+.string picture_pressed;
+.float	_press_time;
+.float 	time_pressed;
 

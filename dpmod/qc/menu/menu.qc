@@ -89,7 +89,7 @@ void(void) m_toggle =
 		snd_toggle();
 		
 		// let the menu manager know
-		menu_toggle();
+		menu_performreinit();
 	} else
 	{
 		setkeydest(KEY_GAME);
