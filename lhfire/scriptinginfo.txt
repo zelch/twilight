@@ -11,6 +11,8 @@ particles number
 passes motionblurquality
 (not required) sets the number of rendering passes per frame, 4 or more is needed for smooth motion
 
+spritetype value
+(not required) sets the type of sprite to create, can be vp_parallel_upright, facing_upright, vp_parallel, oriented, or vp_parallel_oriented (default: vp_parallel  note that glquake only supports vp_parallel (explosion for example) and oriented (bullet holes on walls for example), darkplaces and software quake support all types)
 
 
 (all commands below this point are normal script commands and can be used at any time
@@ -25,6 +27,9 @@ sets the gravity for the scene, affecting all particles, this is an acceleration
 
 airfriction value
 sets the air friction of the scene, affecting all particles with a mass > 0, this is a deceleration, experiment to see how to use it, 1.0 airfriction * 1.0 mass means the particle will mostly stop moving after 1.0 units of time
+
+worldbox minx miny minz maxx maxy maxz
+defines a box that the particle simulation takes place in, particles will bounce off the sides of this box (losing no energy), this can be useful for some effects.
 
 
 (control commands for looping and such)
@@ -84,7 +89,11 @@ this command will set the random number generator seed to the value, ensuring pr
 spawn numberofparticles
 spawns the specified number of particles using the current settings
 
+boxspawn xparticles yparticles zparticles minx miny minz maxx maxy maxz
+creates a regular grid of particles (number of particles on each axis is controlled by <xyz>particles parameters) inside the specified box (min to max)
+
 clear
 destroys all particles instantly, mainly useful if you wish to render multiple scenes with one script
 
 if any other commands are desired, let me know.
+

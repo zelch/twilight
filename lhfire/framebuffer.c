@@ -15,6 +15,7 @@ float *FB, *aFB; // aFB = accumulation frame buffer
 char *outputname; // setup by script.c
 
 extern float imagebrightness_min, imagebrightness_max;
+extern int spritetype;
 
 void framebuffer_free()
 {
@@ -220,11 +221,6 @@ void writetarga24frame(int frame, char* filename)
 
 int spriteinitialized;
 
-#define SPR_VP_PARALLEL_UPRIGHT		0
-#define SPR_FACING_UPRIGHT			1
-#define SPR_VP_PARALLEL				2
-#define SPR_ORIENTED				3
-#define SPR_VP_PARALLEL_ORIENTED	4
 // frame types
 #define SPR_SINGLE					0
 #define SPR_GROUP					1
@@ -312,7 +308,7 @@ void writespriteframe(int frame, char* filename, int sprite32)
 				fput_littleint(32, file); // 32bit color
 			else
 				fput_littleint(1, file); // version
-			fput_littleint(SPR_VP_PARALLEL, file); // type
+			fput_littleint(spritetype, file); // type
 			fput_littlefloat((float) sqrt((FBWidth*0.5)*(FBWidth*0.5)+(FBHeight*0.5)*(FBHeight*0.5)), file); // boundingradius
 			fput_littleint(FBWidth, file); // width
 			fput_littleint(FBHeight, file); // height

@@ -24,6 +24,7 @@ int script_token; // current token number
 int script_init; // render and frames do nothing unless this is set
 int script_commandcounter; // used to detect runaway loops
 
+int spritetype;
 int rendertype;
 float camera_x, camera_y, camera_z;
 float color1_r, color1_g, color1_b, color1_a;
@@ -749,6 +750,31 @@ void sc_worldbox(int t)
 		printf("worldbox: wrong parameter types.  usage: worldbox minx miny minz maxx maxy maxz\n");
 }
 
+void sc_spritetype(int t)
+{
+	if (scwantstring(t+1))
+	{
+		script_token = t + 2;
+		if (!strcmp(token[t+1], "vp_parallel_upright"))
+			spritetype = 0;
+		else if (!strcmp(token[t+1], "facing_upright"))
+			spritetype = 1;
+		else if (!strcmp(token[t+1], "vp_parallel"))
+			spritetype = 2;
+		else if (!strcmp(token[t+1], "oriented"))
+			spritetype = 3;
+		else if (!strcmp(token[t+1], "vp_parallel_oriented"))
+			spritetype = 4;
+		else
+		{
+			printf("spritetype: unknown sprite type \"%s\" (valid sprite types: vp_parallel_upright facing_upright vp_parallel oriented vp_parallel_oriented)\n", token[t+1]);
+			spritetype = 2;
+		}
+	}
+	else
+		printf("spritetype: wrong parameter types.  usage: spritetype value (valid sprite types: vp_parallel_upright facing_upright vp_parallel oriented vp_parallel_oriented)\n");
+}
+
 void script_execute(int t)
 {
 //	printf("%s\n", token[t]);
@@ -781,6 +807,7 @@ void script_execute(int t)
 	else if (!strcmp(token[t], "rendertype")) sc_rendertype(t);
 	else if (!strcmp(token[t], "imagebrightness")) sc_imagebrightness(t);
 	else if (!strcmp(token[t], "worldbox")) sc_worldbox(t);
+	else if (!strcmp(token[t], "spritetype")) sc_spritetype(t);
 	else
 	{
 		script_time = script_endtime;
@@ -806,9 +833,10 @@ int script_findandexecutecommand(unsigned char* commandname)
 // this merely finds the render and frames commands and interprets them
 int script_setup()
 {
+	spritetype = 2;
 	rendertype = 0;
 	camera_x = 0.0f;camera_y = 0.0f;camera_z = -128.0f;
-	color1_r = color2_r = 256.0f;color2_g = color2_g = 256.0f;color1_b = color2_b = 256.0f;color1_a = color2_a = 256.0f;
+	color1_r = color2_r = 256.0f;color1_g = color2_g = 256.0f;color1_b = color2_b = 256.0f;color1_a = color2_a = 256.0f;
 	minlife = 0.0f;maxlife = 1.0f;
 	minsize = 0.0f;maxsize = 1.0f;
 	area_x = 0.0f;area_y = 0.0f;area_z = 0.0f;area_minradius = 0.0f;area_maxradius = 16.0f;
@@ -880,5 +908,5 @@ void script_executeuntiltime(float time)
 			break;
 		}
 	}
-//	printf("script done\n"); 
+//	printf("script done\n");
 }
