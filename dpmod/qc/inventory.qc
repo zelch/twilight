@@ -259,6 +259,210 @@ void() ItemClass_RegisterDefaultClasses =
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
 	item.items = IT_WEAPON3;
+
+	item = ItemClass_Register("axe");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("chainsaw");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("handgrenade");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("hopper");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("prickler");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("scattergun");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("rifle");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("machinegun");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("vulcan");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("executioner");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("jackhammer");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("grenadelauncher2");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("backpackmortar");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("incinerator");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("railgun");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON1;
+
+	item = ItemClass_Register("sliverammo");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 100;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("rifleammo");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 50;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("machinegunammo");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 250;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("executionerammo");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 100;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("incineratorammo");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 250;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("railgunammo");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 50;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
 };
 
 entity(string name) ItemClass_FindByName =
@@ -654,7 +858,7 @@ float(entity character, string name) Inventory_Quantity =
 float(entity character, string name, float adjust) Inventory_AdjustQuantity =
 {
 	local entity item, aitemclass;
-	local float c, total;
+	local float c, d, total;
 	c = 0;
 	total = adjust;
 	item = Inventory_GetNextItem(character, world);
@@ -677,16 +881,24 @@ float(entity character, string name, float adjust) Inventory_AdjustQuantity =
 	if (adjust > 0)
 	{
 		aitemclass = ItemClass_FindByName(name);
-		//eprint(aitemclass);
-		if (c < aitemclass.count2)
-		if (aitemclass.bulkbase + aitemclass.bulkpercount * adjust <= character.bulklimit - Inventory_GetBulk(character))
+		d = aitemclass.count2;
+		while (adjust > 0 && c < d)
 		{
-			// create item and add it to inventory
-			item = Item_Create(aitemclass);
-			item.count = adjust;
-			adjust = 0;
-			//eprint(item);
-			Inventory_AttachItem(character, item);
+			//eprint(aitemclass);
+			if (aitemclass.bulkbase + aitemclass.bulkpercount * adjust <= character.bulklimit - Inventory_GetBulk(character))
+			{
+				// create item and add it to inventory
+				item = Item_Create(aitemclass);
+				item.count = adjust;
+				if (item.count > item.count1)
+					item.count = item.count1;
+				adjust = adjust - item.count;
+				c = c + 1;
+				//eprint(item);
+				Inventory_AttachItem(character, item);
+			}
+			else
+				c = d;
 		}
 	}
 	total = total - adjust;
