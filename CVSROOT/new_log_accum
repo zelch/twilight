@@ -562,7 +562,7 @@ if (defined($files[1]) && defined($files[2]) &&
     push(@text, "Log message:", "", @log);
 
     # and send it (synchronously)
-    send_mail(@mailto, "[CVS] Module $modname: New directory $dir", @text);
+    send_mail(@mailto, "Module $modname: New directory $dir", @text);
 
     # Clean up after ourselves and exit.
     cleanup_dir($tmpdir);
@@ -580,7 +580,7 @@ if (defined($files[1]) && defined($files[2]) &&
     push(@text, "Log message:", "", @log);
 
     # and send it (synchronously)
-    send_mail(@mailto, "[CVS] Module $modname: Imported $dir", @text);
+    send_mail(@mailto, "Module $modname: Imported $dir", @text);
 
     # Clean up after ourselves and exit.
     cleanup_dir($tmpdir);
@@ -702,7 +702,7 @@ foreach my $file (@files) {
 push(@text, "----------------------- End of diff -----------------------");
 
 # send the mail...
-send_mail(@mailto, "[CVS] Module $modname: Change committed", @text);
+send_mail(@mailto, "Module $modname: Change committed", @text);
 
 # and clean up after ourselves
 cleanup_dir($tmpdir);
