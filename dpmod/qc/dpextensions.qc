@@ -70,6 +70,12 @@ float svc_cgame = 50; // [short] length [bytes] data
 //description:
 //indicates this engine supports the "seta" console command which creates or sets an archived cvar (saved to config.cfg on exit), it is recommended that set and seta commands be placed in default.cfg for mod-specific cvars.
 
+//DP_CON_STARTMAP
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//description:
+//adds two engine-called aliases named startmap_sp and startmap_dm which are called when the engine tries to start a singleplayer game from the menu (startmap_sp) or the -listen or -dedicated options are used or the engine is a dedicated server (uses startmap_dm), these allow a mod or game to specify their own map instead of start, and also distinguish between singleplayer and -listen/-dedicated, also these need not be a simple "map start" command, they can do other things if desired, startmap_sp and startmap_dm both default to "map start".
+
 //DP_EF_ADDITIVE
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -753,7 +759,7 @@ float(entity clent) clienttype = #455; // returns one of the CLIENTTYPE_* consta
 //builtin definitions:
 void(entity clent) dropclient = #453;
 //description:
-//causes the server to immediately drop the client, more reliable than stuffcmd(clent, "disconnect\n"); which could be intentionally ignored by the client engine 
+//causes the server to immediately drop the client, more reliable than stuffcmd(clent, "disconnect\n"); which could be intentionally ignored by the client engine
 
 //DP_SV_EFFECT
 //idea: LordHavoc
@@ -1144,7 +1150,7 @@ float PFLAGS_CORONA = 2; // light has a corona flare
 float PFLAGS_FULLDYNAMIC = 128; // light enable (without this set no light is produced!)
 //description:
 //more powerful dynamic light settings
-//warning: it is best not to use cubemaps on a light entity that has a model, as using a skin number that a model does not have will cause issues in glquake, and produce warnings in darkplaces (use developer 1 to see them) 
+//warning: it is best not to use cubemaps on a light entity that has a model, as using a skin number that a model does not have will cause issues in glquake, and produce warnings in darkplaces (use developer 1 to see them)
 //changes compared to tenebrae (because they're too 'leet' for standards):
 //EF_FULLDYNAMIC effects flag replaced by PFLAGS_FULLDYNAMIC flag (EF_FULLDYNAMIC conflicts with EF_NODRAW)
 
