@@ -21,9 +21,9 @@ bin/hlight: $(HLIGHTOBJECTS)
 	gcc $(CFLAGS) -c $*.c -o $*.o
 
 clean:
-	del bin/hqbsp
-	del bin/hvis
-	del bin/hlight
+	del bin/hqbsp.exe
+	del bin/hvis.exe
+	del bin/hlight.exe
 	del common/*.o
 	del common/*.d
 	del hqbsp/*.o
@@ -32,6 +32,8 @@ clean:
 	del hvis/*.d
 	del hlight/*.o
 	del hlight/*.d
+	del *.o
+	del *.d
 
 .PHONY: clean
 

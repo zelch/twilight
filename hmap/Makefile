@@ -36,7 +36,7 @@ bin/hlight: $(HLIGHTOBJECTS)
 	gcc $(CFLAGS) -c $*.c -o $*.o
 
 clean:
-	rm -f bin/hqbsp bin/hvis bin/hlight hqbsp/*.o hqbsp/*.d hvis/*.o hvis/*.d hlight/*.o hlight/*.d *.o *.d
+	rm -f bin/hqbsp bin/hvis bin/hlight common/*.o common/*.d hqbsp/*.o hqbsp/*.d hvis/*.o hvis/*.d hlight/*.o hlight/*.d *.o *.d
 
 .PHONY: clean
 
