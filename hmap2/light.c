@@ -102,11 +102,11 @@ void ParseLightEntities( void )
 		GetVectorForKey( ent, "origin", l->origin );
 
 		l->type = defaultlighttype;
-		if (!overridelighttypes && (i = FloatForKey( ent, "delay" )))
+		if (!overridelighttypes && (j = FloatForKey( ent, "delay" )))
 		{
-			if (i < 0 || i >= LIGHTTYPE_TOTAL)
+			if (j < 0 || j >= LIGHTTYPE_TOTAL)
 				Error("error in light at %.0f %.0f %.0f:\nunknown light type \"delay\" \"%s\"\n", l->origin[0], l->origin[1], l->origin[2], ValueForKey( ent, "delay" ));
-			l->type = i;
+			l->type = j;
 		}
 
 		l->style = FloatForKey( ent, "style" );
@@ -127,9 +127,9 @@ void ParseLightEntities( void )
 			value = ValueForKey( ent, "_light" );
 
 		if( value[0] ) {
-			i = sscanf ( value, "%lf %lf %lf %lf", &vec[0], &vec[1], &vec[2], &vec[3] );
+			j = sscanf ( value, "%lf %lf %lf %lf", &vec[0], &vec[1], &vec[2], &vec[3] );
 
-			switch( i ) {
+			switch( j ) {
 				case 4:// HalfLife light
 					l->color[0] = vec[0];
 					l->color[1] = vec[1];
