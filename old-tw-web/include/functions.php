@@ -85,5 +85,15 @@
 		$webdate = explode('-',$time[0]);
 		return strftime ( '%d %b %Y', mktime (0, 0, 0, $webdate[1], $webdate[2], $webdate[0]));
 	}
+
+	function htmlify_line ($line) {
+		$line = ereg_replace ("<", "&lt;", $line);
+		$line = ereg_replace (">", "&gt;", $line);
+		$line = ereg_replace ("&lt;(.*@.*)&gt;",
+			"&lt;<a href=\"mailto:\\1\">\\1</a>&gt;",$line
+		);
+		return $line;
+	}
+
 ?>
 
