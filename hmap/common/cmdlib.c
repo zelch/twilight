@@ -40,15 +40,21 @@ For abnormal program terminations
 */
 void Error (char *error, ...)
 {
-  va_list argptr;
+	va_list argptr;
 
-  printf ("************ ERROR ************\n");
+	printf ("************ ERROR ************\n");
 
-  va_start (argptr,error);
-  vprintf (error,argptr);
-  va_end (argptr);
-  printf ("\n");
-  exit (1);
+	va_start (argptr,error);
+	vprintf (error,argptr);
+	va_end (argptr);
+	printf ("\n");
+
+#if _MSC_VER && _DEBUG
+	printf("press any key\n");
+	getchar();
+#endif
+
+	exit (1);
 }
 
 
@@ -361,7 +367,7 @@ int Q_strcasecmp (char *s1, char *s2)
 }
 
 
-char *strupr (char *start)
+char *Q_strupr (char *start)
 {
   char	*in;
   in = start;
@@ -373,7 +379,7 @@ char *strupr (char *start)
   return start;
 }
 
-char *strlower (char *start)
+char *Q_strlower (char *start)
 {
   char	*in;
   in = start;

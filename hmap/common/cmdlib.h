@@ -26,8 +26,8 @@ typedef unsigned char byte;
 extern int myargc;
 extern char **myargv;
 
-extern char *strupr (char *in);
-extern char *strlower (char *in);
+extern char *Q_strupr (char *in);
+extern char *Q_strlower (char *in);
 extern int Q_strncasecmp (char *s1, char *s2, int n);
 extern int Q_strcasecmp (char *s1, char *s2);
 //extern void Q_getwd (char *out);
