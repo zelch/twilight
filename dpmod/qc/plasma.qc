@@ -64,7 +64,7 @@ void(entity own, vector org, vector vel, float damg, float force, float damg2, s
 	newmis.obitfunc1 = obitfunc;
 //	newmis.frame = random() * 9.999;
 //	newmis.frame = floor(newmis.frame);
-	newmis.count = time + 5;
+	newmis.count = time + 20;
 	newmis.touch = plasma_touch;
 	newmis.think = plasma_think;
 	newmis.nextthink = time + 0.1;
