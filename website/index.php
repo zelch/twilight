@@ -5,6 +5,12 @@ require "include/main.php";
 
 startpage ("News");
 
+newsitem ("Friday, 12 July 2003",
+		"Mercury has released 0.2.01, and Win32 binaries are up."
+		. "  This fixes a win32 bug that kept some people from running"
+		. "Twilight, among a few other things."
+);
+
 newsitem ("Wednesday, 9 July 2003",
 		"Mercury has released 0.2.00, and Win32 binaries are up, just in "
 		. "time for QExpo!  Have at 'em everyone, and don't forget to "
