@@ -9,7 +9,7 @@ echo ("Here is the current release of Project: Twilight\n");
 
 foreach ($glob("$webspace/release/*.zip") as $filename)
 {
-	echo $filename
+	echo ("<br>$filename\n");
 }
 
 echo ("This page isn't done yet...<br>\n");
