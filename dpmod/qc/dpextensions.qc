@@ -9,7 +9,7 @@
 //progs/test.mdl_0.skin
 //progs/test.mdl_1.skin
 //...
-//these files contain replace commands (replace name newname), example:
+//these files contain replace commands (replace meshname shadername), example:
 //replace "helmet" "progs/test/helmet1.tga"
 //replace "teamstripes" "progs/test/redstripes.tga"
 //any names that are not replaced are automatically set to nodraw (invisible).
