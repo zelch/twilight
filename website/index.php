@@ -5,7 +5,12 @@ require "include/main.php";
 
 startpage ("News");
 
-newsitem ("Friday, 12 July 2003",
+newsitem ("Saturday, 12 July 2003",
+		"Mercury has released 0.2.02, and Win32 binaries are up."
+		. "  This allows the sound loader to deal with 0 length wavs."
+);
+
+newsitem ("Friday, 11 July 2003",
 		"Mercury has released 0.2.01, and Win32 binaries are up."
 		. "  This fixes a win32 bug that kept some people from running"
 		. "Twilight, among a few other things."
