@@ -631,7 +631,7 @@ void BasePortalVis (void)
 	vec_t d;
 	viswinding_t *w;
 	time_t oldtime, newtime;
-	vec3_t backnormal;
+	vec3_t backnormal, dist;
 
 	portalsee = qmalloc (numportals*2);
 	oldtime = time(NULL);
@@ -651,6 +651,13 @@ void BasePortalVis (void)
 				continue;
 			if (VectorCompare (backnormal, tp->plane.normal))
 				continue;
+
+			if (farplane > 0)
+			{
+				VectorSubtract (tp->origin, p->origin, dist);
+				if (VectorLength (dist) - tp->radius - p->radius > farplane)
+					continue;
+			}
 
 			w = tp->winding;
 			plane = &p->plane;

@@ -32,6 +32,8 @@ typedef enum {stat_none, stat_working, stat_done} vstatus_t;
 typedef struct
 {
 	plane_t			plane;		// normal pointing into neighbor
+	vec3_t			origin;
+	vec_t			radius;
 	int				leaf;		// neighbor
 	viswinding_t	*winding;
 	vstatus_t		status;
@@ -94,9 +96,11 @@ extern	int			c_vistest, c_mighttest;
 extern	int			c_chains;
 extern	int			c_reused;
 
-extern	byte	*vismap, *vismap_p, *vismap_end;	// past visfile
+extern	byte		*vismap, *vismap_p, *vismap_end;	// past visfile
 
 extern	int			testlevel;
+
+extern	vec_t		farplane;
 
 extern	qboolean	rvis;
 extern	qboolean	noreuse;

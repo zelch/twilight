@@ -31,6 +31,8 @@ qboolean verbose;
 qboolean rvis;
 qboolean noreuse;
 
+vec_t farplane;
+
 // LordHavoc: default to level 4 vis
 int testlevel = 4;
 // LordHavoc: optional ambient sounds
@@ -454,6 +456,8 @@ void LoadPortals (char *name)
 	viswinding_t *w;
 	int			leafnums[2];
 	plane_t		plane;
+	vec3_t		origin;
+	vec_t		radius;
 
 	if (!strcmp(name,"-"))
 		f = stdin;
@@ -522,6 +526,9 @@ void LoadPortals (char *name)
 	// calc plane
 		PlaneFromVisWinding (w, &plane);
 
+	// calc origin and radius
+		VisWindingCentre (w, origin, &radius);
+
 	// create forward portal
 		l = &leafs[leafnums[0]];
 		if (l->numportals == MAX_PORTALS_ON_LEAF)
@@ -530,6 +537,8 @@ void LoadPortals (char *name)
 		l->numportals++;
 
 		p->winding = w;
+		VectorCopy (origin, p->origin);
+		p->radius = radius;
 		VectorNegate (plane.normal, p->plane.normal);
 		p->plane.dist = -plane.dist;
 		if (p->plane.normal[0] == 1)
@@ -551,6 +560,8 @@ void LoadPortals (char *name)
 		l->numportals++;
 
 		p->winding = w;
+		VectorCopy (origin, p->origin);
+		p->radius = radius;
 		p->plane = plane;
 		if (p->plane.normal[0] == 1)
 			p->plane.type = PLANE_X;
@@ -562,7 +573,6 @@ void LoadPortals (char *name)
 			p->plane.type = PLANE_ANYX;
 		p->leaf = leafnums[0];
 		p++;
-
 	}
 
 	fclose (f);
@@ -588,6 +598,7 @@ int Vis_Main( int argc, char **argv )
 	rvis = true;
 	noambientslime = true;
 	noreuse = false;
+	farplane = 0;
 
 	for (i=1 ; i<argc ; i++)
 	{
@@ -647,6 +658,12 @@ int Vis_Main( int argc, char **argv )
 			noambientsky = true;
 			printf ("ambient sky sounds disabled\n");
 		}
+		else if (!strcmp(argv[i], "-farplane"))
+		{
+			farplane = atoi (argv[i+1]);
+			printf ("farplane = %f\n", farplane);
+			i++;
+		}
 		else if (argv[i][0] == '-')
 			Error ("Unknown option \"%s\"", argv[i]);
 		else
@@ -671,6 +688,7 @@ int Vis_Main( int argc, char **argv )
 "-noambientlava  disable ambient lava sounds (unused by quake)\n"
 "-noambientsky   disable ambient sky sounds (wind)\n"
 "-noreuse        disable merging of identical vis data (less compression)\n"
+"-farplane       limit visible distance (warning: not a good idea without fog)\n"
 		);
 	}
 

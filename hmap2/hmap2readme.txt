@@ -101,6 +101,7 @@ What the options do:
 -noambientlava  disable ambient lava sounds (unused by quake)
 -noambientsky   disable ambient sky sounds (wind)
 -noreuse        disable merging of identical vis data (less compression)
+-farplane       limit visible distance (warning: not a good idea without fog)
 
 
 usage: hmap2 -light [options] bspfile
@@ -157,6 +158,7 @@ vis:
 better vis compression (-noreuse to disable)
 fixed ambient sounds calculations (they now fade with distance)
 -ambientslime enables the unused slime sound channel (not supported by most (all?) quake engines, normally slime uses the water channel)
+added -farplane option to limit visible distance
 
 Programmer stuff:
 The sourcecode zip includes a Makefile for GNU make, a Makefile.mingw for mingw (make -f Makefile.mingw), and Microsoft Visual C++ 6.0 project files (open the hmap.dsw workspace).
