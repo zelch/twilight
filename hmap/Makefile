@@ -11,9 +11,9 @@ HLIGHTOBJECTS= hlight/entities.o hlight/light.o hlight/ltface.o hlight/trace.o $
 CPUOPTIONS=
 
 #profiling
-PROFILEOPTIONS= -pg -g
+#PROFILEOPTIONS= -pg -g
 #release
-#PROFILEOPTIONS= -fomit-frame-pointer
+PROFILEOPTIONS= -fomit-frame-pointer
 
 OPTIMIZATIONS= -MD -O6 -funroll-loops $(PROFILEOPTIONS) -fexpensive-optimizations $(CPUOPTIONS)
 #OPTIMIZATIONS= -MD -Werror -pg -g
