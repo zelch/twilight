@@ -11,7 +11,7 @@
 		footerpre => "<center><font face=\"verdana, arial\" size=\"-2\">" ,
 		footerpost => "</font></center>",
 
-		navtable => "width=\"100%\" bgcolor=\"#00087f\"" ,
+		navtable => "width=\"100%\" bgcolor=\"#000fb5\"" ,
 		navpre => "<font face=\"verdana, arial\" size=\"+1\">" ,
 		navpost => "</font>" ,
 
@@ -63,8 +63,8 @@ div.footer {
 
 div.nav {
 	width: 100%;
-	background: #00087f;
-	border-bottom: solid 2px #00087f;
+	background: #000fb5;
+	border-bottom: solid 2px #000fb5;
 	color: white;
 	font: bolder 110% verdana, sans-serif;
 }
