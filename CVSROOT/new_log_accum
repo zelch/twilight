@@ -333,19 +333,19 @@ sub build_header ($@) {
 	$boundary = "----=MIME." . unpack("H*", $digest->digest());
 	
 	# Build the mail header
-#	push(@text, "From: testing $gecos <$user>");
-#	push(@text, "To: " . join(' ', @mailto));
-#	push(@text, "Subject: [commit] $subject");
-#	push(@text, "MIME-Version: 1.0");
-#	push(@text, "Content-Type: multipart/alternative; boundary=\"$boundary\"");
-#	push(@text, "X-Mailer: cvs/new_log_accum");
-#	push(@text, "");
-#	push(@text, "This is a multipart message as defined by RFC2049 (MIME)");
-#	push(@text, "");
-#	push(@text, $boundary);
-#	push(@text, "Content-Type: text/plain; charset=\"US-ASCII\"");
-#	push(@text, "Content-Disposition: inline");
-#	push(@text, "");
+	push(@text, "From: testing $gecos <$user>");
+	push(@text, "To: " . join(' ', @mailto));
+	push(@text, "Subject: [commit] $subject");
+	push(@text, "MIME-Version: 1.0");
+	push(@text, "Content-Type: multipart/alternative; boundary=\"$boundary\"");
+	push(@text, "X-Mailer: cvs/new_log_accum");
+	push(@text, "");
+	push(@text, "This is a multipart message as defined by RFC2049 (MIME)");
+	push(@text, "");
+	push(@text, $boundary);
+	push(@text, "Content-Type: text/plain; charset=\"US-ASCII\"");
+	push(@text, "Content-Disposition: inline");
+	push(@text, "");
 
 	# Build the commit message header
 	push(@text, "Commiter   : $user");
@@ -367,15 +367,10 @@ sub send_mail {
     @mailto = @{$mailto};
     @text = @{$text};
 
-foreach my $item (@mailto) { print "send_mail/mailto: $item\n"; }
-foreach my $item (@text) { print "send_mail/text: $item\n"; }
     open(MAIL, "|$MAILER " . join(' ', @mailto));
     push(@mailto, $boundary);
     print MAIL join("\n", @text), "\n";
     close(MAIL);
-
-foreach my $item (@text) { print "after.data: $item\n"; }
-
 }
 
 # Find the tmp directory
@@ -730,11 +725,11 @@ unshift(@text, build_header($modname, "Module $modname: Change committed", @bran
 my ($user);
 $user = getpwuid($<);
 
-#push(@text, $boundary);
-#push(@text, "Content-Type: text/plain; name=\"cvs.$user." . time() . ".diff\"");
-#push(@text, "Content-Disposition: attachment; filename=\"cvs.$user." . time() . ".diff\"");
-#push(@text, "Content-Transfer-Encoding: 8bit");
-#push(@text, "");
+push(@text, $boundary);
+push(@text, "Content-Type: text/plain; name=\"cvs.$user." . time() . ".diff\"");
+push(@text, "Content-Disposition: attachment; filename=\"cvs.$user." . time() . ".diff\"");
+push(@text, "Content-Transfer-Encoding: 8bit");
+push(@text, "");
 
 foreach my $file (@files) {
     debug "Diffing file $file->{name}...\n";
@@ -748,7 +743,6 @@ foreach my $file (@files) {
     }
     close(DIFF);
 }
-#push(@text, $boundary);
 
 foreach my $item (@mailto) { print "main/mailto: $item\n"; }
 foreach my $item (@text) { print "main/text: $item\n"; }
