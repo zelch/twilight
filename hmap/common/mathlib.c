@@ -10,3 +10,4 @@ vec_t Q_rint(vec_t n)
 	else
 		return (vec_t) ((int) (n - 0.5));
 }
+
