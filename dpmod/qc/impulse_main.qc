@@ -1,4 +1,90 @@
 
+// FRIK_FILE extension test code
+void () saveme =
+{
+	local string h;
+	local float file;
+	file = fopen ("save.txt", FILE_WRITE);
+	fputs(file, "// Sample Save File\n");
+	h = ftos(self.health);
+	fputs(file, h);
+	fputs(file, "\n");
+	h = vtos(self.origin);
+	fputs(file, h);
+	fputs(file, "\n");
+	h = vtos(self.angles);
+	fputs(file, h);
+	fputs(file, "\n");
+	fclose(file);
+};
+
+// FRIK_FILE extension test code
+void () loadme =
+{
+	local string h;
+	local float file;
+	local vector v;
+
+	file = fopen ("save.txt", FILE_READ);
+	if (file < 0)
+	{
+		bprint("Error: file not found\n");
+		return;
+	}
+	h = fgets(file); // reads one line at a time (up to a \n)
+	// the first line is just a comment, ignore it
+	h = fgets(file);
+	self.health = stof(h);
+	h = fgets(file);
+	v = stov(h);
+	setorigin(self, v);
+	h = fgets(file);
+	v = stov(h);
+	self.angles = v;
+	self.fixangle = TRUE;
+	fclose(file);
+};
+
+// FRIK_FILE extension test code
+void() listfile =
+{
+	local float file;
+	local float i;
+	local string lineno;
+	local string line;
+
+	file = fopen ("save.txt", FILE_READ);
+	if (file < 0)
+	{
+		bprint("Error: file not found\n");
+		return;
+	}
+
+	i = 0;
+	line = fgets(file); // reads one line at a time (up to a \n)
+	while(line)
+	{
+		line = strzone(line);
+
+		i = i + 1;
+		lineno = ftos(i);
+
+		bprint(lineno);
+		bprint(": ");
+		bprint(line);
+		bprint("\n");
+
+		strunzone(line);
+
+		line = fgets(file);
+	}
+	bprint("[EOF]\n");
+
+	fclose(file);
+};
+
+
+
 .float isadmin, adminnumber, admindigits, adminattempts;
 
 void() havocbot_impulses;
@@ -271,6 +357,12 @@ void() ImpulseCommands =
 
 	if (!self.deadflag)
 	{
+		if (self.impulse == 40)
+			saveme();
+		if (self.impulse == 41)
+			loadme();
+		if (self.impulse == 42)
+			listfile();
 		if (self.impulse >= 30 && self.impulse <= 39)
 		{
 			n = 0;
