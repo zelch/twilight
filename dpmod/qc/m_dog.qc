@@ -216,40 +216,40 @@ void() dog_pain =
 		dog_painb1 ();
 };
 
-void() dog_die1         =[      $death1,        dog_die2        ] {body_solid('-16 -16 -24', '16 16 12');};
-void() dog_die2         =[      $death2,        dog_die3        ] {body_solid('-16 -16 -24', '16 16 12');};
-void() dog_die3         =[      $death3,        dog_die4        ] {body_solid('-16 -16 -24', '16 16 12');};
-void() dog_die4         =[      $death4,        dog_die5        ] {body_solid('-16 -16 -24', '16 16  9');};
-void() dog_die5         =[      $death5,        dog_die6        ] {body_solid('-16 -16 -24', '16 16  6');};
-void() dog_die6         =[      $death6,        dog_die7        ] {body_nonsolid('-16 -16 -24', '16 16 -1');};
-void() dog_die7         =[      $death7,        dog_die8        ] {body_nonsolid('-16 -16 -24', '16 16 -6');};
-void() dog_die8         =[      $death8,        dog_die9        ] {body_nonsolid('-16 -16 -24', '16 16 -6');};
-void() dog_die9         =[      $death9,        dog_die9        ] {body_nonsolid('-16 -16 -24', '16 16 -8');};
+void() dog_die1	=[	$death1,	dog_die2	] {body_solid('-16 -16 -24', '16 16 12');};
+void() dog_die2	=[	$death2,	dog_die3	] {body_solid('-16 -16 -24', '16 16 12');};
+void() dog_die3	=[	$death3,	dog_die4	] {body_solid('-16 -16 -24', '16 16 12');};
+void() dog_die4	=[	$death4,	dog_die5	] {body_solid('-16 -16 -24', '16 16  9');};
+void() dog_die5	=[	$death5,	dog_die6	] {body_solid('-16 -16 -24', '16 16  6');};
+void() dog_die6	=[	$death6,	dog_die7	] {body_nonsolid('-16 -16 -24', '16 16 -1');};
+void() dog_die7	=[	$death7,	dog_die8	] {body_nonsolid('-16 -16 -24', '16 16 -6');};
+void() dog_die8	=[	$death8,	dog_die9	] {body_nonsolid('-16 -16 -24', '16 16 -6');};
+void() dog_die9	=[	$death9,	dog_die9	] {body_nonsolid('-16 -16 -24', '16 16 -8');};
 
-void() dog_dieb1        =[      $deathb1,       dog_dieb2       ] {body_solid('-16 -16 -24', '16 16 12');};
-void() dog_dieb2        =[      $deathb2,       dog_dieb3       ] {body_solid('-16 -16 -24', '16 16 12');};
-void() dog_dieb3        =[      $deathb3,       dog_dieb4       ] {body_solid('-16 -16 -24', '16 16 12');};
-void() dog_dieb4        =[      $deathb4,       dog_dieb5       ] {body_solid('-16 -16 -24', '16 16 11');};
-void() dog_dieb5        =[      $deathb5,       dog_dieb6       ] {body_solid('-16 -16 -24', '16 16  3');};
-void() dog_dieb6        =[      $deathb6,       dog_dieb7       ] {body_nonsolid('-16 -16 -24', '16 16 -3');};
-void() dog_dieb7        =[      $deathb7,       dog_dieb8       ] {body_nonsolid('-16 -16 -24', '16 16 -7');};
-void() dog_dieb8        =[      $deathb8,       dog_dieb9       ] {body_nonsolid('-16 -16 -24', '16 16 -9');};
-void() dog_dieb9        =[      $deathb9,       dog_dieb9       ] {body_nonsolid('-16 -16 -24', '16 16 -9');};
+void() dog_dieb1	=[	$deathb1,	dog_dieb2	] {body_solid('-16 -16 -24', '16 16 12');};
+void() dog_dieb2	=[	$deathb2,	dog_dieb3	] {body_solid('-16 -16 -24', '16 16 12');};
+void() dog_dieb3	=[	$deathb3,	dog_dieb4	] {body_solid('-16 -16 -24', '16 16 12');};
+void() dog_dieb4	=[	$deathb4,	dog_dieb5	] {body_solid('-16 -16 -24', '16 16 11');};
+void() dog_dieb5	=[	$deathb5,	dog_dieb6	] {body_solid('-16 -16 -24', '16 16  3');};
+void() dog_dieb6	=[	$deathb6,	dog_dieb7	] {body_nonsolid('-16 -16 -24', '16 16 -3');};
+void() dog_dieb7	=[	$deathb7,	dog_dieb8	] {body_nonsolid('-16 -16 -24', '16 16 -7');};
+void() dog_dieb8	=[	$deathb8,	dog_dieb9	] {body_nonsolid('-16 -16 -24', '16 16 -9');};
+void() dog_dieb9	=[	$deathb9,	dog_dieb9	] {body_nonsolid('-16 -16 -24', '16 16 -9');};
 
 
 void() dog_gib =
 {
-        sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
-        MonsterGibs("progs/h_dog.mdl", 3, "", 0, "", 0);
+	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+	MonsterGibs("progs/h_dog.mdl", 3, "", 0, "", 0);
 };
 
 void() dog_die =
 {
 	sound (self, CHAN_VOICE, "dog/ddeath.wav", 1, ATTN_NORM);
 	if (random() > 0.5)
-                MonsterCorpse(self, dog_die1);
+		MonsterCorpse(self, dog_die1);
 	else
-                MonsterCorpse(self, dog_dieb1);
+		MonsterCorpse(self, dog_dieb1);
 };
 
 //============================================================================
@@ -279,15 +279,14 @@ CheckDogJump
 */
 float()	CheckDogJump =
 {
-	local	vector	dist;
-	local	float	d;
+	local vector dist, old;
+	local float d;
 
-	if (self.origin_z + self.mins_z > self.enemy.origin_z + self.enemy.mins_z
-	+ 0.75 * self.enemy.size_z)
+	/*
+	if (self.origin_z + self.mins_z > self.enemy.origin_z + self.enemy.mins_z + 0.75 * self.enemy.size_z)
 		return FALSE;
 
-	if (self.origin_z + self.maxs_z < self.enemy.origin_z + self.enemy.mins_z
-	+ 0.25 * self.enemy.size_z)
+	if (self.origin_z + self.maxs_z < self.enemy.origin_z + self.enemy.mins_z + 0.25 * self.enemy.size_z)
 		return FALSE;
 
 	dist = self.enemy.origin + (self.enemy.velocity * 0.4) - self.origin;
@@ -299,6 +298,15 @@ float()	CheckDogJump =
 		return FALSE;
 
 	if (d > 150)
+		return FALSE;
+	*/
+
+	// LordHavoc: do further checking now
+	old = self.velocity;
+	self.velocity = v_forward * 300 + '0 0 200';
+	tracetoss(self, self);
+	self.velocity = old;
+	if (trace_ent != self.enemy)
 		return FALSE;
 
 	return TRUE;
