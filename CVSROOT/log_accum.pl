@@ -30,7 +30,7 @@
 #	Configurable options
 #
 
-$MAILER	       = "/usr/sbin/sendmail";
+$MAILER	       = "/usr/sbin/exim";
 
 #
 #	End user configurable options.
