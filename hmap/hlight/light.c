@@ -291,7 +291,7 @@ int main (int argc, char **argv)
 
 // LordHavoc
 	if (i != argc - 1)
-		Error (
+		Error ("%s",
 "usage: hlight [options] bspfile\n"
 "Quick usage notes for entities: (place these in key/value pairs)\n"
 "wait - falloff rate (1.0 default, 0.5 = bigger radius, 2 = smaller, affects area the light covers)\n"

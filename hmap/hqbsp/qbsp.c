@@ -1002,7 +1002,7 @@ int main (int argc, char **argv)
 	}
 
 	if (i != argc - 2 && i != argc - 1)
-		Error (
+		Error ("%s",
 "usage: hqbsp [options] sourcefile [destfile]\n"
 "options:\n"
 "-nowater    disable watervis; r_wateralpha in glquake will not work right\n"

@@ -4,41 +4,46 @@
 
 #define	MAX_THREADS		4
 
-int			numportals;
-int			portalleafs;
+int numportals;
+int portalleafs;
 
-portal_t	*portals;
-leaf_t		*leafs;
+portal_t *portals;
+leaf_t *leafs;
 
-int			c_portaltest, c_portalpass, c_portalcheck;
+int c_portaltest, c_portalpass, c_portalcheck;
 
 
-qboolean		showgetleaf = true;
+qboolean showgetleaf = true;
 
-int		leafon;			// the next leaf to be given to a thread to process
+// the next leaf to be given to a thread to process
+int leafon;
 
 #ifdef __alpha
 pthread_mutex_t	*my_mutex;
 #endif
 
-byte	*vismap, *vismap_p, *vismap_end;	// past visfile
-int		originalvismapsize;
+// past visfile
+byte *vismap, *vismap_p, *vismap_end;
+int originalvismapsize;
 
-byte	*uncompressed;			// [bitbytes*portalleafs]
+// [bitbytes*portalleafs]
+byte *uncompressed;
 
-int		bitbytes;				// (portalleafs+63)>>3
-int		bitlongs;
+// (portalleafs+63)>>3
+int bitbytes;
+int bitlongs;
 
 #ifdef __alpha
-int			numthreads = 4;
+int numthreads = 4;
 #else
-int			numthreads = 1;
+int numthreads = 1;
 #endif
 
-qboolean		fastvis;
-qboolean		verbose;
-qboolean		rvis;
-int			testlevel = 4; // LordHavoc: default to level 4 vis
+qboolean fastvis;
+qboolean verbose;
+qboolean rvis;
+// LordHavoc: default to level 4 vis
+int testlevel = 4;
 // LordHavoc: optional ambient sounds
 qboolean noambient, noambientwater, noambientlava, noambientsky;
 
@@ -58,12 +63,12 @@ portal_t *GetNextPortal (void)
 	int		j;
 	portal_t	*p, *tp;
 	int		min;
-	
+
 	LOCK;
 
 	min = 99999;
 	p = NULL;
-	
+
 	for (j=0, tp = portals ; j<numportals*2 ; j++, tp++)
 	{
 		if (tp->nummightsee < min && tp->status == stat_none)
@@ -73,7 +78,7 @@ portal_t *GetNextPortal (void)
 		}
 	}
 
-	
+
 	if (p)
 		p->status = stat_working;
 
@@ -96,14 +101,14 @@ void *LeafThread (int thread)
 #endif
 {
 	portal_t	*p;
-		
-//printf ("Begining LeafThread: %i\n",(int)thread);	
+
+//printf ("Begining LeafThread: %i\n",(int)thread);
 	do
 	{
 		p = GetNextPortal ();
 		if (!p)
 			break;
-			
+
 		PortalFlow (p);
 
 		LOCK;
@@ -114,7 +119,7 @@ void *LeafThread (int thread)
 		else
 			printf("\rportal %4i of %4i (%3i%%), estimated time left: %i seconds", (int) portalschecked, (int) numportals * 2, (int) (portalschecked*100/(numportals*2)), (int) ((numportals*2-portalschecked)*(time(NULL)-portalizestarttime)/portalschecked));
 	} while (1);
-	printf("\n");	
+	printf("\n");
 
 //printf ("Completed LeafThread: %i\n",(int)thread);
 
@@ -133,10 +138,10 @@ int CompressRow (byte *vis, byte *dest)
 	int		rep;
 	int		visrow;
 	byte	*dest_p;
-	
+
 	dest_p = dest;
 	visrow = (portalleafs + 7)>>3;
-	
+
 	for (j=0 ; j<visrow ; j++)
 	{
 		*dest_p++ = vis[j];
@@ -144,7 +149,7 @@ int CompressRow (byte *vis, byte *dest)
 			continue;
 
 		rep = 1;
-		for ( j++; j<visrow ; j++)
+		for (j++; j<visrow ; j++)
 			if (vis[j] || rep == 255)
 				break;
 			else
@@ -152,7 +157,7 @@ int CompressRow (byte *vis, byte *dest)
 		*dest_p++ = rep;
 		j--;
 	}
-	
+
 	return dest_p - dest;
 }
 
@@ -336,11 +341,11 @@ qboolean PlaneCompare (plane_t *p1, plane_t *p2)
 {
 	int		i;
 
-	if ( fabs(p1->dist - p2->dist) > 0.01)
+	if (fabs(p1->dist - p2->dist) > 0.01)
 		return false;
 
 	for (i=0 ; i<3 ; i++)
-		if ( fabs(p1->normal[i] - p2->normal[i] ) > 0.001)
+		if (fabs(p1->normal[i] - p2->normal[i] ) > 0.001)
 			return false;
 
 	return true;				
@@ -592,28 +597,27 @@ void LoadPortals (char *name)
 			Error ("LoadPortals: reading portal %i", i);
 		if (numpoints > MAX_POINTS_ON_WINDING)
 			Error ("LoadPortals: portal %i has too many points", i);
-		if ( (unsigned)leafnums[0] > (unsigned)portalleafs
-		|| (unsigned)leafnums[1] > (unsigned)portalleafs)
+		if ((unsigned)leafnums[0] > (unsigned)portalleafs
+		 || (unsigned)leafnums[1] > (unsigned)portalleafs)
 			Error ("LoadPortals: reading portal %i", i);
-		
+
 		w = p->winding = NewWinding (numpoints);
 		w->original = true;
 		w->numpoints = numpoints;
-		
+
 		for (j=0 ; j<numpoints ; j++)
 		{
 			double	v[3];
 			int		k;
 
 			// scanf into double, then assign to vec_t
-			if (fscanf (f, "(%lf %lf %lf ) "
-			, &v[0], &v[1], &v[2]) != 3)
+			if (fscanf (f, "(%lf %lf %lf ) ", &v[0], &v[1], &v[2]) != 3)
 				Error ("LoadPortals: reading portal %i", i);
 			for (k=0 ; k<3 ; k++)
 				w->points[j][k] = v[k];
 		}
 		fscanf (f, "\n");
-		
+
 	// calc plane
 		PlaneFromWinding (w, &plane);
 
@@ -623,13 +627,13 @@ void LoadPortals (char *name)
 			Error ("Leaf with too many portals");
 		l->portals[l->numportals] = p;
 		l->numportals++;
-		
+
 		p->winding = w;
 		VectorNegate (plane.normal, p->plane.normal);
 		p->plane.dist = -plane.dist;
 		p->leaf = leafnums[1];
 		p++;
-		
+
 	// create backwards portal
 		l = &leafs[leafnums[1]];
 		if (l->numportals == MAX_PORTALS_ON_LEAF)
@@ -721,7 +725,7 @@ int main (int argc, char **argv)
 
 	if (i != argc - 1)
 	{
-		Error (
+		Error ("%s",
 "usage: hvis [options] bspfile"
 "options:\n"
 "-level 0-4      quality, default 4\n"
@@ -742,11 +746,11 @@ int main (int argc, char **argv)
 	DefaultExtension (source, ".bsp");
 
 	LoadBSPFile (source);
-	
+
 	strcpy (portalfile, argv[i]);
 	StripExtension (portalfile);
 	strcat (portalfile, ".prt");
-	
+
 	LoadPortals (portalfile);
 	
 	uncompressed = malloc(bitbytes*portalleafs);
