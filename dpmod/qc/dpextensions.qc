@@ -2,22 +2,8 @@
 //DarkPlaces supported extension list, draft version 1.03
 
 //unassigned stuff:  (need to write up specs but haven't yet)
-float   EF_NODRAW       = 16;
-float   EF_ADDITIVE     = 32;
-float   EF_BLUE         = 64;
-float   EF_RED          = 128;
-float   EF_FULLBRIGHT   = 512;
-float   EF_FLAME        = 1024;
-float   EF_STARDUST     = 2048;
-float   TE_FLAMEJET     = 74;
-.vector punchvector;
-.float  ping;
-float(entity e, float s) getsurfacenumpoints = #434;
-vector(entity e, float s, float n) getsurfacepoint = #435;
-vector(entity e, float s) getsurfacenormal = #436;
-string(entity e, float s) getsurfacetexture = #437;
-float(entity e, vector p) getsurfacenearpoint = #438;
-vector(entity e, float s, vector p) getsurfaceclippedpoint = #439;
+.vector punchvector; // DP_SV_PUNCHVECTOR
+.float  ping; // DP_SV_PING
 
 //checkextension function
 float(string s) checkextension = #99;
@@ -28,6 +14,57 @@ float(string s) checkextension = #99;
 //	ext_setcolor = TRUE;
 //from then on you can check ext_setcolor to know if that extension is available
 
+//DP_EF_NODRAW
+//effects bit:
+float   EF_NODRAW       = 16;
+//description:
+//prevents server from sending entity to client (forced invisible, even if it would have been a light source or other such things)
+
+//DP_EF_ADDITIVE
+//effects bit:
+float   EF_ADDITIVE     = 32;
+//description:
+//additive blending when this object is rendered
+
+//DP_EF_BLUE
+//effects bit:
+float   EF_BLUE         = 64;
+//description:
+//entity emits blue light (used for quad)
+
+//DP_EF_RED
+//effects bit:
+float   EF_RED          = 128;
+//description:
+//entity emits red light (used for invulnerability)
+
+//DP_EF_FULLBRIGHT
+//effects bit:
+float   EF_FULLBRIGHT   = 512;
+//description:
+//entity is always brightly lit
+
+//DP_EF_FLAME
+//effects bit:
+float   EF_FLAME        = 1024;
+//description:
+//entity is on fire
+
+//DP_EF_STARDUST
+//effects bit:
+float   EF_STARDUST     = 2048;
+//description:
+//entity emits bouncing sparkles in every direction (it is doubtful anyone would want to use this effect)
+
+//DP_TE_FLAMEJET
+//temp entity definitions:
+float TE_FLAMEJET = 74;
+//protocol:
+//vector origin
+//vector velocity
+//byte count (0 to 255, how many flame particles)
+//description:
+//creates a single puff of flame particles.  (not very useful really)
 
 //entity attributes used for rendering/networking:
 //DP_ENT_ALPHA
@@ -202,6 +239,17 @@ entity(.entity fld, entity match) findchainentity = #403;
 entity(.float fld, float match) findchainfloat = #403;
 //description:
 //similar to findentity()/findfloat() but returns a chain of entities like findradius.
+
+//DP_QC_GETSURFACE
+//builtin definitions:
+float(entity e, float s) getsurfacenumpoints = #434;
+vector(entity e, float s, float n) getsurfacepoint = #435;
+vector(entity e, float s) getsurfacenormal = #436;
+string(entity e, float s) getsurfacetexture = #437;
+float(entity e, vector p) getsurfacenearpoint = #438;
+vector(entity e, float s, vector p) getsurfaceclippedpoint = #439;
+//description:
+//functions to query surface information.
 
 //DP_SV_EFFECT
 //builtin definitions:
@@ -495,3 +543,26 @@ float svc_cgame = 50; // [short] length [bytes] data
 .float viewzoom;
 //description:
 //scales fov and sensitivity of player, valid range is 0 to 1 (intended for sniper rifle zooming, and such)
+
+//FRIK_FILE
+//builtin definitions:
+float(string s) stof = #81; // get numerical value from a string
+float(string filename, float mode) fopen = #110; // opens a file inside quake/gamedir/data/ (mode is FILE_READ, FILE_APPEND, or FILE_WRITE), returns fhandle >= 0 if successful, or fhandle < 0 if unable to open file for any reason
+void(float fhandle) fclose = #111; // closes a file
+string(float fhandle) fgets = #112; // reads a line of text from the file and returns as a tempstring
+void(float fhandle, string s) fputs = #113; // writes a line of text to the end of the file
+float(string s) strlen = #114; // returns how many characters are in a string
+string(string s1, string s2) strcat = #115; // concatenates two strings (for example "abc", "def" would return "abcdef") and returns as a tempstring
+string(string s, float start, float length) substring = #116; // returns a section of a string as a tempstring
+vector(string s) stov = #117; // returns vector value from a string
+string(string s) strzone = #118; // makes a copy of a string into the string zone and returns it, this is often used to keep around a tempstring for longer periods of time (tempstrings are replaced often)
+void(string s) strunzone = #119; // removes a copy of a string from the string zone (you can not use that string again or it may crash!!!)
+//constants:
+float FILE_READ = 0;
+float FILE_APPEND = 1;
+float FILE_WRITE = 2;
+//cvars:
+//pr_zone_min_strings : default 64 (64k), min 64 (64k), max 8192 (8mb)
+//description:
+//provides text file access functions and string manipulation functions, note that you may want to set pr_zone_min_strings in the worldspawn function if 64k is not enough string zone space.
+
