@@ -117,7 +117,7 @@ void *readfile(char *filename, int *filesize)
 {
 	FILE *file;
 	void *mem;
-	unsigned long size;
+	size_t size;
 	if (!filename[0])
 	{
 		printf("readfile: tried to open empty filename\n");
@@ -136,7 +136,7 @@ void *readfile(char *filename, int *filesize)
 		fclose(file);
 		return NULL;
 	}
-	((unsigned *)mem)[size] = 0; // 0 byte added on the end
+	((unsigned char *)mem)[size] = 0; // 0 byte added on the end
 	fseek(file, 0, SEEK_SET);
 	if (fread(mem, 1, size, file) < size)
 	{
@@ -219,14 +219,14 @@ int getline(unsigned char *line)
 	unsigned char *out = line;
 	while (*tokenpos == '\r' || *tokenpos == '\n')
 		tokenpos++;
-	if (*tokenpos == 0)
+	if (*tokenpos)
 	{
+		while (*tokenpos && *tokenpos != '\r' && *tokenpos != '\n')
+			*out++ = *tokenpos++;
 		*out++ = 0;
-		return 0;
 	}
-	while (*tokenpos && *tokenpos != '\r' && *tokenpos != '\n')
-		*out++ = *tokenpos++;
-	*out++ = 0;
+	else
+		*out = 0;
 	return out - line;
 }
 
@@ -1153,7 +1153,7 @@ int parsemodelfile(void)
 		}
 		else
 		{
-			printf("unknown command \"%s\"\n", line);
+			printf("unknown command \"%s\" in smd file\n", line);
 			return 0;
 		}
 	}
@@ -1193,7 +1193,7 @@ int parsemeshmodelfile(void)
 		}
 		else
 		{
-			printf("unknown command \"%s\"\n", line);
+			printf("unknown command \"%s\" in smd file\n", line);
 			return 0;
 		}
 	}
