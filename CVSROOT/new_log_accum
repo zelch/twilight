@@ -741,7 +741,7 @@ foreach my $file (@files) {
     debug "Diffing file $file->{name}...\n";
 
     # Run cvs rdiff, extracting a diff between the old version and the new
-    open(DIFF, "$CVS -Q rdiff -u -p -r $file->{old} -r $file->{new} " .
+    open(DIFF, "$CVS -Q rdiff -u -r $file->{old} -r $file->{new} " .
 	 "$modname/$file->{name}|");
     while (<DIFF>) {
 	chomp;
