@@ -30,7 +30,7 @@ use MD5;
 
 # Set this to the full path of a mailer that takes a list
 # of email addresses as arguments...
-$MAILER = "/usr/bin/sendmail -oi -oeq";
+$MAILER = "/usr/sbin/sendmail -oi -oeq";
 
 # Set this to the path of the CVS binary responsible for this tree...
 $CVS = "/usr/bin/cvs";
