@@ -7,10 +7,10 @@
 
 	box ("para", "Many of the Project Twilight contributors hang out in\n" .
 		"the project's IRC channel on the " .
-		"<a href=\"http://www.openprojects.net/\">OpenProjects</a> IRC\n" .
+		"AnyNet IRC\n" .  # FIXME: weblink should be here...
 		"network.&nbsp; You are welcome and encouraged to join us there\n" .
-		"by connecting to irc.openprojects.net and joining the #twilight\n" .
-		"channel."
+		"by connecting to irc.anynet.org and joining the #twilight\n" .
+		"channel.\n"
 	);
 
 
