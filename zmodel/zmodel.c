@@ -1624,19 +1624,28 @@ int sc_mesh(void)
 		printf("only one mesh command allowed\n");
 		return 0;
 	}
-	c = gettoken();
-	if (!c)
-		return 0;
-	if (!isfilename(c))
-		return 0;
 	meshset = 1;
 	numscenes = 0;
 	numposes = 0;
+	c = gettoken();
+	if (!c)
+	{
+		printf("no file specified\n");
+		return 0;
+	}
+	if (!isfilename(c))
+	{
+		printf("%s is not a filename\n", c);
+		return 0;
+	}
 	modelfile = readfile(c, NULL);
 	if (!modelfile)
+	{
+		printf("unable to load file %s\n", c);
 		return 0;
-#if 1
+	}
 	printf("parsing mesh %s\n", c);
+#if 1
 	if (!parsemeshmodelfile())
 		return 0;
 	free(modelfile);
@@ -1668,17 +1677,26 @@ int sc_scene(void)
 	}
 	c = gettoken();
 	if (!c)
+	{
+		printf("no file specified\n");
 		return 0;
+	}
 	if (!isfilename(c))
+	{
+		printf("%s is not a filename\n", c);
 		return 0;
+	}
 	modelfile = readfile(c, NULL);
 	if (!modelfile)
+	{
+		printf("unable to load file %s\n", c);
 		return 0;
+	}
+	printf("parsing scene %s\n", c);
 	cleancopyname(scene[numscenes].name, c, MAX_NAME);
 	scene[numscenes].start = numposes;
 	scene[numscenes].framerate = 10; // can be overridden later by fps
 	scene[numscenes].noloop = 0; // can be overridden later by noloop
-	printf("parsing scene %s\n", c);
 	if (!parsemodelfile())
 		return 0;
 	free(modelfile);
