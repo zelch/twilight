@@ -17,14 +17,14 @@ viswinding_t *NewVisWinding (int points)
 {
 	viswinding_t	*w;
 	int			size;
-	
+
 	if (points > MAX_POINTS_ON_VISWINDING)
 		Error ("NewWinding: %i points", points);
-	
+
 	size = (int)((viswinding_t *)0)->points[points];
 	w = qmalloc (size);
 	memset (w, 0, size);
-	
+
 	return w;
 }
 
@@ -102,34 +102,33 @@ viswinding_t *ClipVisWinding (viswinding_t *in, plane_t *split, qboolean keepon)
 	}
 	if (!counts[1])
 		return in;
-	
+
 	maxpts = in->numpoints+4;	// can't use counts[0]+2 because
 								// of fp grouping errors
 	neww = NewVisWinding (maxpts);
-		
+
 	for (i=0 ; i<in->numpoints ; i++)
 	{
 		p1 = in->points[i];
-		
+
 		if (sides[i] == SIDE_ON)
 		{
 			VectorCopy (p1, neww->points[neww->numpoints]);
 			neww->numpoints++;
 			continue;
 		}
-	
 		if (sides[i] == SIDE_FRONT)
 		{
 			VectorCopy (p1, neww->points[neww->numpoints]);
 			neww->numpoints++;
 		}
-		
+
 		if (sides[i+1] == SIDE_ON || sides[i+1] == sides[i])
 			continue;
-			
+
 	// generate a split point
 		p2 = in->points[(i+1)%in->numpoints];
-		
+
 		dot = dists[i] / (dists[i]-dists[i+1]);
 		for (j=0 ; j<3 ; j++)
 		{	// avoid round off error when possible
@@ -140,17 +139,17 @@ viswinding_t *ClipVisWinding (viswinding_t *in, plane_t *split, qboolean keepon)
 			else
 				mid[j] = p1[j] + dot*(p2[j]-p1[j]);
 		}
-			
+
 		VectorCopy (mid, neww->points[neww->numpoints]);
 		neww->numpoints++;
 	}
-	
+
 	if (neww->numpoints > maxpts)
 		Error ("ClipVisWinding: points exceeded estimate");
-		
+
 // free the original winding
 	FreeVisWinding (in);
-	
+
 	return neww;
 }
 
@@ -243,7 +242,7 @@ viswinding_t *ClipToSeperators (viswinding_t *source, viswinding_t *pass, viswin
 	for (i=0 ; i<source->numpoints ; i++)
 	{
 		l = (i+1)%source->numpoints;
-		VectorSubtract (source->points[l] , source->points[i], v1);
+		VectorSubtract (source->points[l], source->points[i], v1);
 
 	// find a vertex of pass that makes a plane that puts all of the
 	// vertexes of pass on the front side and all of the vertexes of
@@ -260,7 +259,7 @@ viswinding_t *ClipToSeperators (viswinding_t *source, viswinding_t *pass, viswin
 				continue;
 
 			length = 1/sqrt(length);
-			VectorScale( plane.normal, length, plane.normal );			
+			VectorScale( plane.normal, length, plane.normal );
 			plane.dist = DotProduct (pass->points[j], plane.normal);
 
 		//
@@ -297,7 +296,7 @@ viswinding_t *ClipToSeperators (viswinding_t *source, viswinding_t *pass, viswin
 				VectorInverse (plane.normal);
 				plane.dist = -plane.dist;
 			}
-			
+
 		//
 		// if all of the pass portal points are now on the positive side,
 		// this is the seperating plane
@@ -398,19 +397,19 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 	int			i, j;
 	long		*test, *might, *vis;
 	qboolean		more;
-	
+
 	c_chains++;
 
 	leaf = &leafs[leafnum];
 	CheckStack (leaf, thread);
-	
+
 // mark the leaf as visible
 	if (! (thread->leafvis[leafnum>>3] & (1<<(leafnum&7)) ) )
 	{
 		thread->leafvis[leafnum>>3] |= 1<<(leafnum&7);
 		thread->base->numcansee++;
 	}
-	
+
 	prevstack->next = &stack;
 	stack.next = NULL;
 	stack.leaf = leaf;
@@ -418,7 +417,7 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 	stack.mightsee = qmalloc(bitbytes);
 	might = (long *)stack.mightsee;
 	vis = (long *)thread->leafvis;
-	
+
 // check all portals for flowing into other leafs	
 	for (i=0 ; i<leaf->numportals ; i++)
 	{
@@ -448,33 +447,32 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 			if (might[j] & ~vis[j])
 				more = true;
 		}
-		
+
 		if (!more)
 		{	// can't see anything new
 			c_portalskip++;
 			continue;
 		}
-		
+
 // get plane of portal, point normal into the neighbor leaf
 		stack.portalplane = p->plane;
 		VectorNegate (p->plane.normal, backplane.normal);
 		backplane.dist = -p->plane.dist;
-			
+
 		if (VectorCompare (prevstack->portalplane.normal, backplane.normal) )
 			continue;	// can't go out a coplanar face
-	
+
 		c_portalcheck++;
-		
+
 		stack.portal = p;
 		stack.next = NULL;
-		
+
 		target = ClipVisWinding (p->winding, &thread->pstack_head.portalplane, false);
 		if (!target)
 			continue;
-			
+
 		if (!prevstack->pass)
 		{	// the second leaf can only be blocked if coplanar
-		
 			stack.source = prevstack->source;
 			stack.pass = target;
 			RecursiveLeafFlow (p->leaf, thread, &stack);
@@ -485,7 +483,7 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 		target = ClipVisWinding (target, &prevstack->portalplane, false);
 		if (!target)
 			continue;
-		
+
 		source = CopyVisWinding (prevstack->source);
 
 		source = ClipVisWinding (source, &backplane, false);
@@ -506,7 +504,7 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 				continue;
 			}
 		}
-		
+
 		if (testlevel > 1)
 		{
 			target = ClipToSeperators (prevstack->pass, source, target, true);
@@ -516,7 +514,7 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 				continue;
 			}
 		}
-		
+
 		if (testlevel > 2)
 		{
 			source = ClipToSeperators (target, prevstack->pass, source, false);
@@ -526,7 +524,7 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 				continue;
 			}
 		}
-		
+
 		if (testlevel > 3)
 		{
 			source = ClipToSeperators (prevstack->pass, target, source, true);
@@ -541,14 +539,14 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 		stack.pass = target;
 
 		c_portalpass++;
-	
+
 	// flow through it for real
 		RecursiveLeafFlow (p->leaf, thread, &stack);
-		
+
 		FreeVisWinding (source);
 		FreeVisWinding (target);
 	}
-	
+
 	qfree (stack.mightsee);
 }
 
@@ -566,19 +564,19 @@ void PortalFlow (portal_t *p)
 	if (p->status != stat_working)
 		Error ("PortalFlow: reflowed");
 	p->status = stat_working;
-	
+
 	p->visbits = qmalloc (bitbytes);
 	memset (p->visbits, 0, bitbytes);
 
 	memset (&data, 0, sizeof(data));
 	data.leafvis = p->visbits;
 	data.base = p;
-	
+
 	data.pstack_head.portal = p;
 	data.pstack_head.source = p->winding;
 	data.pstack_head.portalplane = p->plane;
 	data.pstack_head.mightsee = p->mightsee;
-		
+
 	RecursiveLeafFlow (p->leaf, &data, &data.pstack_head);
 
 	p->status = stat_done;
@@ -594,7 +592,7 @@ of the final calculations.
 ===============================================================================
 */
 
-byte	portalsee[MAX_PORTALS];
+byte	*portalsee;
 int		c_leafsee, c_portalsee;
 
 void SimpleFlood (portal_t *srcportal, int leafnum)
@@ -602,14 +600,14 @@ void SimpleFlood (portal_t *srcportal, int leafnum)
 	int		i;
 	leaf_t	*leaf;
 	portal_t	*p;
-	
+
 	if (srcportal->mightsee[leafnum>>3] & (1<<(leafnum&7)) )
 		return;
 	srcportal->mightsee[leafnum>>3] |= (1<<(leafnum&7));
 	c_leafsee++;
-	
+
 	leaf = &leafs[leafnum];
-	
+
 	for (i=0 ; i<leaf->numportals ; i++)
 	{
 		p = leaf->portals[i];
@@ -633,20 +631,27 @@ void BasePortalVis (void)
 	vec_t d;
 	viswinding_t *w;
 	time_t oldtime, newtime;
+	vec3_t backnormal;
 
+	portalsee = qmalloc (numportals*2);
 	oldtime = time(NULL);
 	for (i=0, p = portals ; i<numportals*2 ; i++, p++)
 	{
 		p->mightsee = qmalloc (bitbytes);
 		memset (p->mightsee, 0, bitbytes);
-		
+
 		c_portalsee = 0;
 		memset (portalsee, 0, numportals*2);
+
+		VectorNegate (p->plane.normal, backnormal);
 
 		for (j=0, tp = portals ; j<numportals*2 ; j++, tp++)
 		{
 			if (j == i)
 				continue;
+			if (VectorCompare (backnormal, tp->plane.normal))
+				continue;
+
 			w = tp->winding;
 			plane = &p->plane;
 			for (k=0 ; k<w->numpoints ; k++)
@@ -673,13 +678,12 @@ void BasePortalVis (void)
 					break;
 			}
 			if (k == w->numpoints)
-				continue;	// no points on front
+				continue;	// no points on back
 
 			portalsee[j] = 1;		
 			c_portalsee++;
-			
 		}
-		
+
 		c_leafsee = 0;
 		SimpleFlood (p, p->leaf);
 		p->nummightsee = c_leafsee;
@@ -694,4 +698,5 @@ void BasePortalVis (void)
 	}
 	printf ("\rbasevis done                \n");
 	fflush(stdout);
+	qfree (portalsee);
 }
