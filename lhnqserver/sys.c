@@ -26,7 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef WIN32
 #include <conio.h>
 #else
-#error UNIX support not finished
+#include <sys/time.h>
+#include <unistd.h>
 #endif
 
 /*
