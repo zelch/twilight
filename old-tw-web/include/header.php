@@ -22,6 +22,7 @@
 	box ("header", "<img src=\"" . $display["logo"] .
 					"\" alt=\"Project Twilight\">");
 
+	echo "<div></div>";
 	$nav_ref = 0;
 	$nav_str = "";
 	while (list ($title, $url) = each ($nav_items)) {
