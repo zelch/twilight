@@ -878,6 +878,9 @@ void() startframe_creaturecode =
 				else if (self.effects & EF_FLAME)
 					self.effects = self.effects - EF_FLAME;
 				*/
+				if (self.movetype == MOVETYPE_STEP || self.movetype == MOVETYPE_WALK)
+				if (pointcontents(self.origin) == CONTENT_SOLID)
+					T_Damage(self, world, world, 0, 0, " was in solid", DT_TELEFRAG, self.origin, '0 0 0', Obituary_Generic);
 			}
 			else
 				self.iscreature = FALSE;
