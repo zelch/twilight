@@ -59,7 +59,7 @@ void() zombie_heal =
         if (time < self.ltime)
                 return;
         self.ltime = time + 0.1;
-        self.health = self.health + 10;
+        self.health = self.health + 5;
         if (self.health > self.max_health)
                 self.health = self.max_health;
 };
