@@ -268,7 +268,7 @@ void(vector org, vector vel, entity own, float damage, float damage2, float type
 	newmis.solid = SOLID_BBOX;
 	newmis.classname = "mine";
 	// set newmis speed
-	newmis.velocity = vel + self.velocity;
+	newmis.velocity = vel;// + self.velocity;
 	newmis.avelocity = '0 0 0';
 	newmis.angles = vectoangles(newmis.velocity);
 	newmis.touch = MineTouch;
