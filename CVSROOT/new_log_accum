@@ -362,6 +362,7 @@ sub build_header ($@) {
 # Send the mail message
 sub send_mail {
     my ($mailto, $text) = @_;
+    my (@mailto, @text);
     # I <heart> perl
     @mailto = @{$mailto};
     @text = @{$text};
