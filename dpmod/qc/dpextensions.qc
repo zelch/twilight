@@ -23,6 +23,14 @@ float(string s) checkextension = #99;
 //indicates this engine loads .lit files for any quake1 format .bsp files it loads to enhance maps with colored lighting.
 //implementation description: these files begin with the header QLIT followed by version number 1 (as little endian 32bit), the rest of the file is a replacement lightmaps lump, except being 3x as large as the lightmaps lump of the map it matches up with (and yes the between-lightmap padding is expanded 3x to keep this consistent), so the lightmap offset in each surface is simply multiplied by 3 during loading to properly index the lit data, and the lit file is loaded instead of the lightmap lump, other renderer changes are needed to display these of course...  see the litsupport.zip sample code (almost a tutorial) at http://icculus.org/twilight/darkplaces for more information.
 
+//DP_QC_CVAR_STRING
+//idea: Paul Timofeyev
+//DarkPlaces implementation: Paul Timofeyev, LordHavoc
+//builtin definitions:
+string(string s) cvar_string = #448;
+//description:
+//returns the value of a cvar, as a tempstring.
+
 //DP_QC_TRACE_MOVETYPES
 //idea: LordHavoc
 //darkplaces implementation: id Software
