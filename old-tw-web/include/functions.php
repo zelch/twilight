@@ -66,8 +66,7 @@
 	}
 	function newsitem ($date, $submitter, $content)
 	{
-		return titlebox ("news", "posted " . $date . " by " . email($submitter),
-			$content);
+		return titlebox ("news", "posted " . $date, $content);
 	}
 
 	function SQLtoNewsDate($date)
