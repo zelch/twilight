@@ -209,6 +209,7 @@ a {
 
 	$nav_items = array (
 		Information => array (
+			"About" => "/info/about.php" ,
 			"Recent News" => "/index.php" ,
 			"Older News" => "/info/oldnews.php"
 		) ,
@@ -219,7 +220,6 @@ a {
 		) ,
 		Development => array (
 			"Bug Tracking" => "/devel/index.php" ,
-			"Overview" => "/devel/overview.php" ,
 			"Credits" => "/devel/credits.php"
 		) ,
 		Links => array (

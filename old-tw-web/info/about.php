@@ -1,9 +1,9 @@
 <?php
-	$title = "Overview";
+	$title = "About";
 	$pageroot = "..";
 	require ($pageroot . "/include/header.php");
 
-	box ("title", "Project Overview");
+	box ("title", "About Project Twilight");
 
 	box ("para", "Project Twilight began when " . email("Knghtbrd") . "\n" .
 		"realized that there were many talented developers who wanted to\n" .
