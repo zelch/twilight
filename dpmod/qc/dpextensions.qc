@@ -659,6 +659,58 @@ float SOLID_CORPSE = 5;
 //description:
 //the engine supports .spr32 sprites.
 
+//DP_SV_BOTCLIENT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//constants:
+float CLIENTTYPE_DISCONNECTED = 0;
+float CLIENTTYPE_REAL = 1;
+float CLIENTTYPE_BOT = 2;
+float CLIENTTYPE_NOTACLIENT = 3;
+//builtin definitions:
+entity() spawnclient = #454; // like spawn but for client slots (also calls relevant connect/spawn functions), returns world if no clients available
+float(entity clent) clienttype = #455; // returns one of the CLIENTTYPE_* constants
+//description:
+//spawns a client with no network connection, to allow bots to use client slots with no hacks.
+//How to use:
+/*
+	// to spawn a bot
+	local entity oldself;
+	oldself = self;
+	self = spawnclient();
+	if (!self)
+	{
+		bprint("Can not add bot, server full.\n");
+		self = oldself;
+		return;
+	}
+	self.netname = "Yoyobot";
+	self.clientcolors = 12 * 16 + 4; // yellow (12) shirt and red (4) pants
+	ClientConnect();
+	PutClientInServer();
+	self = oldself;
+
+	// to remove all bots
+	local entity head;
+	head = find(world, classname, "player");
+	while (head)
+	{
+		if (clienttype(head) == CLIENTTYPE_BOT)
+			dropclient(head);
+		head = find(head, classname, "player");
+	}
+
+	// to identify if a client is a bot (for example in PlayerPreThink)
+	if (clienttype(self) == CLIENTTYPE_BOT)
+		botthink();
+*/
+//see also DP_SV_CLIENTCOLORS DP_SV_CLIENTNAME DP_SV_DROPCLIENT
+//How it works:
+//creates a new client, calls SetNewParms and stores the parms, and returns the client.
+//this intentionally does not call SV_SendServerinfo to allow the QuakeC a chance to set the netname and clientcolors fields before actually spawning the bot by calling ClientConnect and PutClientInServer manually
+//on level change ClientConnect and PutClientInServer are called by the engine to spawn in the bot (this is why clienttype() exists to tell you on the next level what type of client this is).
+//parms work the same on bot clients as they do on real clients, and do carry from level to level
+
 //DP_SV_CLIENTCOLORS
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -1056,20 +1108,4 @@ float PFLAGS_FULLDYNAMIC = 128; // light enable (without this set no light is pr
 //sv_stepheight (default 18)
 //description:
 //sv_jumpstep allows stepping up onto stairs while airborn, sv_stepheight controls how high a single step can be.
-
-// UNFINISHED section
-//DP_QC_BOTCLIENT
-//idea: LordHavoc
-//darkplaces implementation: LordHavoc
-//builtin definitions:
-// FIXME: these need numbers assigned, and they need to be added to the engine!
-//entity() spawnclient = #; // like spawn but for client slots (also calls relevant connect/spawn functions), returns world if no clients available
-//void(entity e) removeclient = #; // like remove but for client slots (also calls relevant disconnect functions)
-//description:
-//functions to allow bots to use client slots with no hacks, some notes:
-.string netname; //controls name on scoreboard (so be sure to set it for a bot)
-.float frags; //controls score on scoreboard (this is expected)
-.float clientcolors; //controls coloring on scoreboard (this determines player colors exactly like the "color" command, except for using a single number that contains pants and shirt colors (pants + shirt * 16, 0-255 potentially), so be sure to set it for a bot)
-//note also that these fields can be set on a real client to change the relevant settings.
-//see also DP_SV_SETCOLOR extension for another way to manipulate clientcolors (made obsolete by this extension).
 
