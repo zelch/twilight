@@ -5,7 +5,7 @@ void() knight_bow6;
 void() knight_bow1;
 void() FoundTarget;
 
-float   MONSTER_STAND = 64; // disable wandering around
+float   MONSTER_WANDER = 64; // disable wandering around
 float   MONSTER_APPEAR = 128; // spawn invisible, and appear when triggered
 
 .float ismonster;
