@@ -36,9 +36,14 @@ void() weaponentthink =
 		remove(self);
 		return;
 	}
-	hide = TRUE;
-	/*
-		 if (self.owner.frame >= 6 && self.owner.frame < 12) // run
+
+	if (self.owner.deadflag)
+		hide = TRUE;
+	else if (!self.owner.solid)
+		hide = TRUE;
+	else if (self.owner.items & IT_INVISIBILITY)
+		hide = TRUE;
+	else if (self.owner.frame >= 6 && self.owner.frame < 12) // run
 		hide = FALSE;
 	else if (self.owner.frame >= 12 && self.owner.frame < 17) // stand
 		hide = FALSE;
@@ -46,38 +51,38 @@ void() weaponentthink =
 		hide = FALSE;
 	else if (self.owner.frame >= 102 && self.owner.frame < 119) // firing anims
 		hide = FALSE;
-	*/
-		 if (self.owner.frame >= 6 && self.owner.frame < 17) // run or stand
-		hide = FALSE;
-	else if (self.owner.frame >= 35 && self.owner.frame < 41) // pain
-		hide = FALSE;
-	else if (self.owner.frame >= 102 && self.owner.frame < 119) // firing anims
-		hide = FALSE;
+	else
+		hide = TRUE;
 
 	if (hide)
 		self.model = "";
 	else
 	{
+		self.model = "progs/playergun.mdl";
 		self.alpha = self.owner.alpha;
 		self.frame = self.owner.frame;
-		self.velocity = self.owner.velocity;
-		self.angles = self.owner.angles;
-		setorigin(self, self.owner.origin);
 	}
 };
 
 void() dovisibleweapon =
 {
+	if (!self.weaponent)
+	{
+		self.weaponent = newmis = spawn();
+		self.weaponent.classname = "playergun";
+		self.weaponent.owner = self;
+		self.weaponent.think = weaponentthink;
+		self.weaponent.nextthink = time;
+		setmodel(self.weaponent, "progs/playergun.mdl");
+		setattachment(self.weaponent, self, "");
+	}
 	if (self.deadflag || !self.solid) // dead or observer
 	{
-		self.weaponent = world; // hide
 		// don't tinker with the model when dead, might be a gibbed head
-		//self.model = "";
-		//self.modelindex = 0; // in DP players are invisible when dead
+		return;
 	}
 	else if (self.items & IT_INVISIBILITY)
 	{
-		self.weaponent = world; // hide
 		self.model = "progs/player.mdl";
 		self.modelindex = modelindex_eyes;
 		self.frame = 0;
@@ -86,23 +91,6 @@ void() dovisibleweapon =
 	{
 		self.model = "progs/player.mdl"; // make player visible
 		self.modelindex = modelindex_nogun;
-		if (!self.weaponent)
-		{
-			self.weaponent = newmis = spawn();
-			newmis.classname = "playergun";
-			newmis.owner = self;
-			newmis.exteriormodeltoclient = self;
-			setmodel(newmis, "progs/playergun.mdl");
-			setsize(newmis, '-16 -16 -24', '16 16 24');
-			setorigin(newmis, self.origin);
-			newmis.think = weaponentthink;
-			newmis.nextthink = time;
-		}
-		self.weaponent.alpha = self.alpha;
-		self.weaponent.frame = self.frame;
-		self.weaponent.velocity = self.velocity;
-		self.weaponent.angles = self.angles;
-		setorigin(self.weaponent, self.origin);
 		/*
 		if (self.frame != self.lastframe) // FIXME: quite a hack
 		{
