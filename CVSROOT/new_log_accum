@@ -361,11 +361,10 @@ sub build_header ($@) {
 
 # Send the mail message
 sub send_mail (\@$@) {
-    my ($mailto, @data) = @_;
-#-s \"$subject\" " 
+    my ($mailto, @text) = @_;
     open(MAIL, "|$MAILER " . join(' ', @{$mailto}));
 #    push(@data, $boundary);
-    print MAIL join("\n", @data), "\n";
+    print MAIL join("\n", @text), "\n";
     close(MAIL);
 }
 
