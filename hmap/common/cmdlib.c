@@ -160,6 +160,9 @@ double I_DoubleTime (void)
 	static qboolean first = true;
 	DWORD now;
 
+	if (first)
+		timeBeginPeriod (1);
+
 	now = timeGetTime ();
 
 	if (first)
@@ -789,7 +792,7 @@ int    LittleLong (int l)
 float	BigFloat (float l)
 {
   union {byte b[4]; float f;} in, out;
-	
+
   in.f = l;
   out.b[0] = in.b[3];
   out.b[1] = in.b[2];
