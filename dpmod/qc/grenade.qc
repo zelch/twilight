@@ -78,7 +78,7 @@ void() GrenadeThink =
 		if (time >= self.count)
 		{
 			self.count = time + 0.05;
-			head = findradius(self.origin, self.dmg2 * 0.5);
+			head = findradius(self.origin, self.dmg2 * 0.25);
 			while (head)
 			{
 				if ((head.flags & FL_MONSTER) || head.classname == "player")
