@@ -1,5 +1,8 @@
 <?php
 	$pageroot = ".";
+	$pagerealm = "Twilight Members";
+	$usertable = "members";
+	$newacct = 0;
 	require ($pageroot . "/include/auth.php");
 	$title = "Members Area";
 	require ($pageroot . "/include/header.php");

@@ -1,7 +1,7 @@
 <?php
-	include($pageroot . "/../web-private/sql.conf");
-	
-	if(!defined('sqlAvail')) {
+	if(file_exists($pageroot . "/../webprivate/sql.conf")) {
+		include($pageroot . "/../web-private/sql.conf");
+	} else {
 		define('sqlAvail',	0);
 	}
 ?>
