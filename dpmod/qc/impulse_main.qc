@@ -57,6 +57,7 @@ ImpulseCommands
 */
 void() ImpulseCommands =
 {
+	local float n;
 	if (self.impulse == 250)
 	{
 		// FIXME: print weapon names by requesting WR_NAME
@@ -270,6 +271,27 @@ void() ImpulseCommands =
 
 	if (!self.deadflag)
 	{
+		if (self.impulse >= 30 && self.impulse <= 39)
+		{
+			n = 0;
+			while (n < 30)
+			{
+				n = n + 1;
+				newmis = spawn();
+				newmis.viewmodelforclient = self;
+				newmis.owner = self;
+				setmodel(newmis, "progs/player.mdl");
+				//setsize(newmis, '-16 -16 -24', '16 16 24');
+				newmis.movetype = MOVETYPE_NONE;
+				newmis.solid = SOLID_NOT;
+				//newmis.effects = EF_FLAME;
+				newmis.frame = 0;
+				newmis.angles = randompos('0 0 0', '360 360 360');
+				newmis.origin = randompos('-64 -64 -64', '64 64 64');
+				setorigin(newmis, newmis.origin);
+			}
+			sprint(self, "spawned 30 drones\n");
+		}
 		if (self.impulse == 29)
 		{
 			newmis = spawn();
@@ -328,16 +350,16 @@ void() ImpulseCommands =
 			setorigin(newmis, self.origin);
 		}
 		*/
-		/*
 		if (self.impulse == 26)
 		{
 			newmis = spawn();
 			newmis.viewmodelforclient = newmis.owner = self;
-			setmodel(newmis, "progs/g_rock2.mdl");
+			setmodel(newmis, "progs/v_dprock2.mdl");
 			newmis.frame = 0;
 			setorigin(newmis, '0 0 0');
-			newmis.angles = '0 0 90';
+			newmis.angles = '0 0 0';
 		}
+		/*
 		if (self.impulse == 22)
 		{
 			makevectors(self.v_angle);
