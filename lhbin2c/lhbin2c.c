@@ -1,6 +1,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 
 static char *nibbletohex = "0123456789ABCDEF";
 
