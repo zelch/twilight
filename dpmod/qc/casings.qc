@@ -70,7 +70,7 @@ void(vector org, vector vel, float randomvel, vector ang, vector avel, float ran
 	e.forcescale = 15;
 	e.movetype = MOVETYPE_BOUNCE;
 	e.solid = SOLID_TRIGGER;
-	e.velocity = vel + randomvec() * randomvel + self.velocity;
+	e.velocity = vel + randomvec() * randomvel;
 	e.angles = ang;
 	e.avelocity = avel + randomvec() * randomavel;
 	e.nextthink = time;

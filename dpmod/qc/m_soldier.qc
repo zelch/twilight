@@ -151,12 +151,11 @@ float() SoldierCheckAttack =
 void(vector hit) army_pistol =
 {
 	local vector ang;
-	shotdir = normalize (hit - (self.origin + '0 0 12'));
-	shotdir = shotdir * 25 + randomvec();
+	shotorg = self.origin + '0 0 12';
+	shotdir = normalize (hit - shotorg);
+	shotdir = shotdir * 35 + randomvec();
 	shotdir = normalize(shotdir);
 	ang = vectoangles(shotdir);
-
-	shotorg = self.origin + '0 0 12';
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 1);
@@ -184,12 +183,11 @@ float() army_missile_pistol =
 void(vector hit) army_nail =
 {
 	local vector ang;
-	shotdir = normalize (hit - (self.origin + '0 0 12'));
-	shotdir = shotdir * 25 + randomvec();
+	shotorg = self.origin + '0 0 12';
+	shotdir = normalize (hit - shotorg);
+	shotdir = shotdir * 35 + randomvec();
 	shotdir = normalize(shotdir);
 	ang = vectoangles(shotdir);
-
-	shotorg = self.origin + '0 0 12';
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 1);
@@ -220,12 +218,11 @@ float() army_missile_nail =
 void(vector hit) army_shotgun =
 {
 	local vector ang;
-	shotdir = normalize (hit - (self.origin + '0 0 12'));
+	shotorg = self.origin + '0 0 12';
+	shotdir = normalize (hit - shotorg);
 	shotdir = shotdir * 35 + randomvec();
 	shotdir = normalize(shotdir);
 	ang = vectoangles(shotdir);
-
-	shotorg = self.origin + '0 0 12';
 
 	sound (self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 2);

@@ -4,13 +4,13 @@
 .float  ammo_rockets;
 .float  ammo_cells;
 
-float   AMMOMAX_SHELLS          =  100;
-float   AMMOMAX_NAILS           =  200;
+float   AMMOMAX_SHELLS          =  250;
+float   AMMOMAX_NAILS           =  250;
 float   AMMOMAX_ROCKETS         =  100;
-float   AMMOMAX_CELLS           =  200;
+float   AMMOMAX_CELLS           =  250;
 
 // LordHavoc: since constants can't have math in them, the ITEMS are inlined in client.qc :(
-float   STARTPARMSDM_AMMO_SHELLS     =   20;
+float   STARTPARMSDM_AMMO_SHELLS     =   50; // 20
 float   STARTPARMSDM_AMMO_NAILS      =    0;
 float   STARTPARMSDM_AMMO_ROCKETS    =    0;
 float   STARTPARMSDM_AMMO_CELLS      =    0;
@@ -20,7 +20,7 @@ float   STARTPARMSDM_MAXHEALTH       =  100;
 float   STARTPARMSDM_ARMORVALUE      =    0;
 float   STARTPARMSDM_ARMORTYPE       =    0;
 
-float   STARTPARMSSP_AMMO_SHELLS     =   20;
+float   STARTPARMSSP_AMMO_SHELLS     =   50; // 20
 float   STARTPARMSSP_AMMO_NAILS      =    0;
 float   STARTPARMSSP_AMMO_ROCKETS    =    0;
 float   STARTPARMSSP_AMMO_CELLS      =    0;
@@ -47,13 +47,13 @@ float   AMMOWEAPONOVERFLOW_NAILS        =    5;
 float   AMMOWEAPONOVERFLOW_ROCKETS      =    1;
 float   AMMOWEAPONOVERFLOW_CELLS        =    5;
 
-float   AMMO_SHELLS                     =   20; // double if big box
-float   AMMO_NAILS                      =   25; // double if big box
-float   AMMO_ROCKETS                    =    5; // double if big box
-float   AMMO_CELLS                      =   14; // double if big box
+float   AMMO_SHELLS                     =   50; // double if big box (was 20)
+float   AMMO_NAILS                      =   50; // double if big box (was 25)
+float   AMMO_ROCKETS                    =   10; // double if big box (was 5)
+float   AMMO_CELLS                      =   30; // double if big box (was 14)
 
 float   AMMO_GRUNT_PISTOL_ROUNDS        =   10;
-float   AMMO_GRUNT_SHOTGUN_SHELLS       =    5;
+float   AMMO_GRUNT_SHOTGUN_SHELLS       =   10; // 5
 float   AMMO_GRUNT_NAILGUN_ROUNDS       =   20;
 float   AMMO_ENFORCER_ROCKETS           =    5;
 float   AMMO_ENFORCER_PLASMACELLS       =   20;
