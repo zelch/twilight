@@ -50,6 +50,13 @@ void MatchTargets (void)
 			if (!strcmp(entities[j].targetname, entities[i].target))
 			{
 				entities[i].targetent = &entities[j];
+				// set up spotlight values for lighting code to use
+				VectorSubtract (entities[i].targetent->origin, entities[i].origin, entities[i].spotdir);
+				VectorNormalize (entities[i].spotdir);
+				if (!entities[i].angle)
+					entities[i].spotcone = -cos(20 * Q_PI / 180);
+				else
+					entities[i].spotcone = -cos(entities[i].angle / 2 * Q_PI / 180);
 				break;
 			}
 
@@ -67,7 +74,29 @@ void MatchTargets (void)
 			sprintf (s,"%i", entities[i].style);
 			SetKeyValue (&entities[i], "style", s);
 		}
-	}	
+
+		if (entities[i].spotcone <= 0)
+		{
+			VectorClear(entities[i].spotdir);
+			entities[i].spotcone = 0;
+		}
+	}
+}
+
+void WriteLights(void)
+{
+	int i;
+	FILE *f;
+	entity_t *e;
+	printf ("building .lights file\n");
+	f = fopen(lightsfilename, "wb");
+	for (i = 0;i < num_entities;i++)
+	{
+		e = entities + i;
+		if (e->light)
+			fprintf(f, "%f %f %f %f %f %f %f %f %f %f %f %f %f %d\n", (double) e->origin[0], (double) e->origin[1], (double) e->origin[2], (double) e->falloff, (double) e->color[0], (double) e->color[1], (double) e->color[2], (double) e->subbrightness, (double) e->spotdir[0], (double) e->spotdir[1], (double) e->spotdir[2], (double) e->spotcone, (double) e->lightoffset, e->style);
+	}
+	fclose(f);
 }
 
 
@@ -80,7 +109,7 @@ void LoadEntities (void)
 {
 	char 		*data;
 	entity_t	*entity;
-	char		key[64];	
+	char		key[64];
 	epair_t		*epair;
 	double		vec[4];
 	double		temp, color2[3];
@@ -95,7 +124,7 @@ void LoadEntities (void)
 	// go through all the entities
 	while (1)
 	{
-		// parse the opening brace	
+		// parse the opening brace
 		data = COM_Parse (data);
 		if (!data)
 			break;
@@ -112,6 +141,7 @@ void LoadEntities (void)
 		color2[0] = color2[1] = color2[2] = 1.0f;
 		entity->falloff = DEFAULTFALLOFF * DEFAULTFALLOFF;
 		entity->lightradius = 0;
+		entity->lightoffset = LIGHTDISTBIAS;
 
 		// go through all the keys in this entity
 		while (1)
@@ -258,6 +288,8 @@ void LoadEntities (void)
 	printf ("%d entities read\n", num_entities);
 
 	MatchTargets ();
+
+	WriteLights();
 }
 
 char 	*ValueForKey (entity_t *ent, char *key)

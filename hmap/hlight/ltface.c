@@ -404,16 +404,8 @@ void SingleLightFace (entity_t *light, lightinfo_t *l)
 		return;
 	}
 
-	spotcone = 0;
-	if (light->targetent)
-	{
-		VectorSubtract (light->targetent->origin, light->origin, spotvec);
-		VectorNormalize (spotvec);
-		if (!light->angle)
-			spotcone = -cos(20*Q_PI/180);
-		else
-			spotcone = -cos(light->angle/2*Q_PI/180);
-	}
+	spotcone = light->spotcone;
+	VectorCopy(light->spotdir, spotvec);
 
 //
 // check it for real

@@ -10,6 +10,8 @@
 #define MAXLIGHTS 1024
 #define LIGHTDISTBIAS 65536.0
 
+extern char lightsfilename[1024];
+
 void LoadNodes (char *file);
 qboolean TestLine (vec3_t start, vec3_t stop);
 

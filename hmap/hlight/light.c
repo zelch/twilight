@@ -10,7 +10,6 @@ NOTES
 */
 
 dmodel_t	*bspmodel;
-int			bspfileface;	// next surface to dispatch
 
 qboolean	lightvis;
 qboolean	relight;
@@ -18,6 +17,9 @@ qboolean	relight;
 int			extrasamplesbit; // power of 2 extra sampling (0 = 1x1 sampling, 1 = 2x2 sampling, 2 = 4x4 sampling, etc)
 vec_t		extrasamplesscale; // 1.0 / pointspersample (extrasamples related)
 vec_t		globallightscale;
+
+// filename to write light list to
+char lightsfilename[1024];
 
 byte currentvis[(MAX_MAP_LEAFS + 7) / 8];
 
@@ -236,9 +238,9 @@ light modelfile
 */
 int main (int argc, char **argv)
 {
-	int		i;
-	double		start, end;
-	char		source[1024];
+	char source[1024];
+	double start, end;
+	int i;
 
 // LordHavoc
 	printf ("hlight 1.04 by LordHavoc\n");
@@ -311,8 +313,10 @@ int main (int argc, char **argv)
 	strcpy (source, argv[i]);
 	StripExtension (source);
 	strcpy (litfilename, source);
+	strcpy (lightsfilename, source);
 	DefaultExtension (source, ".bsp");
 	DefaultExtension (litfilename, ".lit");
+	DefaultExtension (lightsfilename, ".lights");
 
 	LoadBSPFile (source);
 	memset(dlightdata, 0, sizeof(dlightdata));
