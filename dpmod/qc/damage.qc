@@ -11,13 +11,13 @@ float   AMMOMAX_ROCKETS         =  100;
 float   AMMOMAX_CELLS           =  200;
 float   AMMOMAX_XSHELLS         =  100;
 
-float   STARTDM_AMMO_SHELLS      =    0;
+float   STARTDM_AMMO_SHELLS      =    20;
 float   STARTDM_AMMO_NAILS       =    0;
 float   STARTDM_AMMO_ROCKETS     =    0;
 float   STARTDM_AMMO_CELLS       =    0;
 float   STARTDM_AMMO_XSHELLS     =    0;
 
-float   STARTSP_AMMO_SHELLS      =    0;
+float   STARTSP_AMMO_SHELLS      =    20;
 float   STARTSP_AMMO_NAILS       =    0;
 float   STARTSP_AMMO_ROCKETS     =    0;
 float   STARTSP_AMMO_CELLS       =    0;
