@@ -5,13 +5,6 @@
 
 	box ("title", "Project Stats");
 
-	function print_loc ($line)
-	{
-		echo (ereg_replace ("^(.*[^ ]) (.*)$",
-				"<tr><td>\\1</td><td>\\2</td></tr>", $line)
-		);
-	}
-
 	box ("para", "This page includes information on the current state of\n" .
 		"the project.&nbsp; Some of it may even be useful information.\n"
 	);
@@ -25,9 +18,9 @@
 		);
 
 		echo ("<table>");
+		readfile ($pageroot . "/../cvs-snap/loc");
+		echo ("</table");
 
-		$loc = file ($pageroot . "/../cvs-snap/loc");
-		array_walk ($authors, 'print_loc');
 	}
 
 	require ($pageroot . "/include/footer.php");
