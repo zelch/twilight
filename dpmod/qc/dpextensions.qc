@@ -291,7 +291,7 @@ bsp/md2/md3 examples:
 example names for the texture "quake" of model "maps/start.bsp":
 game/override/quake.tga
 game/textures/quake.tga
-game/progs/quake.tga
+game/quake.tga
 
 sbar/menu/console textures: for example the texture "conchars" (console font) in gfx.wad
 game/override/gfx/conchars.tga
