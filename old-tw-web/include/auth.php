@@ -42,23 +42,4 @@ function get_auth($user, $pass) {
 	}
 	return NULL;
 }
-/*
-function get_auth($want_admin) {
-	if(sqlAvail) {
-		if(!isset($user)) {
-			notauth();
-		} else {
-			if (!($authdata = checkauth($want_admin)))
-				notauth();
-		}
-	} else {
-		$title = "Authorization system error";
-		require ($pageroot . "/include/header.php");
-		box("para", "There is no SQL server available to authenticate users. Please try back later.\n");
-		require ($pageroot . "/include/footer.php");
-		exit;
-	}
-	return $authdata;
-}
-*/
 ?>
