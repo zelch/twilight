@@ -62,90 +62,107 @@ float K_PGUP	=	150;
 float K_HOME	=	151;
 float K_END		=	152;
 
-float K_KP_HOME			=	160;
-float K_KP_UPARROW		=	161;
-float K_KP_PGUP			=	162;
-float K_KP_LEFTARROW	=	163;
-float K_KP_5			=	164;
-float K_KP_RIGHTARROW	=	165;
-float K_KP_END			=	166;
-float K_KP_DOWNARROW	=	167;
-float K_KP_PGDN			=	168;
-float K_KP_ENTER		=	169;
-float K_KP_INS   		=	170;
-float K_KP_DEL			=	171;
-float K_KP_SLASH		=	172;
-float K_KP_MINUS		=	173;
-float K_KP_PLUS			=	174;
+float K_PAUSE	=	153;
 
-float K_PAUSE		=	255;
+float K_NUMLOCK		= 154;
+float K_CAPSLOCK	= 155;
+float K_SCROLLLOCK	= 156;
+
+float K_KP_0	=	157;
+float K_KP_INS	=	K_KP_0;
+float K_KP_1	=	158;
+float K_KP_END	=	K_KP_1;
+float K_KP_2	=	159;
+float K_KP_DOWNARROW = K_KP_2;
+float K_KP_3	=	160;
+float K_KP_PGDN = K_KP_3;
+float K_KP_4	=	161
+float K_KP_LEFTARROW = K_KP_4;
+float K_KP_5	=	162;
+float K_KP_6	=	163;
+float K_KP_RIGHTARROW = K_KP_6;
+float K_KP_7	=	164;
+float K_KP_HOME = K_KP_7;
+float K_KP_8	=	165;
+float K_KP_UPARROW = K_KP_8;
+float K_KP_9	= 166;
+float K_KP_PGUP = K_KP_9;
+float K_KP_PERIOD = 167;
+float K_KP_DEL = K_KP_PERIOD;
+float K_KP_DIVIDE = 168;
+float K_KP_SLASH = K_KP_DIVIDE;
+float K_KP_MULTIPLY = 169;
+float K_KP_MINUS	= 170;
+float K_KP_PLUS		= 171;
+float K_KP_ENTER	= 172;
+float K_KP_EQUALS	= 173;
+
+// mouse buttons generate virtual keys
+
+float K_MOUSE1	=	512;
+float K_MOUSE2	=	513;
+float K_MOUSE3	=	514;
+float K_MOUSE4	=	515;
+float K_MWHEELUP = K_MOUSE4;
+float K_MOUSE5	=	516;
+float K_MWHEELDOWN = K_MOUSE5;
+float K_MOUSE6	=	517;
+float K_MOUSE7	=	518;
+float K_MOUSE8	=	519;
+float K_MOUSE9	=	520;
+float K_MOUSE10	=	521;
+float K_MOUSE11	=	522;
+float K_MOUSE12	=	523;
+float K_MOUSE13	=	524;
+float K_MOUSE14	=	525;
+float K_MOUSE15	=	526;
+float K_MOUSE16	=	527;
 
 //
 // joystick buttons
 //
-float K_JOY1		=	203;
-float K_JOY2		=	204;
-float K_JOY3		=	205;
-float K_JOY4		=	206;
+float K_JOY1 = 768;
+float K_JOY2 = 769;
+float K_JOY3 = 770;
+float K_JOY4 = 771;
 
+//
 //
 // aux keys are for multi-buttoned joysticks to generate so they can use
 // the normal binding process
 //
-float K_AUX1		=	207;
-float K_AUX2		=	208;
-float K_AUX3		=	209;
-float K_AUX4		=	210;
-float K_AUX5		=	211;
-float K_AUX6		=	212;
-float K_AUX7		=	213;
-float K_AUX8		=	214;
-float K_AUX9		=	215;
-float K_AUX10		=	216;
-float K_AUX11		=	217;
-float K_AUX12		=	218;
-float K_AUX13		=	219;
-float K_AUX14		=	220;
-float K_AUX15		=	221;
-float K_AUX16		=	222;
-float K_AUX17		=	223;
-float K_AUX18		=	224;
-float K_AUX19		=	225;
-float K_AUX20		=	226;
-float K_AUX21		=	227;
-float K_AUX22		=	228;
-float K_AUX23		=	229;
-float K_AUX24		=	230;
-float K_AUX25		=	231;
-float K_AUX26		=	232;
-float K_AUX27		=	233;
-float K_AUX28		=	234;
-float K_AUX29		=	235;
-float K_AUX30		=	236;
-float K_AUX31		=	237;
-float K_AUX32		=	238;
-
-float K_MWHEELDOWN	=	239;
-float K_MWHEELUP	=	240;
-
-//
-// mouse buttons generate virtual keys
-//
-float K_MOUSE1		=	241;
-float K_MOUSE2		=	242;
-float K_MOUSE3		=	243;
-// LordHavoc: thanks to backslash for this MOUSE4 and MOUSE5 code,
-// LordHavoc: however I renumbered it differently and added MOUSE6 through MOUSE10
-/* backslash :: imouse explorer buttons */
-float K_MOUSE4		=	244;
-float K_MOUSE5		=	245;
-/* backslash :: renumber everything that follows so that the mouse4/5 buttons can be squeezed in */
-// LordHavoc: added these for completeness
-float K_MOUSE6		=	246;
-float K_MOUSE7		=	247;
-float K_MOUSE8		=	248;
-float K_MOUSE9		=	249;
-float K_MOUSE10		=	250;
+float K_AUX1	=	772;
+float K_AUX2	=	773;
+float K_AUX3	=	774;
+float K_AUX4	=	775;
+float K_AUX5	=	776;
+float K_AUX6	=	777;
+float K_AUX7	=	778;
+float K_AUX8	=	779;
+float K_AUX9	=	780;
+float K_AUX10	=	781;
+float K_AUX11	=	782;
+float K_AUX12	=	783;
+float K_AUX13	=	784;
+float K_AUX14	=	785;
+float K_AUX15	=	786;
+float K_AUX16	=	787;
+float K_AUX17	=	788;
+float K_AUX18	=	789;
+float K_AUX19	=	790;
+float K_AUX20	=	791;
+float K_AUX21	=	792;
+float K_AUX22	=	793;
+float K_AUX23	=	794;
+float K_AUX24	=	795;
+float K_AUX25	=	796;
+float K_AUX26	=	797;
+float K_AUX27	=	798;
+float K_AUX28	=	799;
+float K_AUX29	=	800;
+float K_AUX30	=	801;
+float K_AUX31	=	802;
+float K_AUX32	=	803;
 
 ///////////////////////////
 // key dest constants
