@@ -595,7 +595,7 @@ if (defined($files[1]) && defined($files[2]) &&
 
     # Build the message...
     push(@text, build_header($modname, "Module $modname: New directory $dir",
-	 \@mailto, @branch_tags);
+	 \@mailto, @branch_tags));
     push(@text, "Log message:", "", @log);
 
     # and send it (synchronously)
