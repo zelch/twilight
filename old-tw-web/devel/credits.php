@@ -1,5 +1,4 @@
 <?php
-	$section = "Development";
 	$title = "Credits";
 	$pageroot = "..";
 	require ($pageroot . "/include/header.php");
