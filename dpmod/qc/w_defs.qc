@@ -52,6 +52,7 @@ float WR_SETUP = 4;
 float WR_INSTANTSETUP = 5;
 float WR_ANIMATIONFRAME = 6;
 float WR_ANIMATIONFINISH = 7;
+float WR_AIM = 8;
 
 float WANIM_READY = 0;
 float WANIM_RAISE = 1;

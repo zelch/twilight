@@ -2,9 +2,9 @@ float maxspeed;
 float havocbot_bestrating;
 entity havocbot_bestgoal;
 
-void() markroutes;
-void(entity e) routetogoal;
-void(entity e, float f) routerating;
+void() havocbot_markroutes;
+void(entity e) havocbot_routetogoal;
+void(entity e, float f) havocbot_routerating;
 //float(entity e) routedist;
 //entity() choosebestroute;
 
@@ -12,12 +12,12 @@ void() havocbot_goalrating_start =
 {
 	havocbot_bestrating = -1;
 	havocbot_bestgoal = world;
-	markroutes();
+	havocbot_markroutes();
 };
 
 void() havocbot_goalrating_end =
 {
-	routetogoal(havocbot_bestgoal);
+	havocbot_routetogoal(havocbot_bestgoal);
 };
 
 void(float ratingscale, vector org, float sradius) havocbot_goalrating_items =
@@ -38,7 +38,7 @@ void(float ratingscale, vector org, float sradius) havocbot_goalrating_items =
 			t = head.pickupevalfunc(self, head) * 0.0001;
 			if (t > 0)
 			{
-				routerating(head, t * ratingscale);
+				havocbot_routerating(head, t * ratingscale);
 			}
 		}
 		head = head.chain;
@@ -54,7 +54,7 @@ void(float ratingscale, vector org, float sradius) havocbot_goalrating_monsters 
 	{
 		if (head.health > 0)
 		if (vlen(head.origin - org) < sradius)
-			routerating(head, ratingscale);
+			havocbot_routerating(head, ratingscale);
 		head = head.chain;
 	}
 };
@@ -77,7 +77,7 @@ void(float ratingscale, vector org, float sradius) havocbot_goalrating_enemyplay
 				t = 1;
 			t = t / (head.health + head.armortype * head.armorvalue);
 			if (t > 0)
-				routerating(head, t * ratingscale);
+				havocbot_routerating(head, t * ratingscale);
 		}
 		head = head.chain;
 	}
@@ -101,7 +101,7 @@ void(float ratingscale, vector org, float sradius) havocbot_goalrating_ctf_carri
 			// get the value of the item
 			t = head.pickupevalfunc(self, head) * 0.0001;
 			if (t > 0)
-				routerating(head, t * ratingscale);
+				havocbot_routerating(head, t * ratingscale);
 		}
 		head = head.chain;
 	}
@@ -114,7 +114,7 @@ void(float ratingscale) havocbot_goalrating_ctf_ourflag =
 		head = find(world, classname, "item_flag_team1"); // red flag
 	else // blue
 		head = find(world, classname, "item_flag_team2"); // blue flag
-	routerating(head, ratingscale);
+	havocbot_routerating(head, ratingscale);
 };
 
 void(float ratingscale) havocbot_goalrating_ctf_enemyflag =
@@ -124,7 +124,7 @@ void(float ratingscale) havocbot_goalrating_ctf_enemyflag =
 		head = find(world, classname, "item_flag_team2"); // blue flag
 	else // blue
 		head = find(world, classname, "item_flag_team1"); // red flag
-	routerating(head, ratingscale);
+	havocbot_routerating(head, ratingscale);
 };
 
 void(float ratingscale) havocbot_goalrating_ctf_ourstolenflag =
@@ -135,7 +135,7 @@ void(float ratingscale) havocbot_goalrating_ctf_ourstolenflag =
 	else // blue
 		head = find(world, classname, "item_flag_team2"); // blue flag
 	if (head.cnt != FLAG_BASE)
-		routerating(head, ratingscale);
+		havocbot_routerating(head, ratingscale);
 };
 
 void(float ratingscale) havocbot_goalrating_ctf_droppedflags =
@@ -151,9 +151,9 @@ void(float ratingscale) havocbot_goalrating_ctf_droppedflags =
 		error("havocbot: item_flag_team2 missing\n");
 
 	if (redflag.cnt != FLAG_BASE) // red flag is carried or out in the field
-		routerating(redflag, ratingscale);
+		havocbot_routerating(redflag, ratingscale);
 	if (blueflag.cnt != FLAG_BASE) // blue flag is carried or out in the field
-		routerating(blueflag, ratingscale);
+		havocbot_routerating(blueflag, ratingscale);
 };
 
 .float havocbot_role_timeout;
@@ -203,7 +203,7 @@ void() havocbot_chooserole_ctf =
 
 void() havocbot_chooserole =
 {
-	routetogoal(world);
+	havocbot_routetogoal(world);
 	self.goaltime = -1;
 	self.havocbot_role = SUB_Null;
 	if (deathmatch == DM_NONE)
