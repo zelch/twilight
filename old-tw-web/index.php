@@ -1,6 +1,12 @@
 <?php
 	$page = "News";
-	require ("include/header.php");
+	$pageroot = ".";
+	require ($pageroot . "/include/header.php");
+
+	newsitem ("22 Jul 2001", "Knghtbrd", "The website will now be updated " .
+		"automatically shortly after someone commits changes.  Stub pages " .
+		"for the main site sections are now up."
+	);
 
 	newsitem ("22 Jul 2001", "Knghtbrd", "The website is finally online!  " .
 		"Well, sortof anyway.  The index page is all there is right now, " .
@@ -16,5 +22,5 @@
 		
 	);
 
-	require ("include/footer.php");
+	require ($pageroot . "/include/footer.php");
 ?>

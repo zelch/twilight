@@ -1,5 +1,5 @@
 <?php
-	require ("include/browser-detect.php");
+	require ($pageroot . "/include/browser-detect.php");
 
 	if ($browser_css) {
 		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"" .
@@ -9,8 +9,8 @@
 			"Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
 	}
 	echo ("<html>\n<head>\n<title>Project Twilight: " . $page . "</title>\n");
-	require ("config/default.php");
-	require ("include/functions.php");
+	require ($pageroot . "/config/default.php");
+	require ($pageroot . "/include/functions.php");
 
 	echo ("</head>\n");
 	if ($browser_css) {
@@ -39,3 +39,4 @@
 	box ("nav", $nav_str);
 
 ?>
+

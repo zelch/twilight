@@ -1,6 +1,6 @@
 <?php
 	$display = array (
-		logo => "images/twilight.gif" ,
+		logo => "/images/twilight.gif" ,
 		body => "text=\"#ffffff\" bgcolor=\"#000000\"" .
 				"alink=\"#0080ff\" vlink=\"#0080ff\" link=\"#0080ff\"",
 		basefont => "face=\"verdana, arial\"" ,
@@ -47,7 +47,9 @@ a {
 
 div.header {
 	width: 100%;
-	background: #000440 url(images/hdrbar.jpg) repeat-y;
+	background: #000440
+		url(/images/hdrbar.jpg)
+		repeat-y;
 }
 
 div.footer {
@@ -93,11 +95,11 @@ div.plugs {
 	}
 
 	$nav_items = array (
-		News => "index.php" ,
-		Downloads => "files/index.php" ,
-		Development => "devel/index.php" ,
-		Links => "links.php" ,
-		Contact => "contact.php"
+		News => "/index.php" ,
+		Downloads => "/files/index.php" ,
+		Development => "/devel/index.php" ,
+		Links => "/links.php" ,
+		Contact => "/contact.php"
 	);
 ?>
 

@@ -53,7 +53,7 @@
 
 	function newsitem ($date, $submitter, $content)
 	{
-		titlebox ("news", "posted " . $date . "now by " . $submitter,
+		titlebox ("news", "posted " . $date . " by " . $submitter,
 			$content);
 	}
 ?>
