@@ -44,7 +44,7 @@ void() MineExplode =
 		v_x = 0 - v_x;
 		makevectors(v);
 		shotorg = self.origin;
-		FireBullets(self.owner, self, -1, 4, self.dmg / 4, self.dmg / 4, 0, 0, v_forward * 7000, 0.05, "LASERTRIPMINEDIRECT", DT_NAIL, self.obitfunc1);
+		FireBullets(self.owner, self, -1, 4, self.dmg / 4, self.dmg / 4, 0, 0, v_forward * 10000, 0.05, "LASERTRIPMINEDIRECT", DT_NAIL, self.obitfunc1);
 		Explosion(self.origin, self.owner, self.dmg, self.dmg2, "LASERTRIPMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	}
 	else if (self.lefty == 3)

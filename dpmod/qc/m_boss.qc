@@ -12,7 +12,7 @@ $skin skin
 $scale 5
 
 $frame rise1 rise2 rise3 rise4 rise5 rise6 rise7 rise8 rise9 rise10
-$frame rise11 rise12 rise13 rise14 rise15 rise16 rise17 
+$frame rise11 rise12 rise13 rise14 rise15 rise16 rise17
 
 $frame walk1 walk2 walk3 walk4 walk5 walk6 walk7 walk8
 $frame walk9 walk10 walk11 walk12 walk13 walk14 walk15
@@ -27,11 +27,11 @@ $frame attack16 attack17 attack18 attack19 attack20 attack21 attack22
 $frame attack23
 
 $frame shocka1 shocka2 shocka3 shocka4 shocka5 shocka6 shocka7 shocka8
-$frame shocka9 shocka10 
+$frame shocka9 shocka10
 
 $frame shockb1 shockb2 shockb3 shockb4 shockb5 shockb6
 
-$frame shockc1 shockc2 shockc3 shockc4 shockc5 shockc6 shockc7 shockc8 
+$frame shockc1 shockc2 shockc3 shockc4 shockc5 shockc6 shockc7 shockc8
 $frame shockc9 shockc10
 
 void(vector org, float bodydamage, float armordamage, vector vel, float damgtype) chthonbleedfunc =
@@ -215,11 +215,11 @@ void(vector p) boss_missile =
 	local vector org, vec, d;
 	local float t, shotspeed;
 
-	shotspeed = (400*monsterhealthscale);
+	shotspeed = 400;
 	if (shotspeed > 1000)
 		shotspeed = 1000;
 
-	//offang = vectoangles (self.enemy.origin - self.origin); 
+	//offang = vectoangles (self.enemy.origin - self.origin);
 	//makevectors (offang);
 	//vectorvectors (self.enemy.origin - self.origin);
 	makevectors (self.angles);

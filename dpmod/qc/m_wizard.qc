@@ -8,7 +8,7 @@ WIZARD
 
 $cd id1/models/a_wizard
 $origin 0 0 24
-$base wizbase	
+$base wizbase
 $skin wizbase
 
 $frame hover1 hover2 hover3 hover4 hover5 hover6 hover7 hover8
@@ -34,7 +34,7 @@ WizardCheckAttack
 */
 float()	WizardCheckAttack =
 {
-	local vector	spot1, spot2;	
+	local vector	spot1, spot2;
 	local entity	targ;
 	local float		chance;
 
@@ -50,9 +50,9 @@ float()	WizardCheckAttack =
 		}
 		return FALSE;
 	}
-		
+
 	targ = self.enemy;
-	
+
 // see if any entities are in the way of the shot
 	spot1 = self.origin + self.view_ofs;
 	spot2 = targ.origin + targ.view_ofs;
@@ -68,7 +68,7 @@ float()	WizardCheckAttack =
 		}
 		return FALSE;
 	}
-			
+
 	if (enemy_range == RANGE_MELEE)
 		chance = 0.9;
 	else if (enemy_range == RANGE_NEAR)
@@ -100,7 +100,7 @@ float()	WizardCheckAttack =
 			wiz_side1 ();
 		}
 	}
-	
+
 	return FALSE;
 };
 
@@ -370,7 +370,7 @@ void() monster_wizard =
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (self.health < 1)
 		self.health = MH_WIZARD;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_WIZARD;
 	self.bleedratio = 0.5; // magical, bleeding matters less
 

@@ -381,7 +381,7 @@ void() monster_dog =
 	setsize (self, '-16 -16 -24', '16 16 12');
 	if (!self.health)
 		self.health = MH_DOG;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_DOG;
 	self.bleedratio = 0.75; // hardwired chemical enhanced dogs
 

@@ -128,12 +128,12 @@ void()	knight_atk10=[	$attackb10,		knight_run1	] {ai_charge(5);};
 void() knight_attack =
 {
 	local float		len;
-	
+
         if (self.health < 1)
                 return;
 // decide if now is a good swing time
 	len = vlen(self.enemy.origin+self.enemy.view_ofs - (self.origin+self.view_ofs));
-	
+
 	if (len<80)
 		knight_atk1 ();
 	else
@@ -166,7 +166,7 @@ void(entity attacker, float damage)	knight_pain =
 		return;
 
 	r = random();
-	
+
 	sound (self, CHAN_VOICE, "knight/khurt.wav", 1, ATTN_NORM);
 	if (r < 0.85)
 	{
@@ -178,7 +178,7 @@ void(entity attacker, float damage)	knight_pain =
 		knight_painb1 ();
 		self.pain_finished = time + 1;
 	}
-	
+
 };
 
 //===========================================================================
@@ -298,7 +298,7 @@ void() monster_knight =
 	setsize (self, '-16 -16 -24', '16 16 24');
 	if (!self.health)
 		self.health = MH_KNIGHT;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_KNIGHT;
 	self.bleedratio = 0.5; // not much health damage due to armor
 

@@ -6,8 +6,6 @@ END OF LEVEL RUNES
 ===============================================================================
 */
 
-float   monsterhealthscale;
-
 void() sigil_touch =
 {
 	// local entity    stemp, head;
@@ -69,7 +67,7 @@ void() item_sigil =
 		precache_model2 ("progs/end4.mdl");
 		setmodel (self, "progs/end4.mdl");
 	}
-	
+
 	self.touch = sigil_touch;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	StartItem ();

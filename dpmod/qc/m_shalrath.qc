@@ -14,7 +14,7 @@ $scale 0.7
 $frame attack1 attack2 attack3 attack4 attack5 attack6 attack7 attack8
 $frame attack9 attack10 attack11
 
-$frame pain1 pain2 pain3 pain4 pain5 
+$frame pain1 pain2 pain3 pain4 pain5
 
 $frame death1 death2 death3 death4 death5 death6 death7
 
@@ -259,7 +259,7 @@ void() monster_shalrath =
 	setsize (self, '-32 -32 -24', '32 32 32');
 	if (!self.health)
 		self.health = MH_SHALRATH;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_SHALRATH;
 	self.bleedratio = 0.75; // alive but tough
 

@@ -78,13 +78,16 @@ void() weapon_touch =
 	activator = other;
 	SUB_UseTargets();				// fire all targets / killtargets
 
-	// remove it in single player, or setup for respawning in deathmatch
-	self.model = "";
-	self.solid = SOLID_NOT;
-	self.think = SUB_regen;
-	self.nextthink = time + RESPAWNTIME_WEAPON;
-	if (!itemrespawn)
-		remove(self);
+	if (deathmatch != 2)
+	{
+		// remove it in single player, or setup for respawning in deathmatch
+		self.model = "";
+		self.solid = SOLID_NOT;
+		self.think = SUB_regen;
+		self.nextthink = time + RESPAWNTIME_WEAPON;
+		if (!itemrespawn)
+			remove(self);
+	}
 };
 
 float(entity player, entity item) item_weapon_pickupeval =

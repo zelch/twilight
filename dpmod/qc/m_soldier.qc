@@ -492,7 +492,7 @@ void() monster_army =
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (self.health < 1)
 		self.health = MH_GRUNT;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_GRUNT;
 	self.bleedratio = 0.75; // hardwired zombie, bleeding means less
 

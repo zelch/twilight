@@ -31,7 +31,7 @@ void(float shots) W_SuperNailgunFireCode =
 		w_muzzleflash(shotorg, 1);
 		ang = self.v_angle;ang_x = 0 - ang_x;
 		ejectcasing(shotorg, v_right * 200 + v_up * 50, 50, ang, '0 50 0', 100, 0);
-		FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
+		FireBullets(self, self, 4, 1, 15, 15, 0, 0, shotdir * 12000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
 	}
 	shotorg = v;
 };
@@ -83,7 +83,7 @@ void() W_SuperNailgunMineFireCode =
 		a = Inventory_Quantity(self, "rockets");
 	Inventory_AdjustQuantity(self, "rockets", 0 - a);
 	w_muzzleflash(shotorg, 3);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100 * damagescale, a * 100 + 50, 20 * damagescale, 10 * damagescale, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100, a * 100 + 50, 20, 10, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
 };
 
 void() w_snailgundrop1;

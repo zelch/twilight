@@ -393,7 +393,7 @@ void() monster_enforcer =
 	setsize (self, '-16 -16 -24', '16 16 24');
 	if (!self.health)
 		self.health = MH_ENFORCER;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_ENFORCER;
 	self.bleedratio = 0.25; // not much health damage due to armor suit
 	self.radsuit_finished = 99999999;

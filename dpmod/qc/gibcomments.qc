@@ -1,25 +1,25 @@
 
 void() gibcomment_precache =
 {
-        /*
-        // gib comments (most lines are by Lord Havoc,
-        //               and all performed by Lord Havoc)
-        precache_sound("speech/gib/awesome.wav");
-        precache_sound("speech/gib/cool.wav");
-        precache_sound("speech/gib/gibsjust.wav");
-        precache_sound("speech/gib/groovy.wav");
-        precache_sound("speech/gib/hehehmes.wav");
-        precache_sound("speech/gib/lookbetr.wav");
-        precache_sound("speech/gib/mmmgibs.wav");
-        precache_sound("speech/gib/niceday.wav");
-        precache_sound("speech/gib/whatames.wav");
-        precache_sound("speech/gib/whoa.wav");
-        precache_sound("speech/gib/xtrachnk.wav");
-        // these lines were submitted by Terrorist
-        precache_sound("speech/gib/aisle12.wav");
-        precache_sound("speech/gib/scrapeof.wav");
-        precache_sound("speech/gib/needamop.wav");
-        */
+	/*
+	// gib comments (most lines are by Lord Havoc,
+	//               and all performed by Lord Havoc)
+	precache_sound("speech/gib/awesome.wav"); // awesome
+	precache_sound("speech/gib/cool.wav"); // cool
+	precache_sound("speech/gib/gibsjust.wav"); // gibs, just the way I like 'em
+	precache_sound("speech/gib/groovy.wav"); // groovy
+	precache_sound("speech/gib/hehehmes.wav"); // heheh, messy
+	precache_sound("speech/gib/lookbetr.wav"); // you look better dead
+	precache_sound("speech/gib/mmmgibs.wav"); // mmm... gibs...
+	precache_sound("speech/gib/niceday.wav"); // nice day for some gibbing
+	precache_sound("speech/gib/whatames.wav"); // what a mess
+	precache_sound("speech/gib/whoa.wav"); // whoa
+	precache_sound("speech/gib/xtrachnk.wav"); // extra chunky
+	// these lines were submitted by Terrorist
+	precache_sound("speech/gib/aisle12.wav"); // cleanup in aisle 12
+	precache_sound("speech/gib/scrapeof.wav"); // scrape him off the wall
+	precache_sound("speech/gib/needamop.wav"); // I need a mop
+	*/
 };
 
 // .float  dogibcomment;
@@ -33,7 +33,7 @@ void(entity e) DoGibComment =
         // chance of comment goes up with more gibs
         // note that this number includes how long they were seen
         c = floor(random()*20);
-        if (e.seengibs < c)     
+        if (e.seengibs < c)
                 return;
         */
         /*

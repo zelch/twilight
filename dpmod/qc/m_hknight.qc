@@ -43,9 +43,9 @@ $frame slice1 slice2 slice3 slice4 slice5 slice6 slice7 slice8 slice9 slice10
 $frame smash1 smash2 smash3 smash4 smash5 smash6 smash7 smash8 smash9 smash10
 $frame smash11
 
-$frame w_attack1 w_attack2 w_attack3 w_attack4 w_attack5 w_attack6 w_attack7 
+$frame w_attack1 w_attack2 w_attack3 w_attack4 w_attack5 w_attack6 w_attack7
 $frame w_attack8 w_attack9 w_attack10 w_attack11 w_attack12 w_attack13 w_attack14
-$frame w_attack15 w_attack16 w_attack17 w_attack18 w_attack19 w_attack20 
+$frame w_attack15 w_attack16 w_attack17 w_attack18 w_attack19 w_attack20
 $frame w_attack21 w_attack22
 
 $frame magicc1 magicc2 magicc3 magicc4 magicc5 magicc6 magicc7 magicc8
@@ -66,7 +66,7 @@ Returns FALSE if movement should continue
 */
 float() HellKnightCheckAttack =
 {
-	local vector	spot1, spot2;	
+	local vector	spot1, spot2;
 	local entity	targ;
 	local float		chance;
 
@@ -585,7 +585,7 @@ void(entity attacker, float damage)	hknight_pain =
 		self.pain_finished = time + 1;
 		return;
 	}
-	
+
 	if ((random()*30 > damage) )
 		return;		// didn't flinch
 
@@ -791,7 +791,7 @@ void() monster_hell_knight =
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (!self.health)
 		self.health = MH_HELLKNIGHT;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_HELLKNIGHT;
 	self.bleedratio = 0.25; // not much health damage due to armor
 	// fire immunity

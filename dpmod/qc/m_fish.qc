@@ -1,22 +1,22 @@
 $cd id1/models/fish
 $origin 0 0 24
-$base base		
+$base base
 $skin skin
 
-$frame attack1 attack2 attack3 attack4 attack5 attack6 
-$frame attack7 attack8 attack9 attack10 attack11 attack12 attack13 
-$frame attack14 attack15 attack16 attack17 attack18 
+$frame attack1 attack2 attack3 attack4 attack5 attack6
+$frame attack7 attack8 attack9 attack10 attack11 attack12 attack13
+$frame attack14 attack15 attack16 attack17 attack18
 
-$frame death1 death2 death3 death4 death5 death6 death7 
-$frame death8 death9 death10 death11 death12 death13 death14 death15 
-$frame death16 death17 death18 death19 death20 death21 
+$frame death1 death2 death3 death4 death5 death6 death7
+$frame death8 death9 death10 death11 death12 death13 death14 death15
+$frame death16 death17 death18 death19 death20 death21
 
-$frame swim1 swim2 swim3 swim4 swim5 swim6 swim7 swim8 
-$frame swim9 swim10 swim11 swim12 swim13 swim14 swim15 swim16 swim17 
-$frame swim18 
+$frame swim1 swim2 swim3 swim4 swim5 swim6 swim7 swim8
+$frame swim9 swim10 swim11 swim12 swim13 swim14 swim15 swim16 swim17
+$frame swim18
 
-$frame pain1 pain2 pain3 pain4 pain5 pain6 pain7 pain8 
-$frame pain9 
+$frame pain1 pain2 pain3 pain4 pain5 pain6 pain7 pain8
+$frame pain9
 
 void() swimmonster_start;
 
@@ -201,7 +201,7 @@ void() monster_fish =
 	setsize (self, '-16 -16 -24', '16 16 16');
 	if (!self.health)
 		self.health = MH_ROTFISH;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_ROTFISH;
 	self.candrown = 0;
 	self.bleedratio = 0.5; // rotfish are animated dead

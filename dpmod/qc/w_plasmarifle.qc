@@ -53,7 +53,7 @@ void(float shots, float cellspershot, float damagepercell, float r) W_PlasmaRifl
 			self.plasmabarrel = 0;
 			v = v_right * -1.4 + v_up * -1.4;
 		}
-		FirePlasma(self, shotorg + v, (shotdir + v * 0.005) * 5000, damagepercell * cells * damagescale, r, "PLASMARIFLE", Obituary_PlasmaRifle);
+		FirePlasma(self, shotorg + v, (shotdir + v * 0.005) * 25000, damagepercell * cells, r, "PLASMARIFLE", Obituary_PlasmaRifle);
 	}
 };
 
@@ -68,9 +68,9 @@ void() W_PlasmaRifleFireOverload2 =
 	self.wfiretime = time;
 	d = self.woverload * 20;
 	r = 120;
-	v = v_up    *  2                    ;FirePlasma(self, shotorg + v, (shotdir + v * 0.005) * 10000, d * damagescale, r, "PLASMARIFLE", Obituary_PlasmaRifle);
-	v = v_right *  1.414 + v_up * -1.414;FirePlasma(self, shotorg + v, (shotdir + v * 0.005) * 10000, d * damagescale, r, "PLASMARIFLE", Obituary_PlasmaRifle);
-	v = v_right * -1.414 + v_up * -1.414;FirePlasma(self, shotorg + v, (shotdir + v * 0.005) * 10000, d * damagescale, r, "PLASMARIFLE", Obituary_PlasmaRifle);
+	v = v_up    *  2                    ;FirePlasma(self, shotorg + v, (shotdir + v * 0.005) * 10000, d, r, "PLASMARIFLE", Obituary_PlasmaRifle);
+	v = v_right *  1.414 + v_up * -1.414;FirePlasma(self, shotorg + v, (shotdir + v * 0.005) * 10000, d, r, "PLASMARIFLE", Obituary_PlasmaRifle);
+	v = v_right * -1.414 + v_up * -1.414;FirePlasma(self, shotorg + v, (shotdir + v * 0.005) * 10000, d, r, "PLASMARIFLE", Obituary_PlasmaRifle);
 };
 */
 

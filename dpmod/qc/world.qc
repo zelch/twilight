@@ -1,15 +1,12 @@
 
 float maxclients; // how many player slots there actually are
 entity modechecker;
-float monsterdamagescale;
-float monsterhealthscale; // set based on coop
 
 .float dmgtime;
 .float candrown;
 .float drown_finished;
 
 void() player_precache;
-void() skillupdate;
 void() damagescaleupdate;
 
 entity lastspawn;
@@ -414,7 +411,7 @@ void() worldspawn =
 
 	// 3 CANDLE (first variety)
 	lightstyle(3, "mmmmmaaaaammmmmaaaaaabcdefgabcdefg");
-	
+
 	// 4 FAST STROBE
 	lightstyle(4, "mamamamamama");
 
@@ -446,7 +443,6 @@ void() worldspawn =
 
 	precache_sound ("player/udeath.wav");		// gib death
 
-	skillupdate();
 	damagescaleupdate();
 
 	modesetup();
@@ -713,26 +709,22 @@ void(entity e) WaterMove =
 	}
 };
 
-void() skillupdate =
+void() damagescaleupdate =
 {
+	local float f;
 	skill = cvar("skill");
 	// skill 0 =  25%
 	// skill 1 =  50%
 	// skill 2 =  75%
 	// skill 3 = 100%
 	monsterdamagescale = (skill + 1) / 4;
-	monsterhealthscale = coop; // 1 = 1x, and so on up
-	if (monsterhealthscale < 0.1) // 0 also means 1
-		monsterhealthscale = 1;
-};
-
-void() damagescaleupdate =
-{
-	damagescale = (cvar("temp1") & 127) * 0.05;
-	if (damagescale < 0.1)
-		damagescale = 1.0; // 20 - default scale
-	if (damagescale > 6.0)
-		damagescale = 6.0; // 120
+	f = cvar("coop"); // 1 = 1x health, and so on up
+	if (f < 0.1)
+		f = 1;
+	monsterresistancescale = 1 / f;
+	playerdamagescale = (cvar("temp1") & 127) * 0.05;
+	if (playerdamagescale < 0.1)
+		playerdamagescale = 1.0; // 20 - default scale
 	// 100% is pretty realistic damage
 	// (does lack all the vital organs and other details though...)
 	// 10% is basically Quake damage (pitiful)

@@ -497,7 +497,7 @@ void() monster_ogre =
 	setsize (self, '-32 -32 -24', '32 32 32');
 	if (self.health < 1)
 		self.health = MH_OGRE;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_OGRE;
 	self.bleedratio = 0.5; // not much health damage due to armor
 

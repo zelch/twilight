@@ -24,11 +24,11 @@ void(float fireexplosive) W_SingleShotgunFireCode =
 	Inventory_AdjustQuantity(self, "shells", -1);
 	w_muzzleflash(shotorg, 2);
 	if (fireexplosive)
-		FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.8 * damagescale, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
+		FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2, SHOTGUNEXPLOSIVESLUG * 0.2, SHOTGUNEXPLOSIVESLUG * 0.8, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
 	else
 	{
-		FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-		FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+		FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1, SHOTGUNBUCKSHOT * 0.1, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+		FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1, SHOTGUNBUCKSHOT * 0.1, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 	}
 	self.wload = -1;
 };

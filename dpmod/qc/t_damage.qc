@@ -1,4 +1,3 @@
-float   damagescale;
 .void() knockedloosefunc; // called when kinetically disturbed
 .float  forcescale; // used for damage force calculations (shambler has lower forcescale than player for instance)
 
@@ -13,7 +12,11 @@ float   damagescale;
 .float  health; // if this goes below 1 the thing is dead
 .float  bodyhealth; // used for gibbing
 
-float   monsterdamagescale; // set in world.qc when level starts
+// adjustable monster damage settings
+float   monsterdamagescale;
+float   monsterresistancescale;
+// adjustable player damage settings
+float   playerdamagescale;
 
 void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, entity a, string m, float dtyp) obitfunc) ClientObituary;
 
@@ -189,10 +192,44 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		if (targ.damagemodifier)
 			ratio = ratio * targ.damagemodifier(targ, healthdamage, damage, damgtype, dethtype);
 
+		if (targ.flags & FL_MONSTER) ratio = ratio * monsterresistancescale;
 		if (targ.resist_bullet   ) if (damgtype & DTF_RESIST_BULLET   ) ratio = ratio * targ.resist_bullet;
 		if (targ.resist_explosive) if (damgtype & DTF_RESIST_EXPLOSIVE) ratio = ratio * targ.resist_explosive;
 		if (targ.resist_energy   ) if (damgtype & DTF_RESIST_ENERGY   ) ratio = ratio * targ.resist_energy;
 		if (targ.resist_fire     ) if (damgtype & DTF_RESIST_FIRE     ) ratio = ratio * targ.resist_fire;
+
+		// only scales damage done by players
+		if (attacker.classname == "player")
+		{
+			ratio = ratio * playerdamagescale;
+			if (targ.classname == "player")
+			{
+				if (targ.items & IT_INVULNERABILITY)
+				{
+					if (targ != attacker)
+						ratio = ratio * 0.33;
+					else
+						ratio = 0;
+				}
+			}
+			// only scales player damage to monsters
+			else if (targ.flags & FL_MONSTER)
+				ratio = ratio * monsterdamagescale;
+		}
+		else if (targ.items & IT_INVULNERABILITY)
+			ratio = 0;
+
+//		// check for quad damage powerup on the attacker
+//		if (attacker.items & IT_QUAD)
+//			ratio = ratio * 4;
+
+		if (targ.team > 0)
+		if (targ.team == attacker.team)
+		if (teamplay == 1 || teamplay == 3)
+		if (targ != attacker || teamplay == 1)
+			ratio = 0;
+		if (targ.flags & FL_GODMODE)
+			ratio = 0;
 
 		// apply resistances
 		healthdamage = healthdamage * ratio;
@@ -209,54 +246,38 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		// how much bleed damage 'matters'
 		ratio = (ratio - 1) * targ.bleedratio + 1;
 
-		if (targ.classname == "player") // only protects players from damage
-		if (attacker.flags & FL_MONSTER)
-			damage = damage * monsterdamagescale;
-
-		if (targ.items & IT_INVULNERABILITY)
-		{
-			if (targ != attacker && targ.classname == "player" && attacker.classname == "player")
-				damage = damage * 0.33;
-			else
-				damage = 0;
-		}
-
-//		// check for quad damage powerup on the attacker
-//		if (attacker.items & IT_QUAD)
-//			damage = damage * 4;
-
 		// save damage based on the target's armor level
+		take = damage; // body damage
 		save = 0;
 		if (damgtype & DTF_ARMOR)
+		{
 			save = targ.armortype * damage;
-		if (targ.team > 0)
-		if (targ.team == attacker.team)
-		if (teamplay == 1 || teamplay == 3)
-		if (targ != attacker || teamplay == 1)
-			save = 0;
-		if (targ.flags & FL_GODMODE)
-			save = 0;
-
-		if (save > targ.armorvalue)
-			save = targ.armorvalue;
-		targ.armorvalue = targ.armorvalue - save;
-		take = damage - save; // body damage
-		if (take < 0)
+			if (save >= 0.1)
+			{
+				if (save > targ.armorvalue)
+					save = targ.armorvalue;
+				targ.armorvalue = targ.armorvalue - save;
+				take = take - save;
+			}
+			else
+				save = 0;
+		}
+		if (take < 0.1)
 			take = 0;
-
-		if (take < 0.01)
-		if (save < 0.01)
+		if (take == 0)
+		if (save == 0)
 			return; // no damage to do
 
 		htake = take * ratio; // health damage
 		if (htake < 0.01) htake = 0.01;
 
-		if (targ.bleedfunc) // telefrag doesn't cause bleeding
+		if (targ.bleedfunc)
 		{
 			self = targ;
 			self.bleedfunc(damgpoint, take, save, force, damgtype);
 			self = oldself;
 		}
+
 		// moved below bleedfunc for sake of showing the correct armortype
 		if (targ.armorvalue < 1)
 		{
@@ -264,6 +285,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 			targ.armortype = 0;     // lost all armor
 			targ.items = targ.items - (targ.items & (IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3));
 		}
+
 		// add to the damage total for clients, which will be sent as a single
 		// message at the end of the frame
 		// FIXME: remove after combining shotgun blasts?

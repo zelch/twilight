@@ -126,7 +126,7 @@ void(float cells) W_LightningFireCode =
 	self.wframe = self.wframe + 1;
 	if (self.wframe >= 3)
 		self.wframe = 1;
-	W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, cells * 30 * damagescale, cells * 15 * damagescale, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
+	W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, cells * 30, cells * 15, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
 
 	traceline(shotorg, shotorg + shotdir * 100000, TRUE, self);
 	te_lightning2(self, shotorg, trace_endpos);

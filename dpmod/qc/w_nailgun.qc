@@ -42,7 +42,7 @@ void(float shots) W_NailgunFireCode =
 		}
 
 		w_muzzleflash(shotorg, 1);
-		FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+		FireBullets(self, self, 4, 1, 15, 15, 0, 0, shotdir * 15000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
 		shotorg = v;
 	}
 };
@@ -83,8 +83,8 @@ void() W_NailgunGrenadeFireCode =
 	self.wfiretime = time;
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 1);
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80 * damagescale, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200 * damagescale, 70, 20 * damagescale, 10 * damagescale, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
+	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 70, 20, 10, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
 };
 
 

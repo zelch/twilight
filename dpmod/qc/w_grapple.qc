@@ -49,9 +49,9 @@ void() grapplepull =
 	{
 		self.cnt2 = time + 0.1;
 		if (self.owner.items & IT_QUAD)
-			T_Damage(self.enemy, self, self.owner, 20 * damagescale, 20 * damagescale, "GRAPPLE", DT_CUT, self.origin, '0 0 0', Obituary_Grapple);
+			T_Damage(self.enemy, self, self.owner, 20, 20, "GRAPPLE", DT_CUT, self.origin, '0 0 0', Obituary_Grapple);
 		else
-			T_Damage(self.enemy, self, self.owner, 5 * damagescale, 5 * damagescale, "GRAPPLE", DT_CUT, self.origin, '0 0 0', Obituary_Grapple);
+			T_Damage(self.enemy, self, self.owner, 5, 5, "GRAPPLE", DT_CUT, self.origin, '0 0 0', Obituary_Grapple);
 	}
 	if (self.owner.items & IT_QUAD)
 		self.effects = self.effects | EF_BLUE;
@@ -117,9 +117,9 @@ void() grappleflytouch =
 //	if (self.enemy != world)
 //		self.enemy.axhitme = TRUE;
 	if (self.owner.items & IT_QUAD)
-		T_Damage(self.enemy, self, self.owner, 240 * damagescale, 240 * damagescale, "GRAPPLEIMPACT", DT_CUT, self.origin, '0 0 0', Obituary_Grapple);
+		T_Damage(self.enemy, self, self.owner, 240, 240, "GRAPPLEIMPACT", DT_CUT, self.origin, '0 0 0', Obituary_Grapple);
 	else
-		T_Damage(self.enemy, self, self.owner, 60 * damagescale, 60 * damagescale, "GRAPPLEIMPACT", DT_CUT, self.origin, '0 0 0', Obituary_Grapple);
+		T_Damage(self.enemy, self, self.owner, 60, 60, "GRAPPLEIMPACT", DT_CUT, self.origin, '0 0 0', Obituary_Grapple);
 	if (self.enemy.solid == SOLID_NOT) // gibbed, keep going
 	{
 		self.dest = self.velocity;

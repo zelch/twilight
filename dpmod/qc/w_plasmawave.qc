@@ -53,7 +53,7 @@ void() W_PlasmaWaveFireShot =
 		cells = 10;
 	self.wfiretime = time;
 	Inventory_AdjustQuantity(self, "cells", 0 - cells);
-	FirePlasmaBall(self, shotorg, shotdir * 1000, cells * 20 * damagescale, 120, "PLASMAWAVE", Obituary_PlasmaWaveShot);
+	FirePlasmaBall(self, shotorg, shotdir * 1000, cells * 20, 120, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 };
 
 void() W_PlasmaWaveFireWave =
@@ -67,7 +67,7 @@ void() W_PlasmaWaveFireWave =
 		cells = 50;
 	self.wfiretime = time;
 	Inventory_AdjustQuantity(self, "cells", 0 - cells);
-	FirePlasmaBall(self, shotorg, shotdir * 1000, cells * 15 * damagescale, 300, "PLASMAWAVE", Obituary_PlasmaWaveShot);
+	FirePlasmaBall(self, shotorg, shotdir * 1000, cells * 15, 300, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 	*/
 	local float cells, shots, damage;
 	local vector ang;
@@ -82,7 +82,7 @@ void() W_PlasmaWaveFireWave =
 	shots = ceil(cells / 5);
 	if (shots > 12)
 		shots = 12;
-	damage = cells * 20 * damagescale / shots;
+	damage = cells * 20 / shots;
 	ang = self.v_angle - (shots * '0 3 0');
 	while (shots > 0)
 	{

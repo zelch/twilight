@@ -21,7 +21,7 @@ void() W_PistolFireCode =
 	w_muzzleflash(shotorg, 1);
 	ang = self.v_angle;ang_x = 0 - ang_x;
 	ejectcasing(shotorg, v_right * 150 + v_up * 50, 50, ang, '0 250 0', 100, 0);
-	FireBullets(self, self, 4, 1, 35 * damagescale, 35 * damagescale, 0, 0, shotdir * 7000, 0, "PISTOL", DT_NAIL, Obituary_Pistol);
+	FireBullets(self, self, 4, 1, 35, 35, 0, 0, shotdir * 12000, 0, "PISTOL", DT_NAIL, Obituary_Pistol);
 };
 
 void() w_pistoldrop1;

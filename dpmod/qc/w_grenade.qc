@@ -57,8 +57,8 @@ void() W_GrenadeFireImpact =
 	self.wfiretime = time;
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 5);
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 150 * damagescale, 200, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 120, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
+	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 150, 200, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150, 120, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
 };
 
 /*
@@ -69,7 +69,7 @@ void() W_GrenadeFirePipebomb =
 	self.wfiretime = time;
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 5);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 120, GRENADE_DETONATABLE | GRENADE_DETONATEONCREATURE, 60, "PIPEBOMB", Obituary_Grenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150, 120, GRENADE_DETONATABLE | GRENADE_DETONATEONCREATURE, 60, "PIPEBOMB", Obituary_Grenade);
 };
 */
 
@@ -79,7 +79,7 @@ void() W_GrenadeFireProximity =
 	self.wfiretime = time;
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 3);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 100 * damagescale, 150, GRENADE_PROXIMITY, 5, "GRENADE", Obituary_Grenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 100, 150, GRENADE_PROXIMITY, 5, "GRENADE", Obituary_Grenade);
 };
 */
 
@@ -89,7 +89,7 @@ void() W_GrenadeFireSticky =
 	self.wfiretime = time;
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 3);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 120 * damagescale, 120, 50 * damagescale, 20 * damagescale, MINE_DETONATABLE, 60, "STICKYGRENADE", Obituary_Grenade);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 120, 120, 50, 20, MINE_DETONATABLE, 60, "STICKYGRENADE", Obituary_Grenade);
 };
 */
 

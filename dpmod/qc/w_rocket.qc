@@ -100,7 +100,7 @@ void() W_RocketFireSingle =
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 2);
-	LaunchMissile(shotorg, shotdir * 5000, self, 100 * damagescale, 100, "ROCKET", Obituary_Rocket);
+	LaunchMissile(shotorg, shotdir * 5000, self, 100, 100, "ROCKET", Obituary_Rocket);
 };
 
 void() W_RocketFireTripleSpiral =
@@ -112,18 +112,18 @@ void() W_RocketFireTripleSpiral =
 	self.velocity = self.velocity - shotdir * 450;
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 4);
-	LaunchMissile(shotorg, shotdir * 3000, self, 100 * damagescale, 100, "ROCKET", Obituary_Rocket);
+	LaunchMissile(shotorg, shotdir * 3000, self, 100, 100, "ROCKET", Obituary_Rocket);
 	spiralmissile_orbitentity = newmis;
 	if (Inventory_Quantity(self, "rockets") < 1)
 		return;
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg + v_right * 8, 4);
-	LaunchSpiralMissile(shotorg, shotdir, self, 100 * damagescale, 100, "ROCKET", Obituary_Rocket, -12);
+	LaunchSpiralMissile(shotorg, shotdir, self, 100, 100, "ROCKET", Obituary_Rocket, -12);
 	if (Inventory_Quantity(self, "rockets") < 1)
 		return;
 	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg - v_right * 8, 4);
-	LaunchSpiralMissile(shotorg, shotdir, self, 100 * damagescale, 100, "ROCKET", Obituary_Rocket, 12);
+	LaunchSpiralMissile(shotorg, shotdir, self, 100, 100, "ROCKET", Obituary_Rocket, 12);
 };
 
 void() w_rocketdrop1;

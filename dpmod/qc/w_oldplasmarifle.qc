@@ -20,8 +20,8 @@ void() W_PlasmaRifleFireRapid =
 	self.wfiretime = time;
 	dir = shotdir + randomvec() * 0.03;
 	w_muzzleflash(shotorg, 1);
-	//FireBullets(self, self, shotorg, 4, 1, 30 * damagescale, 30 * damagescale, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
-	FirePlasma(self, shotorg, dir, 30 * damagescale, 45, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	//FireBullets(self, self, shotorg, 4, 1, 30, 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
+	FirePlasma(self, shotorg, dir, 30, 45, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
 };
 
 void() W_PlasmaRifleFireHighPower =
@@ -29,7 +29,7 @@ void() W_PlasmaRifleFireHighPower =
 	Inventory_AdjustQuantity(self, "cells", 0 - self.wload);
 	self.wfiretime = time;
 	//FireBullets(self, self, shotorg, 4, 1, self.wload * 30, self.wload * 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
-	FirePlasma(self, shotorg, shotdir, self.wload * 30 * damagescale, 105, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	FirePlasma(self, shotorg, shotdir, self.wload * 30, 105, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
 	self.wload = 0;
 };
 

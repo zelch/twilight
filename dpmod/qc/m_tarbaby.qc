@@ -246,7 +246,7 @@ void() monster_tarbaby =
 	setsize (self, '-16 -16 -24', '16 16 32');
 	if (self.health < 1)
 		self.health = MH_TARBABY;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = 1000000000; // avoid a gib message
 	self.bleedratio = 0; // no blood to lose
 

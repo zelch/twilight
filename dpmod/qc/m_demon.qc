@@ -134,7 +134,7 @@ void(entity attacker, float damage)	demon1_pain =
 
 	if (random()*200 > damage)
 		return;		// didn't flinch
-		
+
 	demon1_pain1 ();
 };
 
@@ -384,7 +384,7 @@ void() monster_demon1 =
 	setsize (self, '-32 -32 -24', '32 32 24');
 	if (!self.health)
 		self.health = MH_DEMON;
-	self.health = self.health * monsterhealthscale;
+	self.health = self.health;
 	self.bodyhealth = self.health + MB_DEMON;
 	self.bleedratio = 1; // demons are alive, and thus bleeding matters
 

@@ -105,11 +105,11 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 	self.wfiretime = time;
 	w_muzzleflash(v, 4);
 	if (explosive)
-		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG * damagescale, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
+		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
 	else
 	{
-		FireBullets(self, self, 1, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
-		FireBullets(self, self, 0, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
+		FireBullets(self, self, 1, 5, DBSHOTGUNBUCKSHOT * 0.1, DBSHOTGUNBUCKSHOT * 0.1, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
+		FireBullets(self, self, 0, 5, DBSHOTGUNBUCKSHOT * 0.1, DBSHOTGUNBUCKSHOT * 0.1, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
 	}
 	shotorg = v;
 };
@@ -163,11 +163,11 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 	self.wfiretime = time;
 	w_muzzleflash(v, 2);
 	if (explosive)
-		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG * damagescale, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
+		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
 	else
 	{
-		FireBullets(self, self, 1, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
-		FireBullets(self, self, 0, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
+		FireBullets(self, self, 1, 5, DBSHOTGUNBUCKSHOT * 0.1, DBSHOTGUNBUCKSHOT * 0.1, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
+		FireBullets(self, self, 0, 5, DBSHOTGUNBUCKSHOT * 0.1, DBSHOTGUNBUCKSHOT * 0.1, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
 	}
 	shotorg = v;
 };
