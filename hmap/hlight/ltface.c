@@ -511,9 +511,9 @@ int ranout = false;
 LightFace
 ============
 */
+lightinfo_t l; // if this is made multithreaded again, this should be inside the function, but be warned, it's currently 38mb
 void LightFace (dface_t *f, lightchain_t *lightchain, entity_t **novislight, int novislights, vec3_t faceorg)
 {
-	lightinfo_t		l;
 	int				i, j, size;
 	int				red, green, blue, white;
 	byte			*out, *lit;
