@@ -55,7 +55,7 @@
 		"border=\"0\" alt=\"SourceForge\"></a><br>\n" .
 		
 		"<a href=\"http://www.opengl.org\">" .
-		"<img width=\"79\" height=\"35\" " .
+		"<img width=\"88\" height=\"39\" " .
 		"src=\"/images/opengl.gif\" alt=\"OpenGL\" border=\"0\"></a><br>\n"
 		
 	);
