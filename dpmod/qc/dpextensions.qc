@@ -1090,6 +1090,18 @@ string(float n) argv = #442;
 //description:
 //when a savegame is loaded, this function is called
 
+//NEXUIZ_PLAYERMODEL
+//idea: Nexuiz
+//darkplaces implementation: Black
+//console commands:
+//playermodel <name> - FIXME: EXAMPLE NEEDED
+//playerskin <name> - FIXME: EXAMPLE NEEDED
+//field definitions:
+.string playermodel; // name of player model sent by client
+.string playerskin; // name of player skin sent by client
+//description:
+//these client properties are used by Nexuiz.
+
 //NXQ_GFX_LETTERBOX
 //idea: nxQuake
 //darkplaces implementation: LordHavoc
