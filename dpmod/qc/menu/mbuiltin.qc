@@ -101,7 +101,12 @@ float	clientstate(void)  = #62;
 void	clientcommand(float client, string s)  = #63;
 void	changelevel(string map)  = #64;
 void	localsound(string sample)  = #65;
-vector	getmousepos(void)  = #66;
+vector	getmousepos(void)  	= #66;
+float	gettime(void)		= #67;
+void 	loadfromdata(string data) = #68;
+void	loadfromfile(string file) = #69;
+
+float	mod(float val, float m) = #70;
 
 /////////////////////////////////////////////////
 // Write* Functions
@@ -119,28 +124,32 @@ void	WriteEntity(entity data, float dest, float desto) = #408;
 // Draw funtions
 //////////////////////////////////////////////////
 
-float	iscachedpic(string name)	= #601;
-string	precache_pic(string name)	= #602;
-void	freepic(string name)		= #603;
+float	iscachedpic(string name)	= #451;
+string	precache_pic(string name)	= #452;
+void	freepic(string name)		= #453;
 
 float	drawcharacter
-(vector position, float character, vector scale, vector rgb, float alpha, float flag) = #604;
+(vector position, float character, vector scale, vector rgb, float alpha, float flag) = #454;
 
 float	drawstring
-(vector position, string text, vector scale, vector rgb, float alpha, float flag) = #605;
+(vector position, string text, vector scale, vector rgb, float alpha, float flag) = #455;
 
 float	drawpic
-(vector position, string pic, vector size, vector rgb, float alpha, float flag) = #606; 
+(vector position, string pic, vector size, vector rgb, float alpha, float flag) = #456; 
 
 float	drawfill
-(vector position, vector size, vector rgb, float alpha, float flag) = #607;
+(vector position, vector size, vector rgb, float alpha, float flag) = #457;
+
+void	drawsetcliparea(float x, float y, float width, float height) = #458;
+	
+void	drawresetcliparea(void) = #459;
 
 ////////////////////////////////////////////////
 // Menu functions
 ////////////////////////////////////////////////
 
 void	setkeydest(float dest) 	= #601;
-float	getkeydest(void)		= #602;
+float	getkeydest(void)	= #602;
 
 void	setmousetarget(float trg) = #603;
 float	getmousetarget(void)	  = #604;

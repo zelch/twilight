@@ -1,0 +1,21 @@
+///////////////////////////////////////////////
+// Menu Header File
+///////////////////////
+// This file belongs to dpmod/darkplaces
+// AK contains all common constants, etc.
+////////////////////////////////
+// constants
+
+float GAME_ISSERVER 	= 1;
+float GAME_CONNECTED	= 2;
+
+// global vars
+
+float time; 		// important for animations, etc.
+
+// updated every time toggle is called
+float gamestatus;
+
+// constants
+
+void(void) null_function = {}; // FIXME

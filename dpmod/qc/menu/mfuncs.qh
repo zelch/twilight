@@ -1,0 +1,14 @@
+///////////////////////////////////////////////
+// Functions Header File
+///////////////////////
+// This file belongs to dpmod/darkplaces
+// AK contains all menu controlling stuff (sub-menus)
+////////////////////////////////
+
+////////////////
+// prototypes
+///
+
+void(float keynr, float ascii) Default_KeyEvent;
+
+
