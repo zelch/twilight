@@ -47,7 +47,7 @@ $project = 'Twilight';
 $from_email = 'twilight-devel@icculus.org';
 
 # Mail all reports to this address.
-$dest_email = 'cia@cia.navi.cx, tward+cia@bluecherry.net';
+$dest_email = 'cia@cia.navi.cx';
 
 # If using XML-RPC, connect to this URI.
 $rpc_uri = 'http://cia.navi.cx/RPC2';
