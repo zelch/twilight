@@ -536,6 +536,7 @@ void BeginBSPFile (void)
 	// leaf 0 is common solid with no faces
 	numleafs = 1;
 	dleafs[0].contents = CONTENTS_SOLID;
+	dleafs[0].visofs = -1; // thanks to Vic for suggesting this line
 
 	firstface = 0;
 }
