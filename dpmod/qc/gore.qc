@@ -63,6 +63,7 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 	e.view_ofs = '0 0 -1';
 	e.velocity = vel + randomvec() * 150;
 	e.movetype = MOVETYPE_BOUNCE;
+	e.havocattack = FALSE;
 	e.solid = SOLID_NOT;
 	e.avelocity = randomvec()*300;
 	e.knockedloosefunc = gibknockedloosefunc;
@@ -231,6 +232,7 @@ void(entity c, void() framefunc) BecomeCorpse =
 	local entity saveself;
 	saveself = self;
 	self = c;
+	self.havocattack = FALSE;
 	self.touch = SUB_Null;
 	self.th_pain = SUB_Null;
 	self.th_walk = SUB_Null;
