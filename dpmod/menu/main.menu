@@ -11,7 +11,7 @@
 // Normal Definition
 ///
 {
-	classname	ITEM_WINDOW
+	type      	ITEM_WINDOW
 	name		normal
 	origin		"0 0 0"
 }
@@ -19,7 +19,7 @@
 // Background
 ///
 {
-	classname	ITEM_WINDOW
+	type      	ITEM_WINDOW
 	name		background
 	origin		"0 0 0"
 }
@@ -27,7 +27,7 @@
 // Backgroung Link with normal
 ///
 {
-	classname	ITEM_REFERENCE
+	type      	ITEM_REFERENCE
 	name		n_bg_ref
 	parent		normal
 	link		background
@@ -36,7 +36,7 @@
 // Main Menu
 ///
 {
-	classname	ITEM_WINDOW
+	type      	ITEM_WINDOW
 	name		main
 	parent		normal
 	origin		"0 0 0"
@@ -46,7 +46,7 @@
 ///
 // Singleplayer
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		main_singleplayer
 	parent		main
 	text		"Singleplayer"
@@ -58,7 +58,7 @@
 }
 // Multiplayer
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name 		main_multiplayer
 	parent 		main
 	text		"Multiplayer"
@@ -70,7 +70,7 @@
 }
 // Options
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name 		main_options
 	parent 		main
 	text		"Options"
@@ -83,7 +83,7 @@
 }
 // Quit
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name 		main_quit
 	parent 		main
 	text		"Quit"
@@ -99,28 +99,28 @@
 ///
 // normal reference
 {
-	classname	ITEM_REFERENCE
+	type      	ITEM_REFERENCE
 	name		normal_quit_ref
 	parent		normal
 	link		quit
 }
 // ingame reference
 {
-	classname	ITEM_REFERENCE
+	type      	ITEM_REFERENCE
 	name		ingame_quit_ref
 	parent		ingame
 	link		quit
 }
 // menu
 {
-	classname	ITEM_WINDOW
+	type      	ITEM_WINDOW
 	name		quit
 	flag		6
 	origin		"295 250 0"
 }
 // Background #0
 {
-	classname	ITEM_RECTANGLE
+	type      	ITEM_RECTANGLE
 	name		quit_background0
 	parent		quit
 	pos			"0 0 0"
@@ -131,7 +131,7 @@
 }
 // Background #1
 {
-	classname	ITEM_RECTANGLE
+	type      	ITEM_RECTANGLE
 	name		quit_background
 	parent		quit
 	pos			"2 2 0"
@@ -142,7 +142,7 @@
 }
 // Messagepart 0
 {
-	classname	ITEM_TEXT
+	type      	ITEM_TEXT
 	name		quit_msg_0
 	parent		quit
 	pos			"3 10 0"
@@ -153,7 +153,7 @@
 }
 // Messagepart 1
 {
-	classname	ITEM_TEXT
+	type      	ITEM_TEXT
 	name		quit_msg_1
 	parent		quit
 	pos			"3 30 0"
@@ -164,7 +164,7 @@
 }
 // Yes
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		quit_yes
 	parent		quit
 	orderpos	102		// so yes will always be the second in the order
@@ -178,7 +178,7 @@
 }
 // No
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		quit_no
 	parent		quit
 	orderpos	101

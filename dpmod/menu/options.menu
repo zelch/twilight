@@ -8,12 +8,12 @@
 // Options Menu
 ///
 {
-	classname	ITEM_WINDOW
+	type      	ITEM_WINDOW
 	name		options
 	origin		"400 100 0"
 }
 {
-	classname	ITEM_REFERENCE
+	type      	ITEM_REFERENCE
 	name		op_bg_ref
 	parent		options
 	origin		"0 0 0"
@@ -23,7 +23,7 @@
 // TODO: Implement this :-/
 // custom controls
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_custom_control
 	parent		options
 	text		"Customize controls"
@@ -34,7 +34,7 @@
 }
 // Reset to defaults
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_reset_defaults
 	parent		options
 	text		"Reset to default"
@@ -45,7 +45,7 @@
 }
 // Video
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_video
 	parent		options
 	text		"Video"
@@ -56,7 +56,7 @@
 }
 // Effects
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_effects
 	parent 		options
 	text		"Effects"
@@ -67,7 +67,7 @@
 }
 // Color control
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_color_control
 	parent		options
 	text		"Color control"
@@ -79,7 +79,7 @@
 // 2D Screen Width
 // Text
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_scrwidth_text
 	parent		options
 	text		"2D Screen Width"
@@ -91,7 +91,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_scrwidth_slider
 	parent		options_scrwidth_text
 	pos			"10 75 0"
@@ -107,7 +107,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_scrwidth_slidertext
 	parent		options_scrwidth_text
 	link		options_scrwidth_slider
@@ -119,7 +119,7 @@
 // 2D Screen Height
 // Text
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_scrheight_text
 	parent		options
 	text		"2D Screen Height"
@@ -131,7 +131,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_scrheight_slider
 	parent		options_scrheight_text
 	pos			"10 90 0"
@@ -147,7 +147,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_scrheight_slidertext
 	parent		options_scrheight_text
 	link		options_scrheight_slider
@@ -159,7 +159,7 @@
 // Console Speed
 // Text
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_conspeed_text
 	parent		options
 	text		"Console Speed"
@@ -171,7 +171,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_conspeed_slider
 	parent		options_conspeed_text
 	pos			"10 105 0"
@@ -187,7 +187,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_conspeed_slidertext
 	parent		options_conspeed_text
 	link		options_conspeed_slider
@@ -199,7 +199,7 @@
 // Console Alpha
 // Text
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_conalpha_text
 	parent		options
 	text		"Console Alpha"
@@ -211,7 +211,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_conalpha_slider
 	parent		options_conalpha_text
 	pos			"10 120 0"
@@ -227,7 +227,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_conalpha_slidertext
 	parent		options_conalpha_text
 	link		options_conalpha_slider
@@ -241,7 +241,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_conback_brgt_text
 	parent		options
 	text		"Conback Brightness"
@@ -253,7 +253,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_conback_brgt_slider
 	parent		options_conback_brgt_text
 	pos			"10 135 0"
@@ -269,7 +269,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_conback_brgt_slidertext
 	parent		options_conback_brgt_text
 	link		options_conback_brgt_slider
@@ -283,7 +283,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_scr_size_text
 	parent		options
 	text		"Screen size"
@@ -295,7 +295,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_scr_size_slider
 	parent		options_scr_size_text
 	pos			"10 150 0"
@@ -311,7 +311,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_scr_size_slidertext
 	parent		options_scr_size_text
 	link		options_scr_size_slider
@@ -323,7 +323,7 @@
 // JPEG screenshots
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_jpg_scr_text
 	parent		options
 	text		"JPEG screenshots"
@@ -335,7 +335,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_jpg_scr_switch
 	parent		options_jpg_scr_text
 	pos			"10 165 0"
@@ -351,7 +351,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_sky_text
 	parent		options
 	text		"Sky"
@@ -363,7 +363,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_sky_switch
 	parent		options_sky_text
 	pos			"10 180 0"
@@ -379,7 +379,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_tex_comb_text
 	parent		options
 	text		"Texture Combine"
@@ -391,7 +391,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_tex_comb_switch
 	parent		options_tex_comb_text
 	pos			"10 195 0"
@@ -407,7 +407,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_dither_text
 	parent		options
 	text		"Dithering"
@@ -419,7 +419,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_dither_switch
 	parent		options_dither_text
 	pos			"10 210 0"
@@ -435,7 +435,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_delay_gfx_text
 	parent		options
 	text		"Delay gfx (faster)"
@@ -447,7 +447,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_delay_gfx_switch
 	parent		options_delay_gfx_text
 	pos			"10 225 0"
@@ -463,7 +463,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_game_speed_dis_text
 	parent		options
 	text		"Game Speed"
@@ -476,7 +476,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_game_speed_dis_slider
 	parent		options_game_speed_dis_text
 	pos			"10 240 0"
@@ -492,7 +492,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_game_speed_dis_slidertext
 	parent		options_game_speed_dis_text
 	link		options_game_speed_dis_slider
@@ -507,7 +507,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_game_speed_text
 	parent		options
 	text		"Game Speed"
@@ -519,7 +519,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_game_speed_slider
 	parent		options_game_speed_text
 	pos			"10 240 0"
@@ -535,7 +535,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_game_speed_slidertext
 	parent		options_game_speed_text
 	link		options_game_speed_slider
@@ -550,7 +550,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_cd_vol_text
 	parent		options
 	text		"CD Music Volume"
@@ -562,7 +562,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_cd_vol_slider
 	parent		options_cd_vol_text
 	pos			"10 255 0"
@@ -578,7 +578,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_cd_vol_slidertext
 	parent		options_cd_vol_text
 	link		options_cd_vol_slider
@@ -592,7 +592,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_snd_vol_text
 	parent		options
 	text		"Sound Volume"
@@ -604,7 +604,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_snd_vol_slider
 	parent		options_snd_vol_text
 	pos			"10 270 0"
@@ -620,7 +620,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_snd_vol_slidertext
 	parent		options_snd_vol_text
 	link		options_snd_vol_slider
@@ -634,7 +634,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_static_vol_text
 	parent		options
 	text		"Ambient Volume"
@@ -646,7 +646,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_static_vol_slider
 	parent		options_static_vol_text
 	pos			"10 285 0"
@@ -662,7 +662,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_static_vol_slidertext
 	parent		options_static_vol_text
 	link		options_static_vol_slider
@@ -676,7 +676,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_crosshair_text
 	parent		options
 	text		"Crosshair"
@@ -688,7 +688,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_crosshair_slider
 	parent		options_crosshair_text
 	pos			"10 300 0"
@@ -704,7 +704,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_crosshair_slidertext
 	parent		options_crosshair_text
 	link		options_crosshair_slider
@@ -718,7 +718,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_crosshair_size_text
 	parent		options
 	text		"Crosshair Size"
@@ -730,7 +730,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_crosshair_size_slider
 	parent		options_crosshair_size_text
 	pos			"10 315 0"
@@ -746,7 +746,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_crosshair_size_slidertext
 	parent		options_crosshair_size_text
 	link		options_crosshair_size_slider
@@ -760,7 +760,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_static_crosshair_text
 	parent		options
 	text		"Static Crosshair"
@@ -772,7 +772,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_static_crosshair_switch
 	parent		options_static_crosshair_text
 	pos			"10 330 0"
@@ -788,7 +788,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_showfps_text
 	parent		options
 	text		"Show Framerate"
@@ -800,7 +800,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_showfps_switch
 	parent		options_showfps_text
 	pos			"10 345 0"
@@ -816,7 +816,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_alwaysrun_text
 	parent		options
 	text		"Always Run"
@@ -828,7 +828,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_alwaysrun_switch
 	parent		options_alwaysrun_text
 	pos			"10 360 0"
@@ -843,7 +843,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_lookspring_text
 	parent		options
 	text		"Lookspring"
@@ -855,7 +855,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_lookspring_switch
 	parent		options_lookspring_text
 	pos			"10 375 0"
@@ -871,7 +871,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_lookstrafe_text
 	parent		options
 	text		"Lookstrafe"
@@ -883,7 +883,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_lookstrafe_switch
 	parent		options_lookstrafe_text
 	pos			"10 390 0"
@@ -899,7 +899,7 @@
 ////
 // Menu Button
 {
-	classname	ITEM_TEXTBUTTON
+	type      	ITEM_TEXTBUTTON
 	name		options_mousespeed_text
 	parent		options
 	text		"Mouse Speed"
@@ -911,7 +911,7 @@
 }
 // Slider
 {
-	classname	ITEM_SLIDER
+	type      	ITEM_SLIDER
 	name		options_mousespeed_slider
 	parent		options_mousespeed_text
 	pos			"10 405 0"
@@ -927,7 +927,7 @@
 }
 // Text
 {
-	classname 	ITEM_TEXT
+	type       	ITEM_TEXT
 	name		options_mousespeed_slidertext
 	parent		options_mousespeed_text
 	link		options_mousespeed_slider
@@ -941,7 +941,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_mouselook_text
 	parent		options
 	text		"Mouse Look"
@@ -953,7 +953,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_mouselook_switch
 	parent		options_mouselook_text
 	pos			"10 420 0"
@@ -969,7 +969,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_invmouse_text
 	parent		options
 	text		"Invert Mouse"
@@ -981,7 +981,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_invmouse_switch
 	parent		options_invmouse_text
 	pos			"10 435 0"
@@ -996,7 +996,7 @@
 ////
 // Text
 {
-	classname 	ITEM_TEXTBUTTON
+	type       	ITEM_TEXTBUTTON
 	name		options_use_mouse_text
 	parent		options
 	text		"Use Mouse"
@@ -1008,7 +1008,7 @@
 }
 // Switch
 {
-	classname	ITEM_TEXTSWITCH
+	type      	ITEM_TEXTSWITCH
 	name		options_use_mouse_switch
 	parent		options_use_mouse_text
 	pos			"10 450 0"
