@@ -3,6 +3,13 @@
 	$pageroot = ".";
 	require ($pageroot . "/include/header.php");
 
+	newsitem ("23 Jul 2001", "Knghtbrd", "The SourceForge guys have " .
+		"imported the twilight CVS branch for us - thanks moorman! " .
+		"The -commits list got 29 fresh messages logging all of my changes" .
+		"to the code before having it imported this morning.  The devel " .
+		"stuff for the website is next."
+	);
+
 	newsitem ("22 Jul 2001", "Knghtbrd", "The website will now be updated " .
 		"automatically shortly after someone commits changes.  Stub pages " .
 		"for the main site sections are now up."
