@@ -305,7 +305,7 @@ float() hknight_checkmagic =
 void() CheckForCharge =
 {
 	// check for mad charge
-	if (!enemy_vis)
+	if (!visible(self.enemy))
 		return;
 	if (time < self.attack_finished)
 		return;
