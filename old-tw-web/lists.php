@@ -5,6 +5,8 @@
 
 	function listsub ($listname)
 	{
+		global $browser_css;
+
 		titlebox ("subscr", "Subscribe to " . $listname,
 			"<form method=\"post\" action=\"/subscribe.php\">\n" .
 			"<table" . ($browser_css ? "" : " align=\"center\"") . ">\n" .
