@@ -17,7 +17,7 @@
 	);
 
 	if (file_exists ($pageroot . "/../cvs-snap/loc")) {
-		box ("sub", "Code counts"
+		box ("sub", "Code counts");
 
 		box ("para", "Ever wonder how many source code files there are in\n" .
 			"the project?&nbsp; You could find out for yourself, but now\n" .
