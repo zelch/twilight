@@ -50,7 +50,7 @@ void CheckFace (face_t *f)
 		// check the point is on the face plane
 		d = DotProduct (p1, planes[f->planenum].normal) - planes[f->planenum].dist;
 		if (d < -ON_EPSILON || d > ON_EPSILON)
-			printf ("CheckFace: point off plane at %f %f %f, correcting", p1[0], p1[1], p1[2]);
+			printf ("CheckFace: point off plane at %f %f %f, correcting\n", p1[0], p1[1], p1[2]);
 		// correct it even if we did not warn
 		d = -d;
 		VectorMA(p1, d, planes[f->planenum].normal, p1);
