@@ -675,6 +675,9 @@ void() PutClientInServer =
 	self.localdamage_hit = LD_NORMAL;
 	*/
 
+	self.combo_amount = 0;
+	self.combo_time = 0;
+
 	self.spree_amount = 0;
 	self.spree_count = 0;
 
@@ -1644,13 +1647,11 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 				attacker.combo_amount = 1;
 		
 			attacker.combo_time = time + 1.5;
-	
+			attacker.spree_count = attacker.spree_count + 1;	
+			attacker.spree_amount = attacker.spree_amount + 1;
+
 			if (attacker.spree_count >= 10)
 				spreemessage(attacker, attacker.spree_amount);
-			else
-				attacker.spree_count = attacker.spree_count + 0.6;
-
-			attacker.spree_amount = attacker.spree_amount + 1;
 		}
 	}
 	else if (targ.classname == "player" && attacker.classname == "player")
@@ -1667,13 +1668,11 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 			attacker.combo_amount = 1;
 	
 		attacker.combo_time = time + 2;
+		attacker.spree_count = attacker.spree_count + 1;
+		attacker.spree_amount = attacker.spree_amount + 1;
 
 		if (attacker.spree_count >= 10)
 			spreemessage(attacker, attacker.spree_amount);
-		else
-			attacker.spree_count = attacker.spree_count + 1;
-
-		attacker.spree_amount = attacker.spree_amount + 1;
 	}
 	else
 		dtype = DTYPE_OTHER;
