@@ -202,7 +202,7 @@ a {
 			"Downloads" => "/files/index.php"
 		) ,
 		Development => array (
-			"Development" => "/devel/index.php" ,
+			"Bug Tracking" => "/devel/index.php" ,
 			"Overview" => "/devel/overview.php" ,
 			"Credits" => "/devel/credits.php"
 		) ,
