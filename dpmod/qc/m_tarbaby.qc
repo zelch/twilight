@@ -8,7 +8,7 @@ BLOB
 
 $cd id1/models/tarbaby
 $origin 0 0 24
-$base base		
+$base base
 
 $skin skin
 
@@ -179,24 +179,18 @@ float() tbaby_missile =
 
 void()  tbaby_die1      =[      $exp,           tbaby_die2      ]
 {
-self.takedamage = DAMAGE_NO;
-self.touch = SUB_Null;
-self.th_pain = SUB_Null;
-self.th_die = SUB_Null;
-self.solid = SOLID_NOT;
-self.movetype = MOVETYPE_NONE;
-self.bodyhealth = -1;
-self.health = -1;
+	self.takedamage = DAMAGE_NO;
+	self.touch = SUB_Null;
+	self.th_pain = SUB_Null;
+	self.th_die = SUB_Null;
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_NONE;
+	self.bodyhealth = -1;
+	self.health = -1;
 };
 void()  tbaby_die2      =[      $exp,           tbaby_die2      ]
 {
-	/*
-//	docorpseskin(self);
-	ThrowGib("progs/tar_gib.mdl");
-	ThrowGib("progs/tar_gib.mdl");
-	ThrowGib("progs/tar_gib.mdl");
-	ThrowGib("progs/tar_gib.mdl");
-	*/
+	MonsterGibs("", 0, "progs/tar_gib.mdl", 4, "", 0);
 	self.skin = 0;
 	self.owner = self;
 	TarbabyExplosion (self, DMG_TARBABY, DMG_TARBABY_RADIUS, self.deathtype);
@@ -214,7 +208,7 @@ void() precachemonster_tarbaby =
 {
 	precache_model2 ("progs/tarbaby.mdl");
 
-	//precache_model2 ("progs/tar_gib.mdl"); // GIBS!!!! :)
+	precache_model2 ("progs/tar_gib.mdl"); // GIBS!!!! :)
 
 	precache_sound2 ("blob/death1.wav");
 	precache_sound2 ("blob/hit1.wav");
