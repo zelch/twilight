@@ -3,7 +3,7 @@
 
 	if (ereg ("curl", $HTTP_USER_AGENT) || $force == "yes")
 	{
-		$sec = 160 - ($time() % 160);
+		$sec = 160 - $time() % 160;
 		touch ("/home/groups/t/tw/twilight/pulse/update-website");
 		echo ("Webpulse should happen in $sec\n");
 	} else {
