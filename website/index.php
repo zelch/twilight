@@ -5,6 +5,11 @@ require "include/main.php";
 
 startpage ("News");
 
+newsitem ("Thursday, 30 December 2003",
+		"Ok! Twilight 0.2.0-RC2 has been released!" .
+		"Please pound on it and report ANY bugs that are found, thanks."
+);	
+
 newsitem ("Friday, 1 November 2002",
 		"Ah, yes, something to direct people to! So this is where it was " .
 		"hiding.."
