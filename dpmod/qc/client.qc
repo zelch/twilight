@@ -1577,19 +1577,19 @@ void(entity dude, float howmany) spreemessage =
 		bprint(" is Death incarnate!\n");
 		centerprint(dude, "Death incarnate!\n");
 	}
-	if (howmany >= 40)
+	else if (howmany >= 40)
 	{
 		bprint(dude.netname);
 		bprint(" is Mowing the lawn!\n");
 		centerprint(dude, "Mowing the lawn!\n");
 	}
-	if (howmany >= 30)
+	else if (howmany >= 30)
 	{
 		bprint(dude.netname);
 		bprint(" is Making rivers red!\n");
 		centerprint(dude, "Making rivers red!\n");
 	}
-	if (howmany >= 20)
+	else if (howmany >= 20)
 	{
 		bprint(dude.netname);
 		bprint(" is Trigger happy!\n");
