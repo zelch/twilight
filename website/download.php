@@ -26,7 +26,7 @@ foreach (glob("$webspace/file/*.zip") as $filename)
 {
 	$filename = basename($filename);
 	$url = "$urlbase/file/$filename";
-	echo ("<br><a href=\"$url\">$filename</a><br>\n");
+	echo ("<a href=\"$url\">$filename</a><br>\n");
 }
 echo ("</div>");
 
