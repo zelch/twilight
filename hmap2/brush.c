@@ -93,9 +93,6 @@ void CreateBrushFaces (void)
 		SetKeyValue(CurrentEntity, "origin", text);
 	}
 
-	if (!strcmp(ValueForKey(CurrentEntity, "classname"), "func_invisible"))
-		j = 3;
-
 	for (i = 0;i < numbrushfaces;i++)
 	{
 		mf = &faces[i];
