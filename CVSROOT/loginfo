@@ -26,7 +26,7 @@
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 
 # Temporarily use SF lists..
-DEFAULT $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@lists.sourceforge.net %{sVv}
-CVSROOT $CVSROOT/CVSROOT/new_log_accum -m knghtbrd@bluecherry.net %{sVv}
-tw-web $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@lists.sourceforge.net %{sVv}; $CVSROOT/CVSROOT/do_webpulse
+DEFAULT $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@icculus.org %{sVv}
+CVSROOT $CVSROOT/CVSROOT/new_log_accum -m twilight-admin@icculus.org %{sVv}
+tw-web $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@icculus.org %{sVv}; $CVSROOT/CVSROOT/do_webpulse
 
