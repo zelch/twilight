@@ -13,8 +13,6 @@ leaf_t *leafs;
 int c_portaltest, c_portalpass, c_portalcheck;
 int c_reused;
 
-int c_cnt;
-
 // past visfile
 byte *vismap, *vismap_p, *vismap_end;
 int originalvismapsize;
@@ -709,8 +707,6 @@ int Vis_Main( int argc, char **argv )
 	WriteBSPFile (source, false);
 
 //	unlink (portalfile);
-
-	printf( "%i\n", c_cnt );
 
 	end = I_DoubleTime ();
 	printf ("%5.2f seconds elapsed\n\n", end-start);
