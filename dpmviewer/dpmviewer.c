@@ -34,6 +34,7 @@ typedef void GLvoid;
 typedef float GLclampf;
 typedef int GLbitfield;
 typedef unsigned char GLboolean;
+typedef unsigned char GLubyte;
 
 typedef int GLintptrARB;
 typedef int GLsizeiptrARB;
@@ -629,6 +630,7 @@ sceneranges_t *dpmbuildsceneranges(dpmheader_t *dpm)
 void (GLAPIENTRY *glEnable)(GLenum cap);
 void (GLAPIENTRY *glDisable)(GLenum cap);
 void (GLAPIENTRY *glGetIntegerv)(GLenum pname, GLint *params);
+const GLubyte *(GLAPIENTRY *glGetString)(GLenum name);
 void (GLAPIENTRY *glOrtho)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val);
 void (GLAPIENTRY *glFrustum)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val);
 void (GLAPIENTRY *glGenTextures)(GLsizei n, GLuint *textures);
@@ -652,6 +654,7 @@ void (GLAPIENTRY *glNormalPointer)(GLenum type, GLsizei stride, const GLvoid *pt
 void (GLAPIENTRY *glColorPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
 void (GLAPIENTRY *glTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
 void (GLAPIENTRY *glDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+void (GLAPIENTRY *glDrawRangeElements)(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
 void (GLAPIENTRY *glBindBufferARB) (GLenum target, GLuint buffer);
 void (GLAPIENTRY *glDeleteBuffersARB) (GLsizei n, const GLuint *buffers);
@@ -663,7 +666,7 @@ void (GLAPIENTRY *glBufferDataARB) (GLenum target, GLsizeiptrARB size, const GLv
 void (GLAPIENTRY *glBufferSubDataARB) (GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data);
 
 
-
+#define GL_EXTENSIONS                     0x1F03
 #define GL_ARRAY_BUFFER_ARB               0x8892
 #define GL_ELEMENT_ARRAY_BUFFER_ARB       0x8893
 #define GL_ARRAY_BUFFER_BINDING_ARB       0x8894
@@ -871,6 +874,12 @@ vertex_t *varray_vertex;
 vertex_t *varray_normal;
 texcoord_t *varray_texcoord;
 
+int vbo_enable = 0;
+int vbo_ext = 0;
+const char *ext_string = NULL;
+int ext_vbo = 0;
+int ext_drawrangeelements = 0;
+
 unsigned int vbo_bufs[3] = { 0, 0, 0};
 
 void R_Mesh_Init(void)
@@ -881,52 +890,23 @@ void R_Mesh_Init(void)
 	varray_texcoord = NULL;
 }
 
-#define USE_VBO_VERT 0
-#define USE_VBO_NORM 0
-#define USE_VBO_TC 0
-
 void R_Mesh_ResizeCheck(int numverts)
 {
 	if (varraysize < numverts)
 	{
+		if (ext_vbo)
+			glDeleteBuffersARB(3, vbo_bufs);
+
 		varraysize = numverts;
-#if USE_VBO_VERT || USE_VBO_TC || USE_VBO_NORM
-		glDeleteBuffersARB(3, vbo_bufs);
-		glGenBuffersARB(3, vbo_bufs);
-#endif
-#if USE_VBO_VERT
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(vertex_t) * varraysize,
-				NULL, GL_DYNAMIC_DRAW_ARB);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#else
 		if (varray_vertex)
 			free(varray_vertex);
-		varray_vertex = calloc(varraysize, sizeof(vertex_t));
-		glVertexPointer(3, GL_FLOAT, 0, varray_vertex);
-#endif
-#if USE_VBO_NORM
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(vertex_t) * varraysize,
-				NULL, GL_DYNAMIC_DRAW_ARB);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#else
 		if (varray_normal)
 			free(varray_normal);
-		varray_normal = calloc(varraysize, sizeof(vertex_t));
-		glNormalPointer(GL_FLOAT, 0, varray_normal);
-#endif
-#if USE_VBO_TC
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(texcoord_t) * varraysize,
-				NULL, GL_DYNAMIC_DRAW_ARB);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#else
 		if (varray_texcoord)
 			free(varray_texcoord);
+		varray_vertex = calloc(varraysize, sizeof(vertex_t));
+		varray_normal = calloc(varraysize, sizeof(vertex_t));
 		varray_texcoord = calloc(varraysize, sizeof(texcoord_t));
-		glTexCoordPointer(2, GL_FLOAT, 0, varray_texcoord);
-#endif
 
 		glEnable(GL_VERTEX_ARRAY);
 		glEnable(GL_NORMAL_ARRAY);
@@ -946,21 +926,6 @@ void dpmdraw(dpmheader_t *dpm, dpmbonepose_t *bonepose)
 	for (meshnum = 0, mesh = (dpmmesh_t *)((unsigned char *)dpm + dpm->ofs_meshs);meshnum < dpm->num_meshs;meshnum++, mesh++)
 	{
 		R_Mesh_ResizeCheck(mesh->num_verts);
-#if USE_VBO_VERT
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
-		varray_vertex = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#endif
-#if USE_VBO_NORM
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
-		varray_normal = glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#endif
-#if USE_VBO_TC
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
-		varray_texcoord= glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#endif
 		for (vertnum = 0, vert = (dpmvertex_t *)((unsigned char *)dpm + mesh->ofs_verts); vertnum < mesh->num_verts; vertnum++)
 		{
 			if (vert->numbones == 1)
@@ -1003,27 +968,42 @@ void dpmdraw(dpmheader_t *dpm, dpmbonepose_t *bonepose)
 			varray_texcoord[vertnum].v[0] = tc[0];
 			varray_texcoord[vertnum].v[1] = tc[1];
 		}
-#if USE_VBO_VERT
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
-		glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
-		glVertexPointer(3, GL_FLOAT, 0, 0);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#endif
-#if USE_VBO_NORM
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
-		glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
-		glNormalPointer(GL_FLOAT, 0, 0);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#endif
-#if USE_VBO_TC
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
-		glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
-		glTexCoordPointer(2, GL_FLOAT, 0, 0);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#endif
+		if (vbo_enable)
+		{
+			if (!vbo_bufs[0])
+			{
+				glGenBuffersARB(3, vbo_bufs);
+				glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(vertex_t) * varraysize, NULL, GL_DYNAMIC_DRAW_ARB);
+				glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(vertex_t) * varraysize, NULL, GL_DYNAMIC_DRAW_ARB);
+				glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(texcoord_t) * varraysize, NULL, GL_DYNAMIC_DRAW_ARB);
+				glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			}
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(vertex_t) * mesh->num_verts, varray_vertex);
+			glVertexPointer(3, GL_FLOAT, 0, 0);
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(vertex_t) * mesh->num_verts, varray_normal);
+			glNormalPointer(GL_FLOAT, 0, 0);
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
+			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(texcoord_t) * mesh->num_verts, varray_texcoord);
+			glTexCoordPointer(2, GL_FLOAT, 0, 0);
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		}
+		else
+		{
+			glVertexPointer(3, GL_FLOAT, 0, varray_vertex);
+			glNormalPointer(GL_FLOAT, 0, varray_normal);
+			glTexCoordPointer(2, GL_FLOAT, 0, varray_texcoord);
+		}
 		glColor4f(1,1,1,1);
 		bindimagetexture(mesh->shadername);
-		glDrawElements(GL_TRIANGLES, mesh->num_tris * 3, GL_UNSIGNED_INT, (GLuint *)((unsigned char *)dpm + mesh->ofs_indices));
+		if (ext_drawrangeelements)
+			glDrawRangeElements(GL_TRIANGLES, 0, mesh->num_verts, mesh->num_tris * 3, GL_UNSIGNED_INT, (GLuint *)((unsigned char *)dpm + mesh->ofs_indices));
+		else
+			glDrawElements(GL_TRIANGLES, mesh->num_tris * 3, GL_UNSIGNED_INT, (GLuint *)((unsigned char *)dpm + mesh->ofs_indices));
 	}
 }
 
@@ -1044,6 +1024,7 @@ SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
 	glEnable = SDL_GL_GetProcAddress("glEnable");
 	glDisable = SDL_GL_GetProcAddress("glDisable");
 	glGetIntegerv = SDL_GL_GetProcAddress("glGetIntegerv");
+	glGetString = SDL_GL_GetProcAddress("glGetString");
 	glOrtho = SDL_GL_GetProcAddress("glOrtho");
 	glFrustum = SDL_GL_GetProcAddress("glFrustum");
 	glGenTextures = SDL_GL_GetProcAddress("glGenTextures");
@@ -1067,6 +1048,7 @@ SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
 	glColorPointer = SDL_GL_GetProcAddress("glColorPointer");
 	glTexCoordPointer = SDL_GL_GetProcAddress("glTexCoordPointer");
 	glDrawElements = SDL_GL_GetProcAddress("glDrawElements");
+	glDrawRangeElements = SDL_GL_GetProcAddress("glDrawRangeElements");
 
 	glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
 	glDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
@@ -1076,6 +1058,10 @@ SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
 	glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
 	glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 	glBufferSubDataARB = SDL_GL_GetProcAddress("glBufferSubDataARB");
+
+	ext_string = glGetString(GL_EXTENSIONS);
+	ext_drawrangeelements = strstr(ext_string, "GL_EXT_draw_range_elements") != NULL;
+	ext_vbo = strstr(ext_string, "GL_ARB_vertex_buffer_object") != NULL;
 
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxtexturesize);
 	return surface;
@@ -1163,6 +1149,8 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 	sprintf(caption, "dpmviewer: %s", filename);
 	SDL_WM_SetCaption(caption, NULL);
 
+	SDL_EnableUNICODE(1);
+
 	sceneranges = dpmbuildsceneranges(dpm);
 
 	playedtime = 0;
@@ -1228,11 +1216,23 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 				case SDLK_SPACE:
 					playback = !playback;
 					break;
-				case SDLK_q:
 				case SDLK_ESCAPE:
 					quit = 1;
 					break;
 				default:
+					if (event.key.keysym.unicode == 'v')
+					{
+						if (ext_vbo)
+						{
+							vbo_enable = !vbo_enable;
+							if (vbo_enable)
+								printf("vbo enabled\n");
+							else
+								printf("vbo disabled\n");
+						}
+						else
+							printf("vbo toggle needs GL_ARB_vertex_buffer_object extension\n");
+					}
 					break;
 				}
 				break;
@@ -1311,6 +1311,10 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 			fpsbasetime = currenttime;
 			fpsframecount = 0;
 		}
+		sprintf(tempstring, "V: VBO %s   arrows/pgup/pgdn: rotate", vbo_enable ? "enabled " : "disabled");
+		drawstring(tempstring, 0, 0, 8, 8);
+		sprintf(tempstring, "0-9: type in framerate    space: pause    escape: quit");
+		drawstring(tempstring, 0, 8, 8, 8);
 		sprintf(tempstring, "fps%5i angles %3.0f %3.0f %3.0f playrate %02d frame %s", fps, angles[0], angles[1], angles[2], sceneframerate, ((dpmframe_t *)((unsigned char *)dpm + dpm->ofs_frames))[scenefirstframe + ((int) sceneframe) % scenenumframes].name);
 		drawstring(tempstring, 0, 480 - 8, 8, 8);
 		// note: SDL_GL_SwapBuffers does a glFinish for us
