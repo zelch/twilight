@@ -386,7 +386,7 @@ void LightWorld (void)
 		}
 		if (ignorevis)
 			printf("light at origin '%f %f %f' is in solid or sky, ignoring vis\n", light->origin[0], light->origin[1], light->origin[2]);
-		if (leaf->visofs == -1 || ignorevis || !lightvis)
+		if (leaf->visofs == -1 || ignorevis || !lightvis || light->type == LIGHTTYPE_SUN)
 		{
 			/*
 			if ((lightchainbufindex + numfaces) > LIGHTCHAINS)
