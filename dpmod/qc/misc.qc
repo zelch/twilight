@@ -203,6 +203,8 @@ void() flamespawn =
 	setmodel(newmis, "progs/torchflamebase.spr32");
 	newmis.effects = EF_ADDITIVE;
 	newmis.scale = self.scale;
+	if (newmis.scale == 1)
+		makestatic(newmis);
 	//setmodel (self, "progs/torchflamebase.spr32");
 	//self.think = flameanimloop;
 	//self.nextthink = time + 0.1;
@@ -211,6 +213,8 @@ void() flamespawn =
 	setmodel(newmis, "progs/torchflametop.spr32");
 	newmis.effects = EF_ADDITIVE;
 	newmis.scale = self.scale;
+	if (newmis.scale == 1)
+		makestatic(newmis);
 	//newmis.think = flameanimloop;
 	//newmis.nextthink = time + 0.1;
 	/*
@@ -220,7 +224,9 @@ void() flamespawn =
 	flamepoly(self.origin, '0 180 0');
 	flamepoly(self.origin, '0 270 0');
 	*/
-	if (!self.model)
+	if (self.model)
+		makestatic (self);
+	else
 		remove(self);
 };
 
@@ -428,7 +434,7 @@ void() fire_fly;
 void() fire_touch;
 void() misc_fireball =
 {
-	
+
 	precache_model ("progs/lavaball.mdl");
 	self.classname = "fireball";
 	self.nextthink = time + (random() * 5);
@@ -472,25 +478,6 @@ void() fire_touch =
 //============================================================================
 
 
-void() barrel_det;
-
-void() barrel_spawn =
-{
-	self.solid = SOLID_BBOX;
-	self.movetype = MOVETYPE_TOSS;
-	setmodel (self, self.mdl);
-	self.health = 20;
-	self.th_die = barrel_det;
-	self.takedamage = DAMAGE_AIM;
-	self.think = SUB_Null;
-	self.nextthink = -1;
-	self.flags = 0;
-
-	setorigin(self, self.dest);
-//	spawn_tfog ((self.absmax + self.absmin) * 0.5);
-//	spawn_tdeath ((self.absmax + self.absmin) * 0.5, self);
-};
-
 void() barrel_explode =
 {
 	local vector v, v2;
@@ -512,45 +499,56 @@ void() barrel_det =
 	self.nextthink = time;
 };
 
+void(string netname1, string model1, string deathmessage, float damage) barrel_spawn =
+{
+	local float oldz;
+
+	precache_model (model1);
+	precache_sound ("weapons/r_exp3.wav");
+
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = deathmessage;
+	if (!self.dmg)
+		self.dmg = damage;
+	self.netname = netname1;
+
+	self.owner = self;
+	self.solid = SOLID_BBOX;
+	self.movetype = MOVETYPE_NONE;
+	setmodel (self, model1);
+	self.health = 20;
+	self.th_die = barrel_det;
+	self.takedamage = DAMAGE_AIM;
+	self.think = SUB_Null;
+	self.nextthink = -1;
+	self.flags = 0;
+
+	self.origin_z = self.origin_z + 2;
+	oldz = self.origin_z;
+	droptofloor();
+	if (oldz - self.origin_z > 250)
+	{
+		dprint ("explosive box fell out of level at ");
+		dprint (vtos(self.origin));
+		dprint ("\n");
+		remove(self);
+	}
+};
+
 /*QUAKED misc_explobox (0 .5 .8) (0 0 0) (32 32 64)
 TESTING THING
 */
-
 void() misc_explobox =
 {
-	if (!self.deathtype) // map makers can override this
-		self.deathtype = " wondered what those boxes did";
-	if (!self.dmg)
-		self.dmg = 750;
-	precache_model ("maps/b_explob.bsp");
-	precache_sound ("weapons/r_exp3.wav");
-	self.netname = "Large exploding box";
-	self.owner = self;
-	self.mdl = "maps/b_explob.bsp";
-	self.dest = self.origin + '0 0 2';
-	barrel_spawn();
+	barrel_spawn("Large exploding box", "maps/b_explob.bsp", " was blown up by an explosive box", 750);
 };
-
-
-
 
 /*QUAKED misc_explobox2 (0 .5 .8) (0 0 0) (32 32 64)
 Smaller exploding box, REGISTERED ONLY
 */
-
 void() misc_explobox2 =
 {
-	if (!self.deathtype) // map makers can override this
-		self.deathtype = " wondered what those boxes did";
-	if (!self.dmg)
-		self.dmg = 250;
-	precache_model2 ("maps/b_exbox2.bsp");
-	precache_sound ("weapons/r_exp3.wav");
-	self.netname = "Small exploding box";
-	self.owner = self;
-	self.mdl = "maps/b_exbox2.bsp";
-	self.dest = self.origin + '0 0 2';
-	barrel_spawn();
+	barrel_spawn("Small exploding box", "maps/b_exbox2.bsp", " was blown up by an explosive box", 250);
 };
 
 //============================================================================
