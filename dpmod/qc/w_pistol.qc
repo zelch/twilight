@@ -18,7 +18,10 @@ void() W_PistolFireCode =
 	w_muzzleflash(shotorg, 1);
 	ejectcasing(shotorg, shotdir, v_right * 150 + v_up * 50, 50, 0);
 	bullet_type = 4;
-	FireBullets(1, 30, 30, shotdir * 7000, 0.0125, "PISTOL", DT_NAIL, Obituary_Pistol);
+	if (self.button3)
+		FireBullets(1, 30, 30, shotdir * 7000, 0.05, "PISTOL", DT_NAIL, Obituary_Pistol);
+	else
+		FireBullets(1, 30, 30, shotdir * 7000, 0.0125, "PISTOL", DT_NAIL, Obituary_Pistol);
 };
 
 void() w_pistoldrop1;
@@ -31,9 +34,9 @@ void() w_pistol =
 		return;
 
 	if (self.button0)
-		W_GenericFireCode("weapons/rocket1i.wav", 0.3, W_PistolFireCode);
-	else
-		self.notfiring = TRUE;
+		W_GenericSlowFireCode("weapons/rocket1i.wav", 0.4, W_PistolFireCode);
+	else if (self.button3)
+		W_GenericSlowFireCode("weapons/rocket1i.wav", 0.2, W_PistolFireCode);
 
 	if (self.wfiretime)
 	{

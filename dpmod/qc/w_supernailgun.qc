@@ -71,15 +71,13 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_ProximityM
 void() W_SuperNailgunMineFireCode =
 {
 	local float a;
-	stopfiring = TRUE;
 	self.wfiretime = time;
-
 	a = 3;
 	if (a > self.ammo_rockets)
 		a = self.ammo_rockets;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - a;
 	w_muzzleflash(shotorg, 3);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100, a * 100 + 50, MINE_PROXIMITY | MINE_DETONATEONBUTTON3, 60, "PROXIMITYMINE", Obituary_ProximityMine);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100, a * 100 + 50, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
 };
 
 void() w_snailgundrop1;
@@ -94,15 +92,15 @@ void() w_snailgun =
 	if (self.button0)
 	{
 		if (self.ammo_nails >= 1)
-			W_GenericFireCode("weapons/spike2.wav", 0.05, W_SuperNailgunFireCode);
-	}
-	else if (self.button3)
-	{
-		if (self.ammo_rockets >= 1)
-			W_GenericFireCode("weapons/grenade.wav", 0.5, W_SuperNailgunMineFireCode);
+			W_GenericRapidFireCode("weapons/spike2.wav", 0.05, W_SuperNailgunFireCode);
 	}
 	else
+	{
 		self.notfiring = TRUE;
+		if (self.button3)
+		if (self.ammo_rockets >= 1)
+			W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_SuperNailgunMineFireCode);
+	}
 
 	if ((time - self.wfiretime) < 0.15)
 		self.weaponframe = self.wframe;

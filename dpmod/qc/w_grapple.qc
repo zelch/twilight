@@ -169,8 +169,7 @@ void(entity own, vector org, vector dir) FireGrapple =
 void() W_GrappleFireCode =
 {
 	self.wfiretime = time;
-	self.effects = self.effects | EF_MUZZLEFLASH;
-	self.punchangle_x = -2;
+	w_muzzleflash(shotorg, 1);
 	FireGrapple(self, shotorg, shotdir);
 };
 
@@ -186,12 +185,10 @@ void() w_grapple =
 	if (self.button0) // fire
 	{
 		if (!self.grapple)
-			W_GenericFireCode("weapons/sgun1.wav", 0.5, W_GrappleFireCode);
+			W_GenericSlowFireCode("weapons/sgun1.wav", 0.5, W_GrappleFireCode);
 	}
 	// else if (self.button3)
 		// FIXME: add chainsaw
-	else
-		self.notfiring = TRUE;
 
 	if (self.wfiretime)
 	{

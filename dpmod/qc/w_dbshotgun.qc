@@ -62,14 +62,12 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc) W_DBShotgunFireShe
 void() W_DBShotgunSingleFireCode =
 {
 	W_DBShotgunFireShell(Obituary_DBShotgunSingle);
-	stopfiring = TRUE;
 };
 
 void() W_DBShotgunDoubleFireCode =
 {
 	while (self.wload >= 1)
 		W_DBShotgunFireShell(Obituary_DBShotgunDouble);
-	stopfiring = TRUE;
 };
 
 /*
@@ -80,9 +78,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunM
 
 void() W_DBShotgunMineFireCode =
 {
-	stopfiring = TRUE;
 	self.wfiretime = time;
-
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
 	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 250, MINE_PROXIMITY | MINE_DETONATEONBUTTON3, 2.5, "DBSHOTGUNMINE", Obituary_DBShotgunMine);
@@ -112,9 +108,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunG
 
 void() W_DBShotgunGrenadeFireCode =
 {
-	stopfiring = TRUE;
 	self.wfiretime = time;
-
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
 	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 200, 250, GRENADE_IMPACT, 2.5, "DBSHOTGUNGRENADE", Obituary_DBShotgunGrenade);
@@ -127,8 +121,7 @@ void() w_dbshotgunraise1;
 void() w_dbshotgunraise2;
 void() w_dbshotgun =
 {
-	local string s;
-	local vector a, v;
+	local vector v;
 
 	if (self.wload > self.ammo_shells)
 		self.wload = self.ammo_shells;
@@ -136,17 +129,17 @@ void() w_dbshotgun =
 	if (self.button0)
 	{
 		if (self.wload > 0)
-			W_GenericFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunDoubleFireCode);
-			//W_GenericFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunSingleFireCode);
+			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunDoubleFireCode);
+			//W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunSingleFireCode);
 	}
 	else if (self.button3)
 	{
 		/*
 		if (self.wload > 0)
-			W_GenericFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunDoubleFireCode);
+			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunDoubleFireCode);
 		*/
 		if (self.ammo_rockets > 0)
-			W_GenericFireCode("weapons/grenade.wav", 0.8, W_DBShotgunGrenadeFireCode);
+			W_GenericSlowFireCode("weapons/grenade.wav", 0.8, W_DBShotgunGrenadeFireCode);
 	}
 	else
 		self.notfiring = TRUE;

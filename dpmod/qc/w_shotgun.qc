@@ -14,20 +14,13 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Shotgun =
 
 void() W_SingleShotgunFireCode =
 {
-	stopfiring = TRUE;
 	self.wfiretime = time;
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
-
 	w_muzzleflash(shotorg, 2);
-	//bullet_type = 1;
-	//FireBullets(5, 9, 9, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-	//bullet_type = 0;
-	//FireBullets(10, 9, 9, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 	bullet_type = 1;
 	FireBullets(5, 5, 5, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 	bullet_type = 0;
 	FireBullets(10, 5, 5, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-
 	self.wload = -1;
 };
 
@@ -37,7 +30,7 @@ void() w_shotgunraise1;
 void() w_shotgunraise2;
 void() w_shotgun =
 {
-	local vector a, v;
+	local vector v;
 	if (widle(w_shotgundrop1))
 		return;
 
@@ -47,7 +40,7 @@ void() w_shotgun =
 	if (self.button0)
 	{
 		if (self.wload >= 1) // is it loaded?
-			W_GenericFireCode("weapons/shotgn2.wav", 0.3, W_SingleShotgunFireCode);
+			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.3, W_SingleShotgunFireCode);
 	}
 	else
 		self.notfiring = TRUE;

@@ -44,29 +44,6 @@ void() W_NailgunFireCode =
 	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}
 };
 
-/*
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_NailgunGrenade =
-{
-	if (dtype == DTYPE_PLAYER)
-	{
-		deathstring1 = targ.netname;
-		deathstring3 = attacker.netname;
-		if (targ.bodyhealth < 1) // gib
-		{
-			deathstring2 = " ate one of ";
-			deathstring4 = "'s porcupines";
-		}
-		else
-		{
-			deathstring2 = " was torn up by ";
-			deathstring4 = "'s nail grenade";
-		}
-	}
-	else
-		Obituary_Fallback(targ, attacker, dmsg, dtype);
-};
-*/
-
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_NailgunMine =
 {
 	if (dtype == DTYPE_PLAYER)
@@ -98,66 +75,12 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_NailgunMin
 
 void() W_NailgunGrenadeFireCode =
 {
-	stopfiring = TRUE;
 	self.wfiretime = time;
-
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
 	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 70, MINE_LASERTRIP | MINE_DETONATEONBUTTON3, 60, "LASERTRIPMINE", Obituary_NailgunMine);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 70, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
 };
-
-/*
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_ProximityMine =
-{
-	Obituary_Fallback(targ, attacker, dmsg, dtype);
-};
-
-void() W_NailgunMineFireCode =
-{
-	stopfiring = TRUE;
-	self.wfiretime = time;
-
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg, 3);
-	//LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 300, 60, MINE_LASERTRIP | MINE_DETONATEONBUTTON3, 60, "LASERTRIPMINE", Obituary_LaserTripMine);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 100, 120, MINE_PROXIMITY | MINE_TENWARHEAD | MINE_DETONATEONBUTTON3, 60, "PROXIMITYMIRV", Obituary_ProximityMine);
-};
-*/
-
-/*
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_NailgunRocket =
-{
-	if (dtype == DTYPE_PLAYER)
-	{
-		deathstring1 = targ.netname;
-		deathstring3 = attacker.netname;
-		if (targ.bodyhealth < 1) // gib
-		{
-			deathstring2 = " was torn asunder by ";
-			deathstring4 = "'s rocket";
-		}
-		else
-		{
-			deathstring2 = "'s world was rocked by ";
-			deathstring4 = "";
-		}
-	}
-	else
-		Obituary_Fallback(targ, attacker, dmsg, dtype);
-}
-
-void() W_NailgunRocketFireCode =
-{
-	if (self.ammo_rockets < 0.2) {stopfiring = TRUE;return;}
-	fightdone = time + 1; // delay stuff until fighting is over
-	self.wfiretime = time;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 0.2;
-	w_muzzleflash(shotorg, 1);
-	LaunchMissile(shotorg, shotdir, self, 30, 60, "NAILGUNROCKET", Obituary_NailgunRocket);
-	if (self.ammo_rockets < 0.2) {stopfiring = TRUE;return;}
-};
-*/
 
 
 void() w_nailgundrop1;
@@ -172,29 +95,15 @@ void() w_nailgun =
 	if (self.button0)
 	{
 		if (self.ammo_nails >= 1)
-			W_GenericFireCode("weapons/rocket1i.wav", 0.1, W_NailgunFireCode);
-	}
-	/*
-	else if (self.button3)
-	{
-		if (self.ammo_rockets >= 0.2)
-			W_GenericFireCode("weapons/sgun1.wav", 0.2, W_NailgunRocketFireCode);
-	}
-	*/
-	/*
-	else if (self.button3)
-	{
-		if (self.ammo_rockets >= 1)
-			W_GenericFireCode("weapons/grenade.wav", 0.5, W_NailgunMineFireCode);
-	}
-	*/
-	else if (self.button3)
-	{
-		if (self.ammo_rockets >= 1)
-			W_GenericFireCode("weapons/grenade.wav", 0.8, W_NailgunGrenadeFireCode);
+			W_GenericRapidFireCode("weapons/rocket1i.wav", 0.1, W_NailgunFireCode);
 	}
 	else
+	{
 		self.notfiring = TRUE;
+		if (self.button3)
+		if (self.ammo_rockets >= 1)
+			W_GenericSlowFireCode("weapons/grenade.wav", 0.8, W_NailgunGrenadeFireCode);
+	}
 
 	if ((time - self.wfiretime) < 0.15)
 		self.weaponframe = self.wframe;

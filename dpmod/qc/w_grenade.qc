@@ -28,44 +28,30 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Grenade =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-void() W_GrenadeFireCode =
+void() W_GrenadeFireImpact =
 {
-	//local vector v;
-	//local float c;
 	stopfiring = TRUE;
 	self.wfiretime = time;
-	self.wburst = self.wburst - 1;
-//	self.punchangle_x = -2;
-
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-//	self.effects = self.effects | EF_MUZZLEFLASH;
 	w_muzzleflash(shotorg, 3);
-	/*
-	c = 1;
-	v = '0 0 0';
-	while (c > 0)
-	{
-		c = c - 1;
-		if (self.button3)
-			v = randomvec() * 150;
-		LaunchGrenade(shotorg, shotdir * 2000 + v_up * 0 + v + self.velocity, self, 150, 120, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 5, "GRENADE", Obituary_Grenade);
-	}
-	*/
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 60, 120, GRENADE_TENWARHEAD + GRENADE_PROXIMITY + GRENADE_DETONATEONBUTTON3, 5, "GRENADE", Obituary_Grenade);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 120, 120, GRENADE_PROXIMITY + GRENADE_DETONATEONBUTTON3, 2.5, "GRENADE", Obituary_Grenade);
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 100, 250, GRENADE_PROXIMITY, 15, "GRENADE", Obituary_Grenade);
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 200, 250, GRENADE_PROXIMITY, 15, "GRENADE", Obituary_Grenade);
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 220, 250, GRENADE_IMPACT, 2.5, "GRENADE", Obituary_Grenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200/* + self.velocity*/, self, 150, 200, GRENADE_IMPACT, 25, "GRENADE", Obituary_Grenade);
 };
 
-//.float grenadetracetime;
+void() W_GrenadeFireProximity =
+{
+	stopfiring = TRUE;
+	self.wfiretime = time;
+	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+	w_muzzleflash(shotorg, 3);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200/* + self.velocity*/, self, 100, 150, GRENADE_PROXIMITY, 5, "GRENADE", Obituary_Grenade);
+};
+
 void() w_grenadedrop1;
 void() w_grenadedrop2;
 void() w_grenaderaise1;
 void() w_grenaderaise2;
 void() w_grenade =
 {
-	local vector v;
 	local float c;
 	if (widle(w_grenadedrop1))
 		return;
@@ -73,53 +59,13 @@ void() w_grenade =
 	if (self.button0)
 	{
 		if (self.ammo_rockets >= 1)
-			W_GenericFireCode("weapons/grenade.wav", 0.6, W_GrenadeFireCode);
-	}
-	else
-	{
-		self.notfiring = TRUE;
-	}
-	/*
-	if (self.wburst > 0)
-	{
-		if (self.ammo_rockets >= 1)
-			W_GenericFireCode("weapons/grenade.wav", 0.05, W_GrenadeFireCode);
-	}
-	else if (self.button0)
-	{
-		if (self.ammo_rockets >= 1)
-			W_GenericFireCode("weapons/grenade.wav", 0.6, W_GrenadeFireCode);
+			W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_GrenadeFireImpact);
 	}
 	else if (self.button3)
 	{
-		self.wburst = 10;
-		//if (self.ammo_rockets >= 1)
-		//	W_GenericFireCode("weapons/grenade.wav", 0.05, W_GrenadeFireCode);
+		if (self.ammo_rockets >= 1)
+			W_GenericSlowFireCode("weapons/grenade.wav", 0.8, W_GrenadeFireProximity);
 	}
-	else
-	{
-		self.notfiring = TRUE;
-	}
-
-	if (time > self.grenadetracetime)
-	{
-		self.grenadetracetime = time + 0.1;
-		c = 4;
-		newmis = spawn();
-		newmis.solid = SOLID_BBOX;
-		newmis.movetype = MOVETYPE_TOSS;
-		newmis.owner = self;
-		while (c > 0)
-		{
-			c = c - 1;
-			newmis.velocity = self.velocity + shotdir * 2000 + v_up * 0 + randomvec() * 150;
-			setorigin(newmis, shotorg);
-			tracetoss(newmis, self);
-			particle(trace_endpos, '0 0 0', 232, 30);
-		}
-		remove(newmis);
-	}
-	*/
 
 	if (self.wfiretime)
 	{

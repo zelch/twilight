@@ -22,10 +22,11 @@ void(float wframe) havoc_lightanimupdate;
 
 .float  switchweapon; // desired weapon (current weapon will switch to it when idle)
 
-float   stopfiring; // used by w_genericfirecode system
+float   stopfiring; // used by W_GenericRapidFireCode system
 
 vector  shotorg, shotdir;
-void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericFireCode;
+void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericRapidFireCode;
+void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericSlowFireCode;
 float(float minrange, float preferredrange, float baserating) genericweaponrating;
 
 float(float w, float request) setweapon;

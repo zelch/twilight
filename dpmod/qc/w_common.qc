@@ -69,10 +69,8 @@ vector(vector srcvec, vector dstvec) w_grenadeaim =
 
 .float notfiring;
 
-void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericFireCode =
+void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericRapidFireCode =
 {
-	local   float   nextshotdelay;
-
 	if (time < self.attack_finished) // still busy with the last shot
 		return;
 
@@ -84,20 +82,35 @@ void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericFireCo
 		self.attack_finished = time;
 	self.notfiring = FALSE;
 
-	if (firingsound != "")
-		sound (self, CHAN_WEAPON, firingsound, 1, ATTN_NORM);
-	SuperDamageSound();
-
 	// wake up monsters
 	self.show_hostile = time + 1;
 	weaponwakeup(self.origin, self);
+	SuperDamageSound();
+	if (firingsound != "")
+		sound (self, CHAN_WEAPON, firingsound, 1, ATTN_NORM);
 
 	while (time >= self.attack_finished && !stopfiring)
 	{
 		self.attack_finished = self.attack_finished + nextshotdelay;
 		uniquefunc();
 	}
+};
 
+void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericSlowFireCode =
+{
+	if (time < self.attack_finished) // still busy with the last shot
+		return;
+	
+	// wake up monsters
+	self.show_hostile = time + 1;
+	weaponwakeup(self.origin, self);
+	fightdone = time + 1; // delay stuff until fighting is over
+	SuperDamageSound();
+	if (firingsound != "")
+		sound (self, CHAN_WEAPON, firingsound, 1, ATTN_NORM);
+
+	self.attack_finished = time + nextshotdelay;
+	uniquefunc();
 };
 
 float(float haveammo) W_CheckNoAmmo =
@@ -114,8 +127,6 @@ vector weaponaimtarget;
 
 float(float w, float hasammo, float request, void() setupfunc, void() activefunc, void() raisefunc, vector(vector srcvec, vector dstvec) aimfunc, float() ratingfunc, string wname) weapongeneric =
 {
-	local string s;
-	local vector v;
 	if (request == WR_SETUP)
 	{
 		setupfunc();

@@ -81,7 +81,7 @@ void() MissileThink =
 	}
 	self.angles = vectoangles(self.velocity);
 	p = pointcontents(self.origin);
-	if ((self.owner.button3 && self.owner.weapon == IT_WEAPON7) || time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA)
+	if (/*(self.owner.button3 && self.owner.weapon == IT_WEAPON7) || */time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA)
 	{
 		MissileExplode();
 		return;

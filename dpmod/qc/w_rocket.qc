@@ -2,6 +2,9 @@
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Rocket =
 {
 	local float r;
+	//bprint("targ bodyhealth ");
+	//bprintfloat(targ.bodyhealth);
+	//bprint("\n");
 	if (dtype == DTYPE_PLAYER)
 	{
 		deathstring1 = targ.netname;
@@ -12,12 +15,20 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Rocket =
 			deathstring2 = " found out online gaming with ";
 			deathstring4 = " was a big mistake";
  		}
+		else if (targ.bodyhealth < -250 && dmsg != "ROCKET1")
+		{
+			deathstring2 = " met a rocket storm from ";
+			deathstring4 = "";
+		}
 		else if (targ.bodyhealth < -150)
 		{
 			if (random() < 0.5)
 			{
 				deathstring2 = " was mistified by ";
-				deathstring4 = "'s rocket";
+				if (dmsg == "ROCKET1")
+					deathstring4 = "'s rocket";
+				else
+					deathstring4 = "'s rockets";
 			}
 			else
 			{
@@ -91,48 +102,35 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Rocket =
 
 void() W_RocketFireCode =
 {
-	if (self.ammo_rockets < 1/* || self.wload < 1*/) {stopfiring = TRUE;return;}
-	fightdone = time + 1; // delay stuff until fighting is over
 	self.wfiretime = time;
-//	self.punchangle_x = -2;
+	self.flags = self.flags - (self.flags & FL_ONGROUND);
+	if (self.wload >= 3)
+	{
+		self.velocity = self.velocity - shotdir * 150;
+		self.currentammo = self.ammo_rockets = self.ammo_rockets - 3;
+		w_muzzleflash(shotorg, 4);
+		LaunchMissile(shotorg, shotdir                , self, 120, 120, "ROCKET3", Obituary_Rocket);
+		LaunchMissile(shotorg, shotdir + v_right * 0.1, self, 120, 120, "ROCKET3", Obituary_Rocket);
+		LaunchMissile(shotorg, shotdir - v_right * 0.1, self, 120, 120, "ROCKET3", Obituary_Rocket);
+	}
+	else if (self.wload >= 2)
+	{
+		self.velocity = self.velocity - shotdir * 100;
+		self.currentammo = self.ammo_rockets = self.ammo_rockets - 2;
+		w_muzzleflash(shotorg, 4);
+		LaunchMissile(shotorg, shotdir + v_right * 0.05, self, 120, 120, "ROCKET2", Obituary_Rocket);
+		LaunchMissile(shotorg, shotdir - v_right * 0.05, self, 120, 120, "ROCKET2", Obituary_Rocket);
+	}
+	else
+	{
+		self.velocity = self.velocity - shotdir * 50;
+		self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+		w_muzzleflash(shotorg, 4);
+		LaunchMissile(shotorg, shotdir                 , self, 120, 120, "ROCKET1", Obituary_Rocket);
+	}
 
-	//self.velocity = self.velocity + '0 0 40' - shotdir * 50;self.flags = self.flags - (self.flags & FL_ONGROUND);
-
-//	self.wload = self.wload - 1;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg, 4);
-	//LaunchMissile(shotorg, shotdir, self, 200, 250, "ROCKET", Obituary_Rocket);
-	//LaunchMissile(shotorg, shotdir, self, 100, 250, "ROCKET", Obituary_Rocket);
-	LaunchMissile(shotorg, shotdir, self, 120, 120, "ROCKET", Obituary_Rocket);
-
-	if (self.ammo_rockets < 1 || self.wload < 1) {stopfiring = TRUE;return;}
+	self.wload = 0;
 };
-
-/*
-void() W_RocketTripleFireCode =
-{
-	if (self.ammo_rockets < 3) {stopfiring = TRUE;return;}
-	fightdone = time + 1; // delay stuff until fighting is over
-	self.wfiretime = time;
-//	self.punchangle_x = -2;
-
-	//self.velocity = self.velocity + '0 0 40' - shotdir * 50;self.flags = self.flags - (self.flags & FL_ONGROUND);
-
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 3;
-	w_muzzleflash(shotorg, 4);
-	//LaunchMissile(shotorg, shotdir, self, 200, 250, "ROCKET", Obituary_Rocket);
-	//LaunchMissile(shotorg, shotdir, self, 100, 250, "ROCKET", Obituary_Rocket);
-	self.velocity = self.velocity - v_right * 80;
-	LaunchMissile(shotorg, shotdir, self, 120, 120, "ROCKET", Obituary_Rocket);
-	self.velocity = self.velocity + v_right * 80;
-	LaunchMissile(shotorg, shotdir, self, 120, 120, "ROCKET", Obituary_Rocket);
-	self.velocity = self.velocity + v_right * 80;
-	LaunchMissile(shotorg, shotdir, self, 120, 120, "ROCKET", Obituary_Rocket);
-	self.velocity = self.velocity - v_right * 80;
-
-	if (self.ammo_rockets < 3) {stopfiring = TRUE;return;}
-};
-*/
 
 void() w_rocketdrop1;
 void() w_rocketdrop2;
@@ -143,38 +141,30 @@ void() w_rocket =
 	if (widle(w_rocketdrop1))
 		return;
 
-	/*
-	if (self.wload < 1)
-	if (self.ammo_rockets >= 1)
-	if (time > self.attack_finished)
-	if (!self.button0)
-	if (!self.button3)
-	{
-		self.wload = 3;
-		self.attack_finished = time + 0.6;
-		sound(self, CHAN_WEAPON, "weapons/bsgload.wav", 1, ATTN_STATIC);
-	}
-	*/
+	if (self.wload > self.ammo_rockets)
+		self.wload = self.ammo_rockets;
 
-//	if (self.wload > self.ammo_rockets)
-//		self.wload = self.ammo_rockets;
-
-	if (self.button0)
+	if (time >= self.attack_finished)
 	{
-		if (self.ammo_rockets >= 1)
-		//if (self.wload >= 1)
-			W_GenericFireCode("weapons/sgun1.wav", 0.5, W_RocketFireCode);
+		if (self.wload < 1)
+		{
+			self.wload = 1;
+			self.attack_finished = time + 0.4;
+		}
+		else if (self.button0)
+			W_GenericSlowFireCode("weapons/sgun1.wav", 0.2, W_RocketFireCode);
+		else
+		{
+			if (self.button3)
+			if (self.wload < 3)
+			if (self.wload < self.ammo_rockets)
+			{
+				self.wload = self.wload + 1;
+				self.attack_finished = time + 0.4;
+				sound(self, CHAN_WEAPON, "weapons/bsgload.wav", 1, ATTN_STATIC);
+			}
+		}
 	}
-	/*
-	else if (self.button3)
-	{
-		if (self.ammo_rockets >= 3)
-		//if (self.wload >= 1)
-			W_GenericFireCode("weapons/sgun1.wav", 1.0, W_RocketTripleFireCode);
-	}
-	*/
-	else
-		self.notfiring = TRUE;
 
 	if (self.wfiretime)
 	{

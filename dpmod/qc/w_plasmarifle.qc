@@ -12,42 +12,25 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaRifl
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-void() W_PlasmaRifleFireCode =
+void() W_PlasmaRifleFireRapid =
 {
 	local vector dir;
-	local float cells;
-
-	if (self.ammo_cells < 1)
-	{
-		stopfiring = TRUE;
-		return;
-	}
-
-	cells = floor(self.wload);
-	if (cells > self.ammo_cells)
-		cells = self.ammo_cells;
-	self.wload = 0;
-	self.currentammo = self.ammo_cells = self.ammo_cells - cells;
+	self.wload = self.wload - 1;
+	self.currentammo = self.ammo_cells = self.ammo_cells - 1;
 	self.wfiretime = time;
+	dir = shotdir + randomvec() * 0.03;
+	w_muzzleflash(shotorg, 1);
+	//FireBullets(self, self, shotorg, 4, 1, 30, 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
+	FirePlasma(self, shotorg, dir, 30, 45, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+};
 
-	if (self.viewzoom < 1)
-	{
-		dir = shotdir;
-
-		//FireBullets(self, self, shotorg, 4, 1, cells * 30, cells * 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
-		FirePlasma(self, shotorg, dir, cells * 30, 105, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
-	}
-	else
-	{
-		dir = shotdir + randomvec() * 0.03;
-		w_muzzleflash(shotorg, 1);
-
-		//FireBullets(self, self, shotorg, 4, 1, cells * 30, cells * 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
-		FirePlasma(self, shotorg, dir, cells * 30, 45, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
-	}
-
-	if (self.ammo_cells < 1)
-		stopfiring = TRUE;
+void() W_PlasmaRifleFireHighPower =
+{
+	self.currentammo = self.ammo_cells = self.ammo_cells - self.wload;
+	self.wfiretime = time;
+	//FireBullets(self, self, shotorg, 4, 1, self.wload * 30, self.wload * 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
+	FirePlasma(self, shotorg, shotdir, self.wload * 30, 105, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	self.wload = 0;
 };
 
 .float idealzoom;
@@ -58,27 +41,36 @@ void() w_plasmarifleraise1;
 void() w_plasmarifleraise2;
 void() w_plasmarifle =
 {
+	local float charge;
 	if (widle(w_plasmarifledrop1))
 		return;
 
 	if (self.button3)
 		self.idealzoom = 0.2;
 
-	if (self.button0)
+	if (self.wload > self.ammo_cells)
+		self.wload = self.ammo_cells;
+	
+	if (self.button0 && self.wload >= 1)
 	{
 		if (self.viewzoom < 1)
-		{
-			self.wload = 4;
-			W_GenericFireCode("", 0.7, W_PlasmaRifleFireCode);
-		}
+			W_GenericSlowFireCode("", 0.3, W_PlasmaRifleFireHighPower);
 		else
+			W_GenericSlowFireCode("", 0.1, W_PlasmaRifleFireRapid);
+	}
+	else if (time > self.attack_finished)
+	{
+		charge = self.ammo_cells;
+		if (charge > 8)
+			charge = 8;
+		if (self.wload < charge)
 		{
-			self.wload = 1;
-			W_GenericFireCode("", 0.1, W_PlasmaRifleFireCode);
+			self.wload = charge;
+			self.attack_finished = time + 0.2;
+			// FIXME: need a charge sound
+			//sound (self, CHAN_WEAPON, "weapons/plasmarifle/charge.wav", 1, ATTN_NORM);
 		}
 	}
-	else
-		self.notfiring = TRUE;
 
 	if (widle(w_plasmarifledrop1))
 		return;
