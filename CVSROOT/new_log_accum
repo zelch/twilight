@@ -338,13 +338,13 @@ sub build_header ($@) {
 	push(@text, "To: " . join(' ', @mailto));
 	push(@text, "Subject: $subject");
 	push(@text, "MIME-Version: 1.0");
-	push(@text, "Content-Type: multipart/alternative; boundary=\"$boundary\"");
+	push(@text, "Content-Type: multipart/mixed; boundary=\"$boundary\"");
 	push(@text, "X-Mailer: cvs/new_log_accum");
 	push(@text, "");
 	push(@text, "This is a multipart message as defined by RFC2049 (MIME)");
 	push(@text, "");
 	push(@text, "--$boundary");
-	push(@text, "Content-Type: text/plain; charset=\"US-ASCII\"");
+	push(@text, "Content-Type: text/plain; charset=us-ascii");
 	push(@text, "Content-Disposition: inline");
 	push(@text, "");
 
@@ -369,7 +369,7 @@ sub send_mail {
     @text = @{$text};
 
     open(MAIL, "|$MAILER " . join(' ', @mailto));
-    push(@text, "--$boundary", "");
+    push(@text, "--$boundary--", "");
     print MAIL join("\n", @text), "\n";
     close(MAIL);
 }
@@ -726,10 +726,14 @@ unshift(@text, build_header($modname, "Module $modname: Change committed",
 @files = sort { $a->{name} cmp $b->{name} } @files;
 
 my ($user);
+my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time());
 $user = getpwuid($<);
 
+$filename = sprintf("%s.%04d-%02d-%02d %02d:%02d:%02d.%s.diff", $modname,
+	$year + 1900, $mon, $mday, $hour, $min, $sec, $user);
+
 push(@text, "--$boundary");
-push(@text, "Content-Type: text/plain; name=\"cvs.$user." . time() . ".diff\"");
+push(@text, "Content-Type: text/plain; name=\"cvs.$user.".diff\"");
 push(@text, "Content-Disposition: attachment; filename=\"cvs.$user." . time() . ".diff\"");
 push(@text, "Content-Transfer-Encoding: 8bit");
 push(@text, "");
