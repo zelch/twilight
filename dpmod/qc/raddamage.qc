@@ -26,7 +26,7 @@ float(entity targ, entity inflictor) CanDamage =
                 v_x = m1_x + random() * m2_x;
                 v_y = m1_y + random() * m2_y;
                 v_z = m1_z + random() * m2_z;
-                traceline(inflictor.origin, v, FALSE, self);
+                traceline(inflictor.origin, v, FALSE, inflictor);
                 if ((trace_fraction == 1 || trace_ent == targ) && !trace_startsolid)
                 {
                         raddamage_lasthit = trace_endpos;
