@@ -91,7 +91,7 @@ viswinding_t *ClipVisWinding (viswinding_t *in, plane_t *split, qboolean keepon)
 	}
 	sides[i] = sides[0];
 	dists[i] = dists[0];
-	
+
 	if (keepon && !counts[0] && !counts[1])
 		return in;
 
@@ -238,7 +238,7 @@ viswinding_t *ClipToSeperators (viswinding_t *source, viswinding_t *pass, viswin
 //	int			counts[3];
 	qboolean		fliptest;
 
-// check all combinations	
+// check all combinations
 	for (i=0 ; i<source->numpoints ; i++)
 	{
 		l = (i+1)%source->numpoints;
@@ -414,11 +414,11 @@ void RecursiveLeafFlow (int leafnum, threaddata_t *thread, pstack_t *prevstack)
 	stack.next = NULL;
 	stack.leaf = leaf;
 	stack.portal = NULL;
-	stack.mightsee = qmalloc(bitbytes);
+	stack.mightsee = qmalloc(bitlongs * sizeof(long));
 	might = (long *)stack.mightsee;
 	vis = (long *)thread->leafvis;
 
-// check all portals for flowing into other leafs	
+// check all portals for flowing into other leafs
 	for (i=0 ; i<leaf->numportals ; i++)
 	{
 		p = leaf->portals[i];
@@ -565,8 +565,8 @@ void PortalFlow (portal_t *p)
 		Error ("PortalFlow: reflowed");
 	p->status = stat_working;
 
-	p->visbits = qmalloc (bitbytes);
-	memset (p->visbits, 0, bitbytes);
+	p->visbits = qmalloc (bitlongs * sizeof(long));
+	memset (p->visbits, 0, bitlongs * sizeof(long));
 
 	memset (&data, 0, sizeof(data));
 	data.leafvis = p->visbits;
@@ -637,8 +637,8 @@ void BasePortalVis (void)
 	oldtime = time(NULL);
 	for (i=0, p = portals ; i<numportals*2 ; i++, p++)
 	{
-		p->mightsee = qmalloc (bitbytes);
-		memset (p->mightsee, 0, bitbytes);
+		p->mightsee = qmalloc (bitlongs * sizeof(long));
+		memset (p->mightsee, 0, bitlongs * sizeof(long));
 
 		c_portalsee = 0;
 		memset (portalsee, 0, numportals*2);
@@ -687,7 +687,7 @@ void BasePortalVis (void)
 			if (k == w->numpoints)
 				continue;	// no points on back
 
-			portalsee[j] = 1;		
+			portalsee[j] = 1;
 			c_portalsee++;
 		}
 

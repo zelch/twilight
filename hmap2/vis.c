@@ -480,8 +480,8 @@ void LoadPortals (char *name)
 	printf ("%4i portalleafs\n", portalleafs);
 	printf ("%4i numportals\n", numportals);
 
-	bitbytes = ((portalleafs+63)&~63)>>3;
-	bitlongs = bitbytes/sizeof(long);
+	bitbytes = (portalleafs+7)>>3;
+	bitlongs = (portalleafs+(8*sizeof(long)-1))/(8*sizeof(long));
 
 // each file portal is split into two memory portals
 	portals = qmalloc(2*numportals*sizeof(portal_t));
@@ -705,8 +705,8 @@ int Vis_Main( int argc, char **argv )
 	LoadBSPFile (source);
 	LoadPortals (portalfile);
 
-	uncompressed = qmalloc(bitbytes*portalleafs);
-	memset (uncompressed, 0, bitbytes*portalleafs);
+	uncompressed = qmalloc(bitlongs*portalleafs*sizeof(long));
+	memset (uncompressed, 0, bitlongs*portalleafs*sizeof(long));
 
 //	CalcPassages ();
 
