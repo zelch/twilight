@@ -1,4 +1,9 @@
 <?php
+
+
+        // load the database config
+        require($pageroot . "/../web-private/sql.conf");
+
 	$display = array (
 		logo => "/images/twilight.gif" ,
 		body => "text=\"#ffffff\" bgcolor=\"#000000\"" .
@@ -240,6 +245,10 @@ a {
 		"zinx" => array (
 			"Name" => "Zinx Verituse" ,
 			"Email" => "zinx@magenet.net"
+		) ,
+		"Coderjoe" => array (
+			"Name" => "Thad Ward" ,
+			"Email" => "coderjoe@grnet.com"
 		)
 	);
 
