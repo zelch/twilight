@@ -11,69 +11,56 @@ Optional (if you want dom points in id1 maps):
 3. Add this line to the end of worldspawn (in world.qc):
 dom_spawnpointsformap();
 
-Note: The only teams who can use dom control points are identified by dom_team_a_teamcolor and dom_team_b_teamcolor (typically red and blue).
+Note: The only teams who can use dom control points are identified by dom_team entities (if none exist these default to red and blue and use only quake models/sounds).
 */
 
-float dom_team_none_modelindex;
-float dom_team_none_skin;
-float dom_team_none_name;
-float dom_team_none_teamcolor = 0;
-float dom_team_a_modelindex;
-float dom_team_a_skin;
-float dom_team_a_name;
-float dom_team_a_color = 4; // red
-float dom_team_b_modelindex;
-float dom_team_b_skin;
-float dom_team_b_name;
-float dom_team_b_color = 13; // blue
-
-string(float t) dom_teamname_for_colorteam =
-{
-	t = t - 1;
-	if (t == dom_team_a_teamcolor)
-		return dom_team_a_name;
-	else if (t == dom_team_b_teamcolor)
-		return dom_team_b_name;
-	else
-		return dom_team_none_name;
-};
+void() dom_spawnteams;
 
 void() dompointthink =
 {
+	local entity head;
 	self.nextthink = time + 3;
-	if (!self.team)
+	if (!self.goalentity.netname)
 		return;
+	// DPMOD
+	ChangeTeamFrags2(self.goalentity.team, 1);
+	/* QUAKE
 	head = find(head, classname, "player");
 	while (head)
 	{
-		if (head.team == self.team)
+		if (head.team == self.goalentity.team)
 			head.frags = head.frags + 1;
 		head = find(head, classname, "player");
 	}
+	*/
 };
 
 void() dompointtouch =
 {
-	if (other.team == self.team)
-		return;
+	local entity head;
 	if (other.classname != "player")
 		return;
 	if (other.health < 1)
 		return;
-	// only red and blue can claim it
-	s = dom_teamname_for_colorteam(other.team);
-	if (s == "none")
+	// only valid teams can claim it
+	head = find(world, classname, "dom_team");
+	while (head && head.team != other.team)
+		head = find(head, classname, "dom_team");
+	if (!head || head.netname == "" || head == self.goalentity)
 		return;
 
-	self.team = other.team;
+	self.goalentity = head;
+	self.model = head.mdl;
+	self.modelindex = head.lefty;
+	self.skin = head.skin;
 
-	bprint(self.message);
+	bprint(head.message);
 	bprint("\n");
 
-	if (self.noise != "")
-		sound(self, CHAN_BODY, self.noise, 1, ATTN_NORM);
-	if (self.noise1 != "")
-		sound(self, CHAN_VOICE, self.noise1, 1, ATTN_NONE);
+	if (head.noise != "")
+		sound(self, CHAN_BODY, head.noise, 1, ATTN_NORM);
+	if (head.noise1 != "")
+		sound(self, CHAN_VOICE, head.noise1, 1, ATTN_NONE);
 };
 
 /*QUAKED dom_team (0 .5 .8) (-16 -16 -24) (16 16 32)
@@ -106,26 +93,45 @@ Keys:
   "The forces of light have captured a mana well")
 */
 
-void(string teamname, float teamcolor, string pointmodel, float pointskin) dom_spawnteam =
+void() dom_team =
 {
-	precachemodel(pointmodel);
-	newmis = spawn();
-	newmis.classname = "dom_team";
-	newmis.netname = teamname;
-	newmis.team = teamcolor + 1;
-	newmis.skin = pointskin;
-	setmodel(newmis, pointmodel);
-	newmis.lefty = newmis.modelindex;
-	newmis.model = "";
-	newmis.modelindex = 0;
+	precache_model(self.model);
+	if (self.noise != "")
+		precache_sound(self.noise);
+	if (self.noise1 != "")
+		precache_sound(self.noise1);
+	self.classname = "dom_team";
+	setmodel(self, self.model);
+	self.mdl = self.model;
+	self.lefty = self.modelindex;
+	self.model = "";
+	self.modelindex = 0;
+	// this would have to be changed if used in quakeworld
+	self.team = self.cnt + 1;
 };
 
-void() dom_spawnteams =
+void() dom_controlpoint_setup =
 {
-	// LordHavoc: edit this if you want to change things
-	dom_spawnteam("Red", 4, "progs/b_g_key.mdl", 0);
-	dom_spawnteam("Blue", 13, "progs/b_s_key.mdl", 0);
-	dom_spawnteam("", 0, "progs/rune1.mdl", 0);
+	local entity head;
+	// find the dom_team representing unclaimed points
+	head = find(world, classname, "dom_team");
+	while(head && head.netname != "")
+		head = find(head, classname, "dom_team");
+	if (!head)
+		objerror("no dom_team with netname \"\" found\n");
+
+	// copy important properties from dom_team entity
+	self.goalentity = head;
+	setmodel(self, head.mdl);
+	self.skin = head.skin;
+
+	self.think = dompointthink;
+	self.nextthink = time;
+	self.touch = dompointtouch;
+	self.solid = SOLID_TRIGGER;
+	setsize(self, '-16 -16 -24', '16 16 32');
+	setorigin(self, self.origin);
+	droptofloor();
 };
 
 /*QUAKED dom_controlpoint (0 .5 .8) (-16 -16 -24) (16 16 32)
@@ -133,40 +139,99 @@ Control point for Domination gameplay.
 */
 void() dom_controlpoint =
 {
-	head = find(world, classname, "dom_team");
-	if (head == world)
-	{
-		dom_spawnteams();
-		head = find(world, classname, "dom_team");
-	}
-	while(head && head.netname != "")
-		head = find(head, classname, "dom_team");
+	self.think = dom_controlpoint_setup;
+	self.nextthink = time + 0.1;
+};
 
-	self.team = head.team + 1; // no team
-	self.netname = head.netname; // name for previous owner printing
-	self.model = head.mdl;
-	self.modelindex = head.lefty;
-	setsize(self, '-16 -16 -24', '16 16 32');
-	self.solid = SOLID_TRIGGER;
-	setorigin(self, self.origin);
+// code from here on is just to support maps that don't have control point and team entities
+void(string teamname, float teamcolor, string pointmodel, float pointskin, string capsound, string capnarration, string capmessage) dom_spawnteam =
+{
+	local entity oldself;
+	oldself = self;
+	self = spawn();
+	self.classname = "dom_team";
+	self.netname = teamname;
+	self.cnt = teamcolor;
+	self.model = pointmodel;
+	self.skin = pointskin;
+	self.noise = capsound;
+	self.noise1 = capnarration;
+	self.message = capmessage;
+
+	// this code is identical to dom_team
+	setmodel(self, self.model);
+	self.mdl = self.model;
+	self.lefty = self.modelindex;
+	self.model = "";
+	self.modelindex = 0;
+	// this would have to be changed if used in quakeworld
+	self.team = self.cnt + 1;
+
+	eprint(self);
+	self = oldself;
 };
 
 void(vector org) dom_spawnpoint =
 {
-	newmis = spawn();
-	newmis.classname = "dom_controlpoint";
-	newmis.think = dom_controlpoint;
-	newmis.nextthink = time;
-	setorigin(newmis, org);
+	local entity oldself;
+	oldself = self;
+	self = spawn();
+	self.classname = "dom_controlpoint";
+	self.think = dom_controlpoint;
+	self.nextthink = time;
+	self.origin = org;
+	dom_controlpoint();
+	self = oldself;
 };
 
-void() dom_spawnpointsformap =
+void() dom_spawnteams =
 {
-	/*
-	if (world.model == "maps/e1m1.bsp")
+	// LordHavoc: edit this if you want to change defaults
+	dom_spawnteam("Red", 4, "progs/b_g_key.mdl", 0, "doors/runetry.wav", "", "Red team has captured a control point");
+	dom_spawnteam("Blue", 13, "progs/b_s_key.mdl", 0, "doors/runetry.wav", "", "Blue team has captured a control point");
+	dom_spawnteam("", 0, "progs/end1.mdl", 0, "", "", "");
+};
+
+void() dom_delayedinit =
+{
+	local entity head;
+	// if no teams are found, spawn defaults
+	if (find(world, classname, "dom_team") == world)
+		dom_spawnteams();
+	// if no control points are found, spawn defaults
+	if (find(world, classname, "dom_controlpoint") == world)
 	{
-		dom_spawnpoint('0 0 0');
+		// here follow default domination points for each map
+		/*
+		if (world.model == "maps/e1m1.bsp")
+		{
+			dom_spawnpoint('0 0 0');
+		}
+		else
+		*/
+		{
+			// if no supported map was found, make every deathmatch spawn a point
+			head = find(world, classname, "info_player_deathmatch");
+			while (head)
+			{
+				dom_spawnpoint(head.origin);
+				head = find(head, classname, "info_player_deathmatch");
+			}
+		}
 	}
-	*/
+};
+
+void() dom_init =
+{
+	// we have to precache default models/sounds even if they might not be
+	// used because worldspawn is executed before any other entities are read,
+	// so we don't even know yet if this map is set up for domination...
+	precache_model("progs/b_g_key.mdl");
+	precache_model("progs/b_s_key.mdl");
+	precache_model("progs/end1.mdl");
+	precache_sound("doors/runetry.wav");
+	newmis = spawn();
+	newmis.think = dom_delayedinit;
+	newmis.nextthink = time + 0.1;
 };
 
