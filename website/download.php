@@ -6,7 +6,7 @@ require "include/main.php";
 startpage ("Download");
 
 
-echo ("Here is the current release of Project: Twilight\n");
+echo ("<p>Here is the current release of Project: Twilight.</p>\n");
 
 echo ("<div class=\"files\">\n");
 foreach (glob("$webspace/release/*.zip") as $filename)
@@ -15,12 +15,20 @@ foreach (glob("$webspace/release/*.zip") as $filename)
 	$url = "$urlbase/release/$filename";
 	echo ("<br><a href=\"$url\">$filename</a>\n");
 }
-echo ("</div>");
+echo ("<br></div>");
 
-echo ("This page isn't done yet...<br>\n");
-echo ("So go <a href=\"/twilight/release/\">here</a> for now.\n");
+echo ("<p>Older releases can be found <a href=\"$urlbase/release/archive\">"
+		. "here</a></p>\n");
 
-endpage ();
+echo ("<p>Other files which might come in handy:</p>\n");
+echo ("<div class=\"files\">\n");
+foreach (glob("$webspace/file/*.zip") as $filename)
+{
+	$filename = basename($filename);
+	$url = "$urlbase/file/$filename";
+	echo ("<br><a href=\"$url\">$filename</a>\n");
+}
+echo ("<br></div>");
 
 ?>
 
