@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002 Forest Hale
+Copyright (C) 2002 Forest Hale, John Fitzgibbons
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -20,38 +20,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #include <stdio.h>
 #include <math.h>
-
-//johnfitz -- add support for standalone 3dfx cards (voodoo 1/2/rush)
 #include <string.h>
-#include <GL/gl.h>
 
-typedef int (WINAPI * RAMPFUNC)();
-//RAMPFUNC wglGetDeviceGammaRamp3DFX;
-RAMPFUNC wglSetDeviceGammaRamp3DFX;
-const char *gl_extensions;
-int vid_3dfxgamma;
-//johnfitz
-
+#define GL_EXTENSIONS 0x1F03
 int setgamma(double gamma)
 {
 	int i;
 	double invgamma, d;
 	HDC hdc;
 	WORD gammaramps[3][256];
-
-	hdc = GetDC (NULL);
-
-	//johnfitz -- add support for standalone 3dfx cards (voodoo 1/2/rush)
-	gl_extensions = glGetString (GL_EXTENSIONS);
-	if (strstr(gl_extensions, "WGL_3DFX_gamma_control"))
-	{
-		printf("detected WGL_3DFX_gamma_control\n"); //TEST
-		wglGetDeviceGammaRamp3DFX = (RAMPFUNC) wglGetProcAddress("wglGetDeviceGammaRamp3DFX");
-		vid_3dfxgamma = 1;
-	}
-	else
-		vid_3dfxgamma = 0;
-	//johnfitz
+	HINSTANCE gldll;
+	const char *gl_extensions;
+	const char *(WINAPI *glGetString)(int name);
+	PROC (WINAPI *wglGetProcAddress)(LPCSTR);
+	int (WINAPI *wglSetDeviceGammaRamp3DFX)(HDC, WORD *);
 
 	// LordHavoc: dodge the math
 	if (gamma == 1)
@@ -73,13 +55,43 @@ int setgamma(double gamma)
 		}
 	}
 
-	//johnfitz -- add support for standalone 3dfx cards (voodoo 1/2/rush)
-	if (vid_3dfxgamma)
-		i = wglSetDeviceGammaRamp3DFX(hdc, &gammaramps[0][0]);
-	// LordHavoc: changed to call both if 3dfx is available
-	//else
-		i = SetDeviceGammaRamp(hdc, &gammaramps[0][0]);
-	//johnfitz
+	hdc = GetDC (NULL);
+
+	// support for addon 3DFX cards
+	gldll = LoadLibrary("3dfxvgl.dll");
+	if (gldll)
+	{
+		glGetString = (void *) GetProcAddress(gldll, "glGetString");
+		if (glGetString)
+		{
+			gl_extensions = glGetString (GL_EXTENSIONS);
+			if (strstr(gl_extensions, "WGL_3DFX_gamma_control"))
+			{
+				printf("detected WGL_3DFX_gamma_control\n");
+				wglGetProcAddress = (void *) GetProcAddress(gldll, "wglGetProcAddress");
+				if (wglGetProcAddress)
+				{
+					wglSetDeviceGammaRamp3DFX = (void *) wglGetProcAddress("wglSetDeviceGammaRamp3DFX");
+					if (wglSetDeviceGammaRamp3DFX)
+					{
+						if (!wglSetDeviceGammaRamp3DFX(hdc, &gammaramps[0][0]))
+							printf("wglSetDeviceGammaRamp3DFX failed\n");
+					}
+					else
+						printf("3dfxvgl.dll is missing wglSetDeviceGammaRamp3DFX\n");
+				}
+				else
+					printf("3dfxvgl.dll is missing wglGetProcAddress\n");
+			}
+			else
+				printf("3dfxvgl.dll is missing WGL_3DFX_gamma_control\n");
+		}
+		else
+			printf("3dfxvgl.dll is missing glGetString\n");
+		FreeLibrary(gldll);
+	}
+
+	i = SetDeviceGammaRamp(hdc, &gammaramps[0][0]);
 
 	ReleaseDC (NULL, hdc);
 	if (i)
@@ -96,7 +108,7 @@ int setgamma(double gamma)
 
 void usage(void)
 {
-	printf("setgamma 1.1 by Forest \"LordHavoc\" Hale and John \"metlslime\" Fitzgibbons\n");
+	printf("setgamma 1.2 by Forest \"LordHavoc\" Hale and John \"metlslime\" Fitzgibbons\n");
 	printf("usage: setgamma gamma\n");
 	printf("example gamma values: 1.0 (normal), 2.0 (double brightness), 1.35 (35% above normal)\n");
 }
