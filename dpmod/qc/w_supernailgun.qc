@@ -12,24 +12,28 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_SuperNailg
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-void() W_SuperNailgunFireCode =
+void(float shots) W_SuperNailgunFireCode =
 {
 	local vector v, ang;
-	self.currentammo = self.ammo_nails = self.ammo_nails - 1;
-	self.wframe = self.wframe + 0.5; // 10fps animation
-	if (self.wframe >= 9)
-		self.wframe = 1;
-	self.wfiretime = time;
-
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
 	v = shotorg;
-	shotorg = shotorg + v_up * 2;
-	w_muzzleflash(shotorg, 1);
-	ang = self.v_angle;ang_x = 0 - ang_x;
-	ejectcasing(shotorg, v_right * 200 + v_up * 50, 50, ang, '0 50 0', 100, 0);
-	FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
-	shotorg = v;
+	while (shots > 0 && self.ammo_nails >= 1)
+	{
+		shots = shots - 1;
+		self.currentammo = self.ammo_nails = self.ammo_nails - 1;
+		self.wframe = self.wframe + 0.5; // 10fps animation
+		if (self.wframe >= 9)
+			self.wframe = 1;
+		self.wfiretime = time;
 
-	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}
+		shotorg = shotorg + v_up * 2;
+		w_muzzleflash(shotorg, 1);
+		ang = self.v_angle;ang_x = 0 - ang_x;
+		ejectcasing(shotorg, v_right * 200 + v_up * 50, 50, ang, '0 50 0', 100, 0);
+		FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
+	}
+	shotorg = v;
 };
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_ProximityMine =
@@ -71,6 +75,8 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_ProximityM
 void() W_SuperNailgunMineFireCode =
 {
 	local float a;
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	a = 3;
 	if (a > self.ammo_rockets)
@@ -92,14 +98,18 @@ void() w_snailgun =
 	if (self.button0)
 	{
 		if (self.ammo_nails >= 1)
-			W_GenericRapidFireCode("weapons/spike2.wav", 0.05, W_SuperNailgunFireCode);
+		{
+			self.wload = W_ShotsToFire(0.05);
+			if (self.wload > 0)
+				W_SuperNailgunFireCode(self.wload);
+		}
 	}
 	else
 	{
-		self.notfiring = TRUE;
 		if (self.button3)
 		if (self.ammo_rockets >= 1)
-			W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_SuperNailgunMineFireCode);
+		if (W_ShotsToFire(0.5))
+			W_SuperNailgunMineFireCode();
 	}
 
 	if ((time - self.wfiretime) < 0.15)

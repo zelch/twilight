@@ -57,7 +57,8 @@ void() grapplepull =
 		self.effects = self.effects | EF_BLUE;
 	else
 		self.effects = self.effects - (self.effects & EF_BLUE);
-	if (self.enemy.solid == SOLID_NOT || self.owner.deadflag || (self.owner.button0 == 0 && self.owner.weapon == IT_WEAPON9 && self.owner.switchweapon == IT_WEAPON9))
+	if (self.enemy.solid == SOLID_NOT || self.owner.deadflag || self.owner.button5 == 0)
+	//if (self.enemy.solid == SOLID_NOT || self.owner.deadflag || (self.owner.button0 == 0 && self.owner.weapon == IT_WEAPON10 && self.owner.switchweapon == IT_WEAPON10))
 	{
 		grapplereturn();
 		return;
@@ -142,37 +143,92 @@ void() grappleflythink =
 {
 	self.nextthink = time + 0.05;
 	traceline(self.owner.origin + '0 0 16', self.origin, TRUE, self);
-	if (trace_fraction < 1 || time > self.cnt || !self.owner.button0)
+	if (trace_fraction < 1 || time > self.cnt || !self.owner.button5)
+	//if (trace_fraction < 1 || time > self.cnt || !self.owner.button0)
 		grapplereturn();
+};
+
+void() grapplebit_think =
+{
+	if (self.owner.modelindex == 0)
+	{
+		remove(self);
+		return;
+	}
+	if (self.owner.owner.modelindex == 0)
+	{
+		remove(self);
+		return;
+	}
+	self.nextthink = time;
+	setorigin(self, self.owner.owner.origin + self.count * (self.owner.origin - self.owner.owner.origin));
 };
 
 void(entity own, vector org, vector dir) FireGrapple =
 {
+	local entity grapplebolt, bit;
+	local float c;
 	w_muzzleflash(org, 3);
-	own.grapple = newmis = spawn();
-	newmis.classname = "grapple";
-	newmis.owner = own;
-	newmis.movetype = MOVETYPE_FLYMISSILE;
-	newmis.solid = SOLID_BBOX;
-	newmis.touch = grappleflytouch;
-	setorigin(newmis, org);
-	setmodel(newmis, "progs/star.mdl");
-	setsize(newmis, '0 0 0', '0 0 0');
-	newmis.angles = vectoangles(dir);
-	newmis.velocity = dir * 1500;
-	newmis.think = grappleflythink;
-	newmis.nextthink = time;
-	newmis.cnt = time + 3;
-	sound(newmis, CHAN_BODY, "weapons/chain1.wav", 1, ATTN_NORM);
+	own.grapple = grapplebolt = spawn();
+	grapplebolt.classname = "grapple";
+	grapplebolt.owner = own;
+	grapplebolt.movetype = MOVETYPE_FLYMISSILE;
+	grapplebolt.solid = SOLID_BBOX;
+	grapplebolt.touch = grappleflytouch;
+	setorigin(grapplebolt, org);
+	setmodel(grapplebolt, "progs/star.mdl");
+	setsize(grapplebolt, '0 0 0', '0 0 0');
+	grapplebolt.angles = vectoangles(dir);
+	grapplebolt.velocity = dir * 1500;
+	grapplebolt.think = grappleflythink;
+	grapplebolt.nextthink = time;
+	grapplebolt.cnt = time + 3;
+	sound(grapplebolt, CHAN_BODY, "weapons/chain1.wav", 1, ATTN_NORM);
+	c = 0;
+	while (c < 1)
+	{
+		c = c + 0.25;
+		if (c >= 1)
+			break;
+		bit = spawn();
+		bit.owner = grapplebolt;
+		bit.think = grapplebit_think;
+		bit.nextthink = time;
+		bit.count = c;
+		setmodel(bit, "progs/bit.mdl");
+	}
 };
 
 void() W_GrappleFireCode =
 {
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	w_muzzleflash(shotorg, 1);
 	FireGrapple(self, shotorg, shotdir);
 };
 
+void() grapple_precache =
+{
+	precache_model("progs/star.mdl");
+	precache_model("progs/bit.mdl");
+	precache_sound("weapons/sgun1.wav");
+	precache_sound("player/axhit2.wav");
+	precache_sound("weapons/chain1.wav");
+	precache_sound("weapons/chain2.wav");
+	precache_sound("weapons/chain3.wav");
+	precache_sound("weapons/bounce2.wav");
+};
+
+void() w_frame_grapple =
+{
+	if (self.button5) // fire
+	if (!self.grapple)
+	if (W_ShotsToFire(0.5))
+		W_GrappleFireCode();
+};
+
+/*
 void() w_grappledrop1;
 void() w_grappledrop2;
 void() w_grappleraise1;
@@ -185,7 +241,8 @@ void() w_grapple =
 	if (self.button0) // fire
 	{
 		if (!self.grapple)
-			W_GenericSlowFireCode("weapons/sgun1.wav", 0.5, W_GrappleFireCode);
+		if (W_ShotsToFire(0.5))
+			W_GrappleFireCode();
 	}
 	// else if (self.button3)
 		// FIXME: add chainsaw
@@ -202,7 +259,7 @@ void() w_grapple =
 	havoc_shotanimupdate(self.weaponframe);
 };
 
-void() weapon9_precache =
+void() weapon10_precache =
 {
 	precache_model("progs/v_dpshot.mdl");
 	precache_model("progs/star.mdl");
@@ -215,11 +272,12 @@ void() weapon9_precache =
 };
 
 float() w_grapplerating = {return genericweaponrating(0, 500, 50);};
-void() w_grapplesetup = {wset(IT_WEAPON9, 0, 0, VWEP_GENERIC, "progs/v_dpshot.mdl");};
-float(float request) setweapon9 = {return weapongeneric(IT_WEAPON9, TRUE, request, w_grapplesetup, w_grapple, w_grappleraise1, w_directaim, w_grapplerating, "Grapple");};
+void() w_grapplesetup = {wset(IT_WEAPON10, 0, 0, VWEP_GENERIC, "progs/v_dpshot.mdl");};
+float(float request) setweapon10 = {return weapongeneric(IT_WEAPON10, TRUE, request, w_grapplesetup, w_grapple, w_grappleraise1, w_directaim, w_grapplerating, "Grapple");};
 
 void() w_grappleraise1 = {wraise(8, w_grappleraise2, 0.1);};
 void() w_grappleraise2 = {wraise(7, w_grapple, 0.1);};
 
 void() w_grappledrop1 = {wdrop(7, w_grappledrop2, 0.1);};
 void() w_grappledrop2 = {wdropped(8, 0.1);};
+*/

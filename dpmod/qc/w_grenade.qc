@@ -63,9 +63,11 @@ void() W_GrenadeFireImpact =
 
 void() W_GrenadeFirePipebomb =
 {
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg, 3);
+	w_muzzleflash(shotorg, 5);
 	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 120, GRENADE_DETONATABLE | GRENADE_DETONATEONCREATURE, 60, "PIPEBOMB", Obituary_Grenade);
 };
 
@@ -109,7 +111,10 @@ void() w_grenade =
 			if (self.activemines < 20)
 			{
 				if (self.ammo_rockets >= 1)
-					W_GenericSlowFireCode("weapons/grenade.wav", 0.3, W_GrenadeFirePipebomb);
+				{
+					if (W_ShotsToFire(0.6))
+						W_GrenadeFirePipebomb();
+				}
 				else
 					self.switchweapon = W_BestWeapon(TRUE);
 			}

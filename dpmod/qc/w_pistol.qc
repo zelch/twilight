@@ -15,6 +15,8 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Pistol =
 void() W_PistolFireCode =
 {
 	local vector ang;
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	w_muzzleflash(shotorg, 1);
 	ang = self.v_angle;ang_x = 0 - ang_x;
@@ -32,7 +34,8 @@ void() w_pistol =
 		return;
 
 	if (self.button0)
-		W_GenericSlowFireCode("weapons/rocket1i.wav", 0.4, W_PistolFireCode);
+	if (W_ShotsToFire(0.4))
+		W_PistolFireCode();
 
 	if (self.wfiretime)
 	{

@@ -8,7 +8,7 @@ SOLDIER / PLAYER
 
 $cd id1/models/enforcer
 $origin 0 -6 24
-$base base		
+$base base
 $skin skin
 
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7
@@ -74,7 +74,8 @@ void(vector hit) enforcer_plasma =
 
 	shotdir = normalize(hit - shotorg);
 	w_muzzleflash(shotorg, 2);
-	FirePlasma(self, shotorg, shotdir, DMG_ENFORCER_PLASMA, DMG_ENFORCER_PLASMA, v_right * 100, self.deathtype, Obituary_Generic);
+	sound (self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+	FirePlasma(self, shotorg, shotdir * 5000, DMG_ENFORCER_PLASMA, DMG_ENFORCER_PLASMA, self.deathtype, Obituary_Generic);
 };
 
 void(vector hit) enforcer_rocket =

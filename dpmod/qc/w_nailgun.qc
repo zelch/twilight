@@ -12,36 +12,39 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Nailgun =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-void() W_NailgunFireCode =
+void(float shots) W_NailgunFireCode =
 {
 	local vector v, casingdir, ang;
-	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}
-	self.wfiretime = time;
-	self.currentammo = self.ammo_nails = self.ammo_nails - 1;
-	self.wframe = self.wframe + 1;
-	if (self.wframe >= 9)
-		self.wframe = 1;
-	self.wfiretime = time;
-	self.punchangle_x = -2;
-
-	v = shotorg;
-	ang = self.v_angle;ang_x = 0 - ang_x;
-	if (self.wframe & 1)
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+	while (shots > 0 && self.ammo_nails >= 1)
 	{
-		shotorg = shotorg + v_right * 2;
-		ejectcasing(shotorg, v_right * 200 + v_up * 50, 50, ang, '0 250 0', 100, 0);
-	}
-	else
-	{
-		shotorg = shotorg - v_right * 2;
-		ejectcasing(shotorg, v_right * -200 + v_up * 50, 50, ang, '0 -250 0', 100, 0);
-	}
+		shots = shots - 1;
+		self.wfiretime = time;
+		self.currentammo = self.ammo_nails = self.ammo_nails - 1;
+		self.wframe = self.wframe + 1;
+		if (self.wframe >= 9)
+			self.wframe = 1;
+		self.wfiretime = time;
+		self.punchangle_x = -2;
 
-	w_muzzleflash(shotorg, 1);
-	FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
-	shotorg = v;
+		v = shotorg;
+		ang = self.v_angle;ang_x = 0 - ang_x;
+		if (self.wframe & 1)
+		{
+			shotorg = shotorg + v_right * 2;
+			ejectcasing(shotorg, v_right * 200 + v_up * 50, 50, ang, '0 250 0', 100, 0);
+		}
+		else
+		{
+			shotorg = shotorg - v_right * 2;
+			ejectcasing(shotorg, v_right * -200 + v_up * 50, 50, ang, '0 -250 0', 100, 0);
+		}
 
-	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}
+		w_muzzleflash(shotorg, 1);
+		FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+		shotorg = v;
+	}
 };
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_NailgunMine =
@@ -75,9 +78,11 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_NailgunMin
 
 void() W_NailgunGrenadeFireCode =
 {
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg, 3);
+	w_muzzleflash(shotorg, 1);
 	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80 * damagescale, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
 	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200 * damagescale, 70, 20 * damagescale, 10 * damagescale, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
 };
@@ -95,14 +100,18 @@ void() w_nailgun =
 	if (self.button0)
 	{
 		if (self.ammo_nails >= 1)
-			W_GenericRapidFireCode("weapons/rocket1i.wav", 0.1, W_NailgunFireCode);
+		{
+			self.wload = W_ShotsToFire(0.1);
+			if (self.wload)
+				W_NailgunFireCode(self.wload);
+		}
 	}
 	else
 	{
-		self.notfiring = TRUE;
 		if (self.button3)
 		if (self.ammo_rockets >= 1)
-			W_GenericSlowFireCode("weapons/grenade.wav", 0.8, W_NailgunGrenadeFireCode);
+		if (W_ShotsToFire(0.8))
+			W_NailgunGrenadeFireCode();
 	}
 
 	if ((time - self.wfiretime) < 0.15)

@@ -16,22 +16,20 @@ float SHOTGUNBUCKSHOT = 50;
 float SHOTGUNEXPLOSIVESLUG = 50;
 
 .float shotgunmode;
-void() W_SingleShotgunFireCode_Buckshot =
+void(float fireexplosive) W_SingleShotgunFireCode =
 {
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	w_muzzleflash(shotorg, 2);
-	FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-	FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-	self.wload = -1;
-};
-
-void() W_SingleShotgunFireCode_Explosive =
-{
-	self.wfiretime = time;
-	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
-	w_muzzleflash(shotorg, 2);
-	FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.8 * damagescale, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
+	if (fireexplosive)
+		FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.8 * damagescale, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
+	else
+	{
+		FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+		FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+	}
 	self.wload = -1;
 };
 
@@ -62,15 +60,11 @@ void() w_shotgun =
 	if (self.wload > self.ammo_shells)
 		self.wload = self.ammo_shells;
 
-	if (self.button0)
+	if (self.button0 || self.button3)
 	{
 		if (self.wload >= 1) // is it loaded?
-			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.3, W_SingleShotgunFireCode_Buckshot);
-	}
-	else if (self.button3)
-	{
-		if (self.wload >= 1) // is it loaded?
-			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.3, W_SingleShotgunFireCode_Explosive);
+		if (W_ShotsToFire(0.3))
+			W_SingleShotgunFireCode(self.button3);
 	}
 
 	if (self.wload < 1 && time > self.attack_finished)

@@ -92,88 +92,38 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Rocket =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 }
 
-void() W_RocketFire =
-{
-	local vector v;
-	self.wfiretime = time;
-	self.flags = self.flags - (self.flags & FL_ONGROUND);
-	self.velocity = self.velocity - shotdir * 150;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	if (self.wload)
-		v = v_right * 3;
-	else
-		v = v_right * -3;
-	w_muzzleflash(shotorg + v, 2);
-	LaunchMissile(shotorg + v, shotdir * 5000, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket);
-	self.wload = !self.wload;
-};
-
-void() W_RocketFireDual =
-{
-	local vector v;
-	self.wfiretime = time;
-	self.flags = self.flags - (self.flags & FL_ONGROUND);
-	self.velocity = self.velocity - shotdir * 150;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	v = v_right * 3;
-	w_muzzleflash(shotorg + v, 5);
-	LaunchMissile(shotorg + v, (shotdir + v * 0.005) * 5000, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket);
-	if (self.ammo_rockets < 1)
-		return;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	v = v_right * -3;
-	w_muzzleflash(shotorg + v, 5);
-	LaunchMissile(shotorg + v, (shotdir + v * 0.005) * 5000, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket);
-};
-
-void() W_RocketFireTriple =
-{
-	self.wfiretime = time;
-	self.flags = self.flags - (self.flags & FL_ONGROUND);
-	self.velocity = self.velocity - shotdir * 450;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg, 10);
-	LaunchMissile(shotorg, shotdir * 5000, self, 150 * damagescale, 200, "ROCKET", Obituary_Rocket);
-	if (self.ammo_rockets < 1)
-		return;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg + v_right * 8, 10);
-	LaunchMissile(shotorg + v_right * 8, (shotdir + v_right * 0.025) * 5000, self, 150 * damagescale, 200, "ROCKET", Obituary_Rocket);
-	if (self.ammo_rockets < 1)
-		return;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg - v_right * 8, 10);
-	LaunchMissile(shotorg - v_right * 8, (shotdir - v_right * 0.025) * 5000, self, 150 * damagescale, 200, "ROCKET", Obituary_Rocket);
-};
-
 void() W_RocketFireSingle =
 {
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg, 4);
+	w_muzzleflash(shotorg, 2);
 	LaunchMissile(shotorg, shotdir * 5000, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket);
 };
 
 void() W_RocketFireTripleSpiral =
 {
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.velocity = self.velocity - shotdir * 450;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg, 15);
+	w_muzzleflash(shotorg, 4);
 	LaunchMissile(shotorg, shotdir * 3000, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket);
 	spiralmissile_orbitentity = newmis;
 	if (self.ammo_rockets < 1)
 		return;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg + v_right * 8, 10);
-	LaunchSpiralMissile(shotorg, shotdir, self, 80 * damagescale, 100, "ROCKET", Obituary_Rocket, -12);
+	w_muzzleflash(shotorg + v_right * 8, 4);
+	LaunchSpiralMissile(shotorg, shotdir, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket, -12);
 	if (self.ammo_rockets < 1)
 		return;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
-	w_muzzleflash(shotorg - v_right * 8, 10);
-	LaunchSpiralMissile(shotorg, shotdir, self, 80 * damagescale, 100, "ROCKET", Obituary_Rocket, 12);
+	w_muzzleflash(shotorg - v_right * 8, 4);
+	LaunchSpiralMissile(shotorg, shotdir, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket, 12);
 };
 
 void() w_rocketdrop1;
@@ -186,24 +136,15 @@ void() w_rocket =
 		return;
 
 	if (self.button3)
-		W_GenericSlowFireCode("weapons/sgun1.wav", 1.2, W_RocketFireDual);
-	//	W_GenericSlowFireCode("weapons/sgun1.wav", 1, W_RocketFireTripleSpiral);
-	/*
 	{
-		if (self.button0)
-			W_GenericSlowFireCode("weapons/sgun1.wav", 1.2, W_RocketFireTriple);
-		else
-			self.wburst = 1;
+		if (W_ShotsToFire(1.2))
+			W_RocketFireTripleSpiral();
 	}
-	else if (self.wburst)
-	{
-		self.wburst = 0;
-		W_GenericSlowFireCode("weapons/sgun1.wav", 1.2, W_RocketFireTripleSpiral);
-	}
-	*/
 	else if (self.button0)
-		W_GenericSlowFireCode("weapons/sgun1.wav", 0.6, W_RocketFire);
-	//	W_GenericSlowFireCode("weapons/sgun1.wav", 0.8, W_RocketFireSingle);
+	{
+		if (W_ShotsToFire(0.6))
+			W_RocketFireSingle();
+	}
 
 	if (self.wfiretime)
 	{

@@ -74,7 +74,10 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunD
 float DBSHOTGUNBUCKSHOT = 50;
 float DBSHOTGUNEXPLOSIVESLUG = 50;
 
-.float shotgunmode, shotgunshells;
+.float shotgunshells;
+
+/*
+.float shotgunmode;
 void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost, float explosive) W_DBShotgunFireShell =
 {
 	local vector v;
@@ -91,11 +94,13 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 		shotorg = shotorg + v_right;
 	}
 	self.wload = self.wload - 1;
+*/
 	/*
 	if (self.shotgunmode)
 		self.currentammo = self.ammo_xshells = self.ammo_xshells - 1;
 	else
 	*/
+/*
 		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	self.wfiretime = time;
 	w_muzzleflash(v, 4);
@@ -130,6 +135,7 @@ void() W_DBShotgunDoubleFireCode_Explosive =
 	while (self.wload > 0)
 		W_DBShotgunFireShell(Obituary_DBShotgunDouble_Explosive, 0, TRUE);
 };
+*/
 
 void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost, float explosive) W_DBShotgunGatlingFireShell =
 {
@@ -155,7 +161,7 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 	*/
 		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	self.wfiretime = time;
-	w_muzzleflash(v, 4);
+	w_muzzleflash(v, 2);
 	if (explosive)
 		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG * damagescale, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
 	else
@@ -166,14 +172,14 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 	shotorg = v;
 };
 
-void() W_DBShotgunGatlingFireCode_Buckshot =
+void(float fireexplosive) W_DBShotgunGatlingFireCode =
 {
-	W_DBShotgunGatlingFireShell(Obituary_DBShotgunSingle_Buckshot, 0, FALSE);
-};
-
-void() W_DBShotgunGatlingFireCode_Explosive =
-{
-	W_DBShotgunGatlingFireShell(Obituary_DBShotgunSingle_Explosive, 0, TRUE);
+	W_Hostile();
+	sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
+	if (fireexplosive)
+		W_DBShotgunGatlingFireShell(Obituary_DBShotgunSingle_Explosive, 0, TRUE);
+	else
+		W_DBShotgunGatlingFireShell(Obituary_DBShotgunSingle_Buckshot, 0, FALSE);
 };
 
 
@@ -227,13 +233,10 @@ void() w_dbshotgun =
 			if (self.shotgunshells & 2) ejectcasing (v + v_right * -1, '0 0 0', 30, ang, '0 0 0', 150, 1);
 			self.shotgunshells = 0;
 		}
+		if (self.button0 || self.button3)
 		if (self.ammo_shells > 0)
-		{
-			if (self.button0)
-				W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunGatlingFireCode_Buckshot);
-			else if (self.button3)
-				W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunGatlingFireCode_Explosive);
-		}
+		if (W_ShotsToFire(0.2))
+			W_DBShotgunGatlingFireCode(self.button3);
 	}
 
 	/*

@@ -1,11 +1,12 @@
 
-float   stopfiring; // set by uniquefunc when out of ammo or whatever
 .float  wload;
 .float  wloadtime;
 
+void() grapple_precache;
 void() common_precache =
 {
 	precache_model("progs/muzzleflash.spr32");
+	grapple_precache();
 };
 
 void(vector muzzleorg, float kickback) w_muzzleflash =
@@ -67,50 +68,38 @@ vector(vector srcvec, vector dstvec) w_grenadeaim =
 	return findtrajectory_velocity;
 };
 
-.float notfiring;
-
-void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericRapidFireCode =
+void() W_Hostile =
 {
-	if (time < self.attack_finished) // still busy with the last shot
-		return;
-
-	stopfiring = FALSE;
-	fightdone = time + 1; // delay stuff until fighting is over
-
-	// not firing yet, set base time to avoid double shots
-	if (self.notfiring)
-		self.attack_finished = time;
-	self.notfiring = FALSE;
-
 	// wake up monsters
 	self.show_hostile = time + 1;
 	weaponwakeup(self.origin, self);
+	fightdone = time + 1; // delay stuff until fighting is over
 	SuperDamageSound();
-	if (firingsound != "")
-		sound (self, CHAN_WEAPON, firingsound, 1, ATTN_NORM);
-
-	while (time >= self.attack_finished && !stopfiring)
-	{
-		self.attack_finished = self.attack_finished + nextshotdelay;
-		uniquefunc();
-	}
 };
 
-void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericSlowFireCode =
+.float firing;
+.float oldfiring;
+float(float nextshotdelay) W_ShotsToFire =
 {
-	if (time < self.attack_finished) // still busy with the last shot
-		return;
-	
-	// wake up monsters
-	self.show_hostile = time + 1;
-	weaponwakeup(self.origin, self);
-	fightdone = time + 1; // delay stuff until fighting is over
-	SuperDamageSound();
-	if (firingsound != "")
-		sound (self, CHAN_WEAPON, firingsound, 1, ATTN_NORM);
+	local float shotcount;
 
-	self.attack_finished = time + nextshotdelay;
-	uniquefunc();
+	self.firing = TRUE;
+
+	// check if still busy with the previous shot
+	if (time < self.attack_finished)
+		return 0;
+
+	// if not firing yet, set base time to avoid double shots
+	if (!self.oldfiring)
+		self.attack_finished = time;
+
+	shotcount = 0;
+	while (time >= self.attack_finished)
+	{
+		self.attack_finished = self.attack_finished + nextshotdelay;
+		shotcount = shotcount + 1;
+	}
+	return shotcount;
 };
 
 float(float haveammo) W_CheckNoAmmo =

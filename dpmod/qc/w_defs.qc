@@ -25,8 +25,8 @@ void(float wframe) havoc_lightanimupdate;
 float   stopfiring; // used by W_GenericRapidFireCode system
 
 vector  shotorg, shotdir;
-void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericRapidFireCode;
-void(string firingsound, float nextshotdelay, void() uniquefunc) W_GenericSlowFireCode;
+void() W_Hostile;
+float(float nextshotdelay) W_ShotsToFire;
 float(float minrange, float preferredrange, float baserating) genericweaponrating;
 
 float(float w, float request) setweapon;

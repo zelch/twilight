@@ -181,6 +181,6 @@ void() weapon_rocketlauncher  = {weapon_spawnhandler("progs/g_rock2.mdl", IT_WEA
 
 /*QUAKED weapon_lightning (0 .5 .8) (-16 -16 0) (16 16 32)
 */
-//void() weapon_lightning       = {weapon_spawnhandler("progs/g_light.mdl" , IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10,   0,   0,   0,  20,   0, "You got the Plasma Gun!\n");};
-void() weapon_lightning       = {weapon_spawnhandler("progs/g_light.mdl" , IT_WEAPON8 | IT_WEAPON9,   0,   0,   0,  50,   0, "You got the Plasma Gun!\n");};
+void() weapon_lightning       = {weapon_spawnhandler("progs/g_light.mdl" , IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10,   0,   0,   0,  20,   0, "You got the Plasma Gun!\n");};
+//void() weapon_lightning       = {weapon_spawnhandler("progs/g_light.mdl" , IT_WEAPON8 | IT_WEAPON9,   0,   0,   0,  50,   0, "You got the Plasma Gun!\n");};
 

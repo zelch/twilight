@@ -9,6 +9,8 @@ W_WeaponFrame
 Called every frame so impulse events can be handled as well as possible
 ============
 */
+.float notfiringcountdown;
+void() w_frame_grapple;
 void() W_WeaponFrame =
 {
 	local vector v;
@@ -64,8 +66,12 @@ void() W_WeaponFrame =
 	if (self.viewzoom == 0)
 		self.viewzoom = 1;
 
+	w_frame_grapple();
+
 	// weapon animation, firing, etc
 	setweapon(self.weapon, WR_SETUP);
+	self.oldfiring = self.firing;
+	self.firing = FALSE;
 	self.weaponframecode();
 	setweapon(self.weapon, WR_SETUP);
 

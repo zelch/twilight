@@ -40,12 +40,12 @@ void() plasma_think =
 		remove(self);
 };
 
-void(entity own, vector org, vector dir, float damg, float damg2, vector casingdir, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasma =
+void(entity own, vector org, vector vel, float damg, float damg2, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasma =
 {
 	local   vector  a;
 
 	//sound (own, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-	sound (own, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+	//sound (own, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 
 	fightdone = time + 1; // delay stuff until fighting is over
 
@@ -58,7 +58,7 @@ void(entity own, vector org, vector dir, float damg, float damg2, vector casingd
 	setsize(newmis, '0 0 0', '0 0 0');
 	setorigin(newmis, org);
 	newmis.effects = EF_LOWPRECISION;
-	newmis.velocity = dir * 5000;// + self.velocity;
+	newmis.velocity = vel;// + self.velocity;
 	newmis.dmg = damg;
 	newmis.dmg2 = damg2;
 	if (self.items & IT_QUAD)
@@ -75,3 +75,105 @@ void(entity own, vector org, vector dir, float damg, float damg2, vector casingd
 	newmis.think = plasma_think;
 	newmis.nextthink = time + 0.1;
 };
+
+void() plasmaball_touch =
+{
+	local   vector  v;
+	if (other == self.owner)
+		return;
+	if (pointcontents(self.origin) == CONTENT_SKY)
+	{
+		remove(self);
+		return;
+	}
+	if (other.solid != SOLID_BSP)
+		return;
+	v = normalize(self.velocity);
+	T_Damage(other, self, self.owner, self.dmg, self.dmg, self.deathtype, DT_PLASMA, self.origin, v * self.dmg, self.obitfunc1);
+	T_RadiusDamage(self, self.owner, self.dmg, self.dmg2, other, self.deathtype, DT_PLASMA, self.obitfunc1);
+	sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
+	effect(self.origin - v * 16, "progs/plasmashot.spr32", 10, 5, 30);
+	te_plasmaburn(self.origin - v);
+	remove(self);
+};
+
+/*
+void() plasmaball_burn =
+{
+	local entity head;
+	head = findradius(self.origin, self.dmg2);
+};
+*/
+
+void() plasmaball_think =
+{
+	local float damage, step, steps;
+	local vector backup;
+	self.nextthink = time;
+	if (time > self.cnt)
+	{
+		self.cnt = time + 0.1;
+		self.frame = self.frame + 1;
+		if (self.frame >= 10)
+			self.frame = 0;
+	}
+	damage = self.dmg * (time - self.count2) * 5;
+	if (damage >= 10)
+	{
+		self.count2 = time;
+		steps = ceil(damage / 50);
+		damage = damage / steps;
+		backup = self.origin;
+		step = 0;
+		while (step < steps)
+		{
+			step = step + 1;
+			self.origin = (backup - self.dest) * (step / steps) + self.dest;
+			//plasmaball_burn();
+			T_RadiusDamage(self, self.owner, damage, self.dmg2, self.owner, self.deathtype, DT_PLASMA, self.obitfunc1);
+		}
+		// the above loop leaves self.origin restored to what it should be
+	}
+	if (time > self.count)
+		remove(self);
+};
+
+void(entity own, vector org, vector vel, float damg, float damg2, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasmaBall =
+{
+	local   vector  a;
+
+	//sound (own, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+	//sound (own, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+
+	fightdone = time + 1; // delay stuff until fighting is over
+
+	newmis = spawn();
+	newmis.classname = "plasmaball";
+	newmis.owner = own;
+	newmis.solid = SOLID_TRIGGER;
+	newmis.movetype = MOVETYPE_FLY;
+	setmodel(newmis, "progs/plasmashot.spr32");
+	setsize(newmis, '0 0 0', '0 0 0');
+	setorigin(newmis, org);
+	newmis.effects = EF_LOWPRECISION;
+	newmis.velocity = vel;// + self.velocity;
+	newmis.dmg = damg;
+	newmis.dmg2 = damg2;
+	if (self.items & IT_QUAD)
+	{
+		newmis.dmg = newmis.dmg * 4;
+		newmis.effects = newmis.effects | EF_BLUE;
+	}
+	newmis.deathtype = dethtype;
+	newmis.obitfunc1 = obitfunc;
+//	newmis.frame = random() * 9.999;
+//	newmis.frame = floor(newmis.frame);
+	newmis.count = time + 50;
+	newmis.count2 = time;
+	newmis.dest = self.origin;
+	newmis.touch = plasmaball_touch;
+	newmis.think = plasmaball_think;
+	newmis.nextthink = time + 0.1;
+};
+
+
