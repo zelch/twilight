@@ -18,6 +18,9 @@ const float CA_PULSE_SPEED = 0.14257142 ; // = 1 / 7 -> 1 secs total time
 // cursor filenames
 var string CF_NORMAL = "ui/mousepointer.tga";
 
+// enforce loading everything else qc will break
+const float CURSOR_ENFORCELOADING = false;
+
 // pulse animation
 string[7] CF_PULSE = 
 	"",
@@ -30,6 +33,7 @@ string[7] CF_PULSE =
 	
 // global ui vars
 vector cursor;
+vector cursor_rel;
 vector cursor_color;
 float  cursor_transparency;
 float  cursor_type;

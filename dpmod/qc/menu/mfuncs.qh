@@ -9,6 +9,21 @@
 // prototypes
 ///
 
-void(float keynr, float ascii) Default_KeyEvent;
+void(float keynr, float ascii) def_keyevent;
 
+// default control functions - assign only to the _* event functions
+// (assigning to the 'normal' event functions will crash the vm !)
+// are used by ITEM_CUSTOM and can be used to test new ITEMs easily
+void(void)	defct_init;
+void(float keynr, float ascii)  defct_key;
+void(void)	defct_draw;
+void(void)	defct_mouse_enter;
+void(void)	defct_mouse_leave;
+void(void)	defct_action;
 
+float(vector point, vector r_xy, vector r_size) inrect;
+
+// clips are rectangle against a clip area
+// cliprectsize returns '0 0 0' if it is clipped totally
+vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectpos;
+vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectsize;

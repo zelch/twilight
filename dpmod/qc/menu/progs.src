@@ -22,6 +22,7 @@ mmanager.qh
 mfuncs.qh
 mcontrols.qh
 sound.qh
+graphic.qh
 
 // source files
 cursor.qc
@@ -30,3 +31,4 @@ mmanager.qc
 mcontrols.qc
 mfuncs.qc
 sound.qc
+graphic.qc

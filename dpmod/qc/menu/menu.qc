@@ -7,28 +7,43 @@
 
 void(void) m_init = 
 {
+	// init graphic
+	gfx_init();
+	
+	// init sound
+	snd_init();
+
 	// init cursor
 	cursor_init();
 	
-	// init sound
-	sound_init();
+	// init menu
+	menu_init();
 };
 
 // required menu functions
-float menu_active;
 void(float keynr, float ascii) m_keydown = 
 {
-	if(keynr == K_ESCAPE)
-		m_toggle();
+	// let also the gfx and sound know
+	gfx_keydown(keynr, ascii);
+	snd_keydown(keynr, ascii);
+	
+	// actually only the menu may react on keydown messages
+	menu_keydown(keynr, ascii);
 };
 
 void(void) m_frame =
 {
+	// graphic frame
+	gfx_frame();
+
+	// sound frame
+	snd_frame();
+	
 	// cursor frame
 	cursor_frame();
 	
-	// sound frame
-	sound_frame();
+	// menu frame
+	menu_frame();
 };
 
 void(void) m_draw = 
@@ -40,14 +55,20 @@ void(void) m_draw =
 	m_frame();
 	
 	// now the drawing code
+	menu_draw();
+	
+	// draw the cursor on top of the menu
 	cursor_draw();
+	
+	// and now the gfx drawing code (for special fx)
+	gfx_draw();
 };
 
 void(void) m_toggle = 
 {
 	if(!menu_active)
 	{
-		menu_active = TRUE;
+		menu_active = true;
 		
 		// update isserver and clientstate
 		gamestatus = 0;
@@ -55,26 +76,39 @@ void(void) m_toggle =
 			gamestatus = gamestatus | GAME_ISSERVER;
 		if(clientstate() == CS_CONNECTED)
 			gamestatus = gamestatus | GAME_CONNECTED;
+		if(cvar("developer"))
+			gamestatus = gamestatus | GAME_DEVELOPER;
 		
 		// redirect keyboard input
 		setkeydest(KEY_MENU);
 		// stop the client getting mouse coords
 		setmousetarget(MT_MENU);
+		
+		// let also the snd and gfx know (perhaps for sfx)
+		gfx_toggle();
+		snd_toggle();
+		
 		// let the menu manager know
-		menu_reset();
+		menu_toggle();
 	} else
 	{
 		setkeydest(KEY_GAME);
 		setmousetarget(MT_CLIENT);
-		menu_active = FALSE;
+		menu_active = false;
 	}
 };
 
 void(void) m_shutdown = 
-{
-	// shutdown sound
-	sound_shutdown();
+{		
+	// shutdown menu
+	menu_shutdown();
 	
 	// shutdown cursor
 	cursor_shutdown();
+	
+	// shutdown sound
+	snd_shutdown();
+	
+	// shutdown graphic
+	gfx_shutdown();
 };

@@ -7,8 +7,10 @@
 
 void(void) cursor_reset =
 {
-	cursor_x = rint(cvar("vid_conwidth")/2);
-	cursor_y = rint(cvar("vid_conheight")/2);
+	cursor_x = rint(GFX_WIDTH /2);
+	cursor_y = rint(GFX_HEIGHT /2);
+	
+	cursor_rel = '0 0 0';
 	
 	cursor_last_frame_time = time;
 	cursor_color = '1 1 1';
@@ -20,25 +22,25 @@ void(void) cursor_init =
 {
 	// load the images
 	if(CF_NORMAL != "")
-		CF_NORMAL = precache_pic(CF_NORMAL);
+		CF_NORMAL = gfx_loadpic(CF_NORMAL, CURSOR_ENFORCELOADING);
 	
 	if(CF_NORMAL == "")
-		CF_NORMAL = precache_pic("ui/mousepointer.tga");
+		CF_NORMAL = gfx_loadpic("ui/mousepointer.tga", true); // always 
 	
 	if(CF_PULSE_0 != "")
-		CF_PULSE_0 = precache_pic(CF_PULSE_0);
+		CF_PULSE_0 = gfx_loadpic(CF_PULSE_0, CURSOR_ENFORCELOADING);
 	if(CF_PULSE_1 != "")
-		CF_PULSE_1 = precache_pic(CF_PULSE_1);
+		CF_PULSE_1 = gfx_loadpic(CF_PULSE_1, CURSOR_ENFORCELOADING);
 	if(CF_PULSE_2 != "")
-		CF_PULSE_2 = precache_pic(CF_PULSE_2);
+		CF_PULSE_2 = gfx_loadpic(CF_PULSE_2, CURSOR_ENFORCELOADING);
 	if(CF_PULSE_3 != "")
-		CF_PULSE_3 = precache_pic(CF_PULSE_3);
+		CF_PULSE_3 = gfx_loadpic(CF_PULSE_3, CURSOR_ENFORCELOADING);
 	if(CF_PULSE_4 != "")
-		CF_PULSE_4 = precache_pic(CF_PULSE_4);
+		CF_PULSE_4 = gfx_loadpic(CF_PULSE_4, CURSOR_ENFORCELOADING);
 	if(CF_PULSE_5 != "")
-		CF_PULSE_5 = precache_pic(CF_PULSE_5);
+		CF_PULSE_5 = gfx_loadpic(CF_PULSE_5, CURSOR_ENFORCELOADING);
 	if(CF_PULSE_6 != "")
-		CF_PULSE_6 = precache_pic(CF_PULSE_6);
+		CF_PULSE_6 = gfx_loadpic(CF_PULSE_6, CURSOR_ENFORCELOADING);
 	
 	// init the values
 	cursor_reset();
@@ -47,21 +49,21 @@ void(void) cursor_init =
 void(void) cursor_shutdown =
 {
 	if(CF_NORMAL != "")
-		freepic(CF_NORMAL);
+		gfx_unloadpic(CF_NORMAL);
 	if(CF_PULSE_0 != "")
-		freepic(CF_PULSE_0);
+		gfx_unloadpic(CF_PULSE_0);
 	if(CF_PULSE_1 != "")
-		freepic(CF_PULSE_1);
+		gfx_unloadpic(CF_PULSE_1);
 	if(CF_PULSE_2 != "")
-		freepic(CF_PULSE_2);
+		gfx_unloadpic(CF_PULSE_2);
 	if(CF_PULSE_3 != "")
-		freepic(CF_PULSE_3);
+		gfx_unloadpic(CF_PULSE_3);
 	if(CF_PULSE_4 != "")
-		freepic(CF_PULSE_4);
+		gfx_unloadpic(CF_PULSE_4);
 	if(CF_PULSE_5 != "")
-		freepic(CF_PULSE_5);
+		gfx_unloadpic(CF_PULSE_5);
 	if(CF_PULSE_6 != "")
-		freepic(CF_PULSE_6);
+		gfx_unloadpic(CF_PULSE_6);
 };
 
 void(void) cursor_frame =
@@ -79,10 +81,12 @@ void(void) cursor_frame =
 		}
 
 	// update cursor position
-	cursor = cursor + getmousepos();
+	cursor_rel = getmousepos();
+	cursor_rel = gfx_converttogfx(cursor_rel);
+	cursor = cursor + cursor_rel;
 	
-	cursor_x = bound(0, cursor_x, cvar("vid_conwidth"));
-	cursor_y = bound(0, cursor_y, cvar("vid_conheight"));
+	cursor_x = bound(0, cursor_x, GFX_WIDTH);
+	cursor_y = bound(0, cursor_y, GFX_HEIGHT);
 };
 
 void(void) cursor_draw =
@@ -104,6 +108,7 @@ void(void) cursor_draw =
 	else if(cursor_type == CT_FIRST_PULSE + 6 && CF_PULSE_6 != "")
 		pic = CF_PULSE_6;
 	else // if(cursor_tpye = CT_NORMAL)
-		pic = CF_NORMAL;	
-	drawpic(cursor,pic,'0 0 0', cursor_color, cursor_transparency, 0);	
+		pic = CF_NORMAL;
+
+	gfx_drawpic(cursor,pic, '0 0 0', cursor_color, cursor_transparency, 0);
 };

@@ -43,8 +43,8 @@ float K_LEFTARROW	=	130;
 float K_RIGHTARROW	=	131;
 
 float K_ALT		=	132;
-float K_CTRL		=	133;
-float K_SHIFT		=	134;
+float K_CTRL	=	133;
+float K_SHIFT	=	134;
 float K_F1		=	135;
 float K_F2		=	136;
 float K_F3		=	137;
@@ -59,26 +59,26 @@ float K_F11		=	145;
 float K_F12		=	146;
 float K_INS		=	147;
 float K_DEL		=	148;
-float K_PGDN		=	149;
-float K_PGUP		=	150;
-float K_HOME		=	151;
+float K_PGDN	=	149;
+float K_PGUP	=	150;
+float K_HOME	=	151;
 float K_END		=	152;
 
-float K_KP_HOME		=	160;
-float K_KP_UPARROW	=	161;
-float K_KP_PGUP		=	162;
+float K_KP_HOME			=	160;
+float K_KP_UPARROW		=	161;
+float K_KP_PGUP			=	162;
 float K_KP_LEFTARROW	=	163;
-float K_KP_5		=	164;
+float K_KP_5			=	164;
 float K_KP_RIGHTARROW	=	165;
-float K_KP_END		=	166;
+float K_KP_END			=	166;
 float K_KP_DOWNARROW	=	167;
-float K_KP_PGDN		=	168;
-float K_KP_ENTER	=	169;
-float K_KP_INS   	=	170;
-float K_KP_DEL		=	171;
-float K_KP_SLASH	=	172;
-float K_KP_MINUS	=	173;
-float K_KP_PLUS		=	174;
+float K_KP_PGDN			=	168;
+float K_KP_ENTER		=	169;
+float K_KP_INS   		=	170;
+float K_KP_DEL			=	171;
+float K_KP_SLASH		=	172;
+float K_KP_MINUS		=	173;
+float K_KP_PLUS			=	174;
 
 float K_PAUSE		=	255;
 
@@ -164,10 +164,16 @@ float FILE_APPEND = 1;
 float FILE_WRITE = 2;
 
 ///////////////////////////
-// logic/boolean constants
+// logical constants (just for completeness)
 
 float TRUE 	= 1;
 float FALSE = 0;
+
+///////////////////////////
+// boolean constants
+
+float true = 1;
+float false = 0;
 
 ///////////////////////////
 // msg constants

@@ -5,22 +5,51 @@
 // AK contains all manager constants, etc.
 ////////////////////////////////
 
-void(void) sound_init =
+void(void) snd_init =
 {
-	precache_sound(SOUND_SELECT);
-	precache_sound(SOUND_CHANGE);
-	precache_sound(SOUND_ACTION);
+	snd_loadsound(SOUND_SELECT, SOUND_ENFORCELOADING);
+	snd_loadsound(SOUND_CHANGE, SOUND_ENFORCELOADING);
+	snd_loadsound(SOUND_ACTION, SOUND_ENFORCELOADING);
 };
 
-void(void) sound_frame =
-{
-};
-
-void(void) sound_shutdown =
+void(void) snd_frame =
 {
 };
 
-void(string sound_name) sound_play =
+void(void) snd_toggle =
+{
+};
+
+void(float keynr, float ascii) snd_keydown =
+{
+};
+
+void(void) snd_shutdown =
+{
+	snd_unloadsound(SOUND_SELECT);
+	snd_unloadsound(SOUND_CHANGE);
+	snd_unloadsound(SOUND_ACTION);
+};
+
+void(string sound_name) snd_play =
 {
 	localsound(sound_name);
 };
+
+string(string sound_name, float complain) snd_loadsound =
+{
+	string c;
+	
+	c = precache_sound(sound_name);
+	
+	if(c == "" && complain)
+		error("Couldn't load ", sound_name, " !\n");
+	return c;	
+};
+
+void(string sound_name) snd_unloadsound =
+{
+	// FIXME: there is now free/unload sound at the moment
+	// at least non that works the way it should 
+};
+

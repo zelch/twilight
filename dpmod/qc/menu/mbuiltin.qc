@@ -128,21 +128,19 @@ float	iscachedpic(string name)	= #451;
 string	precache_pic(string name)	= #452;
 void	freepic(string name)		= #453;
 
-float	drawcharacter
-(vector position, float character, vector scale, vector rgb, float alpha, float flag) = #454;
+float	drawcharacter(vector position, float character, vector scale, vector rgb, float alpha, float flag) = #454;
 
-float	drawstring
-(vector position, string text, vector scale, vector rgb, float alpha, float flag) = #455;
+float	drawstring(vector position, string text, vector scale, vector rgb, float alpha, float flag) = #455;
 
-float	drawpic
-(vector position, string pic, vector size, vector rgb, float alpha, float flag) = #456; 
+float	drawpic(vector position, string pic, vector size, vector rgb, float alpha, float flag) = #456; 
 
-float	drawfill
-(vector position, vector size, vector rgb, float alpha, float flag) = #457;
+float	drawfill(vector position, vector size, vector rgb, float alpha, float flag) = #457;
 
 void	drawsetcliparea(float x, float y, float width, float height) = #458;
 	
 void	drawresetcliparea(void) = #459;
+
+vector  drawgetimagesize(string pic) = #460;
 
 ////////////////////////////////////////////////
 // Menu functions

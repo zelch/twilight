@@ -34,8 +34,6 @@ const float MENU_ALLOWINGAME = FALSE;
 
 // globals 
 
-float menu_displaytype; // display the normal menu or the ingame menu ?
-
 entity menu_activemenu; 
 
 // points to the lowest selected menu item (that has no child item selected)
@@ -44,12 +42,14 @@ entity menu_selected;
 // used to build up the local coord system
 vector menu_localorigin;
 
+vector menu_clip_pos, menu_clip_size; // global clip area
+
 ///////////
 // fields
 ///
 
 // managing stuff
-.entity parent;			// not used by ITEM_MENU
+.entity parent;			// used by ITEM_MENU for the history function
 .string parent_name;	// not used by ITEM_MENU
 
 .string name;
@@ -57,9 +57,6 @@ vector menu_localorigin;
 .entity next, prev;		// point to the next, respectively, the previous item
 
 .entity child;			// points to the first child
-
-// the selected child
-.entity selected;
 
 // updating stuff
 .vector click_pos, click_size;
@@ -69,19 +66,22 @@ vector menu_localorigin;
 .float flags;		
 
 // drawing
+// the clip_* are only used by menu's (at the moment)
 .vector clip_pos, clip_size; // set clip_size_x or clip_size_y to 0 to disable clipping 
 
 .vector local_origin;
 
 // function pointers
+.void(void) init;
 .void(void) mouse_enter;
 .void(void) mouse_leave;
 .void(void) action;
 .void(void) draw;
-.void(float keynr, float ascii) key;
+.float(float keynr, float ascii) key; // if it returns TRUE, the key was processed by the function
 
 // hidden function pointers - actually these are called by the manager
 // and they call the normal ones (used to make controls more generic
+.void(void) _init;
 .void(void) _mouse_enter;
 .void(void) _mouse_leave;
 .void(void) _action;
@@ -94,7 +94,8 @@ vector menu_localorigin;
 
 // used for global managing
 void(void) menu_init;
-void(void) menu_reset;
+// used to reset the menu states everytime the menu is activated
+void(void) menu_toggle;
 
 // these 2 functions are pretty private, so dont call them !
 void(string file) menu_loadmenu;
@@ -111,9 +112,13 @@ void(void) menu_selectprev;
 void(void) menu_selectup;
 void(void) menu_selectdown;
 
+void(entity menu) menu_jumptomenu;
 void(entity menu) menu_drawmenu;
 
-void(void) menu_resetmenu;
+void(entity par) menu_processmouse;
 
-entity(string menu_name) findfirstchild;
+float(entity e) menu_hasevents;
+float(entity e) menu_isvisible;
+float(entity e) menu_selectable;
+
 

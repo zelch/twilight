@@ -10,11 +10,18 @@ Items/Controls:
 
 ITEM_MENU
 ITEM_MENU_LINK
+ITEM_CUSTIOM
 
 */
 
-const float FLAG_HIDDEN = 1;	// events wont be called
-const float FLAG_NOSELECT = 2; 	// cant be selected (but event will be called)
+// flags constant
+
+const float FLAG_HIDDEN 		= 1;	// events wont be called and it wont be drawn, etc.
+const float FLAG_NOSELECT 		= 2; 	// cant be selected (but events will be called)
+const float FLAG_SERVERONLY		= 4;	// only displayed if server
+const float FLAG_DEVELOPERONLY  = 8;	// only displayed if developer
+const float _FLAG_MOUSEINAREA 	= 16; 	// used to determine wheter to call mouse_enter/_leave
+const float FLAG_DRAWONLY		= 32; 	// only the draw event will be called
 
 // control fields
 .string link;
