@@ -29,7 +29,7 @@ void() weapon_touch =
 	if ((other.ammo_xshells >= AMMOMAX_XSHELLS) || (self.ammo_xshells < 1))
 		return; // would gain no ammo or weapon
 
-	// if the player was using their best weapon, change up to the new one if better		
+	// if the player was using their best weapon, change up to the new one if better
 	stemp = self;
 	self = other;
 	best = W_BestWeapon(TRUE);
@@ -161,7 +161,7 @@ void(string wmdl, float w, float shells, float nails, float rockets, float cells
 
 /*QUAKED weapon_supershotgun (0 .5 .8) (-16 -16 0) (16 16 32)
 */
-void() weapon_supershotgun    = {weapon_spawnhandler("progs/g_shot.mdl" , IT_WEAPON3,  30,   0,   0,   0,  20, "You got the Super Shotgun!\n");};
+void() weapon_supershotgun    = {weapon_spawnhandler("progs/g_shot.mdl" , IT_WEAPON3,  30,   0,   0,   0,   0, "You got the Super Shotgun!\n");};
 
 /*QUAKED weapon_nailgun (0 .5 .8) (-16 -16 0) (16 16 32)
 */
