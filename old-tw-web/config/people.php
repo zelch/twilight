@@ -37,7 +37,7 @@
 		) ,
 		"|Rain|" => array (
 			"Name" => "Ben Winslow" ,
-			"Email" => "rain+twww@bluecherry.net"
+			"Email" => "rain+twweb@bluecherry.net"
 		)
 	);
 

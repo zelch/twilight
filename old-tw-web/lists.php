@@ -10,7 +10,6 @@
 		titlebox ("subscr", "Subscribe to " . $listname,
 			"<form method=\"post\" action=\"/subscribe.php\">\n" .
 # funny how their attempts to decrease <table> use results in the opposite.
-# listar can't set digest mode as part of the subscription request
 			($browser_css ? "<table width=\"100%\" style=\"text-align: center\"><tr><td align=\"center\">" : "") .
 			"<table " . ($browser_css ? "" : " align=\"center\"") . ">\n" .
 			"<tr><td>Email:&nbsp;</td><td>\n" .
@@ -18,15 +17,14 @@
 			"<td>&nbsp;&nbsp;<input type=\"submit\" name=\"sub_button\"\n" .
 			"value=\"Subscribe\" /></td></tr>\n" .
 			"<tr><td><input type=\"hidden\" name=\"sub_list\"\n" .
-			"value=\"" . $listname . "\" />\n</td></tr></table>" .
+			"value=\"" . $listname . "\" />\n</td><td colspan=\"2\">\n" .
+			"<input type=\"checkbox\" name=\"sub_digest\" />\n" .
+			" Messages in digest format\n</td></tr></table>" .
 			($browser_css ? "</td></tr></table>" : "") .
 			"</form>\n"
 		);
 	}
 
-#<td colspan=\"2\">\n" .
-#			"<input type=\"checkbox\" name=\"sub_digest\" />\n" .
-#			" Messages in digest format\n</td>
 	box ("title", "Mailing Lists");
 
 	box ("para", "Most of the important discussion about Project Twilight\n" .
