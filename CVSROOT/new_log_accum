@@ -316,13 +316,15 @@ sub write_log ($@) {
 # Build the header of the commit message: CVSROOT, module name, any
 # branch tags, and the commit time
 sub build_header ($@) {
-	my ($module, $subject, @branch_tags, @mailto) = @_;
-	my (@text);
+	my ($module, $subject, $mailto, @branch_tags) = @_;
+	my (@text, @mailto);
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time());
 	my ($user, $dummy, $gecos);
 	my ($digest);
 
 	($user, $dummy, $dummy, $dummy, $dummy, $dummy, $gecos) = getpwuid($<);
+
+	@mailto = @{$mailto};
 
 	# generate a unique boundary by calculating the md5sum of the
 	# current time
@@ -332,7 +334,7 @@ sub build_header ($@) {
 	$boundary = "----=MIME." . unpack("H*", $digest->digest());
 	
 	# Build the mail header
-	push(@text, "From: testing $gecos <$user>");
+	push(@text, "From: $gecos <$user>");
 	push(@text, "To: " . join(' ', @mailto));
 	push(@text, "Subject: $subject");
 	push(@text, "MIME-Version: 1.0");
@@ -341,7 +343,7 @@ sub build_header ($@) {
 	push(@text, "");
 	push(@text, "This is a multipart message as defined by RFC2049 (MIME)");
 	push(@text, "");
-	push(@text, $boundary);
+	push(@text, "--$boundary");
 	push(@text, "Content-Type: text/plain; charset=\"US-ASCII\"");
 	push(@text, "Content-Disposition: inline");
 	push(@text, "");
@@ -367,7 +369,7 @@ sub send_mail {
     @text = @{$text};
 
     open(MAIL, "|$MAILER " . join(' ', @mailto));
-    push(@text, $boundary);
+    push(@text, "--$boundary", "");
     print MAIL join("\n", @text), "\n";
     close(MAIL);
 }
@@ -593,7 +595,7 @@ if (defined($files[1]) && defined($files[2]) &&
 
     # Build the message...
     push(@text, build_header($modname, "Module $modname: New directory $dir",
-	 @branch_tags, @mailto));
+	 \@mailto, @branch_tags);
     push(@text, "Log message:", "", @log);
 
     # and send it (synchronously)
@@ -611,7 +613,8 @@ if (defined($files[1]) && defined($files[2]) &&
     my (@text) = ();
 
     # Build the message...
-    push(@text, build_header($modname, "Module $modname: Imported $dir", @branch_tags, @mailto));
+    push(@text, build_header($modname, "Module $modname: Imported $dir",
+	\@mailto, @branch_tags));
     push(@text, "Log message:", "", @log);
 
     # and send it (synchronously)
@@ -716,7 +719,8 @@ for ($i = 0; ; $i++) {
 
 # Now that name_to_list has rebuilt our list of branch tags, we can build the
 # header and prepend it to the message
-unshift(@text, build_header($modname, "Module $modname: Change committed", @branch_tags, @mailto));
+unshift(@text, build_header($modname, "Module $modname: Change committed",
+	\@mailto, @branch_tags));
 
 # sort the files out for our diff
 @files = sort { $a->{name} cmp $b->{name} } @files;
@@ -724,7 +728,7 @@ unshift(@text, build_header($modname, "Module $modname: Change committed", @bran
 my ($user);
 $user = getpwuid($<);
 
-push(@text, $boundary);
+push(@text, "--$boundary");
 push(@text, "Content-Type: text/plain; name=\"cvs.$user." . time() . ".diff\"");
 push(@text, "Content-Disposition: attachment; filename=\"cvs.$user." . time() . ".diff\"");
 push(@text, "Content-Transfer-Encoding: 8bit");
