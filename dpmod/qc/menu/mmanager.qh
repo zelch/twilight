@@ -3,7 +3,7 @@
 ///////////////////////
 // This file belongs to dpmod/darkplaces
 // AK contains all manager constants, etc.
-////////////////////////////////
+///////////////////////////////////////////////
 // constants
 
 const float MENU_NORMAL = 0;
@@ -16,29 +16,29 @@ const float MENU_ENFORCELOADING = false;
 const string MENU_NORMAL_NAME = "normal";
 const string MENU_INGAME_NAME = "ingame";
 
-const string MENU_NORMAL_DEFAULT = 
+const string MENU_NORMAL_DEFAULT =
 "// default normal menu\n"
 "{\n"
-"	\"classname\" 	\"ITEM_MENU\"\n"
+"	\"classname\" 	\"ITEM_WINDOW\"\n"
 "	\"name\"		\"normal\"\n"
 "}";
 
-const string MENU_INGAME_DEFAULT = 
+const string MENU_INGAME_DEFAULT =
 "// default ingame menu\n"
 "{\n"
-"	\"classname\" 	\"ITEM_MENU\"\n"
+"	\"classname\" 	\"ITEM_WINDOW\"\n"
 "	\"name\"		\"ingame\"\n"
 "}";
 
-const string MENU_FILENAME_LIST = 
-"test.menu"
+const string MENU_FILENAME_LIST =
+"medit.menu"
 "";
 
 const float MENU_ALLOWINGAME = FALSE;
 
-// globals 
+// globals
 
-entity menu_activemenu; 
+entity menu_activewindow;
 
 // points to the lowest selected menu item (that has no child item selected)
 entity menu_selected;
@@ -56,8 +56,10 @@ vector menu_cursor;
 ///
 
 // managing stuff
-.entity parent;			// used by ITEM_MENU for the history function
-.string parent_name;	// not used by ITEM_MENU
+.entity _parent;
+.string parent;
+
+.entity _history;	// used to set up the history -> selectdown prefers _history over _parent
 
 .string name;
 
@@ -70,11 +72,11 @@ vector menu_cursor;
 
 .float orderpos;	// if FLAG_NOSELECT or FLAG_HIDDEN is set, it cant be selected
 					// has to be set always to a correct value or to 0 then it is set
-.float flag;		
+.float flag;
 
 // drawing
 // the clip_* are only used by menu's (at the moment)
-.vector clip_pos, clip_size; // set clip_size_x or clip_size_y to 0 to disable clipping 
+.vector clip_pos, clip_size; // set clip_size_x or clip_size_y to 0 to disable clipping
 
 .vector origin;
 
@@ -111,7 +113,7 @@ void(void) menu_toggle;
 
 // these 2 functions are pretty private, so dont call them !
 void(string file) menu_loadmenu;
-void(void) menu_linkmenus;
+void(void) menu_linkwindows;
 
 void(void) menu_frame;
 void(void) menu_draw;
@@ -127,8 +129,8 @@ void(void) menu_selectup;
 void(void) menu_selectdown;
 void(void) menu_reselect;
 
-void(entity menu) menu_jumptomenu;
-void(entity menu) menu_drawmenu;
+void(entity menu, float setactive) menu_jumptowindow;
+void(entity menu) menu_drawwindow;
 
 void(entity par) menu_processmouse;
 

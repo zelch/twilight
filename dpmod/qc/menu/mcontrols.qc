@@ -3,16 +3,16 @@
 ///////////////////////
 // This file belongs to dpmod/darkplaces
 // AK contains all item specific stuff
-////////////////////////////////
+////////////////////////////////////////////////
 
 ////////////////
-// ITEM_MENU 
+// ITEM_WINDOW
 //
 
-void(void) ITEM_MENU =
+void(void) ITEM_WINDOW =
 {
-	self.flag = self.flag | FLAG_NOSELECT;
-	
+	self.flag = self.flag | FLAG_NOSELECT | FLAG_DRAWONLY;
+
 	item_init(
 		defct_init,
 		defct_key,
@@ -23,44 +23,45 @@ void(void) ITEM_MENU =
 		defct_refresh);
 };
 
-///////////////////
-// ITEM_MENU_LINK
+//////////////////
+// ITEM_REFERENCE
 ///
 
-void(void) ITEM_MENU_LINK_INIT = 
+void(void) ITEM_REFERENCE_INIT =
 {
-	self._link = menu_getitem(self.link);
+	self.child = menu_getitem(self.link);
+	if(self.child == null_entity)
+	{
+		print(self.name, " removed, cause link ", self.link, " not found\n");
+		remove(self);
+		return;
+	}
+	/*self.child = self.child.child;
+	if(self.child = null_entity)
+	{
+		print(self.name*/
+
 	self._init = defct_init;
-	if(self._link == null_entity)
-		remove(self);	
 };
 
-void(void) ITEM_MENU_LINK_DRAW =
+void(void) ITEM_REFERENCE =
 {
-	dprint("drawing\n");
-	menu_localorigin = menu_localorigin + self.origin;
-	menu_drawmenu(self._link);
-	menu_localorigin = menu_localorigin - self.origin;	
-};
+	self.flag = self.flag | FLAG_NOSELECT;
 
-void(void) ITEM_MENU_LINK =
-{
-	self.flag = self.flag | (FLAG_DRAWONLY | FLAG_NOSELECT);
-	
 	if(self.link == "")
 	{
 		remove(self);
 		return;
 	}
-	
+
 	item_init(
-		ITEM_MENU_LINK_INIT,
+		ITEM_REFERENCE_INIT,
 		defct_key,
-		ITEM_MENU_LINK_DRAW,
+		defct_draw,
 		defct_mouse_enter,
 		defct_mouse_leave,
 		defct_action,
-		defct_refresh);	
+		defct_refresh);
 };
 
 ////////////////
@@ -80,30 +81,30 @@ void(void) ITEM_CUSTOM =
 void(void) ITEM_PICTURE_DRAW =
 {
 	menu_drawpic(self.pos, self.picture, self.size, self.color, self.alpha, self.drawflag);
-	
+
 	defct_draw();
 };
 
 void(void) ITEM_PICTURE =
 {
 	if(self.picture == "")
-		// a picture has to have a picture 
+		// a picture has to have a picture
 		remove(self);
-	
+
 	// load the picture if it isnt loaded already
 	gfx_loadpic(self.picture, MENU_ENFORCELOADING);
-	
+
 	// if flag wasnt set yet, then set it to FLAG_DRAWONLY
 	if(self.flag == 0)
 		self.flag = FLAG_DRAWONLY;
-	
+
 	if(self.color == '0 0 0')
 		self.color = ITEM_PICTURE_DEFAULT_COLOR;
 	if(self.alpha == 0)
 		self.alpha = ITEM_PICTURE_DEFAULT_ALPHA;
-	
+
 	item_init(
-		defct_init, 
+		defct_init,
 		defct_key,
 		ITEM_PICTURE_DRAW,
 		defct_mouse_enter,
@@ -123,17 +124,17 @@ void(void) ITEM_TEXT_REFRESH =
 	{
 		if(self.font_size == '0 0 0')
 			self.font_size = ITEM_TEXT_DEFAULT_FONT_SIZE;
-		
+
 		self.size_x = self.font_size_x * strlen(self.text);
-		self.size_y = self.font_size_y;		
+		self.size_y = self.font_size_y;
 	} else if(self.font_size == '0 0 0')
 	{
 			self.font_size_x = self.size_x / strlen(self.text);
 			self.font_size_y = self.size_y;
 	}
-		
+
 	def_refresh();
-	ctcall_refresh();	
+	ctcall_refresh();
 };
 
 void(void) ITEM_TEXT_DRAW =
@@ -150,7 +151,7 @@ void(void) ITEM_TEXT_DRAW =
 		else
 			alignpos_x = self.pos_x;
 		alignpos_y = self.pos_y;
-	
+
 		menu_drawstring(alignpos, self.text, self.font_size, self.color, self.alpha, self.drawflag);
 	}
 	defct_draw();
@@ -160,20 +161,20 @@ void(void) ITEM_TEXT =
 {
 	if(self.flag == 0)
 		self.flag = FLAG_DRAWONLY;
-	
+
 	if(self.color == '0 0 0')
 		self.color = ITEM_TEXT_DEFAULT_COLOR;
 	if(self.alpha == 0)
 		self.alpha = ITEM_TEXT_DEFAULT_ALPHA;
-	
+
 	ITEM_TEXT_REFRESH();
 	if(self.alignment & TEXT_ALIGN_CENTERPOS)
 	{
 		self.pos_x = self.pos_x - self.size_x / 2;
 	}
-	
+
 	item_init(
-		defct_init, 
+		defct_init,
 		defct_key,
 		ITEM_TEXT_DRAW,
 		defct_mouse_enter,
@@ -195,9 +196,9 @@ void(void) ITEM_RECTANGLE =
 {
 	if(self.flag == 0)
 		self.flag = FLAG_DRAWONLY;
-	
+
 	item_init(
-		defct_init, 
+		defct_init,
 		defct_key,
 		ITEM_RECTANGLE_DRAW,
 		defct_mouse_enter,

@@ -9,11 +9,13 @@
 const float CT_NORMAL 		= 0;
 const float CT_PULSE		= 1;
 const float CT_FIRST_PULSE	= 1; // pulse frames 0 - 6
-const float CT_LAST_PULSE	= 7; 
+const float CT_LAST_PULSE	= 7;
 const float CT_GLOW			= 8;
 
+const float	CURSOR_SCALE	= 0.2;
+
 // cursor animation
-const float CA_PULSE_SPEED = 0.14257142 ; // = 1 / 7 -> 1 secs total time 
+const float CA_PULSE_SPEED = 0.14257142 ; // = 1 / 7 -> 1 secs total time
 
 // cursor filenames
 var string CF_NORMAL = "ui/mousepointer.tga";
@@ -22,7 +24,7 @@ var string CF_NORMAL = "ui/mousepointer.tga";
 const float CURSOR_ENFORCELOADING = false;
 
 // pulse animation
-string[7] CF_PULSE = 
+string[7] CF_PULSE =
 	"",
 	"",
 	"",
@@ -30,7 +32,7 @@ string[7] CF_PULSE =
 	"",
 	"",
 	"";
-	
+
 // global ui vars
 vector cursor;
 vector cursor_rel;

@@ -2,8 +2,8 @@
 // Graphic Header File
 ///////////////////////
 // This file belongs to dpmod/darkplaces
-// AK contains all gfx prototypes, etc. 
-////////////////////////////////
+// AK contains all gfx prototypes, etc.
+///////////////////////////////////////////////
 
 const float GFX_WIDTH = 800;
 const float GFX_HEIGHT = 600;
@@ -34,7 +34,7 @@ vector(vector vec) gfx_congfxtomen;
 string(string pic_name, float complain) gfx_loadpic;
 void(string pic_name) gfx_unloadpic;
 
-void(vector position, float character, vector scale, vector rgb, float alpha, float flag) 
+void(vector position, float character, vector scale, vector rgb, float alpha, float flag)
 gfx_drawchar;
 
 void(vector position, string text, vector scale, vector rgb, float alpha, float flag)
@@ -50,7 +50,7 @@ void(vector position, vector size) gfx_setcliparea;
 
 void(void) gfx_resetcliparea;
 
-void(vector position, float character, vector scale, vector rgb, float alpha, float flag) 
+void(vector position, float character, vector scale, vector rgb, float alpha, float flag)
 menu_drawchar;
 
 void(vector position, string text, vector scale, vector rgb, float alpha, float flag)

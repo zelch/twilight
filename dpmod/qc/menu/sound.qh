@@ -3,11 +3,11 @@
 ///////////////////////
 // This file belongs to dpmod/darkplaces
 // AK contains all manager constants, etc.
-////////////////////////////////
+///////////////////////////////////////////////
 // constants
 
 // complain if the vm is unable to load a file ?
-const float SOUND_ENFORCELOADING = false;  
+const float SOUND_ENFORCELOADING = false;
 
 // file names
 const string SOUND_SELECT			= "misc/menu1.wav";

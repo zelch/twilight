@@ -3,7 +3,7 @@
 ///////////////////////
 // This file belongs to dpmod/darkplaces
 // AK contains the manager code
-////////////////////////////////
+///////////////////////////////////////////////
 
 void(void) menu_init =
 {
@@ -18,7 +18,7 @@ void(void) menu_init =
 		dprint(argv(i), " loaded !\n");
 	}
 
-	menu_linkmenus();
+	menu_linkwindows();
 };
 
 void(string file) menu_loadmenu =
@@ -43,7 +43,7 @@ entity(entity start, .entity find1, entity match, .float find2, float match2) fi
 	return start;*/
 };
 
-void(void) menu_linkmenus =
+void(void) menu_linkwindows =
 {
 	// first verify that MENU_NORMAL_NAME and MENU_INGAME_NAME exist
 	// if not add the default strings
@@ -83,17 +83,17 @@ void(void) menu_linkmenus =
 
 		// find parent
 		// if parent_name is "" do nothing else set parent
-		if(self.parent_name != "")
+		if(self.parent != "")
 		{
-			ent = findstring(null_entity, name, self.parent_name);
+			ent = findstring(null_entity, name, self.parent);
 
 			if(ent == null_entity)
 			{
-				objerror("Item ", self.parent_name, " not found !\n");
+				objerror("Item ", self.parent, " not found !\n");
 				continue;
 			}
 
-			self.parent = ent;
+			self._parent = ent;
 		}
 	}
 
@@ -101,12 +101,12 @@ void(void) menu_linkmenus =
 	self = null_entity;
 	while((self = findfloat(self,orderpos, 0)) != null_entity)
 	{
-		if(self.parent_name == "")
+		if(self.parent == "")
 			continue;
 
 		// now go through all orderpos' beginning from 1
 		opos = 1;
-		while((ent = findef(null_entity, parent, self.parent, orderpos, opos)) != null_entity)
+		while((ent = findef(null_entity, _parent, self._parent, orderpos, opos)) != null_entity)
 		{
 			opos = opos + 1;
 		}
@@ -119,11 +119,11 @@ void(void) menu_linkmenus =
 	{
 		// find first child
 		// orderpos starts with 1
-		ent = findef(null_entity, parent, self, orderpos, 1);
+		ent = findef(null_entity, _parent, self, orderpos, 1);
 
 		if(ent == null_entity)
 		{
-			if(findentity(ent, parent, self) != null_entity)
+			if(findentity(ent, _parent, self) != null_entity)
 			{
 				objerror("Order pos 1 is missing in the child list of ", self.name, " !\n");
 				continue;
@@ -141,7 +141,7 @@ void(void) menu_linkmenus =
 		{
 			x = x - 1;
 
-			ent = findef(null_entity, parent, self.parent, orderpos, x);
+			ent = findef(null_entity, _parent, self._parent, orderpos, x);
 			if(ent != null_entity)
 			{
 				self.prev = ent;
@@ -157,7 +157,7 @@ void(void) menu_linkmenus =
 		{
 			x = x + 1;
 
-			ent = findef(null_entity, parent, self.parent, orderpos, x);
+			ent = findef(null_entity, _parent, self._parent, orderpos, x);
 			if(ent != null_entity)
 			{
 				self.next = ent;
@@ -186,12 +186,14 @@ void(void) menu_performreinit =
 	self = null_entity;
 	while((self = nextent(self)) != null_entity)
 	{
-		if(self.parent_name == "")
-			self.parent = null_entity;
+		if(self.parent == "")
+			self._parent = null_entity;
 		//else actually this shouldnt happen
-		//	self.parent = findstring(null_entity, name, self.parent_name);
-		else if(self.parent.name != self.parent_name)
-			objerror("Parent (should be ", self.parent_name, ") of non-menu item ", self.name, " changed to ", self.parent.name, " !\n");
+		else if(self._parent.name != self.parent)
+			objerror("Parent (should be ", self.parent, ") of non-menu item ", self.name, " changed to ", self._parent.name, " !\n");
+
+		// reset _history
+		self._history = null_entity;
 
 		if(menu_hasevents(self))
 			if(self._init)
@@ -200,12 +202,12 @@ void(void) menu_performreinit =
 
 	// choose which menu to display
 	if(MENU_ALLOWINGAME && (gamestatus & GAME_CONNECTED))
-		menu_activemenu = findstring(null_entity, name, MENU_INGAME_NAME);
+		menu_activewindow = findstring(null_entity, name, MENU_INGAME_NAME);
 	else
-		menu_activemenu = findstring(null_entity, name, MENU_NORMAL_NAME);
+		menu_activewindow = findstring(null_entity, name, MENU_NORMAL_NAME);
 
 	// set the selected item
-	menu_selected = menu_activemenu;
+	menu_selected = menu_activewindow;
 	// find first child that can be selected
 	menu_selectdown();
 };
@@ -215,7 +217,7 @@ void(entity par) menu_processmouse =
 	// self is parent
 	// loop through all childs
 	// and try to find an object whose click rect fits to the mouse coords
-	entity ent;
+	entity ent, old_history;
 
 	ent = par.child;
 	if(ent == null_entity)
@@ -267,7 +269,18 @@ void(entity par) menu_processmouse =
 
 			// if ent has children recurse through them
 			if(ent.child != null_entity)
-			menu_processmouse(ent);
+			{
+				old_history = ent.child._history;
+				if(ent._history)
+					ent.child._history = ent._history;
+				else
+					ent.child._history = ent.parent;
+				menu_processmouse(ent);
+				if(ent._history == menu_selected)
+				{
+					ent.child._history = old_history;
+				}
+			}
 		}
 	} while((ent = ent.next) != null_entity);
 
@@ -278,10 +291,10 @@ void(void) menu_frame =
 {
 	// if mouse moved, process it
 	if(cursor_rel != '0 0 0')
-		menu_processmouse(menu_activemenu);
+		menu_processmouse(menu_activewindow);
 }
 
-void(entity menu) menu_drawmenu =
+void(entity menu) menu_drawwindow =
 {
 	// loop through all children and draw them
 	entity ent;
@@ -289,21 +302,29 @@ void(entity menu) menu_drawmenu =
 
 	// set the clipping area
 	// is this necessary at all ?
-	clipped_size = cliprectsize(gfx_conmentogfx(menu.clip_pos),menu.clip_size, menu_clip_pos, menu_clip_size);
+	if(menu_clip_size != '0 0 0')
+	{
+		clipped_size = cliprectsize(gfx_conmentogfx(menu.clip_pos),menu.clip_size, menu_clip_pos, menu_clip_size);
+	}
+	else
+	{
+		clipped_size = menu.clip_size;
+	}
+
 	if(clipped_size != '0 0 0')
 	{
-		dprint("Setting clip area\n");
 		// do clip the clip area
 		// save the old
 		old_c_pos = menu_clip_pos;
 		old_c_size = menu_clip_size;
 
 		// clip the position
-		menu_clip_pos = cliprectpos(gfx_conmentogfx(menu.clip_pos),menu.clip_size, menu_clip_pos, menu_clip_size);
+		menu_clip_pos = cliprectpos( gfx_conmentogfx(menu.clip_pos) , menu.clip_size, menu_clip_pos, menu_clip_size);
 		menu_clip_size = clipped_size;
 		gfx_setcliparea(menu_clip_pos, menu_clip_size);
 	}
 
+	// set the localorigin (the clipping position wont be affected)
 	menu_localorigin = menu_localorigin + menu.origin;
 
 	ent = menu.child;
@@ -313,17 +334,20 @@ void(entity menu) menu_drawmenu =
 		if(menu_isvisible(ent))
 		{
 			self = ent;
-			if(ent._refresh)
-				self._refresh();
+			if(menu_hasevents(ent))
+				if(ent._refresh)
+					self._refresh();
 			if(ent._draw)
 				ent._draw();
 
 			if(ent.child != null_entity)
-				menu_drawmenu(ent);
+			{
+				menu_drawwindow(ent);
+			}
 
-				// reset the clip area to the current menu's
+			// reset the clip area to the current menu's
 			if(menu_clip_size != '0 0 0')
-				menu_setcliparea(menu_clip_pos, menu_clip_size);
+				gfx_setcliparea(menu_clip_pos, menu_clip_size);
 		}
 	} while((ent = ent.next) != null_entity);
 
@@ -339,10 +363,11 @@ void(entity menu) menu_drawmenu =
 
 void(void) menu_draw =
 {
-	// if menu_activemenu is visible loop though it
-	if(menu_isvisible(menu_activemenu))
+	// if menu_activewindow is visible loop though it
+	if(menu_isvisible(menu_activewindow))
 	{
-		menu_drawmenu(menu_activemenu);
+		//menu_setcliparea('100 100 0', '400 400 0');
+		menu_drawwindow(menu_activewindow);
 		menu_localorigin = '0 0 0';
 		menu_clip_pos = '0 0 0';
 		menu_clip_size = '0 0 0';
@@ -354,6 +379,11 @@ float(entity e) menu_hasevents =
 {
 	if(e.flag & FLAG_DRAWONLY)
 		return false;
+	if(e._parent)
+	{
+		if(e._parent.flag & FLAG_CHILDDRAWONLY)
+			return false;
+	}
 	if(menu_isvisible(e))
 		return true;
 	return false;
@@ -379,11 +409,7 @@ float(entity e) menu_selectable =
 		return false;
 	if(e.flag & FLAG_NOSELECT)
 		return false;
-	if(e.parent)
-	{
-		if(e.parent.flag & FLAG_NOCHILDSELECT)
-			return false;
-	}
+
 	return true;
 };
 
@@ -402,7 +428,7 @@ void(float keynr, float ascii) menu_keydown =
 		entity keysel;
 		keysel = menu_selected;
 		menu_selected = null_entity;
-		menu_processmouse(menu_activemenu);
+		menu_processmouse(menu_activewindow);
 		if(menu_selected == null_entity)
 		{
 			// -> no reaction
@@ -416,10 +442,10 @@ void(float keynr, float ascii) menu_keydown =
 	if(menu_selected == null_entity)
 	{
 		// call menu keydown
-		if(menu_activemenu._key)
+		if(menu_activewindow._key)
 		{
-			self = menu_activemenu;
-			menu_activemenu._key(keynr, ascii);
+			self = menu_activewindow;
+			menu_activewindow._key(keynr, ascii);
 		}
 	}
 	else
@@ -468,7 +494,7 @@ void(void) menu_loopnext =
 	menu_selectnext();
 	if(menu_selected == old)
 	{
-		menu_selected = old.parent.child;
+		menu_selected = old._parent.child;
 		if(!menu_selectable(menu_selected))
 			menu_selectnext();
 	}
@@ -499,6 +525,8 @@ void(void) menu_selectdown =
 	// move down a level, then search for a selectable child
 	// if none is found, then search for a sub-menu
 	// if one is found, recurse through it, else keep the old menu_selected
+	// (while recursing set the history)
+
 	entity ent, old_selected;
 
 	// if there is no child, return
@@ -528,7 +556,8 @@ void(void) menu_selectdown =
 	{
 		if(ent.child != null_entity)
 		{
-			//eprint(ent);
+			// set the history
+			ent._history = menu_selected;
 			// give it a try
 			menu_selected = ent;
 			menu_selectdown();
@@ -538,6 +567,9 @@ void(void) menu_selectdown =
 			{
 				return;
 			}
+
+			// nothing found, then reset the history
+			ent._history = null_entity;
 		}
 	} while((ent = ent.next) != null_entity);
 
@@ -554,19 +586,29 @@ void(void) menu_selectup =
 	// then toggle the menu (if possible) else select the first item available
 	// if we find the active_menu on our way up, reset it, so everything gets displayed
 	// correct
-	if(menu_selected.parent == null_entity)
-		return;
 
 	ent = menu_selected;
 	menu_selected = null_entity;
 
-	while(ent.parent != null_entity)
+	while(ent._parent != null_entity || ent._history != null_entity)
 	{
-		ent = ent.parent;
+		// prefer _history
+		if(ent._history != null_entity)
+		{
+			entity old;
+			old = ent;
+			ent = ent._history;
+			// reset the history now
+			old._history = null_entity;
+		}
+		else
+		{
+			ent = ent._parent;
+		}
 
-		// reset the active menu if we reached it
-		if(ent == menu_activemenu)
-			menu_activemenu = null_entity;
+		// reset the active window if we reached it
+		if(ent == menu_activewindow)
+			menu_activewindow = null_entity;
 
 		menu_selected = ent;
 		if(menu_selectable(ent))
@@ -595,8 +637,8 @@ void(void) menu_selectup =
 	if(ent.name == MENU_NORMAL_NAME || ent.name == MENU_INGAME_NAME)
 	{
 		menu_toggle();
-		// set the active menu to the 'main' menu
-		menu_activemenu = ent;
+		// set the active window to the 'main' window
+		menu_activewindow = ent;
 		// if the menu isnt toggled then select an item now !
 		menu_selectdown();
 		return;
@@ -607,30 +649,31 @@ void(void) menu_selectup =
 	}
 
 	// does the active menu needs to be reset ?
-	if(menu_activemenu == null_entity)
+	if(menu_activewindow == null_entity)
 	{
-		menu_activemenu = ent;
+		menu_activewindow = ent;
 	}
 };
 
 void(void) menu_reselect =
 {
-	menu_selected = menu_activemenu;
+	menu_selected = menu_activewindow;
 	menu_selectdown();
 };
 
-void(entity menu) menu_jumptomenu =
+void(entity menu, float setactive) menu_jumptowindow =
 {
-	// only jump to menus
-	if(menu.classname != "ITEM_MENU")
+	// only jump to windows
+	if(menu.classname != "ITEM_WINDOW")
 		error("Cant jump to ", menu.name, " !\n");
 
-	// set the history of the menu
-	menu.parent = self;
-	menu_activemenu = menu;
+	// set the history of the window
+	menu._history = menu_selected;
+	if(setactive)
+		menu_activewindow = menu;
 
 	// now set the selected to the first selectable child
-	menu_selected = menu_activemenu;
+	menu_selected = menu;
 	menu_selectdown();
 };
 

@@ -3,13 +3,16 @@
 ///////////////////////
 // This file belongs to dpmod/darkplaces
 // AK contains all item specific stuff
-////////////////////////////////
+////////////////////////////////////////////////
 // constants
 /*
 Items/Controls:
 
-ITEM_MENU
-ITEM_MENU_LINK
+This control is supported/required by the menu manager :
+ITEM_WINDOW
+ITEM_REFERENCE
+
+The rest is not required:
 ITEM_CUSTIOM
 
 ITEM_PICTURE
@@ -35,7 +38,7 @@ const float		TEXT_ALIGN_CENTERPOS = 4;
 
 // flags constant
 
-const float	FLAG_STANDARD		= 1;	// use this flag if you want the standard behavior and not what the control recommends 	
+const float	FLAG_STANDARD		= 1;	// use this flag if you want the standard behavior and not what the control recommends
 const float FLAG_HIDDEN 		= 2;	// events wont be called and it wont be drawn, etc.
 const float FLAG_NOSELECT 		= 4; 	// cant be selected (but events will be called)
 const float FLAG_SERVERONLY		= 8;	// only displayed if server
@@ -44,7 +47,7 @@ const float _FLAG_MOUSEINAREA 	= 32; 	// used to determine wheter to call mouse_
 const float FLAG_DRAWONLY		= 64; 	// only the draw event will be called
 const float	FLAG_AUTOSETCLICK 	= 128;	// used to make click_pos and click_size always the same as pos and size
 const float FLAG_AUTOSETCLIP	= 256;	// used to make clip_pos/_size always the same like pos and size
-const float FLAG_NOCHILDSELECT	= 512;	// used to make the child not selectable
+const float FLAG_CHILDDRAWONLY	= 512;	// used to make the children
 
 // control fields
 // fields used by multiple items
@@ -52,9 +55,8 @@ const float FLAG_NOCHILDSELECT	= 512;	// used to make the child not selectable
 .float 	alpha;
 .float  drawflag;
 
-// ITEM_MENU_LINK
-.string link; // menu link
-.entity _link;
+// ITEM_REFERENCE
+.string link; // window link
 
 // ITEM_PICTURE
 .string picture;

@@ -1,0 +1,15 @@
+///////////////////////////////////////////////
+// Custom Menu Header File
+///////////////////////
+// This file belongs to dpmod/darkplaces
+// AK contains menu specific stuff that is made especially for dpmod
+// AK this file is used e.g. for defining some special event functions
+///////////////////////////////////////////////
+
+const vector dpmod_selected_color	= '1 0 0';
+const vector dpmod_mouseover_color  = '0 0 1';
+const float	 dpmod_selected_alpha 	= 1;
+const float  dpmod_mouseover_alpha  = 1;
+const float	 dpmod_selected_drawflag   = DRAWFLAG_MODULATE;
+const float  dpmod_mouseover_drawflag  = DRAWFLAG_ADD;
+

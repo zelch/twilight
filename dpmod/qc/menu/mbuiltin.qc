@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////
-// common cmd 
+// common cmd
 //////////////////////////////////////////////////
 // AK FIXME: Create perhaps a special builtin file for the common cmds
 
@@ -118,7 +118,7 @@ void	WriteLong(float data, float dest, float desto)	= #404;
 void	WriteAngle(float data, float dest, float desto)	= #405;
 void	WriteCoord(float data, float dest, float desto)	= #406;
 void	WriteString(string data, float dest, float desto)= #407;
-void	WriteEntity(entity data, float dest, float desto) = #408;  
+void	WriteEntity(entity data, float dest, float desto) = #408;
 
 //////////////////////////////////////////////////
 // Draw funtions
@@ -132,12 +132,12 @@ float	drawcharacter(vector position, float character, vector scale, vector rgb, 
 
 float	drawstring(vector position, string text, vector scale, vector rgb, float alpha, float flag) = #455;
 
-float	drawpic(vector position, string pic, vector size, vector rgb, float alpha, float flag) = #456; 
+float	drawpic(vector position, string pic, vector size, vector rgb, float alpha, float flag) = #456;
 
 float	drawfill(vector position, vector size, vector rgb, float alpha, float flag) = #457;
 
 void	drawsetcliparea(float x, float y, float width, float height) = #458;
-	
+
 void	drawresetcliparea(void) = #459;
 
 vector  drawgetimagesize(string pic) = #460;
@@ -151,3 +151,5 @@ float	getkeydest(void)	= #602;
 
 void	setmousetarget(float trg) = #603;
 float	getmousetarget(void)	  = #604;
+
+

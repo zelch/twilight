@@ -3,15 +3,15 @@
 ///////////////////////
 // This file belongs to dpmod/darkplaces
 // AK contains all cursor specific functions
-////////////////////////////////
+///////////////////////////////////////////////
 
 void(void) cursor_reset =
 {
 	cursor_x = rint(GFX_WIDTH /2);
 	cursor_y = rint(GFX_HEIGHT /2);
-	
+
 	cursor_rel = '0 0 0';
-	
+
 	cursor_last_frame_time = time;
 	cursor_color = '1 1 1';
 	cursor_transparency = 1;
@@ -23,10 +23,10 @@ void(void) cursor_init =
 	// load the images
 	if(CF_NORMAL != "")
 		CF_NORMAL = gfx_loadpic(CF_NORMAL, CURSOR_ENFORCELOADING);
-	
+
 	if(CF_NORMAL == "")
-		CF_NORMAL = gfx_loadpic("ui/mousepointer.tga", true); // always 
-	
+		CF_NORMAL = gfx_loadpic("ui/mousepointer.tga", true); // always
+
 	if(CF_PULSE_0 != "")
 		CF_PULSE_0 = gfx_loadpic(CF_PULSE_0, CURSOR_ENFORCELOADING);
 	if(CF_PULSE_1 != "")
@@ -41,7 +41,7 @@ void(void) cursor_init =
 		CF_PULSE_5 = gfx_loadpic(CF_PULSE_5, CURSOR_ENFORCELOADING);
 	if(CF_PULSE_6 != "")
 		CF_PULSE_6 = gfx_loadpic(CF_PULSE_6, CURSOR_ENFORCELOADING);
-	
+
 	// init the values
 	cursor_reset();
 };
@@ -74,7 +74,7 @@ void(void) cursor_frame =
 		cursor_last_frame_time = time;
 	else if(cursor_last_frame_time + CA_PULSE_SPEED <= time)
 		{
-		cursor_type = CT_FIRST_PULSE + 
+		cursor_type = CT_FIRST_PULSE +
 		mod((time - cursor_last_frame_time) / CA_PULSE_SPEED, CT_LAST_PULSE - CT_FIRST_PULSE +1);
 
 		cursor_last_frame_time += rint((time - cursor_last_frame_time) / CA_PULSE_SPEED) * CA_PULSE_SPEED;
@@ -84,7 +84,7 @@ void(void) cursor_frame =
 	cursor_rel = getmousepos();
 	cursor_rel = gfx_converttogfx(cursor_rel);
 	cursor = cursor + cursor_rel;
-	
+
 	cursor_x = bound(0, cursor_x, GFX_WIDTH);
 	cursor_y = bound(0, cursor_y, GFX_HEIGHT);
 };
@@ -92,7 +92,7 @@ void(void) cursor_frame =
 void(void) cursor_draw =
 {
 	string pic;
-	
+
 	if(cursor_type == CT_FIRST_PULSE + 0 && CF_PULSE_0 != "")
 		pic = CF_PULSE_0;
 	else if(cursor_type == CT_FIRST_PULSE + 1 && CF_PULSE_1 != "")
@@ -110,5 +110,5 @@ void(void) cursor_draw =
 	else // if(cursor_tpye = CT_NORMAL)
 		pic = CF_NORMAL;
 
-	gfx_drawpic(cursor,pic, '0 0 0', cursor_color, cursor_transparency, 0);
+	gfx_drawpic(cursor,pic, gfx_getimagesize(pic) * CURSOR_SCALE, cursor_color, cursor_transparency, 0);
 };

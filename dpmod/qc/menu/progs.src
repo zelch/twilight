@@ -4,7 +4,7 @@
 // This file belongs to dpmod/darkplaces
 // AK contains all file names which should be included into menu.dat
 // this is absolutly beta
-////////////////////////////////
+///////////////////////////////////////////////
 // menu.dat destination path
 ../../menu.dat
 

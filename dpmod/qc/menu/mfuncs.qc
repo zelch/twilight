@@ -3,12 +3,12 @@
 ///////////////////////
 // This file belongs to dpmod/darkplaces
 // AK contains all menu controlling stuff (sub-menus)
-////////////////////////////////
+///////////////////////////////////////////////
 
 
 // safe call control function functions
 // default control functions
-void(void)	ctcall_init = 
+void(void)	ctcall_init =
 {
 	if(self.init)
 		self.init();
@@ -51,7 +51,7 @@ void(void) ctcall_refresh =
 }
 
 // default control functions
-void(void)	defct_init = 
+void(void)	defct_init =
 {
 	ctcall_init();
 };
@@ -84,7 +84,7 @@ void(void)	defct_action =
 
 void(void)	defct_refresh =
 {
-	// do first the own fresh stuff and *then* call refresh 
+	// do first the own fresh stuff and *then* call refresh
 	def_refresh();
 	ctcall_refresh();
 }
@@ -145,25 +145,28 @@ float(vector point, vector r_pos, vector r_size) inrect =
 
 vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectpos =
 {
+	vector v;
+
 	// clip r_pos only
-	r_pos_x = max(c_pos_x, r_pos_x);
-	r_pos_y = max(c_pos_y, r_pos_y);
-	
-	return r_pos;
+	v_x = max(c_pos_x, r_pos_x);
+	v_y = max(c_pos_y, r_pos_y);
+
+	return v;
 };
 
 vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectsize =
 {
+	vector v;
 	// safe version
 	//r_size_x = bound(c_pos_x, r_pos_x + r_size_x, c_pos_x + c_size_x) - bound(c_pos_x, r_pos_x, c_pos_x + c_size_x);
 	//r_size_y = bound(c_pos_y, r_pos_y + r_size_y, c_pos_y + c_size_y) - bound(c_pos_y, r_pos_y, c_pos_y + c_size_y);
-	r_size_x = min(c_pos_x + c_size_x, r_pos_x + r_size_x) - max(c_pos_x, r_pos_x);
-	r_size_y = min(c_pos_y + c_size_y, r_pos_y + r_size_y) - max(c_pos_y, r_pos_y);
-	
-	if(r_size_x <= 0 || r_size_y <= 0)
-		r_size = '0 0 0';
-	
-	return r_size;
+	v_x = min(c_pos_x + c_size_x, r_pos_x + r_size_x) - max(c_pos_x, r_pos_x);
+	v_y = min(c_pos_y + c_size_y, r_pos_y + r_size_y) - max(c_pos_y, r_pos_y);
+
+	if(v_x <= 0 || v_y <= 0)
+		v = '0 0 0';
+
+	return v;
 }
 
 void(void(void) initevent, void(float key, float ascii) keyevent, void(void) drawevent, void(void) mouse_enterevent, void(void) mouse_leaveevent, void(void) actionevent, void(void) refreshevent)
