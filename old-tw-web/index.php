@@ -2,9 +2,10 @@
 	$page = "News";
 	require ("include/header.php");
 
-	titlebox ("news", "posted now by Knghtbrd", "Place useful content here");
-	titlebox ("news", "posted before now by Knghtbrd",
-			"Older content here");
+	newsitem ("22 Jul 2001", "Knghtbrd", "The website is finally online!  " .
+		"Well, sortof anyway.  The index page is all there is right now, " .
+		"but from here things should start to happen fast.  Watch this " .
+		"space for updates");
 
 	box ("plugs",
 		"<a href=\"http://sourceforge.net\"> <img width=\"88\" height=\"31\"" .

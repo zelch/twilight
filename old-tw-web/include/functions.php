@@ -50,4 +50,11 @@
 			echo ("</p>\n");
 		}
 	}
+
+	function newsitem ($date, $submitter, $content)
+	{
+		titlebox ("news", "posted " . $date . "now by " . $submitter,
+			$content);
+	}
 ?>
+
