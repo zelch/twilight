@@ -26,8 +26,7 @@ void(vector dest) ChooseTurn;
 void() ai_face;
 
 
-float	enemy_vis, enemy_infront, enemy_range;
-float	enemy_yaw;
+float enemy_range;
 
 
 //=============================================================================

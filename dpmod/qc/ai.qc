@@ -260,14 +260,14 @@ returns the range catagorization of an entity reletive to self
 */
 float(entity targ) range =
 {
-local float             r; 
-        r = vlen ((self.origin + self.view_ofs) - (targ.origin + targ.view_ofs));
+	local float r;
+	r = vlen ((self.origin + self.view_ofs) - (targ.origin + targ.view_ofs));
 	if (r < 120)
 		return RANGE_MELEE;
 	if (r < 500)
 		return RANGE_NEAR;
-        if (r < 2000) // increased from 1000 for DP
-                return RANGE_MID;
+	if (r < 2000) // increased from 1000 for DP
+		return RANGE_MID;
 	return RANGE_FAR;
 };
 
@@ -380,8 +380,6 @@ void() ChangeYaw =
 
 void() HuntTarget =
 {
-	if (self.health < 1)
-		return;
 	self.goalentity = self.enemy;
 	self.think = self.th_run;
 	self.ideal_yaw = vectoyaw(self.enemy.origin - self.origin);
@@ -419,13 +417,14 @@ void() FoundTarget =
 
 float checkplayertime;
 entity lastcheckplayer;
-.float isbot;
+entity havocbot_list;
+
 
 entity() checkplayer =
 {
 	local entity check;
 	// we can just fallback on checkclient if there are no bots
-	if (!findfloat(world, isbot, TRUE))
+	if (!havocbot_list)
 		return checkclient();
 	if (time < checkplayertime)
 	{
@@ -468,16 +467,17 @@ checked each frame.  This means multi player games will have slightly
 slower noticing monsters.
 ============
 */
+.float findtarget;
 float() FindTarget =
 {
-	local entity	client;
-	local float		r;
+	local entity client;
+	local float r;
 
 	if (self.health < 1)
 		return FALSE;
 
-	// if the first or second spawnflag bit is set, the monster will only wake
-	// up onreally seeing the player, not another monster getting angry
+	// if the first or second spawnflag bit is set, the monster will only
+	// wake up on really seeing the player, not another monster getting angry
 
 	if (self.spawnflags & 3)
 	{
@@ -511,7 +511,7 @@ float() FindTarget =
 	if (client.items & IT_INVISIBILITY)
 		return FALSE;
 
-	r = range (client);
+	r = range(client);
 	if (r == RANGE_FAR)
 		return FALSE;
 
@@ -651,8 +651,9 @@ void(float dist) ai_walk =
 			self.enemy = world;
 	}
 
-	if (FindTarget ())
-		return;
+	self.findtarget = TRUE;
+	//if (FindTarget ())
+	//	return;
 
 	movetogoal (dist);
 };
@@ -669,15 +670,31 @@ void() ai_stand =
 {
 	if (self.health < 1)
 		return;
-	if (FindTarget ())
-		return;
-	
+	if (self.enemy)
+	{
+		if (self.enemy.takedamage)
+		{
+			if (self.enemy.health >= 1)
+			{
+				FoundTarget();
+				return;
+			}
+			else
+				self.enemy = world;
+		}
+		else
+			self.enemy = world;
+	}
+	self.findtarget = TRUE;
+	//if (FindTarget ())
+	//	return;
+
 	if (time > self.pausetime)
 	{
 		self.th_walk ();
 		return;
 	}
-	
+
 // change angle slightly
 
 };
@@ -691,9 +708,25 @@ don't move, but turn towards ideal_yaw
 */
 void() ai_turn =
 {
-	if (FindTarget ())
-		return;
-	
+	if (self.enemy)
+	{
+		if (self.enemy.takedamage)
+		{
+			if (self.enemy.health >= 1)
+			{
+				FoundTarget();
+				return;
+			}
+			else
+				self.enemy = world;
+		}
+		else
+			self.enemy = world;
+	}
+	self.findtarget = TRUE;
+	//if (FindTarget ())
+	//	return;
+
 	ChangeYaw ();
 };
 
@@ -749,86 +782,7 @@ float() FacingIdeal =
 //=============================================================================
 
 .float() th_checkattack;
-float() CheckAnyAttack =
-{
-	if (self.health < 1)
-		return FALSE;
-	if (!enemy_vis)
-		return FALSE;
-	return self.th_checkattack();
-};
 
-
-/*
-=============
-ai_run_melee
-
-Turn and close until within an angle to launch a melee attack
-=============
-*/
-void() ai_run_melee =
-{
-	if (self.health < 1)
-		return;
-	self.ideal_yaw = enemy_yaw;
-	ChangeYaw ();
-
-	if (FacingIdeal())
-	{
-		self.th_melee ();
-		self.attack_state = AS_STRAIGHT;
-	}
-};
-
-
-/*
-=============
-ai_run_missile
-
-Turn in place until within an angle to launch a missile attack
-=============
-*/
-void() ai_run_missile =
-{
-	if (self.health < 1)
-		return;
-	self.ideal_yaw = enemy_yaw;
-	ChangeYaw ();
-	if (FacingIdeal())
-	{
-		if (self.th_missile ())
-			self.attack_state = AS_STRAIGHT;
-	}
-};
-
-
-/*
-=============
-ai_run_slide
-
-Strafe sideways, but stay at aproximately the same range
-=============
-*/
-void() ai_run_slide =
-{
-	local float	ofs;
-	
-	if (self.health < 1)
-		return;
-	self.ideal_yaw = enemy_yaw;
-	ChangeYaw ();
-	if (self.lefty)
-		ofs = 90;
-	else
-		ofs = -90;
-	
-	if (walkmove (self.ideal_yaw + ofs, movedist))
-		return;
-		
-	self.lefty = !self.lefty;
-	
-	walkmove (self.ideal_yaw - ofs, movedist);
-};
 
 
 /*
@@ -840,14 +794,15 @@ The monster has an enemy it is trying to kill
 */
 void(float dist) ai_run =
 {
+	local float	ofs;
 	if (self.health < 1)
 		return;
 	movedist = dist;
-// see if the enemy is dead
+	// see if the enemy is dead
 	if (self.enemy.health < 1 || self.enemy.takedamage == DAMAGE_NO)
 	{
 		self.enemy = world;
-	// FIXME: look all around for other targets
+		// FIXME: look all around for other targets
 		if (self.oldenemy.health >= 1 && self.oldenemy.takedamage)
 		{
 			self.enemy = self.oldenemy;
@@ -864,47 +819,71 @@ void(float dist) ai_run =
 		}
 	}
 
-	self.show_hostile = time + 1;		// wake up other monsters
+	// wake up other monsters
+	self.show_hostile = time + 1;
 
-// check knowledge of enemy
-	enemy_vis = visible(self.enemy);
-	if (enemy_vis)
-		self.search_time = time + 5;
-
-// look for other coop players
-	if (coop && (self.search_time < time))
-	{
-		if (FindTarget ())
-			return;
-	}
-
-	enemy_infront = infront(self.enemy);
+	// check knowledge of enemy
 	enemy_range = range(self.enemy);
-	enemy_yaw = vectoyaw(self.enemy.origin - self.origin);
 
-	if (self.attack_state == AS_MISSILE)
-	{
-//dprint ("ai_run_missile\n");
-		ai_run_missile ();
-		return;
-	}
+	self.ideal_yaw = vectoyaw(self.enemy.origin - self.origin);
+	ChangeYaw ();
+
 	if (self.attack_state == AS_MELEE)
 	{
-//dprint ("ai_run_melee\n");
-		ai_run_melee ();
+		//dprint ("ai_run_melee\n");
+		//Turn and close until within an angle to launch a melee attack
+		if (FacingIdeal())
+		{
+			self.th_melee ();
+			self.attack_state = AS_STRAIGHT;
+		}
+		return;
+	}
+	else if (self.attack_state == AS_MISSILE)
+	{
+		//dprint ("ai_run_missile\n");
+		//Turn in place until within an angle to launch a missile attack
+		if (FacingIdeal())
+		if (self.th_missile ())
+			self.attack_state = AS_STRAIGHT;
 		return;
 	}
 
-	if (CheckAnyAttack ())
-		return;					// beginning an attack
-		
+	if (visible(self.enemy))
+	{
+		self.search_time = time + 5;
+		if (self.th_checkattack())
+			return;					// beginning an attack
+	}
+	else if (coop)
+	{
+		// look for other coop players
+		if (self.search_time < time)
+		{
+			self.findtarget = TRUE;
+			//if (FindTarget ())
+			//	return;
+		}
+	}
+
 	if (self.attack_state == AS_SLIDING)
 	{
-		ai_run_slide ();
-		return;
+		//dprint ("ai_run_slide\n");
+		//Strafe sideways, but stay at aproximately the same range
+		if (self.lefty)
+			ofs = 90;
+		else
+			ofs = -90;
+
+		if (walkmove (self.ideal_yaw + ofs, movedist))
+			return;
+
+		self.lefty = !self.lefty;
+
+		walkmove (self.ideal_yaw - ofs, movedist);
 	}
-		
-// head straight in
+
+	// head straight in
 	movetogoal (dist);		// done in C code...
 };
 

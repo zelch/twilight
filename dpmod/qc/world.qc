@@ -739,111 +739,129 @@ void() damagescaleupdate =
 	// 20% is normal
 };
 
+.float findtarget;
+entity creaturetocheck;
 void() startframe_creaturecode =
 {
-	local entity e;
+	local entity oldself;
 	local vector b, v, vel;
-	local float c, f, monster_count;
-	e = findfloat(world, iscreature, TRUE);
-	while (e)
+	local float c, f, monster_count, iterations;
+	oldself = self;
+	self = creaturetocheck;
+	if (self == world)
+		self = findfloat(world, iscreature, TRUE);
+	// only process up to 200 creatures per frame
+	iterations = 0;
+	while (self && iterations < 200)
 	{
-		if (e.takedamage) //e.health >= 1 || e.bodyhealth >= 1)
+		iterations = iterations + 1;
+		if (self.iscreature)
 		{
-			/*
-			if (e.bleedcount > 0)
-			if (time >= e.nextbleed)
-			if (e.velocity != '0 0 0')
+			if (self.takedamage) //self.health >= 1 || self.bodyhealth >= 1)
 			{
-				e.nextbleed = time + 0.2;
-				e.bleedcount = e.bleedcount - 5;
-				v = (e.absmin + e.absmax) * 0.5 + randomvec() * 8;
-				vel = randomvec() * 20;
-				SpawnMeatSpray(v, vel);
-			}
-			*/
-			if (e.watertype >= CONTENT_EMPTY)
-			{
-				if (e.flags & FL_INWATER)
+				if (self.findtarget)
 				{
-					// play leave water sound, but only if not an observer
-					if (e.solid)
-						sound (e, CHAN_BODY, "misc/outwater.wav", 1, ATTN_NORM);
-					e.flags = e.flags - FL_INWATER;
+					self.findtarget = FALSE;
+					FindTarget();
 				}
-			}
-			else
-			{
-				//if (e.watertype == CONTENT_WATER || e.watertype == CONTENT_SLIME)
-				//	e.flamecount = 0;
-				if (e.movetype != MOVETYPE_NOCLIP)
-					WaterMove(e);
-			}
-			if (e.bubble_count)
-			if (time > e.bubble_time)
-			{
-				e.bubble_time = time + 0.1;
-				v = randomvec2() * 5;
-				makebubble(e.origin + '0 0 18', '0 0 15' + v, 0);
-				e.bubble_count = self.bubble_count - 1;
-				if (e.bubble_count < 1)
-					e.bubble_count = 0;
-			}
-			if (e.jump_flag < -200)
-			if (e.flags & FL_ONGROUND)
-			if (e.solid) // ignore observers
-			{
-				if (e.watertype == CONTENT_WATER)
-					sound (e, CHAN_BODY, "player/h2ojump.wav", 1, ATTN_NORM);
-				else if (e.jump_flag < -650 && world.worldtype < 3)
+				/*
+				if (self.bleedcount > 0)
+				if (time >= self.nextbleed)
+				if (self.velocity != '0 0 0')
 				{
-					// normal quake maps
-					b = e.origin;
-					b_z = e.absmin_z;
-					//T_Damage (e, world, world, (-650 - e.jump_flag) * 0.1, (-650 - e.jump_flag) * 0.1, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
-					T_Damage (e, world, world, 5, 5, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
-					if (!e.deadflag)
-						sound (e, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
+					self.nextbleed = time + 0.2;
+					self.bleedcount = self.bleedcount - 5;
+					v = (self.absmin + self.absmax) * 0.5 + randomvec() * 8;
+					vel = randomvec() * 20;
+					SpawnMeatSpray(v, vel);
 				}
-				else if (e.jump_flag < -500 && world.worldtype >= 3)
+				*/
+				if (self.watertype >= CONTENT_EMPTY)
 				{
-					// Dark Places maps
-					b = e.origin;
-					b_z = e.absmin_z;
-					T_Damage (e, world, world, (-500 - e.jump_flag) * 0.3, (-500 - e.jump_flag) * 0.3, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
-					if (!e.deadflag)
-						sound (e, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
+					if (self.flags & FL_INWATER)
+					{
+						// play leave water sound, but only if not an observer
+						if (self.solid)
+							sound (self, CHAN_BODY, "misc/outwater.wav", 1, ATTN_NORM);
+						self.flags = self.flags - FL_INWATER;
+					}
 				}
 				else
-					sound (e, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
-			}
-			e.jump_flag = e.velocity_z;
-			/*
-			if (e.flamecount > 0)
-			{
-				e.effects = e.effects | EF_FLAME;
-				if (time > e.flametime)
 				{
-					e.flametime = time + 0.1;
-					if (time > e.flamesoundtime)
-					{
-						sound (e, CHAN_AUTO, "fire/burn.wav", 1, ATTN_NORM);
-						e.flamesoundtime = time + 0.5;
-					}
-					f = e.flamecount;
-					if (f > 5)
-						f = 5;
-					e.flamecount = e.flamecount - f;
-					T_Damage(e, e.flameowner, e.flameowner, f, f, "FIRE", DT_FIRE, e.origin, '0 0 0', Obituary_Fire);
+					//if (self.watertype == CONTENT_WATER || self.watertype == CONTENT_SLIME)
+					//	self.flamecount = 0;
+					if (self.movetype != MOVETYPE_NOCLIP)
+						WaterMove(self);
 				}
+				if (self.bubble_count)
+				if (time > self.bubble_time)
+				{
+					self.bubble_time = time + 0.1;
+					v = randomvec2() * 5;
+					makebubble(self.origin + '0 0 18', '0 0 15' + v, 0);
+					self.bubble_count = self.bubble_count - 1;
+					if (self.bubble_count < 1)
+						self.bubble_count = 0;
+				}
+				if (self.jump_flag < -200)
+				if (self.flags & FL_ONGROUND)
+				if (self.solid) // ignore observers
+				{
+					if (self.watertype == CONTENT_WATER)
+						sound (self, CHAN_BODY, "player/h2ojump.wav", 1, ATTN_NORM);
+					else if (self.jump_flag < -650 && world.worldtype < 3)
+					{
+						// normal quake maps
+						b = self.origin;
+						b_z = self.absmin_z;
+						//T_Damage (self, world, world, (-650 - self.jump_flag) * 0.1, (-650 - self.jump_flag) * 0.1, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
+						T_Damage (self, world, world, 5, 5, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
+						if (!self.deadflag)
+							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
+					}
+					else if (self.jump_flag < -500 && world.worldtype >= 3)
+					{
+						// Dark Places maps
+						b = self.origin;
+						b_z = self.absmin_z;
+						T_Damage (self, world, world, (-500 - self.jump_flag) * 0.3, (-500 - self.jump_flag) * 0.3, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
+						if (!self.deadflag)
+							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
+					}
+					else
+						sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
+				}
+				self.jump_flag = self.velocity_z;
+				/*
+				if (self.flamecount > 0)
+				{
+					self.effects = self.effects | EF_FLAME;
+					if (time > self.flametime)
+					{
+						self.flametime = time + 0.1;
+						if (time > self.flamesoundtime)
+						{
+							sound (self, CHAN_AUTO, "fire/burn.wav", 1, ATTN_NORM);
+							self.flamesoundtime = time + 0.5;
+						}
+						f = self.flamecount;
+						if (f > 5)
+							f = 5;
+						self.flamecount = self.flamecount - f;
+						T_Damage(self, self.flameowner, self.flameowner, f, f, "FIRE", DT_FIRE, self.origin, '0 0 0', Obituary_Fire);
+					}
+				}
+				else if (self.effects & EF_FLAME)
+					self.effects = self.effects - EF_FLAME;
+				*/
 			}
-			else if (e.effects & EF_FLAME)
-				e.effects = e.effects - EF_FLAME;
-			*/
+			else
+				self.iscreature = FALSE;
 		}
-		else
-			e.iscreature = FALSE;
-		e = findfloat(e, iscreature, TRUE);
+		self = findfloat(self, iscreature, TRUE);
 	}
+	creaturetocheck = self;
+	self = oldself;
 };
 
 void() StartFrame =
