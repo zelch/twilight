@@ -928,40 +928,30 @@ void dpmdraw(dpmheader_t *dpm, dpmbonepose_t *bonepose)
 		R_Mesh_ResizeCheck(mesh->num_verts);
 		for (vertnum = 0, vert = (dpmvertex_t *)((unsigned char *)dpm + mesh->ofs_verts); vertnum < mesh->num_verts; vertnum++)
 		{
-			if (vert->numbones == 1)
+			bonevert = (dpmbonevert_t *)(vert + 1);
+			m = bonepose + bonevert->bonenum;
+			for (v = 0; v < 3; v++)
 			{
-				bonevert = (dpmbonevert_t *)(vert + 1);
+				vertex[v] = bonevert->origin[0] * m->matrix[v][0] + bonevert->origin[1] * m->matrix[v][1] + bonevert->origin[2] * m->matrix[v][2] + bonevert->influence * m->matrix[v][3];
+				normal[v] = bonevert->normal[0] * m->matrix[v][0] + bonevert->normal[1] * m->matrix[v][1] + bonevert->normal[2] * m->matrix[v][2];
+			}
+			bonevert++;
+			for (i = 1;i < vert->numbones;i++, bonevert++)
+			{
 				m = bonepose + bonevert->bonenum;
-				for (v = 0; v < 3; v++) {
-					varray_vertex[vertnum].v[v] = bonevert->origin[0] * m->matrix[v][0] + bonevert->origin[1] * m->matrix[v][1] + bonevert->origin[2] * m->matrix[v][2] + bonevert->influence * m->matrix[v][3];
-					varray_normal[vertnum].v[v] = bonevert->normal[0] * m->matrix[v][0] + bonevert->normal[1] * m->matrix[v][1] + bonevert->normal[2] * m->matrix[v][2];
-				}
-				vert = (dpmvertex_t *)(bonevert + 1);
-			}
-			else
-			{
-				for (v = 0; v < 3; v++) {
-					varray_vertex[vertnum].v[v] = 0;
-					varray_normal[vertnum].v[v] = 0;
-				}
-				for (i = 0, bonevert = (dpmbonevert_t *)(vert + 1);i < vert->numbones;i++, bonevert++)
+				for (v = 0; v < 3; v++)
 				{
-					m = bonepose + bonevert->bonenum;
-					vertex[0] = vertex[1] = vertex[2] = 0;
-					normal[0] = normal[1] = normal[2] = 0;
-					for (v = 0; v < 3; v++) {
-						vertex[v] += bonevert->origin[0] * m->matrix[v][0] + bonevert->origin[1] * m->matrix[v][1] + bonevert->origin[2] * m->matrix[v][2] + bonevert->influence * m->matrix[v][3];
-						normal[v] += bonevert->normal[0] * m->matrix[v][0] + bonevert->normal[1] * m->matrix[v][1] + bonevert->normal[2] * m->matrix[v][2];
-					}
-					varray_vertex[vertnum].v[0] = vertex[0];
-					varray_vertex[vertnum].v[1] = vertex[1];
-					varray_vertex[vertnum].v[2] = vertex[2];
-					varray_normal[vertnum].v[0] = normal[0];
-					varray_normal[vertnum].v[1] = normal[1];
-					varray_normal[vertnum].v[2] = normal[2];
+					vertex[v] += bonevert->origin[0] * m->matrix[v][0] + bonevert->origin[1] * m->matrix[v][1] + bonevert->origin[2] * m->matrix[v][2] + bonevert->influence * m->matrix[v][3];
+					normal[v] += bonevert->normal[0] * m->matrix[v][0] + bonevert->normal[1] * m->matrix[v][1] + bonevert->normal[2] * m->matrix[v][2];
 				}
-				vert = (dpmvertex_t *)bonevert;
 			}
+			varray_vertex[vertnum].v[0] = vertex[0];
+			varray_vertex[vertnum].v[1] = vertex[1];
+			varray_vertex[vertnum].v[2] = vertex[2];
+			varray_normal[vertnum].v[0] = normal[0];
+			varray_normal[vertnum].v[1] = normal[1];
+			varray_normal[vertnum].v[2] = normal[2];
+			vert = (dpmvertex_t *)bonevert;
 		}
 		for (vertnum = 0, tc = (float *)((unsigned char *)dpm + mesh->ofs_texcoords);vertnum < mesh->num_verts;vertnum++, tc += 2)
 		{
