@@ -5233,26 +5233,25 @@ void() w_frame_grapple =
 			{
 				if (self.grappletarget.solid)
 				{
+					W_SetupShot();
+					vstart = self.origin + '0 0 16';
+					vend = self.grappletarget.origin + self.grappledest;
+					vdir = normalize(vend - vstart);
+					vend = vend + vdir; // go just a little bit past
+					te_lightning2(self, vstart, vend);
+					self.velocity = vdir * 1000;
+					//self.velocity = self.velocity + vdir * 10 * self.forcescale;
+					self.flags = self.flags - (self.flags & FL_ONGROUND);
+					/*
 					if (time > self.grapplesoundtime)
 					{
 						self.grapplesoundtime = time + 0.2;
 						sound(self, CHAN_WEAPON2, "weapons/lhit.wav", 1, ATTN_STATIC);
 					}
+					*/
 					if (time > self.grappletime)
 					{
 						self.grappletime = time + 0.1;
-						W_SetupShot();
-						vstart = self.origin + '0 0 16';
-						vend = self.grappletarget.origin + self.grappledest;
-						vdir = normalize(vend - vstart);
-						vend = vend + vdir; // go just a little bit past
-
-						te_lightning2(self, vstart, vend);
-
-						self.velocity = vdir * 1000;
-						//self.velocity = self.velocity + vdir * 10 * self.forcescale;
-						self.flags = self.flags - (self.flags & FL_ONGROUND);
-
 						W_BeamDamage(self, self, vstart, vend, 5, 5, "LIGHTNINGGRAPPLE", DT_LIGHTNING, Obituary_LightningGrapple);
 
 						/*
