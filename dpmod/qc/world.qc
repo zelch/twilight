@@ -2,6 +2,8 @@
 float maxclients; // how many player slots there actually are
 entity modechecker;
 
+float monsterwander;
+
 .float dmgtime;
 .float candrown;
 .float drown_finished;
@@ -557,6 +559,8 @@ void() worldspawn =
 		// the DarkPlaces engine does not spatialize ATTN_NONE.
 		ambientsound ('0 0 0', self.noise, 1.00, ATTN_NONE);
 	}
+
+	monsterwander = cvar("monsterwander");
 };
 
 void() bubble_split =

@@ -148,6 +148,9 @@ void() walkmonster_start_go =
 
 	self.flags = self.flags | FL_MONSTER;
 
+	if (monsterwander)
+		self.spawnflags = self.spawnflags | MONSTER_WANDER;
+
 	if (self.target)
 	{
 		self.goalentity = self.movetarget = find(world, targetname, self.target);
@@ -163,16 +166,13 @@ void() walkmonster_start_go =
 			self.th_walk ();
 		else
 		{
-			/*
-			//if ((self.spawnflags & MONSTER_WANDER) && (!self.monsterawaitingteleport))
-			if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+			if ((self.spawnflags & MONSTER_WANDER) && (!self.monsterawaitingteleport) && (self.spawnflags & 3) == 0 && (world.model != "maps/e1m7.bsp"))
 			{
 				monster_spawnwanderpath();
 				self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
 				self.th_walk ();
 			}
 			else
-			*/
 			{
 				self.pausetime = 99999999;
 				self.th_stand ();
@@ -181,15 +181,13 @@ void() walkmonster_start_go =
 	}
 	else
 	{
-		/*
-		if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+		if ((self.spawnflags & MONSTER_WANDER) && (!self.monsterawaitingteleport) && (self.spawnflags & 3) == 0 && (world.model != "maps/e1m7.bsp"))
 		{
 			monster_spawnwanderpath();
 			self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
 			self.th_walk ();
 		}
 		else
-		*/
 		{
 			self.pausetime = 99999999;
 			self.th_stand ();
@@ -246,6 +244,9 @@ void() flymonster_start_go =
 
 	//self.cantrigger = TRUE;
 
+	if (monsterwander)
+		self.spawnflags = self.spawnflags | MONSTER_WANDER;
+
 	if (self.target)
 	{
 		self.goalentity = self.movetarget = find(world, targetname, self.target);
@@ -260,15 +261,13 @@ void() flymonster_start_go =
 			self.th_walk ();
 		else
 		{
-			/*
-			if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+			if ((self.spawnflags & MONSTER_WANDER) && (!self.monsterawaitingteleport) && (self.spawnflags & 3) == 0 && (world.model != "maps/e1m7.bsp"))
 			{
 				monster_spawnwanderpath();
 				self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
 				self.th_walk ();
 			}
 			else
-			*/
 			{
 				self.pausetime = 99999999;
 				self.th_stand ();
@@ -277,15 +276,13 @@ void() flymonster_start_go =
 	}
 	else
 	{
-		/*
-		if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+		if ((self.spawnflags & MONSTER_WANDER) && (!self.monsterawaitingteleport) && (self.spawnflags & 3) == 0 && (world.model != "maps/e1m7.bsp"))
 		{
 			monster_spawnwanderpath();
 			self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
 			self.th_walk ();
 		}
 		else
-		*/
 		{
 			self.pausetime = 99999999;
 			self.th_stand ();
@@ -334,6 +331,9 @@ void() swimmonster_start_go =
 	self.flags = self.flags | FL_SWIM;
 	self.flags = self.flags | FL_MONSTER;
 
+	if (monsterwander)
+		self.spawnflags = self.spawnflags | MONSTER_WANDER;
+
 	if (self.target)
 	{
 		self.goalentity = self.movetarget = find(world, targetname, self.target);
@@ -348,15 +348,13 @@ void() swimmonster_start_go =
 			self.th_walk ();
 		else
 		{
-			/*
-			if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+			if ((self.spawnflags & MONSTER_WANDER) && (!self.monsterawaitingteleport) && (self.spawnflags & 3) == 0 && (world.model != "maps/e1m7.bsp"))
 			{
 				monster_spawnwanderpath();
 				self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
 				self.th_walk ();
 			}
 			else
-			*/
 			{
 				self.pausetime = 99999999;
 				self.th_stand ();
@@ -365,15 +363,13 @@ void() swimmonster_start_go =
 	}
 	else
 	{
-		/*
-		if ((self.spawnflags & 3) == 0 && (!self.monsterawaitingteleport) && (world.model != "maps/e1m7.bsp"))
+		if ((self.spawnflags & MONSTER_WANDER) && (!self.monsterawaitingteleport) && (self.spawnflags & 3) == 0 && (world.model != "maps/e1m7.bsp"))
 		{
 			monster_spawnwanderpath();
 			self.ideal_yaw = vectoyaw(self.goalentity.origin - self.origin);
 			self.th_walk ();
 		}
 		else
-		*/
 		{
 			self.pausetime = 99999999;
 			self.th_stand ();
