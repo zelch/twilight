@@ -155,3 +155,31 @@ float K_MOUSE10		=	250;
 float KEY_GAME 		=	0;
 float KEY_MENU		=	2;
 float KEY_UNKNOWN	= 	3;
+
+///////////////////////////
+// file constants
+
+float FILE_READ = 0;
+float FILE_APPEND = 1;
+float FILE_WRITE = 2;
+
+///////////////////////////
+// logic/boolean constants
+float TRUE 	= 1;
+float FALSE = 0;
+
+///////////////////////////
+// client state constants
+
+float CS_DEDICATED 		= 0;
+float CS_DISCONNECTED 	= 1;
+float CS_CONNECTED		= 2;
+
+///////////////////////////
+// error constants
+
+// file handling
+float ERR_CANNOTOPEN			= -1; // fopen
+float ERR_NOTENOUGHFILEHANDLES 	= -2; // fopen
+float ERR_INVALIDMODE 			= -3; // fopen
+float ERR_BADFILENAME 			= -4; // fopen

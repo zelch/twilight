@@ -1,4 +1,5 @@
-.\menu.dat
+../../../../../Games/nexuiz/data/menu.dat
 
-.\msys.qc
-.\mbuiltin.qc
+msys.qc
+mbuiltin.qc
+menu.qc
