@@ -2,7 +2,7 @@
 
 	$display = array (
 		logo => "/images/twilight.gif" ,
-		body => "text=\"#ffffff\" bgcolor=\"#000000\"" .
+		body => "text=\"#ffffff\" bgcolor=\"#000000\" " .
 				"alink=\"#0080ff\" vlink=\"#0080ff\" link=\"#0080ff\"",
 		basefont => "face=\"verdana, arial\"" ,
 
