@@ -882,11 +882,11 @@ SV_WallFriction
 */
 void SV_WallFriction (edict_t *ent, trace_t *trace)
 {
-	vec3_t		forward, right, up;
+	vec3_t		forward;
 	float		d, i;
 	vec3_t		into, side;
 	
-	AngleVectors (ent->v.v_angle, forward, right, up);
+	AngleVectors (ent->v.v_angle, forward, NULL, NULL);
 	d = DotProduct (trace->plane.normal, forward);
 	
 	d += 0.5;

@@ -18,6 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#define WIN32_USETIMEGETTIME 1
+
 #include "quakedef.h"
 #include <errno.h>
 #include <sys/types.h>
@@ -193,40 +195,123 @@ void Sys_Quit (void)
 double Sys_FloatTime (void)
 {
 #ifdef WIN32
-	static DWORD starttime;
-	static qboolean first = true;
-	DWORD now;
+	// LordHavoc: note to people modifying the WIN32 code, DWORD is specifically defined as an unsigned 32bit number, therefore the 65536.0 * 65536.0 is fine.
+#if WIN32_USETIMEGETTIME
+	// timeGetTime
+	// platform:
+	// Windows 95/98/ME/NT/2000
+	// features:
+	// reasonable accuracy (millisecond)
+	// issues:
+	// none known
+	static int first = true;
+	static double oldtime = 0.0, basetime = 0.0, old = 0.0;
+	double newtime, now;
 
-	now = timeGetTime ();
+	now = (double) timeGetTime () - basetime;
 
 	if (first)
 	{
 		first = false;
-		starttime = now;
-		return 0.0;
+		basetime = now;
+		now = 0;
 	}
 
-	if (now < starttime)				// wrapped?
-		return (now / 1000.0) + (LONG_MAX - starttime / 1000.0);
-
-	if (now - starttime == 0)
-		return 0.0;
-
-	return (now - starttime) / 1000.0;
-#else
-	struct timeval	tp;
-	struct timezone	tzp; 
-	static int		secbase; 
-
-	gettimeofday(&tp, &tzp);  
-
-	if (!secbase)
+	if (now < old)
 	{
-		secbase = tp.tv_sec;
-		return tp.tv_usec/1000000.0;
+		// wrapped
+		basetime -= (65536.0 * 65536.0);
+		now += (65536.0 * 65536.0);
+	}
+	old = now;
+
+	newtime = now / 1000.0;
+
+	if (newtime < oldtime)
+		Sys_Error("Sys_DoubleTime: time running backwards??\n");
+
+	oldtime = newtime;
+
+	return newtime;
+#else
+	// QueryPerformanceCounter
+	// platform:
+	// Windows 95/98/ME/NT/2000
+	// features:
+	// very accurate (CPU cycles)
+	// known issues:
+	// does not necessarily match realtime too well (tends to get faster and faster in win98)
+	static int first = true;
+	static double oldtime = 0.0, basetime = 0.0, timescale = 0.0;
+	double newtime;
+	LARGE_INTEGER PerformanceFreq;
+	LARGE_INTEGER PerformanceCount;
+
+	if (first)
+	{
+		if (!QueryPerformanceFrequency (&PerformanceFreq))
+			Sys_Error ("No hardware timer available");
+
+#ifdef __BORLANDC__
+		timescale = 1.0 / ((double) PerformanceFreq.u.LowPart + (double) PerformanceFreq.u.HighPart * 65536.0 * 65536.0);
+#else
+		timescale = 1.0 / ((double) PerformanceFreq.LowPart + (double) PerformanceFreq.HighPart * 65536.0 * 65536.0);
+#endif	
 	}
 
-	return (tp.tv_sec - secbase) + tp.tv_usec/1000000.0;
+	QueryPerformanceCounter (&PerformanceCount);
+
+#ifdef __BORLANDC__
+	newtime = ((double) PerformanceCount.u.LowPart + (double) PerformanceCount.u.HighPart * 65536.0 * 65536.0) * timescale - basetime;
+#else
+	newtime = ((double) PerformanceCount.LowPart + (double) PerformanceCount.HighPart * 65536.0 * 65536.0) * timescale - basetime;
+#endif	
+
+	if (first)
+	{
+		first = false;
+		basetime = newtime;
+		newtime = 0;
+	}
+
+	if (newtime < oldtime)
+		Sys_Error("Sys_DoubleTime: time running backwards??\n");
+
+	oldtime = newtime;
+
+	return newtime;
+#endif
+#else
+	// gettimeofday
+	// platform:
+	// BSD compatible UNIX
+	// features:
+	// good accuracy
+	// isssues:
+	// none known
+	static int first = true;
+	static double oldtime = 0.0, basetime = 0.0;
+	double newtime;
+	struct timeval tp;
+	struct timezone tzp; 
+
+	gettimeofday(&tp, &tzp);
+
+	newtime = (double) ((unsigned long) tp.tv_sec) + tp.tv_usec/1000000.0 - basetime;
+
+	if (first)
+	{
+		first = false;
+		basetime = newtime;
+		newtime = 0.0;
+	}
+
+	if (newtime < oldtime)
+		Sys_Error("Sys_DoubleTime: time running backwards??\n");
+
+	oldtime = newtime;
+
+	return newtime;
 #endif
 }
 
@@ -339,6 +424,16 @@ int main (int argc, char **argv)
 
 	host_parms.argc = argc;
 	host_parms.argv = argv;
+
+
+#if WIN32 && WIN32_USETIMEGETTIME
+	// make sure the timer is high precision, otherwise NT gets 18ms resolution
+	// LordHavoc:
+	// Windows 2000 Advanced Server (and possibly other versions)
+	// apparently have a broken timer, because it runs at more like 10x speed
+	// if this isn't used, heh
+	timeBeginPeriod (1);
+#endif
 
 	printf ("Host_Init\n");
 	Host_Init ();

@@ -164,6 +164,20 @@ float	anglemod(float a)
 	return a;
 }
 
+// LordHavoc note 1:
+// BoxOnPlaneSide did a switch on a 'signbits' value and had optimized
+// assembly in an attempt to accelerate it further, very inefficient
+// considering that signbits of the frustum planes only changed each
+// frame, and the world planes changed only at load time.
+// So, to optimize it further I took the obvious route of storing a function
+// pointer in the plane struct itself, and shrunk each of the individual
+// cases to a single return statement.
+// LordHavoc note 2:
+// realized axial cases would be a nice speedup for world geometry, although
+// never useful for the frustum planes.
+int BoxOnPlaneSideX (vec3_t emins, vec3_t emaxs, mplane_t *p) {return p->dist <= emins[0] ? 1 : (p->dist >= emaxs[0] ? 2 : 3);}
+int BoxOnPlaneSideY (vec3_t emins, vec3_t emaxs, mplane_t *p) {return p->dist <= emins[1] ? 1 : (p->dist >= emaxs[1] ? 2 : 3);}
+int BoxOnPlaneSideZ (vec3_t emins, vec3_t emaxs, mplane_t *p) {return p->dist <= emins[2] ? 1 : (p->dist >= emaxs[2] ? 2 : 3);}
 int BoxOnPlaneSide0 (vec3_t emins, vec3_t emaxs, mplane_t *p) {return (((p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2]) >= p->dist) | (((p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2]) < p->dist) << 1));}
 int BoxOnPlaneSide1 (vec3_t emins, vec3_t emaxs, mplane_t *p) {return (((p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2]) >= p->dist) | (((p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2]) < p->dist) << 1));}
 int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, mplane_t *p) {return (((p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2]) >= p->dist) | (((p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2]) < p->dist) << 1));}
@@ -175,39 +189,53 @@ int BoxOnPlaneSide7 (vec3_t emins, vec3_t emaxs, mplane_t *p) {return (((p->norm
 
 void BoxOnPlaneSideClassify(mplane_t *p)
 {
-	if (p->normal[2] < 0) // 4
+	switch(p->type)
 	{
-		if (p->normal[1] < 0) // 2
+	case 0: // x axis
+		p->BoxOnPlaneSideFunc = BoxOnPlaneSideX;
+		break;
+	case 1: // y axis
+		p->BoxOnPlaneSideFunc = BoxOnPlaneSideY;
+		break;
+	case 2: // z axis
+		p->BoxOnPlaneSideFunc = BoxOnPlaneSideZ;
+		break;
+	default:
+		if (p->normal[2] < 0) // 4
 		{
-			if (p->normal[0] < 0) // 1
-				p->BoxOnPlaneSideFunc = BoxOnPlaneSide7;
+			if (p->normal[1] < 0) // 2
+			{
+				if (p->normal[0] < 0) // 1
+					p->BoxOnPlaneSideFunc = BoxOnPlaneSide7;
+				else
+					p->BoxOnPlaneSideFunc = BoxOnPlaneSide6;
+			}
 			else
-				p->BoxOnPlaneSideFunc = BoxOnPlaneSide6;
+			{
+				if (p->normal[0] < 0) // 1
+					p->BoxOnPlaneSideFunc = BoxOnPlaneSide5;
+				else
+					p->BoxOnPlaneSideFunc = BoxOnPlaneSide4;
+			}
 		}
 		else
 		{
-			if (p->normal[0] < 0) // 1
-				p->BoxOnPlaneSideFunc = BoxOnPlaneSide5;
+			if (p->normal[1] < 0) // 2
+			{
+				if (p->normal[0] < 0) // 1
+					p->BoxOnPlaneSideFunc = BoxOnPlaneSide3;
+				else
+					p->BoxOnPlaneSideFunc = BoxOnPlaneSide2;
+			}
 			else
-				p->BoxOnPlaneSideFunc = BoxOnPlaneSide4;
+			{
+				if (p->normal[0] < 0) // 1
+					p->BoxOnPlaneSideFunc = BoxOnPlaneSide1;
+				else
+					p->BoxOnPlaneSideFunc = BoxOnPlaneSide0;
+			}
 		}
-	}
-	else
-	{
-		if (p->normal[1] < 0) // 2
-		{
-			if (p->normal[0] < 0) // 1
-				p->BoxOnPlaneSideFunc = BoxOnPlaneSide3;
-			else
-				p->BoxOnPlaneSideFunc = BoxOnPlaneSide2;
-		}
-		else
-		{
-			if (p->normal[0] < 0) // 1
-				p->BoxOnPlaneSideFunc = BoxOnPlaneSide1;
-			else
-				p->BoxOnPlaneSideFunc = BoxOnPlaneSide0;
-		}
+		break;
 	}
 }
 
@@ -222,19 +250,35 @@ void AngleVectors (vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 	angle = angles[PITCH] * (M_PI*2 / 360);
 	sp = sin(angle);
 	cp = cos(angle);
-	angle = angles[ROLL] * (M_PI*2 / 360);
-	sr = sin(angle);
-	cr = cos(angle);
+	// LordHavoc: this is only to hush up gcc complaining about 'might be used uninitialized' variables
+	// (they are NOT used uninitialized, but oh well)
+	cr = 0;
+	sr = 0;
+	if (right || up)
+	{
+		angle = angles[ROLL] * (M_PI*2 / 360);
+		sr = sin(angle);
+		cr = cos(angle);
+	}
 
-	forward[0] = cp*cy;
-	forward[1] = cp*sy;
-	forward[2] = -sp;
-	right[0] = (-1*sr*sp*cy+-1*cr*-sy);
-	right[1] = (-1*sr*sp*sy+-1*cr*cy);
-	right[2] = -1*sr*cp;
-	up[0] = (cr*sp*cy+-sr*-sy);
-	up[1] = (cr*sp*sy+-sr*cy);
-	up[2] = cr*cp;
+	if (forward)
+	{
+		forward[0] = cp*cy;
+		forward[1] = cp*sy;
+		forward[2] = -sp;
+	}
+	if (right)
+	{
+		right[0] = (-1*sr*sp*cy+-1*cr*-sy);
+		right[1] = (-1*sr*sp*sy+-1*cr*cy);
+		right[2] = -1*sr*cp;
+	}
+	if (up)
+	{
+		up[0] = (cr*sp*cy+-sr*-sy);
+		up[1] = (cr*sp*sy+-sr*cy);
+		up[2] = cr*cp;
+	}
 }
 
 int VectorCompare (vec3_t v1, vec3_t v2)
