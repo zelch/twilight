@@ -80,6 +80,49 @@ void PrintPortal (portal_t *p)
 
 /*
 ================
+CalcNodeBounds
+
+Vic: proper node's bounding box calculation
+================
+*/
+void CalcNodeBounds (node_t *node)
+{
+	int			i, j;
+	portal_t	*p;
+	winding_t	*w;
+	int			side;
+
+	for (i=0 ; i<3 ; i++)
+	{
+		node->mins[i] = BOGUS_RANGE;
+		node->maxs[i] = -BOGUS_RANGE;
+	}
+
+	for (p = node->portals ; p ; p = p->next[side])
+	{
+		if (p->nodes[0] == node)
+			side = 0;
+		else if (p->nodes[1] == node)
+			side = 1;
+		else
+			Error ("CalcNodeBounds: mislinked portal");
+
+		w = p->winding;
+		for (i = 0; i < w->numpoints; i++)
+		{
+			for (j=0 ; j<3 ; j++)
+			{
+				if (w->points[i][j] < node->mins[j])
+					node->mins[j] = w->points[i][j];
+				if (w->points[i][j] > node->maxs[j])
+					node->maxs[j] = w->points[i][j];
+			}
+		}
+	}
+}
+
+/*
+================
 MakeHeadnodePortals
 
 The created portals will face the global outside_node
@@ -261,6 +304,9 @@ void CutNodePortals_r (node_t *node)
 
 	//	CheckLeafPortalConsistancy (node);
 
+	// Vic: properly calculate the bounding box
+	CalcNodeBounds (node);
+
 	//
 	// separate the portals on node into it's children	
 	//
@@ -276,8 +322,9 @@ void CutNodePortals_r (node_t *node)
 	// create the new portal by taking the full plane winding for the cutting plane
 	// and clipping it by all of the planes from the other portals
 	//
-	new_portal = AllocPortal ();
-	new_portal->planenum = node->planenum;
+	// Vic: commented out
+//	new_portal = AllocPortal ();
+//	new_portal->planenum = node->planenum;
 
 	w = BaseWindingForPlane (&planes[node->planenum]);
 	side = 0;	// shut up compiler warning
@@ -306,6 +353,9 @@ void CutNodePortals_r (node_t *node)
 	if (w)
 	{
 		// if the plane was not clipped on all sides, there was an error
+		// Vic: moved here the commented lines above
+		new_portal = AllocPortal ();
+		new_portal->planenum = node->planenum;
 		new_portal->winding = w;	
 		AddPortalToNodes (new_portal, f, b);
 	}

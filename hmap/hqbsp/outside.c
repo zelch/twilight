@@ -6,21 +6,16 @@ int		outleafs;
 /*
 ===========
 PointInLeaf
+
+Vic: rewrote to be faster
+LordHavoc: shortened a little
 ===========
 */
 node_t	*PointInLeaf (node_t *node, vec3_t point)
 {
-	vec_t	d;
-	
-	if (node->contents)
-		return node;
-		
-	d = DotProduct (planes[node->planenum].normal, point) - planes[node->planenum]. dist;
-	
-	if (d > 0)
-		return PointInLeaf (node->children[0], point);
-	
-	return PointInLeaf (node->children[1], point);
+	while (!node->contents)
+		node = node->children[(DotProduct (planes[node->planenum].normal, point) <= planes[node->planenum].dist)];
+	return node;
 }
 
 /*

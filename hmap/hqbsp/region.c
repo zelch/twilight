@@ -20,6 +20,8 @@ face to region mapping numbers
 
 */
 
+// Vic: FIXME: remove this b0rked region crap
+
 #define	MAX_EDGES_IN_REGION	32
 
 int		firstedge;

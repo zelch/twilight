@@ -478,6 +478,8 @@ void DividePlane (surface_t *in, plane_t *split, surface_t **front, surface_t **
 DivideNodeBounds
 ==================
 */
+// Vic: commented out this mess
+/*
 void DivideNodeBounds (node_t *node, plane_t *split)
 {
   VectorCopy (node->mins, node->children[0]->mins);
@@ -492,6 +494,7 @@ void DivideNodeBounds (node_t *node, plane_t *split)
   node->children[0]->mins[split->type] =
     node->children[1]->maxs[split->type] = split->dist;
 }
+*/
 
 /*
 ==================
@@ -636,8 +639,9 @@ void PartitionSurfaces (surface_t *surfaces, node_t *node)
   node->planenum = split->planenum;
 
   splitplane = &planes[split->planenum];
-	
-  DivideNodeBounds (node, splitplane);
+
+ // Vic: commented out this mess
+//  DivideNodeBounds (node, splitplane);
 
 
   //

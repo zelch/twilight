@@ -20,6 +20,7 @@ typedef struct wedge_s
 int		numwedges, numwverts;
 int		tjuncs;
 int		tjuncfaces;
+int		degenerdges;
 
 #define	MAXWVERTS	0x20000
 #define	MAXWEDGES	0x10000
@@ -81,39 +82,54 @@ static	unsigned HashVec (vec3_t vec)
 
 //============================================================================
 
-void CanonicalVector (vec3_t vec)
+// Vic: changed this to qboolean
+qboolean CanonicalVector (vec3_t vec)
 {
-	VectorNormalize (vec);
+	vec_t length;
+
+	length = VectorLength (vec);
+
+	// Vic: ignore degenerate edges
+	if (length < 0.1)
+		return false;
+
+	length = (vec_t)1.0 / length;
+	vec[0] *= length;
+	vec[1] *= length;
+	vec[2] *= length;
+
 	if (vec[0] > EQUAL_EPSILON)
-		return;
+		return true;
 	else if (vec[0] < -EQUAL_EPSILON)
 	{
 		VectorNegate (vec, vec);
-		return;
+		return true;
 	}
 	else
 		vec[0] = 0;
 
 	if (vec[1] > EQUAL_EPSILON)
-		return;
+		return true;
 	else if (vec[1] < -EQUAL_EPSILON)
 	{
 		VectorNegate (vec, vec);
-		return;
+		return true;
 	}
 	else
 		vec[1] = 0;
 
 	if (vec[2] > EQUAL_EPSILON)
-		return;
+		return true;
 	else if (vec[2] < -EQUAL_EPSILON)
 	{
 		VectorNegate (vec, vec);
-		return;
+		return true;
 	}
 	else
 		vec[2] = 0;
+
 	Error ("CanonicalVector: degenerate");
+	return false;
 }
 
 wedge_t	*FindEdge (vec3_t p1, vec3_t p2, vec_t *t1, vec_t *t2)
@@ -125,7 +141,13 @@ wedge_t	*FindEdge (vec3_t p1, vec3_t p2, vec_t *t1, vec_t *t2)
 	int		h;
 
 	VectorSubtract (p2, p1, dir);
-	CanonicalVector (dir);
+	
+	// ignore degenerate edges
+	if (!CanonicalVector (dir))
+	{
+		degenerdges++;
+		return NULL;
+	}
 
 	*t1 = DotProduct (p1, dir);
 	*t2 = DotProduct (p2, dir);
@@ -231,8 +253,11 @@ void AddEdge (vec3_t p1, vec3_t p2)
 	vec_t	t1, t2;
 
 	w = FindEdge(p1, p2, &t1, &t2);
-	AddVert (w, t1);
-	AddVert (w, t2);
+	if (w)
+	{
+		AddVert (w, t1);
+		AddVert (w, t2);
+	}
 }
 
 /*
@@ -386,6 +411,8 @@ restart:
 		j = (i+1)%superface->numpoints;
 
 		w = FindEdge (superface->pts[i], superface->pts[j], &t1, &t2);
+		if (!w)
+			continue;
 
 		for (v=w->head.next ; v->t < t1 + T_EPSILON ; v = v->next)
 		{
@@ -500,8 +527,12 @@ void tjunc (node_t *headnode)
 // add extra vertexes on edges where needed
 //
 	tjuncs = tjuncfaces = 0;
+	degenerdges = 0;
 
 	tjunc_fix_r (headnode);
+
+	// Vic: report number of degenerate edges
+	qprintf ("%i degenerate edges\n", degenerdges);
 
 	qprintf ("%i edges added by tjunctions\n", tjuncs);
 	qprintf ("%i faces added by tjunctions\n", tjuncfaces);
