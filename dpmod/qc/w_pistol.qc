@@ -17,7 +17,7 @@ void() W_PistolFireCode =
 	self.wfiretime = time;
 	w_muzzleflash(shotorg, 1);
 	ejectcasing(shotorg, shotdir, v_right * 150 + v_up * 50, 50, 0);
-	FireBullets(self, self, 4, 1, 30 * damagescale, 30 * damagescale, 0, 0, shotdir * 7000, 0, "PISTOL", DT_NAIL, Obituary_Pistol);
+	FireBullets(self, self, 4, 1, 35 * damagescale, 35 * damagescale, 0, 0, shotdir * 7000, 0, "PISTOL", DT_NAIL, Obituary_Pistol);
 };
 
 void() w_pistoldrop1;
