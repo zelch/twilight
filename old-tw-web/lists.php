@@ -1,6 +1,5 @@
 <?php
-	$title = "Contact";
-	$section = "Contact";
+	$title = "Mailing Lists";
 	$pageroot = ".";
 	require ($pageroot . "/include/header.php");
 

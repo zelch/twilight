@@ -1,7 +1,7 @@
 <?php
 	function email ($person)
 	{
-		return "<a href=\"mailto:" . $userinfo[$person]["email"] . "\">" .
+		return "<a href=\"mailto:" . $userinfo[$person]["Email"] . "\">" .
 			$person . "</a>";
 	}
 

@@ -11,20 +11,20 @@
 		footerpre => "<center><font face=\"verdana, arial\" size=\"-2\">" ,
 		footerpost => "</font></center>",
 
-		nav => "bgcolor=\"#000430\" width=\"15%\" valign=\"top\"" ,
-		navpre => "<font face=\"verdana, arial\" size=\"+1\"><strong>" ,
-		navpost => "</strong></font>" ,
+		nav => "bgcolor=\"#000430\" width=\"100%\" valign=\"top\"" ,
+		navpre => "<font size=\"-1\">" ,
+		navpost => "</font>" ,
 
-		snav => "valign=\"top\"" ,
-		snavpre => "<font size=\"-1\">" ,
-		snavpost => "</font>" ,
+		tnav => "valign=\"top\" width=\"100%\" bgcolor=\"#00087f\"" ,
+		tnavpre => "<font face=\"verdana, arial\"><strong>" ,
+		tnavpost => "</strong></font>" ,
 
 		plugs => "width=\"100%\"" ,
 		plugspre => "<center>" ,
 		plugspost => "</center>" ,
 
-		news => "width=\"100%\" bgcolor=\"#00087f\" cellspacing=\"1\"" ,
-		newstitle => "width=\"100%\" bgcolor=\"#00087f\"" ,
+		news => "width=\"100%\" bgcolor=\"#000fb5\" cellspacing=\"1\"" ,
+		newstitle => "width=\"100%\" bgcolor=\"#000fb5\"" ,
 		newstitlepre => "<div align=right><font face=\"verdana,arial\" " .
 				"size=\"-1\">" ,
 		newstitletablepost => "</font></div>" ,
@@ -91,23 +91,24 @@ td.side {
 }
 
 div.nav {
-	font: bolder 110% verdana, sans-serif;
+	font: bolder 90% verdana, sans-serif;
 }
 
-div.snav {
-	font: bolder 90% verdana, sans-serif;
+div.tnav {
+	font: bolder 110% verdana, sans-serif;
+	background: #00087f;
 }
 
 div.news {
 	margin: 10px;
 	background: #000440;
-	border: solid 2px #00087f;
+	border: solid 2px #000fb5;
 }
 div.newstitle {
-	background: #00087f;
+	background: #000fb5;
 	padding: 1px 5px;
 	text-align: right;
-	font: 90% verdana, sans-serif;
+	font: bolder 90% verdana, sans-serif;
 }
 div.newscontent {
 	margin: 5px;
@@ -151,33 +152,52 @@ a {
 	}
 
 	$nav_items = array (
-		News => array (
-			News => "/index.php"
+		Information => array (
+			"Recent News" => "/index.php"
 		) ,
 		Downloads => array (
-			Downloads => "/files/index.php"
+			"Downloads" => "/files/index.php"
 		) ,
 		Development => array (
-			Development => "/devel/index.php" ,
-			Overview => "/devel/overview.php" ,
-			Credits => "/devel/credits.php"
+			"Development" => "/devel/index.php" ,
+			"Overview" => "/devel/overview.php" ,
+			"Credits" => "/devel/credits.php"
 		) ,
 		Links => array (
-			Links => "/links.php"
+			"Links" => "/links.php"
 		) ,
 		Contact => array (
-			Contact => "/contact.php"
+			"Mailing Lists" => "/lists.php" ,
+			"Developers" => "/people.php"
 		)
 	);
 
-	$userinfo["Knghtbrd"]["name"] = "Joseph Carter";
-	$userinfo["Knghtbrd"]["email"] = "knghtbrd@debian.org";
-	$userinfo["zinx"]["name"] = "Zinx Verituse";
-	$userinfo["zinx"]["email"] = "zinx@magenet.net";
-	$userinfo["LordHavoc"]["name"] = "Forest Hale";
-	$userinfo["LordHavoc"]["email"] = "lordhavoc@users.sourceforge.net";
-	$userinfo["Vic"]["name"] = "Victor Luchits";
-	$userinfo["Vic"]["email"] = "digiman@users.sourceforge.net";
+	$userinfo = array (
+		"|Rain|" => array (
+			"Name" => "Ben Winslow" ,
+			"Email" => "rain@bluecherry.net"
+		) ,
+		"LordHavoc" => array (
+			"Name" => "Forest Hale" ,
+			"Email" => "lordhavoc@users.sourceforge.net"
+		) ,
+		"Knghtbrd" => array (
+			"Name" => "Joseph Carter" ,
+			"Email" => "knghtbrd@debian.org"
+		) ,
+		"Vic" => array (
+			"Name" => "Victor Luchits" ,
+			"Email" => "digiman@users.sourceforge.net"
+		) ,
+		"Mercury" => array (
+			"Name" => "Zephaniah E. Hull" ,
+			"Email" => "warp@whitestar.soark.net"
+		) ,
+		"zinx" => array (
+			"Name" => "Zinx Verituse" ,
+			"Email" => "zinx@magenet.net"
+		)
+	);
 
 	// Add yourself above!
 	

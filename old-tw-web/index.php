@@ -1,10 +1,9 @@
 <?php
-	$title = "News";
-	$section = "News";
+	$title = "Recent News";
 	$pageroot = ".";
 	require ($pageroot . "/include/header.php");
 
-	box ("title", "Recent news");
+	box ("title", "Recent News");
 
     newsitem ("02 Aug 2001", "knghtbrd", "We've got a bit nicer logo now\n" .
 		"thanks to some ideas given by everyone and my stubborn refusal\n" .

@@ -30,30 +30,21 @@
 	echo ("<img width=\"403\" height=\"82\" src=\"" . $display["logo"] .
 		"\" alt=\"Project Twilight\">\n</td></tr>\n");
 	if ($browser_css) {
-		echo ("<tr><td width=\"15%\" class=\"side\">\n");
+		echo ("<tr><td width=\"1%\" class=\"side\">\n");
 	} else {
-		echo ("<tr><td width=\"15%\" " . $display["nav"] . ">\n");
+		echo ("<tr><td width=\"1%\" " . $display["nav"] . ">\n");
 	}
 	boxstart ("nav");
 
 	while (list ($sect, $sub) = each ($nav_items)) {
-		if ($sect == $title) {
-			echo ($sect . "<br>\n");
-		} else {
-			echo ("<a href=\"" . $sub[$sect] . "\">" . $sect . "</a><br>\n");
-		}
-		boxstart ("snav");
+		box ("tnav", $sect);
 		while (list ($ssect, $url) = each ($sub)) {
-			if ($ssect == $sect) {
-				continue;
-			}
-			if ($sect == $section && $ssect == $title) {
-				echo ("- " .$ssect . "<br>\n");
+			if ($ssect == $title) {
+				echo ("- " . $ssect . "<br>\n");
 			} else {
 				echo ("- <a href=\"" . $url . "\">" . $ssect . "</a><br>\n");
 			}
 		}
-		boxend ("snav");
 	}
 	boxend ("nav");
 
@@ -64,11 +55,11 @@
 		"border=\"0\" alt=\"SourceForge\"></a><br>\n" .
 		
 		"<a href=\"http://www.opengl.org\">" .
-		"<img width=\"75\" height=\"33\" " .
+		"<img width=\"79\" height=\"35\" " .
 		"src=\"/images/opengl.gif\" alt=\"OpenGL\" border=\"0\"></a><br>\n"
 		
 	);
 
-	echo ("</td><td>\n");
+	echo ("</td><td valign=\"top\">\n");
 ?>
 
