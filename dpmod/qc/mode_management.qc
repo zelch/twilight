@@ -366,6 +366,10 @@ void() spawnmonster_think =
 		newmis = newmis.chain;
 	}
 
+	if (self.netname == "monster_fish")
+	if (pointcontents(self.origin) != CONTENT_WATER)
+		remove(self);
+
 	// spawn in
 	self.movetype = MOVETYPE_NONE;
 	self.solid = SOLID_NOT;
@@ -445,6 +449,7 @@ void() monster_shambler;
 void() monster_tarbaby;
 void() monster_wizard;
 void() monster_zombie;
+void() monster_fish;
 
 void() spawnmonsters =
 {
@@ -452,7 +457,7 @@ void() spawnmonsters =
 	if (find(world, classname, "info_player_deathmatch") == world)
 		return;
 
-	r = random() * 12;
+	r = random() * 13;
 	     if (r <  1) spawnmonster( 5, 10, "monster_army"       , monster_army       , '-16 -16 -24', '16 16 32');
 	else if (r <  2) spawnmonster( 3,  6, "monster_demon1"     , monster_demon1     , '-32 -32 -24', '32 32 64');
 	else if (r <  3) spawnmonster( 6, 12, "monster_dog"        , monster_dog        , '-16 -16 -24', '16 16 32');
@@ -465,6 +470,7 @@ void() spawnmonsters =
 	else if (r < 10) spawnmonster(10, 15, "monster_tarbaby"    , monster_tarbaby    , '-16 -16 -24', '16 16 32');
 	else if (r < 11) spawnmonster( 6, 10, "monster_wizard"     , monster_wizard     , '-16 -16 -24', '16 16 32');
 	else if (r < 12) spawnmonster( 4,  8, "monster_zombie"     , monster_zombie     , '-16 -16 -24', '16 16 32');
+	else if (r < 13) spawnmonster( 4,  8, "monster_fish"       , monster_fish       , '-16 -16 -24', '16 16 32');
 };
 
 float monstersprecached;
@@ -480,6 +486,7 @@ void() precachemonster_shambler;
 void() precachemonster_tarbaby;
 void() precachemonster_wizard;
 void() precachemonster_zombie;
+void() precachemonster_fish;
 
 void() precachemonsters =
 {
@@ -495,6 +502,7 @@ void() precachemonsters =
 	precachemonster_tarbaby();
 	precachemonster_wizard();
 	precachemonster_zombie();
+	precachemonster_fish();
 	monstersprecached = TRUE;
 };
 
