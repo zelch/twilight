@@ -334,7 +334,7 @@ sub build_header ($@) {
 	$boundary = "----=MIME." . unpack("H*", $digest->digest());
 	
 	# Build the mail header
-	push(@text, "From: $gecos <$user>");
+	push(@text, "From: <$user>");
 	push(@text, "To: " . join(' ', @mailto));
 	push(@text, "Subject: $subject");
 	push(@text, "MIME-Version: 1.0");
