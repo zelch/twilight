@@ -57,6 +57,7 @@ Can enable the unused slime sound channel using -ambientslime to make it use sli
 Defaults to -level 4 vis instead of -level 2 like original vis did
 Compresses vis data more by merging vis data for identical parts of a map, saving a few k (Vic)
 Supports func_group entities which are merged into the world during compile, they are an editing helper (Vic)
+Can use harsh light shading instead of traditional quake soft shading using -harshshade
 
 Usage info on the hmap2 utilities:
 
@@ -123,6 +124,7 @@ What the options do:
 -extra8x8     antialiased lighting, even slower and better than -extra4x4
 -nolightvis   disables use of visibility data to optimize lighting
 -relight      make a .lit file for an existing .bsp without modifying the .bsp
+-harshshade   harsh shading rather than the normal soft shading
 Options from here on are incompatible with darkplaces realtime lighting mode
 (it does not know if these options are used, and will require manual rtlights
  editing to look good)

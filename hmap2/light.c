@@ -12,6 +12,8 @@ vec_t		extrasamplesscale;	// 1.0 / pointspersample (extrasamples related)
 vec_t		globallightscale;
 vec_t		globallightradiusscale;
 
+int			harshshade;
+
 lighttype_t	defaultlighttype;
 int			overridelighttypes;
 
@@ -554,7 +556,13 @@ int Light_Main( int argc, char **argv )
 		} else if( !strcmp( argv[i],"-overridetypes" ) ) {
 			printf( "overriding all light types with current default\n" );
 			overridelighttypes = true;
-		} else if( argv[i][0] == '-' )
+		}
+		else if( !strcmp( argv[i],"-harshshade" ) )
+		{
+			harshshade = 1;
+			printf( "harsh shading enabled\n" );
+		}
+		else if( argv[i][0] == '-' )
 			Error( "Unknown option \"%s\"", argv[i] );
 		else
 			break;
@@ -585,6 +593,7 @@ int Light_Main( int argc, char **argv )
 "-extra8x8     antialiased lighting, even slower and better than -extra4x4\n"
 "-nolightvis   disables use of visibility data to optimize lighting\n"
 "-relight      make a .lit file for an existing .bsp without modifying the .bsp\n"
+"-harshshade   harsh shading rather than the normal soft shading\n"
 "Options from here on are incompatible with darkplaces realtime lighting mode\n"
 "(it does not know if these options are used, and will require manual rtlights\n"
 " editing to look good)\n"

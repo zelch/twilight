@@ -359,7 +359,8 @@ static void SingleLightFace_Sun( const directlight_t *light, lightinfo_t *l )
 		return;		// ignore backfaces
 
 	// LordHavoc: FIXME: decide this 0.5 bias based on shader properties (some are dull, some are shiny)
-	shade = (shade * 0.5 + 0.5);
+	if (!harshshade)
+		shade = (shade * 0.5 + 0.5);
 
 	// mapnum won't be allocated until some light hits the surface
 	mapnum = -1;
@@ -465,7 +466,10 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 			continue;
 		
 		// LordHavoc: FIXME: decide this 0.5 bias based on shader properties (some are dull, some are shiny)
-		add = add * (DotProduct( incoming, l->facenormal ) * 0.5 + 0.5);
+		if (!harshshade)
+			add = add * (DotProduct( incoming, l->facenormal ) * 0.5 + 0.5);
+		else
+			add = add * (DotProduct( incoming, l->facenormal ));
 		if( add <= 0 )
 			continue;
 

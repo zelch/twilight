@@ -78,6 +78,8 @@ extern	vec_t		extrasamplesscale;	// 1.0 / pointspersample (extrasamples related)
 
 extern	vec_t		globallightscale;
 
+extern	int			harshshade;
+
 extern	int			minlight;
 extern	int			ambientlight;
 
