@@ -268,7 +268,7 @@ void(vector hit) army_rocket =
 	dir = normalize(dir);
 
 	sound (self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
-	LaunchMissile(self.origin + '0 0 12', dir, self, DMG_SOLDIER_ROCKET, DMG_SOLDIER_ROCKET_RADIUS, self.deathtype, Obituary_Generic);
+	LaunchMissile(self.origin + '0 0 12', dir, self, DMG_SOLDIER_ROCKET_DAMAGE, DMG_SOLDIER_ROCKET_FORCE, DMG_SOLDIER_ROCKET_RADIUS, self.deathtype, Obituary_Generic);
 };
 
 void() army_rocket1    =[$shoot1, army_rocket2   ] {ai_face();self.dest = monster_shotlead(0.4, 1000);};
@@ -477,7 +477,7 @@ void() monster_army =
 	self.localdamage_hit = LD_NORMAL;
 	*/
 
-	self.forcescale = 6; // a little bit lighter than a player
+	self.forcescale = 6;
 	self.netname = "a grunt";
 	// self.doobits = 1;
 

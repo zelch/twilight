@@ -190,7 +190,7 @@ void() monster_fish =
 	if (!monsterspawn)
 		precachemonster_fish();
 
-	self.forcescale = 3; // lightweight, but also small
+	self.forcescale = 6;
 	self.netname = "Rotfish";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

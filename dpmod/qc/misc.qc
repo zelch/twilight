@@ -490,7 +490,7 @@ void() barrel_explode =
 	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble3.mdl", 5);
 	SUB_UseTargets();
 	setorigin(self, (self.absmin + self.absmax) * 0.5);
-	BecomeExplosion (self, self.dmg, self.dmg * 0.5, self.deathtype, '0 0 0', FALSE, Obituary_Generic);
+	BecomeExplosion (self, self.dmg, self.dmg, self.dmg * 0.5, self.deathtype, '0 0 0', FALSE, Obituary_Generic);
 };
 
 void() barrel_det =

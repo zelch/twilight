@@ -96,18 +96,25 @@ float   DMG_SOLDIER_MACHINEGUN_BDAMAGE  =   15;
 float   DMG_SOLDIER_SHOTGUN_PELLETS     =    3;
 float   DMG_SOLDIER_SHOTGUN_DAMAGE      =   15;
 float   DMG_SOLDIER_SHOTGUN_BDAMAGE     =   15;
-float   DMG_OGRE_GRENADE                =   60;
+float   DMG_OGRE_GRENADE_DAMAGE         =   60;
+float   DMG_OGRE_GRENADE_FORCE          =   60;
 float   DMG_OGRE_GRENADE_RADIUS         =  100;
-float   DMG_SHALRATH_MISSILE            =   60;
+float   DMG_SHALRATH_MISSILE_DAMAGE     =   60;
+float   DMG_SHALRATH_MISSILE_FORCE      =   60;
 float   DMG_SHALRATH_MISSILE_RADIUS     =  100;
 float   DMG_SHAMBLER_LIGHTNING          =   20;
 float   DMG_ENFORCER_LASER              =   25;
-float   DMG_ENFORCER_PLASMA             =   20;
-float   DMG_ENFORCER_ROCKET             =   60;
+float   DMG_ENFORCER_PLASMA_DAMAGE      =   20;
+float   DMG_ENFORCER_PLASMA_FORCE       =   20;
+float   DMG_ENFORCER_PLASMA_RADIUS      =   20;
+float   DMG_ENFORCER_ROCKET_DAMAGE      =   60;
+float   DMG_ENFORCER_ROCKET_FORCE       =   60;
 float   DMG_ENFORCER_ROCKET_RADIUS      =  100;
-float   DMG_TARBABY                     =   90;
+float   DMG_TARBABY_DAMAGE              =   90;
+float   DMG_TARBABY_FORCE               =   90;
 float   DMG_TARBABY_RADIUS              =  200;
-float   DMG_CHTHON_LAVABALL             =   60;
+float   DMG_CHTHON_LAVABALL_DAMAGE      =   60;
+float   DMG_CHTHON_LAVABALL_FORCE       =   60;
 float   DMG_CHTHON_LAVABALL_RADIUS      =  100;
 float   DMG_ZOMBIE_CHUNK                =   20;
 
@@ -127,4 +134,4 @@ float MH_WIZARD    =    80;float MB_WIZARD    =    70;
 float MH_ZOMBIE    =   200; // explosives do more damage than normal
 
 void(entity targ, entity inflictor, entity attacker, float damage, float bdamage, string dt, float damgtype, vector damgpoint, vector force, void(entity t, entity a, string m, float dtyp) obitfunc) T_Damage;
-void(entity inflictor, entity attacker, float damage, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage;
+void(entity inflictor, entity attacker, float damage, float force, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage;

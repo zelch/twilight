@@ -651,7 +651,7 @@ void() monster_zombie =
 		return;
 	}
 
-	self.forcescale = 2; // heavier than player simply to make them killable with non-explosives
+	self.forcescale = 6;
 	self.netname = "Zombie";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

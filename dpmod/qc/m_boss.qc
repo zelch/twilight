@@ -205,7 +205,7 @@ void() boss_missiletouch =
 		remove(self);
 		return;
 	}
-	BecomeExplosion(self, DMG_CHTHON_LAVABALL, DMG_CHTHON_LAVABALL_RADIUS, self.deathtype, '0 0 0', FALSE, Obituary_Generic);
+	BecomeExplosion(self, DMG_CHTHON_LAVABALL_DAMAGE, DMG_CHTHON_LAVABALL_FORCE, DMG_CHTHON_LAVABALL_RADIUS, self.deathtype, '0 0 0', FALSE, Obituary_Generic);
 };
 
 
@@ -239,7 +239,8 @@ void(vector p) boss_missile =
 
 	vec = normalize (d - org);
 
-	LaunchFireball(org, vec * shotspeed, self, 90, 110, self.deathtype, Obituary_Generic);
+	LaunchFireball(org, vec * shotspeed, self, 90, 90, 110, self.deathtype, Obituary_Generic);
+	newmis.movetype = MOVETYPE_FLYMISSILE;
 	sound (self, CHAN_WEAPON, "boss1/throw.wav", 1, ATTN_NORM);
 
 	// check for dead enemy

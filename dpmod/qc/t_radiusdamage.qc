@@ -9,9 +9,9 @@
 T_RadiusDamage
 ============
 */
-void(entity inflictor, entity attacker, float damage, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage =
+void(entity inflictor, entity attacker, float damage, float force, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage =
 {
-	local   float   points, points1, wt, d, scaler;
+	local   float   damagepoints, forcepoints, wt, d, scaler;
 	local   vector  v, l;
 	local   entity  head;
 
@@ -34,16 +34,18 @@ void(entity inflictor, entity attacker, float damage, float radius, entity ignor
 		if (!head.isdecor)
 		if (head != ignore)
 		{
-			points = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 3);
-			if (points > damage)
-				points = damage;
-			points1 = points;
+			damagepoints = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 3);
+			forcepoints = LinearRadDamage(head, ignore, inflictor.origin, force, radius, 3);
+			if (damagepoints > damage)
+				damagepoints = damage;
 			if (head == attacker)
-				points = points * 0.5;
-			if (points >= 1)
+				damagepoints = damagepoints * 0.5;
+			if (forcepoints > force)
+				forcepoints = force;
+			if (damagepoints > 0 || forcepoints > 0)
 			{
-				head.radiusdamage_amount = head.radiusdamage_amount + ceil(points);
-				head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * points1;
+				head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
+				head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
 				head.radiusdamage_hit = 1;
 				head.radiusdamage_lasthit = raddamage_lasthit;
 			}
@@ -72,13 +74,16 @@ void(entity inflictor, entity attacker, float damage, float radius, entity ignor
 	head = findchainfloat(isdecor, TRUE);
 	while (head)
 	{
-		points = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 1);
-		if (points > damage)
-			points = damage;
-		if (points >= 1)
+		damagepoints = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 1);
+		forcepoints = LinearRadDamage(head, ignore, inflictor.origin, force, radius, 1);
+		if (damagepoints > damage)
+			damagepoints = damage;
+		if (forcepoints > damage)
+			forcepoints = damage;
+		if (damagepoints > 0 || forcepoints > 0)
 		{
-			head.radiusdamage_amount = head.radiusdamage_amount + ceil(points);
-			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 + '0 0 4'- inflictor.origin) * points;
+			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
+			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 + '0 0 4'- inflictor.origin) * forcepoints;
 			head.radiusdamage_hit = 1;
 			head.radiusdamage_lasthit = raddamage_lasthit;
 		}

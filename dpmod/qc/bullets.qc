@@ -6,7 +6,7 @@ void() bullet_touch =
 {
 	local   vector  dir;
 	dir = normalize(self.velocity);
-	T_Damage(other, self, self.realowner, self.dmg, self.count, self.deathtype, self.cnt, self.origin, dir * self.count, self.obitfunc1);
+	T_Damage(other, self, self.realowner, self.dmg, self.count, self.deathtype, self.cnt, self.origin, dir * self.count * 0.2, self.obitfunc1);
 	if (other.solid == SOLID_BSP) // hit a wall
 	if (self.lefty >= 0)
 	if (pointcontents(self.origin) != CONTENT_SKY)
@@ -21,7 +21,7 @@ void() bullet_touch =
 	}
 	setorigin(self, self.origin - dir * 8);
 	if (self.count2)
-		BecomeExplosion(self, self.dmg2, self.count2, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		BecomeExplosion(self, self.dmg2, self.dmg2, self.count2, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	else
 		remove(self);
 };

@@ -193,7 +193,7 @@ void()  tbaby_die2      =[      $exp,           tbaby_die2      ]
 	MonsterGibs("", 0, "progs/tar_gib.mdl", 4, "", 0);
 	self.skin = 0;
 	self.owner = self;
-	TarbabyExplosion (self, DMG_TARBABY, DMG_TARBABY_RADIUS, self.deathtype);
+	TarbabyExplosion (self, DMG_TARBABY_DAMAGE, DMG_TARBABY_FORCE, DMG_TARBABY_RADIUS, self.deathtype);
 };
 
 void() tarbaby_sightsound =
@@ -235,7 +235,7 @@ void() monster_tarbaby =
 	if (!monsterspawn)
 		precachemonster_tarbaby();
 
-	self.forcescale = 4; // lighter than a player, but also much smaller, so lower force scale
+	self.forcescale = 6;
 	self.netname = "a spawn";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

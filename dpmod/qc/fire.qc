@@ -110,7 +110,7 @@ void() Fire_burnthink =
 		//self.count = time + 0.6;
 		//T_BurnRadius (self, self.owner, 40, self.cnt, self.enemy, self.deathtype);
 		self.cnt2 = time + 0.3;
-		T_RadiusDamage(self, self.owner, 20, 80, self.enemy, self.deathtype, DT_FIRE, Obituary_Fire);
+		T_RadiusDamage(self, self.owner, 20, 0, 80, self.enemy, self.deathtype, DT_FIRE, Obituary_Fire);
 	}
 	if (pointcontents(self.origin) != CONTENT_EMPTY)
 		self.cnt = 0;

@@ -127,7 +127,7 @@ ShalMissile
 
 void() ShalMissileDie =
 {
-	BecomeExplosion (self, DMG_SHALRATH_MISSILE, DMG_SHALRATH_MISSILE_RADIUS, self.deathtype, '0.8 0.5 1', FALSE, Obituary_Generic);
+	BecomeExplosion (self, DMG_SHALRATH_MISSILE_DAMAGE, DMG_SHALRATH_MISSILE_FORCE, DMG_SHALRATH_MISSILE_RADIUS, self.deathtype, '0.8 0.5 1', FALSE, Obituary_Generic);
 };
 
 void() ShalHome =
@@ -249,7 +249,7 @@ void() monster_shalrath =
 	if (!monsterspawn)
 		precachemonster_shalrath();
 
-	self.forcescale = 2.5; // heavier than a player
+	self.forcescale = 3;
 	self.netname = "a shalrath";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

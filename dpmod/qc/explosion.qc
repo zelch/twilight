@@ -32,7 +32,7 @@ void(vector org, vector vel, float lifetime) SpawnHarmlessFireball =
 	newmis.effects = EF_ADDITIVE;
 };
 
-void(vector org, entity attacker, float damg, float radius, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) Explosion =
+void(vector org, entity attacker, float damg, float force, float radius, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) Explosion =
 {
 	local vector v;
 	local entity e;
@@ -51,7 +51,7 @@ void(vector org, entity attacker, float damg, float radius, string dt, vector ex
 	else
 		te_explosionrgb(e.origin, explosioncolor);
 
-	T_RadiusDamage(e, attacker, damg, radius, world, dt, DT_EXPLOSION, obitfunc);
+	T_RadiusDamage(e, attacker, damg, force, radius, world, dt, DT_EXPLOSION, obitfunc);
 	remove(e);
 
 	v = findbetterlocation3(org); // move animation away from walls
@@ -69,7 +69,7 @@ void(vector org, entity attacker, float damg, float radius, string dt, vector ex
 	*/
 };
 
-void(vector org, entity attacker, float damg, float radius, entity ignore, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) ExplosionIgnore =
+void(vector org, entity attacker, float damg, float force, float radius, entity ignore, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) ExplosionIgnore =
 {
 	local vector v;
 	local entity e;
@@ -88,7 +88,7 @@ void(vector org, entity attacker, float damg, float radius, entity ignore, strin
 	else
 		te_explosionrgb(e.origin, explosioncolor);
 
-	T_RadiusDamage(e, attacker, damg, radius, ignore, dt, DT_EXPLOSION, obitfunc);
+	T_RadiusDamage(e, attacker, damg, force, radius, ignore, dt, DT_EXPLOSION, obitfunc);
 	remove(e);
 
 	v = findbetterlocation3(org); // move animation away from walls
@@ -106,7 +106,7 @@ void(vector org, entity attacker, float damg, float radius, entity ignore, strin
 	*/
 };
 
-void(entity e, float damg, float radius, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) BecomeExplosion =
+void(entity e, float damg, float force, float radius, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) BecomeExplosion =
 {
 	local vector org, v, v2;
 	if (e.solid == SOLID_BSP)
@@ -141,7 +141,7 @@ void(entity e, float damg, float radius, string dt, vector explosioncolor, float
 		te_smallflash(e.origin);
 	}
 
-	T_RadiusDamage(e, e.owner, damg, radius, world, dt, DT_EXPLOSION, obitfunc);
+	T_RadiusDamage(e, e.owner, damg, force, radius, world, dt, DT_EXPLOSION, obitfunc);
 	remove(e);
 
 	v = findbetterlocation3(org); // move animation away from walls
@@ -159,11 +159,11 @@ void(entity e, float damg, float radius, string dt, vector explosioncolor, float
 	*/
 };
 
-void(entity e, float damg, float radius, string dt) TarbabyExplosion =
+void(entity e, float damg, float force, float radius, string dt) TarbabyExplosion =
 {
 	te_tarexplosion(e.origin);
 
-	T_RadiusDamage(e, e, damg, radius, world, dt, DT_EXPLOSION, Obituary_Generic);
+	T_RadiusDamage(e, e, damg, force, radius, world, dt, DT_EXPLOSION, Obituary_Generic);
 
 	//effect(e.origin, "progs/s_explod.spr", 0, 6, 10);
 	effect(e.origin, "progs/dpexplosion.spr32", 0, 20, 40);

@@ -121,7 +121,7 @@ float() OgreFireGrenade =
 	sound (self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 
 	v = (3 - skill) * 20 * randomvec();
-	LaunchGrenade(self.origin, findtrajectory_velocity + v, self, DMG_OGRE_GRENADE, DMG_OGRE_GRENADE_RADIUS, GRENADE_DETONATEONCREATURE, 5, self.deathtype, Obituary_Generic);
+	LaunchGrenade(self.origin, findtrajectory_velocity + v, self, DMG_OGRE_GRENADE_DAMAGE, DMG_OGRE_GRENADE_FORCE, DMG_OGRE_GRENADE_RADIUS, GRENADE_DETONATEONCREATURE, 5, self.deathtype, Obituary_Generic);
 
 	return TRUE;
 };
@@ -474,7 +474,7 @@ void() monster_ogre =
 	if (!monsterspawn)
 		precachemonster_ogre();
 
-	self.forcescale = 3; // heavier than a player
+	self.forcescale = 4;
 	self.netname = "an ogre";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

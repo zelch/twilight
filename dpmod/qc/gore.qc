@@ -55,7 +55,7 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 	if (e == world)
 		e = newdecor();
 	e.isdecor = TRUE; // let explosions find it
-	e.forcescale = 3;
+	e.forcescale = 6;
 	e.createdtime = time;
 	setorigin(e, org);
 	setmodel (e, gibname);
@@ -102,7 +102,7 @@ void(vector org, vector vel) SpawnDust =
 	if (cvar("temp1") & 2048)
 		return;
 	e = newdecor();
-	e.forcescale = 3;
+	e.forcescale = 6;
 	e.createdtime = time;
 	e.movetype = MOVETYPE_BOUNCE;
 	e.solid = SOLID_NOT;
@@ -148,7 +148,7 @@ void(vector org, vector vel) SpawnMeatSpray =
 		return;
 
 	newmis = newdecor();
-	newmis.forcescale = 3;
+	newmis.forcescale = 6;
 	newmis.createdtime = time + 0.5;
 	newmis.movetype = MOVETYPE_BOUNCE;
 	newmis.solid = SOLID_NOT;

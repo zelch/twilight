@@ -60,7 +60,7 @@ void() xwall_breakthink =
 	{
 		t3 = FALSE; // spawn rubble from each explosion
 		self.cnt2 = self.cnt2 - 1;
-		Explosion(v, self.owner, self.owner.dmg, self.owner.dmg, self.owner.deathtype, '0 0 0', FALSE, Obituary_Generic);
+		Explosion(v, self.owner, self.owner.dmg, self.owner.dmg, self.owner.dmg, self.owner.deathtype, '0 0 0', FALSE, Obituary_Generic);
 	}
 	t2 = floor(self.cnt);
 	self.cnt = self.cnt + self.count;

@@ -17,26 +17,26 @@ void() MineExplode =
 	{
 		basevel = '0 0 0.5' * cvar("sv_gravity");
 		t = GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE;
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
 	}
 	else if (self.weapon & MINE_FIVEWARHEAD)
 	{
 		basevel = '0 0 0.5' * cvar("sv_gravity");
 		t = GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE;
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
-		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.count2, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
 	}
 	else if (self.lefty == 2)
 	{
@@ -45,15 +45,15 @@ void() MineExplode =
 		makevectors(v);
 		shotorg = self.origin;
 		FireBullets(self.owner, self, -1, 4, self.dmg / 4, self.dmg / 4, 0, 0, v_forward * 10000, 0.05, "LASERTRIPMINEDIRECT", DT_NAIL, self.obitfunc1);
-		Explosion(self.origin, self.owner, self.dmg, self.dmg2, "LASERTRIPMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		Explosion(self.origin, self.owner, self.dmg, self.count2, self.dmg2, "LASERTRIPMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	}
 	else if (self.lefty == 3)
 	{
 		T_Damage(self.enemy, self, self.owner, self.dmg, self.dmg, "TAGMINEDIRECT", DT_EXPLOSION, self.origin, '0 0 0.5' * self.dmg, self.obitfunc1);
-		ExplosionIgnore(self.origin, self.owner, self.dmg, self.dmg2, self.enemy, "TAGMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		ExplosionIgnore(self.origin, self.owner, self.dmg, self.count2, self.dmg2, self.enemy, "TAGMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	}
 	else
-		Explosion(self.origin, self.owner, self.dmg, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		Explosion(self.origin, self.owner, self.dmg, self.count2, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	remove(self);
 };
 
@@ -283,7 +283,7 @@ void() MineTouch =
 	}
 };
 
-void(vector org, vector vel, entity own, float damage, float damage2, float impactdamage, float impactbodydamage, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMine =
+void(vector org, vector vel, entity own, float damage, float force, float damage2, float impactdamage, float impactbodydamage, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMine =
 {
 	local   vector  v;
 	DelayGibComment();      // make him wait before commenting on gibs so it's not drown out by explosions etc
@@ -307,6 +307,7 @@ void(vector org, vector vel, entity own, float damage, float damage2, float impa
 	newmis.angles = vectoangles(newmis.velocity);
 	newmis.touch = MineTouch;
 	newmis.dmg = damage;
+	newmis.count2 = force;
 	newmis.dmg2 = damage2;
 	newmis.count3 = impactdamage;
 	newmis.count4 = impactbodydamage;
@@ -315,6 +316,7 @@ void(vector org, vector vel, entity own, float damage, float damage2, float impa
 	{
 		newmis.effects = newmis.effects | EF_BLUE;
 		newmis.dmg = newmis.dmg * 4;
+		newmis.count2 = newmis.count2 * 4;
 	}
 	// set newmis duration
 	newmis.cnt = time + lifetime;

@@ -5,7 +5,7 @@ float lastclientthink, sv_maxspeed, sv_friction, sv_accelerate, sv_stopspeed, sv
 void() SV_PlayerPhysics =
 {
 	local   vector  wishvel, wishdir, v;
-	local   float   wishspeed, f;
+	local   float   wishspeed, f, accelerate;
 
 	if (self.movetype == MOVETYPE_NONE)
 		return;
@@ -19,6 +19,8 @@ void() SV_PlayerPhysics =
 		sv_stopspeed = cvar("sv_stopspeed");
 		sv_gravity = cvar("sv_gravity");
 	}
+
+	accelerate = sv_accelerate;
 
 	if (self.punchangle != '0 0 0')
 	{
@@ -165,8 +167,11 @@ void() SV_PlayerPhysics =
 		// airborn
 		makevectors(self.v_angle_y * '0 1 0');
 		wishvel = v_forward * self.movement_x + v_right * self.movement_y;
-		if (vlen(wishvel) > 10)
-			wishvel = normalize(wishvel) * 10;
+		// LordHavoc: air control...
+		//accelerate = accelerate * 0.5;
+		// LordHavoc: no air control...
+		//if (vlen(wishvel) > 10)
+		//	wishvel = normalize(wishvel) * 10;
 	}
 
 	// acceleration
@@ -178,6 +183,6 @@ void() SV_PlayerPhysics =
 			wishspeed = sv_maxspeed;
 		f = wishspeed - (self.velocity * wishdir);
 		if (f > 0)
-			self.velocity = self.velocity + wishdir * min(f, sv_accelerate * frametime * wishspeed);
+			self.velocity = self.velocity + wishdir * min(f, accelerate * frametime * wishspeed);
 	}
 };

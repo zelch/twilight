@@ -287,7 +287,7 @@ void() monster_knight =
 	if (!monsterspawn)
 		precachemonster_knight();
 
-	self.forcescale = 3.5; // heavier than a player
+	self.forcescale = 6;
 	self.netname = "a knight";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

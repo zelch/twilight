@@ -42,9 +42,9 @@ void(entity own, vector org, vector vel, float damg, string dethtype, void(entit
 	newmis.dmg2 = damg;
 	if (self.items & IT_QUAD)
 	{
+		newmis.effects = newmis.effects | EF_BLUE;
 		newmis.dmg = newmis.dmg * 4;
 		newmis.dmg2 = newmis.dmg2 * 4;
-		newmis.effects = newmis.effects | EF_BLUE;
 	}
 	newmis.deathtype = dethtype;
 	newmis.obitfunc1 = obitfunc;

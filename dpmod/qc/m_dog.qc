@@ -370,7 +370,7 @@ void() monster_dog =
 	if (!monsterspawn)
 		precachemonster_dog();
 
-	self.forcescale = 6; // lighter than a player but also smaller, so only a little more forcescale
+	self.forcescale = 8;
 	self.netname = "a dog";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

@@ -248,7 +248,8 @@ void() hknight_fireball =
 	// set missile speed
 	vec = dir + randomvec() * 0.05;
 
-	LaunchFireball(org, vec * 1000, self, 90, 110, self.deathtype, Obituary_Generic);
+	LaunchFireball(org, vec * 1000, self, 90, 90, 110, self.deathtype, Obituary_Generic);
+	newmis.movetype = MOVETYPE_FLYMISSILE;
 	sound (self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 };
 
@@ -780,7 +781,7 @@ void() monster_hell_knight =
 	if (!monsterspawn)
 		precachemonster_hell_knight();
 
-	self.forcescale = 2.5; // heavy
+	self.forcescale = 4;
 	self.netname = "a Hell-Knight";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

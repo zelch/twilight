@@ -717,6 +717,7 @@ void() trigger_push_touch =
 	local vector org, v;
 	if (other.movetype == MOVETYPE_NONE || other.movetype == MOVETYPE_PUSH)
 		return;
+	other.flags = other.flags - (other.flags & FL_ONGROUND);
 	other.velocity = self.movedir;
 	if (self.enemy)
 	{

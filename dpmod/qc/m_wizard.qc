@@ -359,7 +359,7 @@ void() monster_wizard =
 	self.localdamage_hit = LD_NORMAL;
 	*/
 
-	self.forcescale = 4; // lighter than a player but also smaller, so lower forcescale
+	self.forcescale = 6;
 	self.netname = "a scrag";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;
