@@ -7,17 +7,21 @@ AMMO
 ===============================================================================
 */
 
+.string ammo_typestring;
+
 void() ammo_touch =
 {
-	local   entity  stemp;
-	local   float   best;
-	local   float   used;
+	local entity stemp;
+	local float best;
+	local float used;
+	local string s;
 
 	if (other.classname != "player")
 		return;
 	if (other.health < 1)
 		return;
-	used = full_ammo(other, self.weapon, self.aflag);
+
+	used = Inventory_AdjustQuantity(other, self.ammo_typestring, self.aflag);
 	if (used < 1)
 		return;
 
@@ -26,12 +30,6 @@ void() ammo_touch =
 	self = other;
 	best = W_BestWeapon(TRUE);
 	self = stemp;
-
-	if (self.weapon == 1) ItemAdjustQuantity(other, "shells", self.aflag);
-	if (self.weapon == 2) ItemAdjustQuantity(other, "nails", self.aflag);
-	if (self.weapon == 3) ItemAdjustQuantity(other, "rockets", self.aflag);
-	if (self.weapon == 4) ItemAdjustQuantity(other, "cells", self.aflag);
-	if (self.weapon == 5) ItemAdjustQuantity(other, "xshells", self.aflag);
 
 	if (other.flags & FL_CLIENT)
 	{
@@ -75,11 +73,11 @@ void() ammo_touch =
 
 float WEAPON_BIG2 = 1;
 
-float(entity player, entity item) item_shells_pickupeval = {if (ItemQuantity(player, "shells") < AMMOMAX_SHELLS) return (AMMOMAX_SHELLS - ItemQuantity(player, "shells")) * (AMMOMAX_SHELLS - ItemQuantity(player, "shells")) * item.dmg;else return 0;};
-float(entity player, entity item) item_nails_pickupeval = {if (ItemQuantity(player, "nails") < AMMOMAX_NAILS) return (AMMOMAX_NAILS - ItemQuantity(player, "nails")) * (AMMOMAX_NAILS - ItemQuantity(player, "nails")) * item.dmg;else return 0;};
-float(entity player, entity item) item_rockets_pickupeval = {if (ItemQuantity(player, "rockets") < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - ItemQuantity(player, "rockets")) * (AMMOMAX_ROCKETS - ItemQuantity(player, "rockets")) * item.dmg;else return 0;};
-float(entity player, entity item) item_cells_pickupeval = {if (ItemQuantity(player, "cells") < AMMOMAX_CELLS) return (AMMOMAX_CELLS - ItemQuantity(player, "cells")) * (AMMOMAX_CELLS - ItemQuantity(player, "cells")) * item.dmg;else return 0;};
-//float(entity player, entity item) item_xshells_pickupeval = {if (ItemQuantity(player, "xshells") < AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - ItemQuantity(player, "xshells")) * (AMMOMAX_XSHELLS - ItemQuantity(player, "xshells")) * item.dmg;else return 0;};
+float(entity player, entity item) item_shells_pickupeval = {if (Inventory_Quantity(player, "shells") < AMMOMAX_SHELLS) return (AMMOMAX_SHELLS - Inventory_Quantity(player, "shells")) * (AMMOMAX_SHELLS - Inventory_Quantity(player, "shells")) * item.dmg;else return 0;};
+float(entity player, entity item) item_nails_pickupeval = {if (Inventory_Quantity(player, "nails") < AMMOMAX_NAILS) return (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * item.dmg;else return 0;};
+float(entity player, entity item) item_rockets_pickupeval = {if (Inventory_Quantity(player, "rockets") < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * item.dmg;else return 0;};
+float(entity player, entity item) item_cells_pickupeval = {if (Inventory_Quantity(player, "cells") < AMMOMAX_CELLS) return (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * item.dmg;else return 0;};
+//float(entity player, entity item) item_xshells_pickupeval = {if (Inventory_Quantity(player, "xshells") < AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - Inventory_Quantity(player, "xshells")) * (AMMOMAX_XSHELLS - Inventory_Quantity(player, "xshells")) * item.dmg;else return 0;};
 
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32)
 */
@@ -89,6 +87,7 @@ void() item_shells =
 {
 	self.touch = ammo_touch;
 
+	self.ammo_typestring = "shells";
 	self.weapon = 1;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
@@ -96,7 +95,7 @@ void() item_shells =
 		setmodel (self, "progs/a_shell2.mdl");
 		if (self.aflag < 1)
 			self.aflag = AMMO_SHELLS * 2;
-		self.netname = "You got some shotgun buckshot shells\n";
+		self.netname = "You got some shotgun shells\n";
 	}
 	else
 	{
@@ -104,7 +103,7 @@ void() item_shells =
 		setmodel (self, "progs/a_shell1.mdl");
 		if (self.aflag < 1)
 			self.aflag = AMMO_SHELLS;
-		self.netname = "You got some shotgun buckshot shells\n";
+		self.netname = "You got some shotgun shells\n";
 	}
 	setsize (self, '-16 -16 0', '16 16 8');
 	setorigin(self, self.origin + '16 16 0');
@@ -117,6 +116,7 @@ void() item_shells =
 	spawnxshells = spawnxshells + 1;
 	if (spawnxshells & 1)
 	{
+		self.ammo_typestring = "xshells";
 		self.weapon = 5;
 		self.netname = "You got some shotgun explosive slugs\n";
 		self.dmg = 110 * self.aflag / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
@@ -134,6 +134,7 @@ void() item_spikes =
 {
 	self.touch = ammo_touch;
 
+	self.ammo_typestring = "nails";
 	self.weapon = 2;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
@@ -168,6 +169,7 @@ void() item_rockets =
 {
 	self.touch = ammo_touch;
 
+	self.ammo_typestring = "rockets";
 	self.weapon = 3;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
@@ -202,6 +204,7 @@ void() item_cells =
 {
 	self.touch = ammo_touch;
 
+	self.ammo_typestring = "cells";
 	self.weapon = 4;
 	if (self.spawnflags & WEAPON_BIG2)
 	{

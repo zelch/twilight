@@ -221,10 +221,10 @@ void() CheatCommand =
 	if (self.health < 1)
 		return;
 
-	ItemSetQuantity(self, "shells", 99999);
-	ItemSetQuantity(self, "nails", 99999);
-	ItemSetQuantity(self, "rockets", 99999);
-	ItemSetQuantity(self, "cells", 99999);
+	Inventory_SetQuantity(self, "shells", 99999);
+	Inventory_SetQuantity(self, "nails", 99999);
+	Inventory_SetQuantity(self, "rockets", 99999);
+	Inventory_SetQuantity(self, "cells", 99999);
 	self.items = self.items
 	 | IT_WEAPON1
 	 | IT_WEAPON2

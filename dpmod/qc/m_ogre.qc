@@ -76,7 +76,7 @@ float() OgreCheckAttack =
 		return FALSE;
 
 	// don't fire when out of ammo
-	if (ItemQuantity(self, "rockets") < 1 && ItemQuantity(self, "nails") < 1)
+	if (Inventory_Quantity(self, "rockets") < 1 && Inventory_Quantity(self, "nails") < 1)
 		return FALSE;
 
 	// see if any entities are in the way of the shot
@@ -112,7 +112,7 @@ OgreFireGrenade
 float() OgreFireGrenade =
 {
 	local   vector  v;
-	if (ItemQuantity(self, "rockets") < 1)
+	if (Inventory_Quantity(self, "rockets") < 1)
 		return FALSE;
 	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 1000, 2.5, 0, self))
 		return FALSE;
@@ -245,19 +245,19 @@ void() ogre_smash13	=[	$smash13,		ogre_smash14 ] {ai_charge(4);};
 void() ogre_smash14	=[	$smash14,		ogre_run1	] {ai_charge(12);};
 
 void() ogre_nail9;
-void() ogre_nail1       =[      $shoot1,                ogre_nail2      ] {ai_face();if (ItemQuantity(self, "nails") < 1) ogre_run1();};
+void() ogre_nail1       =[      $shoot1,                ogre_nail2      ] {ai_face();if (Inventory_Quantity(self, "nails") < 1) ogre_run1();};
 void() ogre_nail2       =[      $shoot2,                ogre_nail3      ] {ai_face();};
 void() ogre_nail3       =[      $shoot2,                ogre_nail4      ] {ai_face();};
-void() ogre_nail4       =[      $shoot3,                ogre_nail5      ] {ai_face();if (ItemQuantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
-void() ogre_nail5       =[      $shoot3,                ogre_nail6      ] {ai_face();if (ItemQuantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
-void() ogre_nail6       =[      $shoot3,                ogre_nail7      ] {ai_face();if (ItemQuantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
-void() ogre_nail7       =[      $shoot3,                ogre_nail8      ] {ai_face();if (ItemQuantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
-void() ogre_nail8       =[      $shoot3,                ogre_nail9      ] {ai_face();if (ItemQuantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
+void() ogre_nail4       =[      $shoot3,                ogre_nail5      ] {ai_face();if (Inventory_Quantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
+void() ogre_nail5       =[      $shoot3,                ogre_nail6      ] {ai_face();if (Inventory_Quantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
+void() ogre_nail6       =[      $shoot3,                ogre_nail7      ] {ai_face();if (Inventory_Quantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
+void() ogre_nail7       =[      $shoot3,                ogre_nail8      ] {ai_face();if (Inventory_Quantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
+void() ogre_nail8       =[      $shoot3,                ogre_nail9      ] {ai_face();if (Inventory_Quantity(self, "nails") < 1) ogre_nail9();OgreFireNailgun();};
 void() ogre_nail9       =[      $shoot4,                ogre_nail10     ] {ai_face();};
 void() ogre_nail10      =[      $shoot5,                ogre_nail11     ] {ai_face();};
 void() ogre_nail11      =[      $shoot6,                ogre_run1       ] {ai_face();};
 
-void() ogre_gren1       =[      $shoot1,                ogre_gren2      ] {ai_face();if (ItemQuantity(self, "rockets") < 1) ogre_nail1();};
+void() ogre_gren1       =[      $shoot1,                ogre_gren2      ] {ai_face();if (Inventory_Quantity(self, "rockets") < 1) ogre_nail1();};
 void() ogre_gren2       =[      $shoot2,                ogre_gren3      ] {ai_face();};
 void() ogre_gren3       =[      $shoot2,                ogre_gren4      ] {ai_face();};
 void() ogre_gren4       =[      $shoot3,                ogre_gren5      ] {ai_face();if (!OgreFireGrenade()) ogre_nail1();};
@@ -464,8 +464,8 @@ void() monster_ogre =
 
 	if (!self.deathtype) // map makers can override this
 		self.deathtype = " was destroyed by an ogre";
-	ItemSetQuantity(self, "rockets", AMMO_OGRE_GRENADES);
-	//ItemSetQuantity(self, "nails", 0);
+	Inventory_SetQuantity(self, "rockets", AMMO_OGRE_GRENADES);
+	//Inventory_SetQuantity(self, "nails", 0);
 	//self.items = IT_WEAPON6;
 
 	self.shoulddodge = TRUE;

@@ -22,5 +22,5 @@ float   DM_CTF_2TEAM                    = 10;
 float   DM_CTF_3TEAM                    = 11;
 float   DM_TEAM_MODS_END                = 20;
 
-float   DM_REVELATION                   = 30;
+float   DM_RPG                          = 30;
 

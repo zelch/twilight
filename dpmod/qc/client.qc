@@ -162,13 +162,13 @@ void() SetChangeParms =
 	parm1 = self.items;
 	parm2 = self.health;
 	parm3 = self.armorvalue;
-	parm4 = ItemQuantity(self, "shells");
-	parm5 = ItemQuantity(self, "nails");
-	parm6 = ItemQuantity(self, "rockets");
-	parm7 = ItemQuantity(self, "cells");
+	parm4 = Inventory_Quantity(self, "shells");
+	parm5 = Inventory_Quantity(self, "nails");
+	parm6 = Inventory_Quantity(self, "rockets");
+	parm7 = Inventory_Quantity(self, "cells");
 	parm8 = self.weapon;
 	parm9 = self.armortype * 100;
-	parm10 = ItemQuantity(self, "xshells");
+	parm10 = Inventory_Quantity(self, "xshells");
 };
 
 void() DecodeLevelParms =
@@ -182,11 +182,11 @@ void() DecodeLevelParms =
 		self.armortype = 0.8;
 		self.armorvalue = 200;
 		// this gets clipped down to whatever the limits are
-		ItemSetQuantity(self, "shells", 9999999);
-		ItemSetQuantity(self, "nails", 9999999);
-		ItemSetQuantity(self, "rockets", 9999999);
-		ItemSetQuantity(self, "cells", 9999999);
-		ItemSetQuantity(self, "xshells", 9999999);
+		Inventory_SetQuantity(self, "shells", 9999999);
+		Inventory_SetQuantity(self, "nails", 9999999);
+		Inventory_SetQuantity(self, "rockets", 9999999);
+		Inventory_SetQuantity(self, "cells", 9999999);
+		Inventory_SetQuantity(self, "xshells", 9999999);
 		self.weapon = W_BestWeapon(TRUE);
 	}
 	else if (deathmatch)
@@ -196,11 +196,11 @@ void() DecodeLevelParms =
 		self.max_health = HEALTHMAX;
 		self.armorvalue = 50;
 		self.armortype = 0.3;
-		ItemSetQuantity(self, "shells", STARTDM_AMMO_SHELLS);
-		ItemSetQuantity(self, "nails", STARTDM_AMMO_NAILS);
-		ItemSetQuantity(self, "rockets", STARTDM_AMMO_ROCKETS);
-		ItemSetQuantity(self, "cells", STARTDM_AMMO_CELLS);
-		ItemSetQuantity(self, "xshells", STARTDM_AMMO_XSHELLS);
+		Inventory_SetQuantity(self, "shells", STARTDM_AMMO_SHELLS);
+		Inventory_SetQuantity(self, "nails", STARTDM_AMMO_NAILS);
+		Inventory_SetQuantity(self, "rockets", STARTDM_AMMO_ROCKETS);
+		Inventory_SetQuantity(self, "cells", STARTDM_AMMO_CELLS);
+		Inventory_SetQuantity(self, "xshells", STARTDM_AMMO_XSHELLS);
 		self.weapon = W_BestWeapon(TRUE);
 	}
 	else // singleplayer or coop
@@ -214,13 +214,13 @@ void() DecodeLevelParms =
 		if (self.health < 1)
 			self.health = 1;
 		self.armorvalue = parm3;
-		ItemSetQuantity(self, "shells", parm4);
-		ItemSetQuantity(self, "nails", parm5);
-		ItemSetQuantity(self, "rockets", parm6);
-		ItemSetQuantity(self, "cells", parm7);
+		Inventory_SetQuantity(self, "shells", parm4);
+		Inventory_SetQuantity(self, "nails", parm5);
+		Inventory_SetQuantity(self, "rockets", parm6);
+		Inventory_SetQuantity(self, "cells", parm7);
 		self.weapon = parm8;
 		self.armortype = parm9 / 100;
-		ItemSetQuantity(self, "xshells", parm10);
+		Inventory_SetQuantity(self, "xshells", parm10);
 	}
 	self.bodyhealth = self.health + 100;
 	if ((self.items & self.weapon) == 0)
@@ -851,11 +851,11 @@ void() PutClientInServer =
 		self.classname = "player";
 		self.health = 999;
 		self.armortype = self.armorvalue = self.currentammo = 0;
-		ItemSetQuantity(self, "shells", 0);
-		ItemSetQuantity(self, "nails", 0);
-		ItemSetQuantity(self, "rockets", 0);
-		ItemSetQuantity(self, "cells", 0);
-		ItemSetQuantity(self, "xshells", 0);
+		Inventory_SetQuantity(self, "shells", 0);
+		Inventory_SetQuantity(self, "nails", 0);
+		Inventory_SetQuantity(self, "rockets", 0);
+		Inventory_SetQuantity(self, "cells", 0);
+		Inventory_SetQuantity(self, "xshells", 0);
 		self.items = 0;
 		self.think = SUB_Null;
 		self.nextthink = 0;
@@ -1166,11 +1166,11 @@ void() PlayerPreThink =
 
 	if (cvar("temp1") & 4096)
 	{
-		ItemSetQuantity(self, "shells", AMMOMAX_SHELLS);
-		ItemSetQuantity(self, "nails", AMMOMAX_NAILS);
-		ItemSetQuantity(self, "rockets", AMMOMAX_ROCKETS);
-		ItemSetQuantity(self, "cells", AMMOMAX_CELLS);
-		ItemSetQuantity(self, "xshells", AMMOMAX_XSHELLS);
+		Inventory_SetQuantity(self, "shells", AMMOMAX_SHELLS);
+		Inventory_SetQuantity(self, "nails", AMMOMAX_NAILS);
+		Inventory_SetQuantity(self, "rockets", AMMOMAX_ROCKETS);
+		Inventory_SetQuantity(self, "cells", AMMOMAX_CELLS);
+		Inventory_SetQuantity(self, "xshells", AMMOMAX_XSHELLS);
 	}
 
 	if (intermission_running)

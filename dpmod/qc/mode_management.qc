@@ -261,6 +261,7 @@ void() mode_updatecvars =
 	else if (cvar("deathmatch") == 10) setdm("10?Dark Places - Capture The Flag - 2 Team");
 	else if (cvar("deathmatch") == 11) setdm("11?Dark Places - Capture The Flag - 3 Team");
 	else if (cvar("deathmatch") == 12) setdm("12?Dark Places - Domination");
+	else if (cvar("deathmatch") == 30) setdm("30?Dark Places - Role Playing Game");
 	else                               setdm("1?Dark Places - Deathmatch");
 
 	/*if (deathmatch == 8) cvar_set("teamplay", "3?Dark Places - Elimination");

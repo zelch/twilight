@@ -647,10 +647,10 @@ void() PlayerDie =
 
 	//self.solid = SOLID_NOT;
 	//self.currentammo = 0;
-	//ItemSetQuantity(self, "shells", 0);
-	//ItemSetQuantity(self, "nails", 0);
-	//ItemSetQuantity(self, "rockets", 0);
-	//ItemSetQuantity(self, "cells", 0);
+	//Inventory_SetQuantity(self, "shells", 0);
+	//Inventory_SetQuantity(self, "nails", 0);
+	//Inventory_SetQuantity(self, "rockets", 0);
+	//Inventory_SetQuantity(self, "cells", 0);
 	//self.items = 0;
 	//self.effects = 0;
 	//self.armorvalue = 0;

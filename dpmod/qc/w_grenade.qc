@@ -55,7 +55,7 @@ void() W_GrenadeFireImpact =
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
-	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
+	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 5);
 	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 150 * damagescale, 200, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
 	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 120, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
@@ -67,7 +67,7 @@ void() W_GrenadeFirePipebomb =
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
-	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
+	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 5);
 	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 120, GRENADE_DETONATABLE | GRENADE_DETONATEONCREATURE, 60, "PIPEBOMB", Obituary_Grenade);
 };
@@ -77,7 +77,7 @@ void() W_GrenadeFirePipebomb =
 void() W_GrenadeFireProximity =
 {
 	self.wfiretime = time;
-	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
+	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 3);
 	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 100 * damagescale, 150, GRENADE_PROXIMITY, 5, "GRENADE", Obituary_Grenade);
 };
@@ -87,7 +87,7 @@ void() W_GrenadeFireProximity =
 void() W_GrenadeFireSticky =
 {
 	self.wfiretime = time;
-	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
+	Inventory_AdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 3);
 	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 120 * damagescale, 120, 50 * damagescale, 20 * damagescale, MINE_DETONATABLE, 60, "STICKYGRENADE", Obituary_Grenade);
 };
@@ -112,7 +112,7 @@ void() w_grenade =
 		{
 			//if (self.activemines < 20)
 			//{
-				if (ItemQuantity(self, "rockets") >= 1)
+				if (Inventory_Quantity(self, "rockets") >= 1)
 				{
 					if (W_ShotsToFire(0.6))
 						W_GrenadeFireImpact();
@@ -147,7 +147,7 @@ void() w_grenade =
 		{
 			if (self.activemines < 20)
 			{
-				if (ItemQuantity(self, "rockets") >= 1)
+				if (Inventory_Quantity(self, "rockets") >= 1)
 					W_GenericSlowFireCode("weapons/grenade.wav", 0.6, W_GrenadeFirePipebomb);
 			}
 			else
@@ -167,7 +167,7 @@ void() w_grenade =
 				sound(self, CHAN_WEAPON, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
 				self.detonatetimeout = time + 0.1;
 			}
-			else if (ItemQuantity(self, "rockets") >= 1)
+			else if (Inventory_Quantity(self, "rockets") >= 1)
 				W_GenericSlowFireCode("weapons/grenade.wav", 0.6, W_GrenadeFireImpact);
 			else
 				self.switchweapon = W_BestWeapon(TRUE);
@@ -200,7 +200,7 @@ void() w_grenade =
 		}
 		else if (self.button0)
 		{
-			if (ItemQuantity(self, "rockets") >= 1)
+			if (Inventory_Quantity(self, "rockets") >= 1)
 			{
 				if (self.grenademode == 0)
 					W_GenericSlowFireCode("weapons/grenade.wav", 0.6, W_GrenadeFireImpact);
@@ -227,12 +227,12 @@ void() w_grenade =
 	/*
 	if (self.button0)
 	{
-		if (ItemQuantity(self, "rockets") >= 1)
+		if (Inventory_Quantity(self, "rockets") >= 1)
 			W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_GrenadeFireImpact);
 	}
 	else if (self.button3)
 	{
-		if (ItemQuantity(self, "rockets") >= 1)
+		if (Inventory_Quantity(self, "rockets") >= 1)
 			W_GenericSlowFireCode("weapons/grenade.wav", 0.8, W_GrenadeFireProximity);
 	}
 	*/
@@ -263,8 +263,8 @@ void() weapon6_precache =
 };
 
 float() w_grenaderating = {return genericweaponrating(200, 500, 300);};
-void() w_grenadesetup = {wset(IT_WEAPON6, IT_ROCKETS, ItemQuantity(self, "rockets"), VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl");};
-float(float request) setweapon6 = {return weapongeneric(IT_WEAPON6, ItemQuantity(self, "rockets") >= 1/* || self.activemines > 0*/, request, w_grenadesetup, w_grenade, w_grenaderaise1, w_grenadeaim, w_grenaderating, "Grenade Launcher");};
+void() w_grenadesetup = {wset(IT_WEAPON6, IT_ROCKETS, Inventory_Quantity(self, "rockets"), VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl");};
+float(float request) setweapon6 = {return weapongeneric(IT_WEAPON6, Inventory_Quantity(self, "rockets") >= 1/* || self.activemines > 0*/, request, w_grenadesetup, w_grenade, w_grenaderaise1, w_grenadeaim, w_grenaderating, "Grenade Launcher");};
 
 void() w_grenaderaise1 = {wraise(8, w_grenaderaise2, 0.1);};
 void() w_grenaderaise2 = {wraise(7, w_grenade, 0.1);};

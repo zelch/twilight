@@ -16,7 +16,7 @@ void() W_PlasmaRifleFireRapid =
 {
 	local vector dir;
 	self.wload = self.wload - 1;
-	self.currentammo = ItemAdjustQuantity(self, "cells", -1);
+	Inventory_AdjustQuantity(self, "cells", -1);
 	self.wfiretime = time;
 	dir = shotdir + randomvec() * 0.03;
 	w_muzzleflash(shotorg, 1);
@@ -26,7 +26,7 @@ void() W_PlasmaRifleFireRapid =
 
 void() W_PlasmaRifleFireHighPower =
 {
-	self.currentammo = ItemAdjustQuantity(self, "cells", 0 - self.wload);
+	Inventory_AdjustQuantity(self, "cells", 0 - self.wload);
 	self.wfiretime = time;
 	//FireBullets(self, self, shotorg, 4, 1, self.wload * 30, self.wload * 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
 	FirePlasma(self, shotorg, shotdir, self.wload * 30 * damagescale, 105, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
@@ -48,8 +48,8 @@ void() w_plasmarifle =
 	if (self.button3)
 		self.idealzoom = 0.2;
 
-	if (self.wload > ItemQuantity(self, "cells"))
-		self.wload = ItemQuantity(self, "cells");
+	if (self.wload > Inventory_Quantity(self, "cells"))
+		self.wload = Inventory_Quantity(self, "cells");
 
 	if (self.button0 && self.wload >= 1)
 	{
@@ -60,7 +60,7 @@ void() w_plasmarifle =
 	}
 	else if (time > self.attack_finished)
 	{
-		charge = ItemQuantity(self, "cells");
+		charge = Inventory_Quantity(self, "cells");
 		if (charge > 8)
 			charge = 8;
 		if (self.wload < charge)
@@ -97,8 +97,8 @@ void() weapon8_precache =
 };
 
 float() w_plasmariflerating = {return genericweaponrating(0, 1500, 200);};
-void() w_plasmariflesetup = {wset(IT_WEAPON8, IT_CELLS, ItemQuantity(self, "cells"), VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
-float(float request) setweapon8 = {return weapongeneric(IT_WEAPON8, ItemQuantity(self, "cells") >= 1, request, w_plasmariflesetup, w_plasmarifle, w_plasmarifleraise1, w_directaim, w_plasmariflerating, "PlasmaRifle");};
+void() w_plasmariflesetup = {wset(IT_WEAPON8, IT_CELLS, Inventory_Quantity(self, "cells"), VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
+float(float request) setweapon8 = {return weapongeneric(IT_WEAPON8, Inventory_Quantity(self, "cells") >= 1, request, w_plasmariflesetup, w_plasmarifle, w_plasmarifleraise1, w_directaim, w_plasmariflerating, "PlasmaRifle");};
 
 void() w_plasmarifleraise1 = {wraise(8, w_plasmarifleraise2, 0.1);};
 void() w_plasmarifleraise2 = {wraise(7, w_plasmarifle, 0.1);};

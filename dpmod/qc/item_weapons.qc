@@ -22,11 +22,11 @@ void() weapon_touch =
 		return;
 	new = self.weapon;
 	if (other.items & self.weapon == self.weapon) // has it already
-	if ((ItemQuantity(other, "shells") >= AMMOMAX_SHELLS ) || (ItemQuantity(self, "shells") < 1))
-	if ((ItemQuantity(other, "nails") >= AMMOMAX_NAILS  ) || (ItemQuantity(self, "nails") < 1))
-	if ((ItemQuantity(other, "rockets") >= AMMOMAX_ROCKETS) || (ItemQuantity(self, "rockets") < 1))
-	if ((ItemQuantity(other, "cells") >= AMMOMAX_CELLS  ) || (ItemQuantity(self, "cells") < 1))
-	if ((ItemQuantity(other, "xshells") >= AMMOMAX_XSHELLS) || (ItemQuantity(self, "xshells") < 1))
+	if ((Inventory_Quantity(other, "shells") >= AMMOMAX_SHELLS ) || (Inventory_Quantity(self, "shells") < 1))
+	if ((Inventory_Quantity(other, "nails") >= AMMOMAX_NAILS  ) || (Inventory_Quantity(self, "nails") < 1))
+	if ((Inventory_Quantity(other, "rockets") >= AMMOMAX_ROCKETS) || (Inventory_Quantity(self, "rockets") < 1))
+	if ((Inventory_Quantity(other, "cells") >= AMMOMAX_CELLS  ) || (Inventory_Quantity(self, "cells") < 1))
+	if ((Inventory_Quantity(other, "xshells") >= AMMOMAX_XSHELLS) || (Inventory_Quantity(self, "xshells") < 1))
 		return; // would gain no ammo or weapon
 
 	// if the player was using their best weapon, change up to the new one if better
@@ -38,19 +38,19 @@ void() weapon_touch =
 
 	if (itemrespawn && AMMOWEAPONOVERFLOW)
 	{
-		if (ItemQuantity(self, "shells")) if (ItemQuantity(other, "shells") < ItemQuantity(self, "shells")) ItemSetQuantity(other, "shells", ItemQuantity(self, "shells")); else ItemAdjustQuantity(other, "shells", AMMOWEAPONOVERFLOW_SHELLS);
-		if (ItemQuantity(self, "nails")) if (ItemQuantity(other, "nails") < ItemQuantity(self, "nails")) ItemSetQuantity(other, "nails", ItemQuantity(self, "nails")); else ItemAdjustQuantity(other, "nails", AMMOWEAPONOVERFLOW_NAILS);
-		if (ItemQuantity(self, "rockets")) if (ItemQuantity(other, "rockets") < ItemQuantity(self, "rockets")) ItemSetQuantity(other, "rockets", ItemQuantity(self, "rockets")); else ItemAdjustQuantity(other, "rockets", AMMOWEAPONOVERFLOW_ROCKETS);
-		if (ItemQuantity(self, "cells")) if (ItemQuantity(other, "cells") < ItemQuantity(self, "cells")) ItemSetQuantity(other, "cells", ItemQuantity(self, "cells")); else ItemAdjustQuantity(other, "cells", AMMOWEAPONOVERFLOW_CELLS);
-		if (ItemQuantity(self, "xshells")) if (ItemQuantity(other, "xshells") < ItemQuantity(self, "xshells")) ItemSetQuantity(other, "xshells", ItemQuantity(self, "xshells")); else ItemAdjustQuantity(other, "xshells", AMMOWEAPONOVERFLOW_XSHELLS);
+		if (Inventory_Quantity(self, "shells")) if (Inventory_Quantity(other, "shells") < Inventory_Quantity(self, "shells")) Inventory_SetQuantity(other, "shells", Inventory_Quantity(self, "shells")); else Inventory_AdjustQuantity(other, "shells", AMMOWEAPONOVERFLOW_SHELLS);
+		if (Inventory_Quantity(self, "nails")) if (Inventory_Quantity(other, "nails") < Inventory_Quantity(self, "nails")) Inventory_SetQuantity(other, "nails", Inventory_Quantity(self, "nails")); else Inventory_AdjustQuantity(other, "nails", AMMOWEAPONOVERFLOW_NAILS);
+		if (Inventory_Quantity(self, "rockets")) if (Inventory_Quantity(other, "rockets") < Inventory_Quantity(self, "rockets")) Inventory_SetQuantity(other, "rockets", Inventory_Quantity(self, "rockets")); else Inventory_AdjustQuantity(other, "rockets", AMMOWEAPONOVERFLOW_ROCKETS);
+		if (Inventory_Quantity(self, "cells")) if (Inventory_Quantity(other, "cells") < Inventory_Quantity(self, "cells")) Inventory_SetQuantity(other, "cells", Inventory_Quantity(self, "cells")); else Inventory_AdjustQuantity(other, "cells", AMMOWEAPONOVERFLOW_CELLS);
+		if (Inventory_Quantity(self, "xshells")) if (Inventory_Quantity(other, "xshells") < Inventory_Quantity(self, "xshells")) Inventory_SetQuantity(other, "xshells", Inventory_Quantity(self, "xshells")); else Inventory_AdjustQuantity(other, "xshells", AMMOWEAPONOVERFLOW_XSHELLS);
 	}
 	else
 	{
-		ItemAdjustQuantity(other, "shells", ItemQuantity(self, "shells"));
-		ItemAdjustQuantity(other, "nails", ItemQuantity(self, "nails"));
-		ItemAdjustQuantity(other, "rockets", ItemQuantity(self, "rockets"));
-		ItemAdjustQuantity(other, "cells", ItemQuantity(self, "cells"));
-		ItemAdjustQuantity(other, "xshells", ItemQuantity(self, "xshells"));
+		Inventory_AdjustQuantity(other, "shells", Inventory_Quantity(self, "shells"));
+		Inventory_AdjustQuantity(other, "nails", Inventory_Quantity(self, "nails"));
+		Inventory_AdjustQuantity(other, "rockets", Inventory_Quantity(self, "rockets"));
+		Inventory_AdjustQuantity(other, "cells", Inventory_Quantity(self, "cells"));
+		Inventory_AdjustQuantity(other, "xshells", Inventory_Quantity(self, "xshells"));
 	}
 
 	if (other.flags & FL_CLIENT)
@@ -106,21 +106,21 @@ float(entity player, entity item) item_weapon_pickupeval =
 		if (w & IT_WEAPON9) f = f + 1000;
 		if (w & IT_WEAPON10) f = f + 3000;
 	}
-	if (ItemQuantity(item, "shells"))
-	if (ItemQuantity(player, "shells") < AMMOMAX_SHELLS)
-		f = f + (AMMOMAX_SHELLS - ItemQuantity(player, "shells")) * (AMMOMAX_SHELLS - ItemQuantity(player, "shells")) * 60 * ItemQuantity(item, "shells") / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
-	if (ItemQuantity(item, "nails"))
-	if (ItemQuantity(player, "nails") < AMMOMAX_NAILS)
-		f = f + (AMMOMAX_NAILS - ItemQuantity(player, "nails")) * (AMMOMAX_NAILS - ItemQuantity(player, "nails")) * 15 * ItemQuantity(item, "nails") / (AMMOMAX_NAILS * AMMOMAX_NAILS);
-	if (ItemQuantity(item, "rockets"))
-	if (ItemQuantity(player, "rockets") < AMMOMAX_ROCKETS)
-		f = f + (AMMOMAX_ROCKETS - ItemQuantity(player, "rockets")) * (AMMOMAX_ROCKETS - ItemQuantity(player, "rockets")) * 120 * ItemQuantity(item, "rockets") / (AMMOMAX_ROCKETS * AMMOMAX_ROCKETS);
-	if (ItemQuantity(item, "cells"))
-	if (ItemQuantity(player, "cells") < AMMOMAX_CELLS)
-		f = f + (AMMOMAX_CELLS - ItemQuantity(player, "cells")) * (AMMOMAX_CELLS - ItemQuantity(player, "cells")) * 30 * ItemQuantity(item, "cells") / (AMMOMAX_CELLS * AMMOMAX_CELLS);
-	if (ItemQuantity(item, "xshells"))
-	if (ItemQuantity(player, "xshells") < AMMOMAX_XSHELLS)
-		f = f + (AMMOMAX_XSHELLS - ItemQuantity(player, "xshells")) * (AMMOMAX_XSHELLS - ItemQuantity(player, "xshells")) * 110 * ItemQuantity(item, "xshells") / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
+	if (Inventory_Quantity(item, "shells"))
+	if (Inventory_Quantity(player, "shells") < AMMOMAX_SHELLS)
+		f = f + (AMMOMAX_SHELLS - Inventory_Quantity(player, "shells")) * (AMMOMAX_SHELLS - Inventory_Quantity(player, "shells")) * 60 * Inventory_Quantity(item, "shells") / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
+	if (Inventory_Quantity(item, "nails"))
+	if (Inventory_Quantity(player, "nails") < AMMOMAX_NAILS)
+		f = f + (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * 15 * Inventory_Quantity(item, "nails") / (AMMOMAX_NAILS * AMMOMAX_NAILS);
+	if (Inventory_Quantity(item, "rockets"))
+	if (Inventory_Quantity(player, "rockets") < AMMOMAX_ROCKETS)
+		f = f + (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * 120 * Inventory_Quantity(item, "rockets") / (AMMOMAX_ROCKETS * AMMOMAX_ROCKETS);
+	if (Inventory_Quantity(item, "cells"))
+	if (Inventory_Quantity(player, "cells") < AMMOMAX_CELLS)
+		f = f + (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * 30 * Inventory_Quantity(item, "cells") / (AMMOMAX_CELLS * AMMOMAX_CELLS);
+	if (Inventory_Quantity(item, "xshells"))
+	if (Inventory_Quantity(player, "xshells") < AMMOMAX_XSHELLS)
+		f = f + (AMMOMAX_XSHELLS - Inventory_Quantity(player, "xshells")) * (AMMOMAX_XSHELLS - Inventory_Quantity(player, "xshells")) * 110 * Inventory_Quantity(item, "xshells") / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
 	return f;
 };
 
@@ -142,16 +142,16 @@ void(string wmdl, float w, float shells, float nails, float rockets, float cells
 		if (xshells) xshells = 99999;
 	}
 	*/
-	ItemSetQuantity(self, "shells", shells);
-	ItemSetQuantity(self, "nails", nails);
-	ItemSetQuantity(self, "rockets", rockets);
-	ItemSetQuantity(self, "cells", cells);
-	ItemSetQuantity(self, "xshells", xshells);
-//	self.havocrating = self.havocrating + ItemQuantity(self, "shells") * 60;
-//	self.havocrating = self.havocrating + ItemQuantity(self, "nails") * 15;
-//	self.havocrating = self.havocrating + ItemQuantity(self, "rockets") * 120;
-//	self.havocrating = self.havocrating + ItemQuantity(self, "cells") * 30;
-//	self.havocrating = self.havocrating + ItemQuantity(self, "xshells") * 110;
+	Inventory_SetQuantity(self, "shells", shells);
+	Inventory_SetQuantity(self, "nails", nails);
+	Inventory_SetQuantity(self, "rockets", rockets);
+	Inventory_SetQuantity(self, "cells", cells);
+	Inventory_SetQuantity(self, "xshells", xshells);
+//	self.havocrating = self.havocrating + Inventory_Quantity(self, "shells") * 60;
+//	self.havocrating = self.havocrating + Inventory_Quantity(self, "nails") * 15;
+//	self.havocrating = self.havocrating + Inventory_Quantity(self, "rockets") * 120;
+//	self.havocrating = self.havocrating + Inventory_Quantity(self, "cells") * 30;
+//	self.havocrating = self.havocrating + Inventory_Quantity(self, "xshells") * 110;
 	self.touch = weapon_touch;
 	setsize (self, '-16 -16 0', '16 16 32');
 	StartItem ();

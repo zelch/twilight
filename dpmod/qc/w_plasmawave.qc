@@ -48,11 +48,11 @@ void() W_PlasmaWaveFireShot =
 	local float cells;
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-	cells = ItemQuantity(self, "cells");
+	cells = Inventory_Quantity(self, "cells");
 	if (cells > 10)
 		cells = 10;
 	self.wfiretime = time;
-	self.currentammo = ItemAdjustQuantity(self, "cells", 0 - cells);
+	Inventory_AdjustQuantity(self, "cells", 0 - cells);
 	FirePlasmaBall(self, shotorg, shotdir * 1000, cells * 20 * damagescale, 120, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 };
 
@@ -62,22 +62,22 @@ void() W_PlasmaWaveFireWave =
 	local float cells;
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-	cells = ItemQuantity(self, "cells");
+	cells = Inventory_Quantity(self, "cells");
 	if (cells > 50)
 		cells = 50;
 	self.wfiretime = time;
-	self.currentammo = ItemAdjustQuantity(self, "cells", 0 - cells);
+	Inventory_AdjustQuantity(self, "cells", 0 - cells);
 	FirePlasmaBall(self, shotorg, shotdir * 1000, cells * 15 * damagescale, 300, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 	*/
 	local float cells, shots, damage;
 	local vector ang;
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-	cells = ItemQuantity(self, "cells");
+	cells = Inventory_Quantity(self, "cells");
 	if (cells > 50)
 		cells = 50;
 	self.wfiretime = time;
-	self.currentammo = ItemAdjustQuantity(self, "cells", 0 - cells);
+	Inventory_AdjustQuantity(self, "cells", 0 - cells);
 	//cells = cells + 60;
 	shots = ceil(cells / 5);
 	if (shots > 12)
@@ -109,14 +109,14 @@ void() w_plasmawave =
 			W_PlasmaWaveFireWave();
 		}
 	}
-	else if (self.button0 && ItemQuantity(self, "cells") > 0)
+	else if (self.button0 && Inventory_Quantity(self, "cells") > 0)
 	{
 		if (W_ShotsToFire(0.5))
 			W_PlasmaWaveFireShot();
 	}
 	else if (time >= self.attack_finished)
 	{
-		if (self.button3 && ItemQuantity(self, "cells") > 0)
+		if (self.button3 && Inventory_Quantity(self, "cells") > 0)
 		{
 			self.woverload = 1;
 			self.attack_finished = time + 0.5;
@@ -150,8 +150,8 @@ void() weapon10_precache =
 };
 
 float() w_plasmawaverating = {return genericweaponrating(0, 1500, 200);};
-void() w_plasmawavesetup = {wset(IT_WEAPON10, IT_CELLS, ItemQuantity(self, "cells"), VWEP_LIGHTNING, "progs/v_dplight.mdl");};
-float(float request) setweapon10 = {return weapongeneric(IT_WEAPON10, ItemQuantity(self, "cells") >= 1, request, w_plasmawavesetup, w_plasmawave, w_plasmawaveraise1, w_directaim, w_plasmawaverating, "Plasma Wave Cannon");};
+void() w_plasmawavesetup = {wset(IT_WEAPON10, IT_CELLS, Inventory_Quantity(self, "cells"), VWEP_LIGHTNING, "progs/v_dplight.mdl");};
+float(float request) setweapon10 = {return weapongeneric(IT_WEAPON10, Inventory_Quantity(self, "cells") >= 1, request, w_plasmawavesetup, w_plasmawave, w_plasmawaveraise1, w_directaim, w_plasmawaverating, "Plasma Wave Cannon");};
 
 void() w_plasmawaveraise1 = {wraise(3, w_plasmawaveraise2, 0.1);};
 void() w_plasmawaveraise2 = {self.wburst = 4;wraise(7, w_plasmawave, 0.1);};

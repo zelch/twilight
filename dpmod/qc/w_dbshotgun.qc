@@ -97,11 +97,11 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 */
 	/*
 	if (self.shotgunmode)
-		self.currentammo = ItemAdjustQuantity(self, "xshells", -1);
+		Inventory_AdjustQuantity(self, "xshells", -1);
 	else
 	*/
 /*
-		self.currentammo = ItemAdjustQuantity(self, "shells", -1);
+		Inventory_AdjustQuantity(self, "shells", -1);
 	self.wfiretime = time;
 	w_muzzleflash(v, 4);
 	if (explosive)
@@ -156,10 +156,10 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 	}
 	/*
 	if (self.shotgunmode)
-		self.currentammo = ItemAdjustQuantity(self, "xshells", -1);
+		Inventory_AdjustQuantity(self, "xshells", -1);
 	else
 	*/
-		self.currentammo = ItemAdjustQuantity(self, "shells", -1);
+		Inventory_AdjustQuantity(self, "shells", -1);
 	self.wfiretime = time;
 	w_muzzleflash(v, 2);
 	if (explosive)
@@ -198,13 +198,13 @@ void() w_dbshotgun =
 	/*
 	if (self.shotgunmode)
 	{
-		swapmode = ItemQuantity(self, "xshells") < 1 && ItemQuantity(self, "shells") >= 1;
-		otherammo = ItemQuantity(self, "shells") >= 1;
+		swapmode = Inventory_Quantity(self, "xshells") < 1 && Inventory_Quantity(self, "shells") >= 1;
+		otherammo = Inventory_Quantity(self, "shells") >= 1;
 	}
 	else
 	{
-		swapmode = ItemQuantity(self, "shells") < 1 && ItemQuantity(self, "xshells") >= 1;
-		otherammo = ItemQuantity(self, "xshells") >= 1;
+		swapmode = Inventory_Quantity(self, "shells") < 1 && Inventory_Quantity(self, "xshells") >= 1;
+		otherammo = Inventory_Quantity(self, "xshells") >= 1;
 	}
 
 	if (otherammo)
@@ -234,7 +234,7 @@ void() w_dbshotgun =
 			self.shotgunshells = 0;
 		}
 		if (self.button0 || self.button3)
-		if (ItemQuantity(self, "shells") > 0)
+		if (Inventory_Quantity(self, "shells") > 0)
 		if (W_ShotsToFire(0.2))
 			W_DBShotgunGatlingFireCode(self.button3);
 	}
@@ -271,9 +271,9 @@ void() w_dbshotgun =
 				/*
 				if (self.shotgunmode)
 				{
-					if (ItemQuantity(self, "xshells") >= 1)
+					if (Inventory_Quantity(self, "xshells") >= 1)
 					{
-						self.wload = min(ItemQuantity(self, "xshells"), 2);
+						self.wload = min(Inventory_Quantity(self, "xshells"), 2);
 						self.attack_finished = time + 0.2;
 						sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 					}
@@ -282,9 +282,9 @@ void() w_dbshotgun =
 				*/
 	/*
 				{
-					if (ItemQuantity(self, "shells") >= 1)
+					if (Inventory_Quantity(self, "shells") >= 1)
 					{
-						self.wload = min(ItemQuantity(self, "shells"), 2);
+						self.wload = min(Inventory_Quantity(self, "shells"), 2);
 						self.attack_finished = time + 0.2;
 						sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 					}
@@ -322,12 +322,12 @@ void() w_dbshotgunsetup =
 {
 	/*
 	if (self.shotgunmode)
-		wset(IT_WEAPON3, IT_SHELLS, ItemQuantity(self, "xshells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
+		wset(IT_WEAPON3, IT_SHELLS, Inventory_Quantity(self, "xshells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
 	else
 	*/
-		wset(IT_WEAPON3, IT_SHELLS, ItemQuantity(self, "shells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
+		wset(IT_WEAPON3, IT_SHELLS, Inventory_Quantity(self, "shells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
 };
-float(float request) setweapon3 = {return weapongeneric(IT_WEAPON3, ItemQuantity(self, "shells") >= 1/* || ItemQuantity(self, "xshells") >= 1*/, request, w_dbshotgunsetup, w_dbshotgun, w_dbshotgunraise1, w_directaim, w_dbshotgunrating, "Double Barrel Shotgun");};
+float(float request) setweapon3 = {return weapongeneric(IT_WEAPON3, Inventory_Quantity(self, "shells") >= 1/* || Inventory_Quantity(self, "xshells") >= 1*/, request, w_dbshotgunsetup, w_dbshotgun, w_dbshotgunraise1, w_directaim, w_dbshotgunrating, "Double Barrel Shotgun");};
 
 void() w_dbshotgunraise1 = {self.wload = 0;self.shotgunshells = 0;wraise(9, w_dbshotgunraise2, 0.1);};
 void() w_dbshotgunraise2 = {wraise(8, w_dbshotgun, 0.1);};

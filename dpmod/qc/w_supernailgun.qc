@@ -18,10 +18,10 @@ void(float shots) W_SuperNailgunFireCode =
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
 	v = shotorg;
-	while (shots > 0 && ItemQuantity(self, "nails") >= 1)
+	while (shots > 0 && Inventory_Quantity(self, "nails") >= 1)
 	{
 		shots = shots - 1;
-		self.currentammo = ItemAdjustQuantity(self, "nails", -1);
+		Inventory_AdjustQuantity(self, "nails", -1);
 		self.wframe = self.wframe + 0.5; // 10fps animation
 		if (self.wframe >= 9)
 			self.wframe = 1;
@@ -79,9 +79,9 @@ void() W_SuperNailgunMineFireCode =
 	sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	a = 3;
-	if (a > ItemQuantity(self, "rockets"))
-		a = ItemQuantity(self, "rockets");
-	self.currentammo = ItemAdjustQuantity(self, "rockets", 0 - a);
+	if (a > Inventory_Quantity(self, "rockets"))
+		a = Inventory_Quantity(self, "rockets");
+	Inventory_AdjustQuantity(self, "rockets", 0 - a);
 	w_muzzleflash(shotorg, 3);
 	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100 * damagescale, a * 100 + 50, 20 * damagescale, 10 * damagescale, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
 };
@@ -97,7 +97,7 @@ void() w_snailgun =
 
 	if (self.button0)
 	{
-		if (ItemQuantity(self, "nails") >= 1)
+		if (Inventory_Quantity(self, "nails") >= 1)
 		{
 			self.wload = W_ShotsToFire(0.05);
 			if (self.wload > 0)
@@ -107,7 +107,7 @@ void() w_snailgun =
 	else
 	{
 		if (self.button3)
-		if (ItemQuantity(self, "rockets") >= 1)
+		if (Inventory_Quantity(self, "rockets") >= 1)
 		if (W_ShotsToFire(0.5))
 			W_SuperNailgunMineFireCode();
 	}
@@ -135,5 +135,5 @@ void() w_snailgundrop1 = {wdrop( 9, w_snailgundrop2, 0.1);};
 void() w_snailgundrop2 = {wdropped(10, 0.1);};
 
 float() w_snailgunrating = {return genericweaponrating(0, 1000, 300);};
-void() w_snailgunsetup = {wset(IT_WEAPON5, IT_NAILS, ItemQuantity(self, "nails"), VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl");};
-float(float request) setweapon5 = {return weapongeneric(IT_WEAPON5, ItemQuantity(self, "nails") >= 1 || ItemQuantity(self, "rockets") >= 1, request, w_snailgunsetup, w_snailgun, w_snailgunraise1, w_directaim, w_snailgunrating, "Super Nailgun");};
+void() w_snailgunsetup = {wset(IT_WEAPON5, IT_NAILS, Inventory_Quantity(self, "nails"), VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl");};
+float(float request) setweapon5 = {return weapongeneric(IT_WEAPON5, Inventory_Quantity(self, "nails") >= 1 || Inventory_Quantity(self, "rockets") >= 1, request, w_snailgunsetup, w_snailgun, w_snailgunraise1, w_directaim, w_snailgunrating, "Super Nailgun");};

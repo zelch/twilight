@@ -1,37 +1,329 @@
 
+void() Item_Touch;
+float(entity item, entity character) Item_GenericCanPickup;
+float(entity item, entity additem) Item_GenericAbsorbItem;
+
+entity(string name) ItemClass_Register;
+void() ItemClass_RegisterDefaultClasses;
+entity(string name) ItemClass_FindByName;
+
+entity(entity original) Item_Clone;
+entity(entity aitemclass) Item_Create;
+entity(string name) Item_CreateByName;
+void(entity item) Item_Destroy;
+entity(string name, float initialcount, vector org) Item_SpawnEasy;
+entity(entity item, float amount) Item_Split;
+float(entity item, float adjust) Item_AdjustQuantity;
+
+float(entity character) Inventory_GetBulk;
+float(entity character) Inventory_GetBulkLimit;
+entity(entity character, entity item) Inventory_GetNextItem;
+entity(entity character, string name) Inventory_ItemByName;
+void(entity character, entity item) Inventory_AttachItem;
+void(entity character, entity item) Inventory_DetachItem;
+float(entity character, entity giveitem) Inventory_AbsorbItem;
+void(entity character, entity item) Inventory_DropItem;
+void(entity character, entity item) Inventory_PickupItem;
+float(entity character, string name, float itemcount) Inventory_DropByName;
+float(entity character, string name, float itemcount) Inventory_DestroyByName;
+float(entity character, entity absorbcharacter) Inventory_AbsorbInventory;
+float(entity character, string name) Inventory_Quantity;
+float(entity character, string name, float adjust) Inventory_AdjustQuantity;
+float(entity character, string name, float n) Inventory_SetQuantity;
+entity(entity character, string name, float chooseempty) Inventory_ItemWithMostCapacity;
+entity(entity character, string name, float choosefull) Inventory_ItemWithLeastCapacity;
+entity(entity character, string name, float choosefull) Inventory_ItemWithMostQuantity;
+entity(entity character, string name, float chooseempty) Inventory_ItemWithLeastQuantity;
+
+void(entity character) updateammodisplay;
+
+.float bulkbase;
+.float bulkpercount;
+.float bulklimit;
 .float count;
 .float count1;
 .entity inventory_next;
 .entity inventory_prev;
 
-entity(entity e, string name) ItemCreate =
+// the item class this item most closely fits
+.entity itemclass;
+
+// decides whether a character can pick up this item
+.float(entity item, entity character) it_canpickup;
+
+// absorbs quantity (count) from another item
+// deducts quantity absorbed from the item, but leaves item intact
+// returns amount absorbed
+// (often overriden by guns so that they can absorb ammo)
+.float(entity item, entity additem) it_absorbitem;
+
+void() Item_Touch =
+{
+	if (other.classname == "player")
+	if (other.health >= 1)
+	if (other.button8)
+	if (time > self.lefty)
+	if (self.it_canpickup(self, other))
+		Inventory_PickupItem(self, other);
+};
+
+float(entity item, entity character) Item_GenericCanPickup =
+{
+	return (item.bulkbase + item.bulkpercount * item.count <= character.bulklimit - Inventory_GetBulk(character));
+};
+
+float(entity item, entity additem) Item_GenericAbsorbItem =
+{
+	local float c;
+	c = 0;
+	if (item.itemclass == additem.itemclass)
+	{
+		c = Item_AdjustQuantity(item, additem.count);
+		additem.count = additem.count - c;
+	}
+	return c;
+};
+
+entity(string name) ItemClass_Register =
 {
 	local entity item;
 	item = spawn();
-	item.classname = "playeritem";
+	item.classname = "playeritemclass";
+	item.itemclass = item;
 	item.netname = name;
-	item.owner = e;
-	item.count = 0;
-	item.count1 = 10;
-	item.inventory_next = item.owner;
-	item.inventory_prev = item.inventory_next.inventory_prev;
-	item.inventory_next.inventory_prev = item;
-	item.inventory_prev.inventory_next = item;
-	     if (name == "shells") item.count1 = AMMOMAX_SHELLS;
-	else if (name == "nails") item.count1 = AMMOMAX_NAILS;
-	else if (name == "rockets") item.count1 = AMMOMAX_ROCKETS;
-	else if (name == "cells") item.count1 = AMMOMAX_CELLS;
-	else if (name == "xshells") item.count1 = AMMOMAX_XSHELLS;
+	item.count = 1;
+	item.count1 = 1;
+	item.count2 = 1;
+	item.bulkbase = 0;
+	item.bulkpercount = 0;
+	item.touch = Item_Touch;
+	item.it_canpickup = Item_GenericCanPickup;
+	item.it_absorbitem = Item_GenericAbsorbItem;
+	item.noise1 = "weapons/lock4.wav";
+	item.noise2 = "weapons/lock4.wav";
+	item.mdl = item.model;
+	// invisible until ItemDrop is called
+	item.model = "";
 	return item;
 };
 
-entity(entity e, string name) ItemByName =
+void() ItemClass_RegisterDefaultClasses =
 {
 	local entity item;
-	item = e.inventory_next;
+
+	item = ItemClass_Register("shells");
+	setmodel(item, "progs/backpack.mdl");
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = AMMOMAX_SHELLS;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("nails");
+	setmodel(item, "progs/backpack.mdl");
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = AMMOMAX_NAILS;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.05;
+
+	item = ItemClass_Register("rockets");
+	setmodel(item, "progs/backpack.mdl");
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = AMMOMAX_ROCKETS;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.5;
+
+	item = ItemClass_Register("cells");
+	setmodel(item, "progs/backpack.mdl");
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = AMMOMAX_CELLS;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+
+	item = ItemClass_Register("xshells");
+	setmodel(item, "progs/backpack.mdl");
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = AMMOMAX_XSHELLS;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+};
+
+entity(string name) ItemClass_FindByName =
+{
+	local entity aitemclass;
+	aitemclass = findchain(classname, "playeritemclass");
+	if (aitemclass == world)
+	{
+		ItemClass_RegisterDefaultClasses();
+		aitemclass = findchain(classname, "playeritemclass");
+	}
+	while (aitemclass != world && aitemclass.netname != name)
+		aitemclass = aitemclass.chain;
+	return aitemclass;
+}
+
+entity(entity original) Item_Clone =
+{
+	local entity item;
+	if (original == world)
+		return world;
+
+	item = spawn();
+	item.classname = "playeritem";
+	item.owner = world;
+	item.itemclass = original.itemclass;
+	item.netname = original.netname;
+	item.count = original.count;
+	item.count1 = original.count1;
+	item.count2 = original.count2;
+	item.bulkbase = original.bulkbase;
+	item.bulkpercount = original.bulkpercount;
+	item.touch = original.touch;
+	item.it_canpickup = original.it_canpickup;
+	item.it_absorbitem = original.it_absorbitem;
+	item.noise1 = original.noise1;
+	item.noise2 = original.noise2;
+	setmodel(item, original.mdl);
+	setsize(item, original.mins, original.maxs);
+	setorigin(item, original.origin);
+	item.mdl = item.model;
+	return item;
+};
+
+entity(entity aitemclass) Item_Create =
+{
+	local entity item;
+	item = Item_Clone(aitemclass);
+	if (item != world)
+	{
+		// invisible until Item_Drop is called
+		item.model = "";
+	}
+	return item;
+};
+
+entity(string name) Item_CreateByName =
+{
+	return Item_Create(ItemClass_FindByName(name));
+};
+
+void(entity item) Item_Destroy =
+{
+	Inventory_DetachItem(item.owner, item);
+	remove(item);
+};
+
+entity(string name, float initialcount, vector org) Item_SpawnEasy =
+{
+	local entity item;
+	item = Item_CreateByName(name);
 	if (item == world)
-		item = e.inventory_next = e.inventory_prev = e;
-	while (item != e)
+		return world;
+	item.count = initialcount;
+	item.velocity = '0 0 400' + randomvec() * 200;
+	item.angles = randompos('0 0 0', '0 360 0');
+	item.flags = 0;
+	item.solid = SOLID_TRIGGER;
+	item.movetype = MOVETYPE_TOSS;
+	item.model = item.mdl;
+	setorigin(item, org);
+	return item;
+};
+
+entity(entity item, float amount) Item_Split =
+{
+	local entity newitem;
+	if (amount > item.count)
+		amount = item.count;
+	newitem = Item_Clone(item);
+	newitem.count = amount;
+	item.count = item.count - amount;
+	return newitem;
+};
+
+float(entity item, float adjust) Item_AdjustQuantity =
+{
+	local float c, c2;
+	if (adjust > 0)
+	{
+		// begin with remaining capacity
+		c = item.count1 - item.count;
+		// limit by adjust
+		if (c > adjust)
+			c = adjust;
+		// abort if we ran out
+		if (c <= 0)
+			return 0;
+		if (item.owner)
+		if (item.bulkpercount)
+		{
+			// limit by remaining bulk capacity
+			c2 = item.owner.bulklimit - Inventory_GetBulk(item.owner);
+			c2 = floor(c2 / item.bulkpercount);
+			if (c > c2)
+				c = c2;
+		}
+		// abort if we ran out
+		if (c <= 0)
+			return 0;
+	}
+	else if (adjust < 0)
+	{
+		c = 0 - item.count;
+		if (c < adjust)
+			c = adjust;
+		if (c >= 0)
+			return 0;
+	}
+	// add the calculated quantity to item
+	item.count = item.count + c;
+	// return amount of adjustment
+	return c;
+};
+
+float(entity character) Inventory_GetBulk =
+{
+	local float b;
+	local entity item;
+	b = 0;
+	item = character.inventory_next;
+	if (item == world)
+		item = character.inventory_next = character.inventory_prev = character;
+	while (item != character)
+	{
+		b = b + item.bulkbase + item.bulkpercount * item.count;
+		item = item.inventory_next;
+	}
+	return b;
+};
+
+float(entity character) Inventory_GetBulkLimit =
+{
+	return character.bulklimit;
+};
+
+entity(entity character, entity item) Inventory_GetNextItem =
+{
+	if (item == world)
+	{
+		item = character.inventory_next;
+		if (item == world)
+			item = character.inventory_next = character.inventory_prev = character;
+		if (item == character)
+			item = world;
+		return item;
+	}
+	if (item.inventory_next == item.owner)
+		return world;
+	return item.inventory_next;
+};
+
+entity(entity character, string name) Inventory_ItemByName =
+{
+	local entity item;
+	item = character.inventory_next;
+	if (item == world)
+		item = character.inventory_next = character.inventory_prev = character;
+	while (item != character)
 	{
 		if (item.netname == name)
 			return item;
@@ -40,108 +332,454 @@ entity(entity e, string name) ItemByName =
 	return world;
 };
 
-float(entity e, string name) ItemMaxQuantity =
+void(entity character, entity item) Inventory_AttachItem =
 {
-	local entity item;
-	item = ItemByName(e, name);
-	if (item)
-		return item.count1;
-	/*
-	if (name == "shells")
-		return AMMOMAX_SHELLS;
-	if (name == "nails")
-		return AMMOMAX_NAILS;
-	if (name == "rockets")
-		return AMMOMAX_ROCKETS;
-	if (name == "cells")
-		return AMMOMAX_CELLS;
-	if (name == "xshells")
-		return AMMOMAX_XSHELLS;
-	*/
-	return 255;
+	Inventory_DetachItem(character, item);
+
+	item.movetype = MOVETYPE_NONE;
+	item.solid = SOLID_NOT;
+	item.model = "";
+	item.owner = character;
+	if (item.owner.inventory_next == world)
+		item.owner.inventory_next = item.owner.inventory_prev = item.owner;
+	item.inventory_next = item.owner;
+	item.inventory_prev = item.inventory_next.inventory_prev;
+	item.inventory_next.inventory_prev = item;
+	item.inventory_prev.inventory_next = item;
 };
 
-float(entity e, string name) ItemQuantity =
+void(entity character, entity item) Inventory_DetachItem =
 {
-	local entity item;
-	item = ItemByName(e, name);
-	if (item)
-		return item.count;
-	/*
-	if (name == "shells")
-		return e.ammo_shells;
-	if (name == "nails")
-		return e.ammo_nails;
-	if (name == "rockets")
-		return e.ammo_rockets;
-	if (name == "cells")
-		return e.ammo_cells;
-	if (name == "xshells")
-		return e.ammo_xshells;
-	*/
-	return 0;
+	if (item.inventory_next)
+	{
+		item.owner = world;
+		item.inventory_next.inventory_prev = item.inventory_prev;
+		item.inventory_prev.inventory_next = item.inventory_next;
+		item.inventory_next = world;
+		item.inventory_prev = world;
+	}
 };
 
-float(entity e, string name, float n) ItemAdjustQuantity =
+float(entity character, entity giveitem) Inventory_AbsorbItem =
 {
 	local entity item;
-	item = ItemByName(e, name);
-	if (item == world)
-		item = ItemCreate(e, name);
-	return (item.count = bound(0, item.count + n, item.count1));
-	/*
-	if (name == "shells")
-		return (e.ammo_shells = bound(0, e.ammo_shells + n, AMMOMAX_SHELLS));
-	if (name == "nails")
-		return (e.ammo_nails = bound(0, e.ammo_nails + n, AMMOMAX_NAILS));
-	if (name == "rockets")
-		return (e.ammo_rockets = bound(0, e.ammo_rockets + n, AMMOMAX_ROCKETS));
-	if (name == "cells")
-		return (e.ammo_cells = bound(0, e.ammo_cells + n, AMMOMAX_CELLS));
-	if (name == "xshells")
-		return (e.ammo_xshells = bound(0, e.ammo_xshells + n, AMMOMAX_XSHELLS));
-	*/
+	local float c, total;
+	c = 0;
+	total = 0;
+	item = Inventory_GetNextItem(character, world);
+	while (item)
+	{
+		total = total + item.it_absorbitem(item, giveitem);
+		if (giveitem.count == 0)
+		{
+			// fully absorbed (giveitem empty)
+			return total;
+		}
+		if (item.itemclass == giveitem.itemclass)
+			c = c + 1;
+		item = Inventory_GetNextItem(character, item);
+	}
+	// some remains, check if we can spawn an item to hold it
+	//eprint(giveitem);
+	if (c < giveitem.itemclass.count2)
+	if (giveitem.bulkbase + giveitem.bulkpercount * giveitem.count <= character.bulklimit - Inventory_GetBulk(character))
+	{
+		// clone the giveitem and add it to inventory
+		item = Item_Clone(giveitem);
+		//eprint(item);
+		Inventory_AttachItem(character, item);
+		// the giveitem is now empty
+		total = total + giveitem.count;
+		giveitem.count = 0;
+	}
+	return total;
 };
 
-float(entity e, string name, float n) ItemSetQuantity =
+void(entity character, entity item) Inventory_DropItem =
 {
-	local entity item;
-	item = ItemByName(e, name);
-	if (item == world)
-		item = ItemCreate(e, name);
-	return (item.count = bound(0, n, item.count1));
-	/*
-	if (name == "shells")
-		return (e.ammo_shells = bound(0, n, AMMOMAX_SHELLS));
-	if (name == "nails")
-		return (e.ammo_nails = bound(0, n, AMMOMAX_NAILS));
-	if (name == "rockets")
-		return (e.ammo_rockets = bound(0, n, AMMOMAX_ROCKETS));
-	if (name == "cells")
-		return (e.ammo_cells = bound(0, n, AMMOMAX_CELLS));
-	if (name == "xshells")
-		return (e.ammo_xshells = bound(0, n, AMMOMAX_XSHELLS));
-	*/
+	if (character == world)
+	{
+		bprint("Inventory_DropItem: character == world\n");
+		return;
+	}
+	Inventory_DetachItem(character, item);
+	item.velocity = character.velocity + '0 0 400' + randomvec() * 200;
+	item.angles = character.angles;
+	item.avelocity = character.avelocity;
+	item.flags = 0;
+	item.solid = SOLID_TRIGGER;
+	item.movetype = MOVETYPE_TOSS;
+	item.model = item.mdl;
+	item.lefty = time + 0.1;
+	setorigin(item, character.origin);
+	sound(item, CHAN_BODY, item.noise2, 1, ATTN_STATIC);
 };
 
-float(entity e, float t, float a) full_ammo =
+void(entity character, entity item) Inventory_PickupItem =
 {
 	local string s;
-	     if (t == 1) s = "shells";
-	else if (t == 2) s = "nails";
-	else if (t == 3) s = "rockets";
-	else if (t == 4) s = "cells";
-	else if (t == 5) s = "xshells";
-	else             return a;
-	return min(a, ItemMaxQuantity(e, s) - ItemQuantity(e, s));
+	local float c;
+	c = Inventory_AbsorbItem(character, item);
+	if (c)
+	{
+		sound(item, CHAN_BODY, item.noise1, 1, ATTN_STATIC);
+		if (character.flags & FL_CLIENT)
+		{
+			s = ftos(c);
+			sprint(character, "You got ");
+			sprint(character, s);
+			sprint(character, " ");
+			sprint(character, item.netname);
+			sprint(character, "\n");
+		}
+		if (item.count == 0)
+			Item_Destroy(item);
+	}
 };
 
-void(entity e) updateammodisplay =
+float(entity character, string name, float itemcount) Inventory_DropByName =
 {
-	e.ammo_shells = ItemQuantity(e, "shells");
-	e.ammo_nails = ItemQuantity(e, "nails");
-	e.ammo_rockets = ItemQuantity(e, "rockets");
-	e.ammo_cells = ItemQuantity(e, "cells");
+	local float c;
+	local entity item;
+	c = 0;
+	item = Inventory_GetNextItem(character, world);
+	while (item)
+	{
+		if (name == "" || item.netname == name)
+		{
+			Inventory_DropItem(character, item);
+			item = world;
+			c = c + 1;
+			if (c >= itemcount)
+				return c;
+		}
+		item = Inventory_GetNextItem(character, item);
+	}
+	return c;
+}
+
+float(entity character, string name, float itemcount) Inventory_DestroyByName =
+{
+	local float c;
+	local entity item;
+	c = 0;
+	item = Inventory_GetNextItem(character, world);
+	while (item)
+	{
+		if (name == "" || item.netname == name)
+		{
+			Item_Destroy(item);
+			item = world;
+			c = c + 1;
+			if (c >= itemcount)
+				return c;
+		}
+		item = Inventory_GetNextItem(character, item);
+	}
+	return c;
+}
+
+float(entity character, entity absorbcharacter) Inventory_AbsorbInventory =
+{
+	local float c;
+	local entity item;
+	c = 0;
+	item = Inventory_GetNextItem(absorbcharacter, world);
+	while (item)
+	{
+		Inventory_AbsorbItem(character, item);
+		if (item.count == 0)
+		{
+			Item_Destroy(item);
+			item = world;
+			c = c + 1;
+		}
+		item = Inventory_GetNextItem(absorbcharacter, item);
+	}
+	return c;
+}
+
+float(entity character, string name) Inventory_Quantity =
+{
+	local float c;
+	local entity item;
+	if (name == "shells")
+		return character.ammo_shells;
+	else if (name == "nails")
+		return character.ammo_nails;
+	else if (name == "rockets")
+		return character.ammo_rockets;
+	else if (name == "cells")
+		return character.ammo_cells;
+	else if (name == "xshells")
+		return character.ammo_xshells;
+	else
+	{
+		c = 0;
+		item = character.inventory_next;
+		if (item == world)
+			item = character.inventory_next = character.inventory_prev = character;
+		while (item != character)
+		{
+			if (item.netname == name)
+				c = c + item.count;
+			item = item.inventory_next;
+		}
+		return c;
+	}
+};
+
+float(entity character, string name, float adjust) Inventory_AdjustQuantity =
+{
+	local entity item, aitemclass;
+	local float c, total;
+	if (name == "shells")
+		return character.ammo_shells = bound(0, character.ammo_shells + adjust, AMMOMAX_SHELLS);
+	else if (name == "nails")
+		return character.ammo_nails = bound(0, character.ammo_nails + adjust, AMMOMAX_NAILS);
+	else if (name == "rockets")
+		return character.ammo_rockets = bound(0, character.ammo_rockets + adjust, AMMOMAX_ROCKETS);
+	else if (name == "cells")
+		return character.ammo_cells = bound(0, character.ammo_cells + adjust, AMMOMAX_CELLS);
+	else if (name == "xshells")
+		return character.ammo_xshells = bound(0, character.ammo_xshells + adjust, AMMOMAX_XSHELLS);
+	else
+	{
+		c = 0;
+		total = adjust;
+		item = Inventory_GetNextItem(character, world);
+		while (item && adjust != 0)
+		{
+			if (item.itemclass.netname == name)
+			{
+				c = c + 1;
+				adjust = adjust - Item_AdjustQuantity(item, adjust);
+				if (item.count == 0)
+				{
+					Item_Destroy(item);
+					item = world;
+					c = 0;
+				}
+			}
+			item = Inventory_GetNextItem(character, item);
+		}
+		// some may remain, check if we can spawn an item to hold it
+		if (adjust > 0)
+		{
+			aitemclass = ItemClass_FindByName(name);
+			//eprint(aitemclass);
+			if (c < aitemclass.count2)
+			if (aitemclass.bulkbase + aitemclass.bulkpercount * adjust <= character.bulklimit - Inventory_GetBulk(character))
+			{
+				// create item and add it to inventory
+				item = Item_Create(aitemclass);
+				item.count = adjust;
+				adjust = 0;
+				//eprint(item);
+				Inventory_AttachItem(character, item);
+			}
+		}
+		total = total - adjust;
+		return total;
+	}
+};
+
+float(entity character, string name, float n) Inventory_SetQuantity =
+{
+	n = n - Inventory_Quantity(character, name);
+	return Inventory_AdjustQuantity(character, name, n);
+}
+
+entity(entity character, string name, float chooseempty) Inventory_ItemWithMostCapacity =
+{
+	local entity item, best;
+	local float capacity, bestcapacity;
+	item = character.inventory_next;
+	if (item == world)
+		item = character.inventory_next = character.inventory_prev = character;
+	best = world;
+	bestcapacity = 0;
+	while (item != character)
+	{
+		if (item.netname == name)
+		{
+			capacity = item.count1 - item.count;
+			if (capacity < item.count1 || chooseempty)
+			if (bestcapacity < capacity)
+			{
+				bestcapacity = capacity;
+				best = item;
+			}
+		}
+		item = item.inventory_next;
+	}
+	return best;
+};
+
+entity(entity character, string name, float choosefull) Inventory_ItemWithLeastCapacity =
+{
+	local entity item, best;
+	local float capacity, bestcapacity;
+	item = character.inventory_next;
+	if (item == world)
+		item = character.inventory_next = character.inventory_prev = character;
+	best = world;
+	bestcapacity = 1000000000;
+	while (item != character)
+	{
+		if (item.netname == name)
+		{
+			capacity = item.count1 - item.count;
+			if (capacity > 0 || choosefull)
+			if (bestcapacity > capacity)
+			{
+				bestcapacity = capacity;
+				best = item;
+			}
+		}
+		item = item.inventory_next;
+	}
+	return best;
+};
+
+entity(entity character, string name, float choosefull) Inventory_ItemWithMostQuantity =
+{
+	local entity item, best;
+	local float quantity, bestquantity;
+	item = character.inventory_next;
+	if (item == world)
+		item = character.inventory_next = character.inventory_prev = character;
+	best = world;
+	bestquantity = 0;
+	while (item != character)
+	{
+		if (item.netname == name)
+		{
+			quantity = item.count;
+			if (quantity < item.count1 || choosefull)
+			if (bestquantity < quantity)
+			{
+				bestquantity = quantity;
+				best = item;
+			}
+		}
+		item = item.inventory_next;
+	}
+	return best;
+};
+
+entity(entity character, string name, float chooseempty) Inventory_ItemWithLeastQuantity =
+{
+	local entity item, best;
+	local float quantity, bestquantity;
+	item = character.inventory_next;
+	if (item == world)
+		item = character.inventory_next = character.inventory_prev = character;
+	best = world;
+	bestquantity = 0;
+	while (item != character)
+	{
+		if (item.netname == name)
+		{
+			quantity = item.count;
+			if (quantity > 0 || chooseempty)
+			if (bestquantity < quantity)
+			{
+				bestquantity = quantity;
+				best = item;
+			}
+		}
+		item = item.inventory_next;
+	}
+	return best;
+};
+
+/*
+float(entity character, string name, float n) Inventory_AdjustQuantityAllByName =
+{
+	local float c;
+	local entity item;
+	while (n > 0)
+	{
+		item = ItemWithLeastCapacity(character, name, FALSE);
+		if (item == world)
+		{
+			item = ItemCreate(GetItemClassByName(name));
+			if (item == world)
+				return 0;
+			ItemAttach(item, e);
+		}
+		c = item.count1 - item.count;
+		if (c > n)
+			c = n;
+		item.count = item.count + c;
+		n = n - c;
+	}
+	item = ItemWithLeastQuantity(character, name, FALSE);
+	while (item != world && n < 0)
+	{
+		c = 0 - item.count;
+		if (c < n)
+			c = n;
+		item.count = item.count + c;
+		n = n - c;
+		if (n)
+			item = ItemWithLeastQuantity(character, name, FALSE);
+	}
+	//if (!keepempty)
+	{
+		item = ItemWithLeastQuantity(character, name, TRUE);
+		while (item != world && item.count <= 0)
+		{
+			ItemDestroy(item);
+			item = ItemWithLeastQuantity(character, name, TRUE);
+		}
+	}
+	return Inventory_Quantity(character, name);
+*/
+	/*
+	if (name == "shells")
+		return (character.ammo_shells = bound(0, character.ammo_shells + n, AMMOMAX_SHELLS));
+	if (name == "nails")
+		return (character.ammo_nails = bound(0, character.ammo_nails + n, AMMOMAX_NAILS));
+	if (name == "rockets")
+		return (character.ammo_rockets = bound(0, character.ammo_rockets + n, AMMOMAX_ROCKETS));
+	if (name == "cells")
+		return (character.ammo_cells = bound(0, character.ammo_cells + n, AMMOMAX_CELLS));
+	if (name == "xshells")
+		return (character.ammo_xshells = bound(0, character.ammo_xshells + n, AMMOMAX_XSHELLS));
+	*/
+/*
+};
+*/
+
+/*
+float(entity character, string name, float n) Inventory_SetQuantity =
+{
+	return Inventory_AdjustQuantityAllByName(character, name, n - Inventory_QuantityAllByName(character, name));
+*/
+	/*
+	if (name == "shells")
+		return (character.ammo_shells = bound(0, n, AMMOMAX_SHELLS));
+	if (name == "nails")
+		return (character.ammo_nails = bound(0, n, AMMOMAX_NAILS));
+	if (name == "rockets")
+		return (character.ammo_rockets = bound(0, n, AMMOMAX_ROCKETS));
+	if (name == "cells")
+		return (character.ammo_cells = bound(0, n, AMMOMAX_CELLS));
+	if (name == "xshells")
+		return (character.ammo_xshells = bound(0, n, AMMOMAX_XSHELLS));
+	*/
+/*
+};
+*/
+
+void(entity character) updateammodisplay =
+{
+	character.ammo_shells = Inventory_Quantity(character, "shells");
+	character.ammo_nails = Inventory_Quantity(character, "nails");
+	character.ammo_rockets = Inventory_Quantity(character, "rockets");
+	character.ammo_cells = Inventory_Quantity(character, "cells");
 };
 
 
