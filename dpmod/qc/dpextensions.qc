@@ -372,49 +372,6 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 //description:
 //set to the state of the +button3, +button4, +button5, +button6, +button7, and +button8 buttons from the client, this does not involve protocol changes (the extra 6 button bits were simply not used).
 
-//DP_MD3_TAGSINFO
-//idea: VorteX, LordHavoc (somebody else?)
-//DarkPlaces implementation: VorteX
-//builtin definitions:
-float(entity ent, string tagname) gettagindex = #451;
-vector(entity ent, float tagindex) gettaginfo = #452;
-//description:
-//gettagindex returns the number of a tag on an entity, this number is the same as set by setattachment (in the .tag_index field), allowing the qc to save a little cpu time by keeping the number around if it wishes.
-//gettaginfo returns the origin of the tag and sets v_forward, v_right, and v_up to the current orientation of the tag in model space (similar to makevectors with the tag's angles, but tags do not have angles, only vectors).
-// IMPORTANT NOTE: these return data in MODELSPACE (coordinates relative to the entity), not worldspace, the entity's origin and angles are *ignored*, only modelindex and frame matter, it is up to you to put this in worldspace by transforming these vectors by the entity and anything it's attached to if using tag_entity/tag_index/viewmodelforclient, this can be even more difficult due to sa.
-/*
-Examples:
-Calculating origin (with rotation) of flying axe:
-vector() axe_getbladeorg =
-{
-	local float tindex;
-	local vector org;
-	tindex = gettagindex(self, "tag_blade");
-	org = gettaginfo(self, tindex);
-	makevectors(self.angles);
-	return self.origin + v_forward*org_x + v_right*org_y + v_up*org_z;
-};
-
-Calculating shot origin for first-person weapon (self.weaponentity attached to player via .viewmodelforclient)
-void(vector rel) weapon_fp_shotdata =
-{
-	local float tindex;
-	local vector org;
-	tindex = gettagindex(self.weaponentity, "tag_flash");
-	org = gettaginfo(self.weaponentity, tindex) + self.weaponentity.origin + rel;
-	self.weaponentity.mangle = self.v_angle + self.punchangle;
-	makevectors(self.weaponentity.mangle);
-	self.shotorg  = self.origin + self.view_ofs + v_forward*(org_x) - v_right*(org_y) + v_up*(org_z + 2*self.weaponentity.view_ofs_z - self.v_angle_x/30);
-	self.shotdir = aim(self, 1000);
-};
-*/
-//provides access to tags orientation in MD3 structure, allows calculating world origin coordinates of any tag in md3
-//Functions return relative to center of model coordinates and set v_forward, v_right and v_up globals to rotation matrix of tag
-//Note: gettaginfo returns RELATIVE to the center of model coordinates
-//to get real cooridinates (in most cases) tag relative coordinates must be bumped with entity world coordinates (in other worlds tagorigin = self.origin + gettagorigin(x, y))
-//but some cases (like multiple md3 tag attachments) needs special formulas to calculate real origin...
-//Note: also you must apply rotation of tag in QC to get real coordinate of tag (if model rotates).
-
 //DP_MONSTERWALK
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -537,6 +494,16 @@ float(entity e, vector p) getsurfacenearpoint = #438;
 vector(entity e, float s, vector p) getsurfaceclippedpoint = #439;
 //description:
 //functions to query surface information.
+
+//DP_QC_GETTAGINFO
+//idea: VorteX, LordHavoc (somebody else?)
+//DarkPlaces implementation: VorteX
+//builtin definitions:
+float(entity ent, string tagname) gettagindex = #451;
+vector(entity ent, float tagindex) gettaginfo = #452;
+//description:
+//gettagindex returns the number of a tag on an entity, this number is the same as set by setattachment (in the .tag_index field), allowing the qc to save a little cpu time by keeping the number around if it wishes (this could already be done by calling setattachment and saving off the tag_index).
+//gettaginfo returns the origin of the tag in worldspace and sets v_forward, v_right, and v_up to the current orientation of the tag in worldspace, this automatically resolves all dependencies (attachments, including viewmodelforclient), this means you could fire a shot from a tag on a gun entity attached to the view for example.
 
 //DP_QC_MINMAXBOUND
 //idea: LordHavoc
