@@ -58,7 +58,7 @@ void(entity own, vector org, vector dir, float damg, float damg2, vector casingd
 	setsize(newmis, '0 0 0', '0 0 0');
 	setorigin(newmis, org);
 	newmis.effects = EF_LOWPRECISION;
-	newmis.velocity = dir * 5000 + self.velocity;
+	newmis.velocity = dir * 5000;// + self.velocity;
 	newmis.dmg = damg * damagescale;
 	newmis.dmg2 = damg2;
 	if (self.items & IT_QUAD)

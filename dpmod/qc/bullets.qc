@@ -62,7 +62,7 @@ void(float shotcount, float damage, float bdamage, vector vel, float spread, str
 		else
 			newmis.movetype = MOVETYPE_TOSS;
 		newmis.solid = SOLID_BBOX;
-		newmis.velocity = vel + randomvec() * spread + bullet_launcher.velocity;
+		newmis.velocity = vel + randomvec() * spread;// + bullet_launcher.velocity;
 		newmis.realowner = bullet_owner;
 		newmis.owner = bullet_ignoreentity;
 		newmis.deathtype = dethtype;
