@@ -21,6 +21,8 @@
 		}
 	}
 
+	array_walk ($authors, 'print_author');
+
 	box ("para", "But none of this would have been possible without the\n" .
 		"fine work of the people who brought us Quake&reg; in the first\n" .
 		"place, and they deserve at least as much credit for Project\n" .
@@ -28,8 +30,6 @@
 		"truly created a legendary game and we all owe you a great deal\n" .
 		"for the countless hours of splotches and splatters.\n"
 	);
-
-	array_walk ($authors, 'print_author');
 
 	$thanks = file ($pageroot . "/../cvs-snap/twilight/THANKS");
 
