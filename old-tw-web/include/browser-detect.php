@@ -1,5 +1,4 @@
 <?php
-global $HTTP_USER_AGENT;
 
 if (ereg( "Konqueror/([0-9].[0-9]([0-9]|beta.*))(\;|\))",$HTTP_USER_AGENT,
 		$log_version)) {

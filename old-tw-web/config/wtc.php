@@ -12,9 +12,9 @@
 		footerpre => "<center><font face=\"verdana, arial\" size=\"-2\">" ,
 		footerpost => "</font></center>",
 
-		uinfo => "width=\"100%\" bgcolor=\"#000fb5\" cellspacing=\"1\"" ,
+		uinfo => "width=\"100%\" bgcolor=\"#404040\" cellspacing=\"1\"" ,
 		uinfonicktr => "valign=\"top\"" ,
-		uinfodata => "width=\"100%\" bgcolor=\"#000440\"" ,
+		uinfodata => "width=\"100%\" bgcolor=\"#202020\"" ,
 
 		nav => "bgcolor=\"#000430\" width=\"100%\"" ,
 		navpre => "",
@@ -22,7 +22,7 @@
 
 		side => "bgcolor=\"#000430\" width=\"1%\"",
 
-		tnav => "width=\"100%\" bgcolor=\"#00087f\"" ,
+		tnav => "width=\"100%\" bgcolor=\"#4f4f4f\"" ,
 		tnavpre => "<font face=\"verdana, arial\"><strong>" ,
 		tnavpost => "</strong></font>" ,
 
@@ -30,21 +30,21 @@
 		plugspre => "<center>" ,
 		plugspost => "</center>" ,
 
-		news => "width=\"100%\" bgcolor=\"#000fb5\" cellspacing=\"1\"" ,
-		newstitle => "width=\"100%\" bgcolor=\"#000fb5\"" ,
+		news => "width=\"100%\" bgcolor=\"#404040\" cellspacing=\"1\"" ,
+		newstitle => "width=\"100%\" bgcolor=\"#404040\"" ,
 		newstitlepre => "<div align=\"right\"><font face=\"verdana,arial\" " .
 				"size=\"-1\">" ,
 		newstitlepost => "</font></div>" ,
-		newscontent => "width=\"100%\" bgcolor=\"#000440\"" ,
+		newscontent => "width=\"100%\" bgcolor=\"#202020\"" ,
 		newscontentpre => "<font face=\"verdana, arial\">" ,
 		newscontentpost => "</font>" ,
 
-		subscr => "width=\"95%\" align=\"center\" bgcolor=\"#000fb5\" " .
+		subscr => "width=\"95%\" align=\"center\" bgcolor=\"#404040\" " .
 			"cellspacing=\"1\"" ,
-		subscrtitle => "width=\"100%\" bgcolor=\"#000fb5\"" ,
+		subscrtitle => "width=\"100%\" bgcolor=\"#404040\"" ,
 		subscrtitlepre => "<font face=\"verdana,arial\" size=\"-1\">" ,
 		subscrtitlepost => "</font>" ,
-		subscrcontent => "width=\"100%\" bgcolor=\"#000440\"" ,
+		subscrcontent => "width=\"100%\" bgcolor=\"#202020\"" ,
 
 		title => "width=\"100%\"" ,
 		titlepre => "<font face=\"verdana,arial\" size=\"+3\"><strong>" ,
@@ -110,7 +110,7 @@ td.side {
 
 div.uinfo {
 	padding: 2px;
-	background: #000fb5;
+	background: #404040;
 	margin: 10px;
 }
 
@@ -120,7 +120,7 @@ div.uinfonick {
 }
 
 div.uinfodata {
-	background: #000440;
+	background: #202020;
 	padding-left: 5px;
 }
 
@@ -130,16 +130,16 @@ div.nav {
 
 div.tnav {
 	font: bolder 110% verdana, sans-serif;
-	background: #00087f;
+	background: #4f4f4f;
 }
 
 div.news {
 	margin: 10px;
-	background: #000440;
-	border: solid 2px #000fb5;
+	background: #202020;
+	border: solid 2px #404040;
 }
 div.newstitle {
-	background: #000fb5;
+	background: #404040;
 	padding: 1px 5px;
 	text-align: right;
 	font: bolder 90% verdana, sans-serif;
@@ -150,11 +150,11 @@ div.newscontent {
 
 div.subscr {
 	margin: 10px;
-	background: #000440;
-	border: solid 2px #000fb5;
+	background: #202020;
+	border: solid 2px #404040;
 }
 div.subscrtitle {
-	background: #000fb5;
+	background: #404040;
 	padding: 1px 5px;
 	font: bolder 90% verdana, sans-serif;
 }

@@ -9,7 +9,7 @@
 			"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
 	}
 	echo ("<html>\n<head>\n<title>Project Twilight: " . $title . "</title>\n");
-	require ($pageroot . "/config/default.php");
+	require ($pageroot . "/config/site.php");
 	require ($pageroot . "/include/functions.php");
 
 	echo ("</head>\n");
