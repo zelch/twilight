@@ -106,7 +106,7 @@ float(entity targ, entity ignore, vector org, float amount, float radius, float 
         raddamage_lasthit = v;
 
         // direct hit
-        traceline(org, v, TRUE, ignore);
+        traceline(org, v, FALSE, ignore);
         if (!trace_startsolid)
         if (trace_fraction == 1 || trace_ent == targ)
                 return b;
@@ -157,7 +157,7 @@ float(entity targ, entity ignore, vector org, float amount, float radius, float 
         raddamage_lasthit = v;
 
         // direct hit
-        traceline(org, v, TRUE, ignore);
+        traceline(org, v, FALSE, ignore);
         if (!trace_startsolid)
         if (trace_inwater)
         if (!trace_inopen)
@@ -262,7 +262,7 @@ float(entity targ, entity ignore, vector org, float amount, float radius, float 
         raddamage_lasthit = v;
 
         // direct hit
-        traceline(org, v, TRUE, ignore);
+        traceline(org, v, FALSE, ignore);
         if (!trace_startsolid)
         if (trace_fraction == 1 || trace_ent == targ)
                 return b;
