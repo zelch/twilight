@@ -1,0 +1,1229 @@
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include "dpmformat.h"
+#include "SDL.h"
+#include "SDL_main.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#if WIN32
+#include <windows.h>
+#endif
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+#ifndef GLAPIENTRY
+#define GLAPIENTRY APIENTRY
+#endif
+
+int glerrornum;
+#define CHECKGLERROR if ((glerrornum = glGetError())) GL_PrintError(glerrornum, __FILE__, __LINE__);
+
+typedef int GLint;
+typedef unsigned int GLuint;
+typedef int GLenum;
+typedef int GLsizei;
+typedef float GLfloat;
+typedef double GLdouble;
+typedef void GLvoid;
+typedef float GLclampf;
+typedef int GLbitfield;
+
+static int quit;
+
+#define GL_NO_ERROR 				0x0
+#define GL_INVALID_VALUE			0x0501
+#define GL_INVALID_ENUM				0x0500
+#define GL_INVALID_OPERATION			0x0502
+#define GL_STACK_OVERFLOW			0x0503
+#define GL_STACK_UNDERFLOW			0x0504
+#define GL_OUT_OF_MEMORY			0x0505
+
+void GL_PrintError(int errornumber, char *filename, int linenumber)
+{
+	switch(errornumber)
+	{
+#ifdef GL_INVALID_ENUM
+	case GL_INVALID_ENUM:
+		printf("GL_INVALID_ENUM at %s:%i\n", filename, linenumber);
+		break;
+#endif
+#ifdef GL_INVALID_VALUE
+	case GL_INVALID_VALUE:
+		printf("GL_INVALID_VALUE at %s:%i\n", filename, linenumber);
+		break;
+#endif
+#ifdef GL_INVALID_OPERATION
+	case GL_INVALID_OPERATION:
+		printf("GL_INVALID_OPERATION at %s:%i\n", filename, linenumber);
+		break;
+#endif
+#ifdef GL_STACK_OVERFLOW
+	case GL_STACK_OVERFLOW:
+		printf("GL_STACK_OVERFLOW at %s:%i\n", filename, linenumber);
+		break;
+#endif
+#ifdef GL_STACK_UNDERFLOW
+	case GL_STACK_UNDERFLOW:
+		printf("GL_STACK_UNDERFLOW at %s:%i\n", filename, linenumber);
+		break;
+#endif
+#ifdef GL_OUT_OF_MEMORY
+	case GL_OUT_OF_MEMORY:
+		printf("GL_OUT_OF_MEMORY at %s:%i\n", filename, linenumber);
+		break;
+#endif
+#ifdef GL_TABLE_TOO_LARGE
+    case GL_TABLE_TOO_LARGE:
+		printf("GL_TABLE_TOO_LARGE at %s:%i\n", filename, linenumber);
+		break;
+#endif
+	default:
+		printf("GL UNKNOWN (%i) at %s:%i\n", errornumber, filename, linenumber);
+		break;
+	}
+}
+
+short (*BigShort) (short l);
+short (*LittleShort) (short l);
+int (*BigLong) (int l);
+int (*LittleLong) (int l);
+float (*BigFloat) (float l);
+float (*LittleFloat) (float l);
+
+short ShortSwap (short l)
+{
+	unsigned char b1,b2;
+
+	b1 = l&255;
+	b2 = (l>>8)&255;
+
+	return (b1<<8) + b2;
+}
+
+short ShortNoSwap (short l)
+{
+	return l;
+}
+
+int LongSwap (int l)
+{
+	unsigned char b1,b2,b3,b4;
+
+	b1 = l&255;
+	b2 = (l>>8)&255;
+	b3 = (l>>16)&255;
+	b4 = (l>>24)&255;
+
+	return ((int)b1<<24) + ((int)b2<<16) + ((int)b3<<8) + b4;
+}
+
+int LongNoSwap (int l)
+{
+	return l;
+}
+
+float FloatSwap (float f)
+{
+	union
+	{
+		float f;
+		unsigned char b[4];
+	} dat1, dat2;
+
+
+	dat1.f = f;
+	dat2.b[0] = dat1.b[3];
+	dat2.b[1] = dat1.b[2];
+	dat2.b[2] = dat1.b[1];
+	dat2.b[3] = dat1.b[0];
+	return dat2.f;
+}
+
+float FloatNoSwap (float f)
+{
+	return f;
+}
+
+void InitSwapFunctions (void)
+{
+	unsigned char swaptest[2] = {1,0};
+
+// set the byte swapping variables in a portable manner
+	if ( *(short *)swaptest == 1)
+	{
+		BigShort = ShortSwap;
+		LittleShort = ShortNoSwap;
+		BigLong = LongSwap;
+		LittleLong = LongNoSwap;
+		BigFloat = FloatSwap;
+		LittleFloat = FloatNoSwap;
+	}
+	else
+	{
+		BigShort = ShortNoSwap;
+		LittleShort = ShortSwap;
+		BigLong = LongNoSwap;
+		LittleLong = LongSwap;
+		BigFloat = FloatNoSwap;
+		LittleFloat = FloatSwap;
+	}
+}
+
+void *loadfile(const char *filename, int *size)
+{
+	FILE *file;
+	void *filedata;
+	size_t filesize;
+	*size = 0;
+	file = fopen(filename, "rb");
+	if (!file)
+		return NULL;
+	fseek(file, 0, SEEK_END);
+	filesize = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	filedata = malloc(filesize);
+	if (fread(filedata, 1, filesize, file) < filesize)
+	{
+		free(filedata);
+		fclose(file);
+		return NULL;
+	}
+	fclose(file);
+	*size = filesize;
+	return filedata;
+}
+
+typedef struct _TargaHeader
+{
+	unsigned char 	id_length, colormap_type, image_type;
+	unsigned short	colormap_index, colormap_length;
+	unsigned char	colormap_size;
+	unsigned short	x_origin, y_origin, width, height;
+	unsigned char	pixel_size, attributes;
+}
+TargaHeader;
+
+unsigned char *LoadTGA (const char *filename, int *imagewidth, int *imageheight)
+{
+	int x, y, row_inc, image_width, image_height, red, green, blue, alpha, run, runlen, loadsize;
+	unsigned char *pixbuf, *image_rgba, *f;
+	const unsigned char *fin, *enddata;
+	TargaHeader targa_header;
+
+	*imagewidth = 0;
+	*imageheight = 0;
+
+	f = loadfile(filename, &loadsize);
+	if (!f)
+		return NULL;
+	if (loadsize < 18+3)
+	{
+		free(f);
+		printf("%s is too small to be valid\n", filename);
+		return NULL;
+	}
+	targa_header.id_length = f[0];
+	targa_header.colormap_type = f[1];
+	targa_header.image_type = f[2];
+
+	targa_header.colormap_index = f[3] + f[4] * 256;
+	targa_header.colormap_length = f[5] + f[6] * 256;
+	targa_header.colormap_size = f[7];
+	targa_header.x_origin = f[8] + f[9] * 256;
+	targa_header.y_origin = f[10] + f[11] * 256;
+	targa_header.width = f[12] + f[13] * 256;
+	targa_header.height = f[14] + f[15] * 256;
+	targa_header.pixel_size = f[16];
+	targa_header.attributes = f[17];
+
+	if (targa_header.image_type != 2 && targa_header.image_type != 10)
+	{
+		free(f);
+		printf("%s is is not type 2 or 10\n", filename);
+		return NULL;
+	}
+
+	if (targa_header.colormap_type != 0	|| (targa_header.pixel_size != 32 && targa_header.pixel_size != 24))
+	{
+		free(f);
+		printf("%s is not 24bit BGR or 32bit BGRA\n", filename);
+		return NULL;
+	}
+
+	enddata = f + loadsize;
+
+	image_width = targa_header.width;
+	image_height = targa_header.height;
+
+	image_rgba = malloc(image_width * image_height * 4);
+	if (!image_rgba)
+	{
+		free(f);
+		printf("failed to allocate memory for decoding %s\n", filename);
+		return NULL;
+	}
+
+	*imagewidth = image_width;
+	*imageheight = image_height;
+
+	fin = f + 18;
+	if (targa_header.id_length != 0)
+		fin += targa_header.id_length;  // skip TARGA image comment
+
+	// If bit 5 of attributes isn't set, the image has been stored from bottom to top
+	if ((targa_header.attributes & 0x20) == 0)
+	{
+		pixbuf = image_rgba + (image_height - 1)*image_width*4;
+		row_inc = -image_width*4*2;
+	}
+	else
+	{
+		pixbuf = image_rgba;
+		row_inc = 0;
+	}
+
+	if (targa_header.image_type == 2)
+	{
+		// Uncompressed, RGB images
+		if (targa_header.pixel_size == 24)
+		{
+			if (fin + image_width * image_height * 3 <= enddata)
+			{
+				for(y = 0;y < image_height;y++)
+				{
+					for(x = 0;x < image_width;x++)
+					{
+						*pixbuf++ = fin[2];
+						*pixbuf++ = fin[1];
+						*pixbuf++ = fin[0];
+						*pixbuf++ = 255;
+						fin += 3;
+					}
+					pixbuf += row_inc;
+				}
+			}
+		}
+		else
+		{
+			if (fin + image_width * image_height * 4 <= enddata)
+			{
+				for(y = 0;y < image_height;y++)
+				{
+					for(x = 0;x < image_width;x++)
+					{
+						*pixbuf++ = fin[2];
+						*pixbuf++ = fin[1];
+						*pixbuf++ = fin[0];
+						*pixbuf++ = fin[3];
+						fin += 4;
+					}
+					pixbuf += row_inc;
+				}
+			}
+		}
+	}
+	else if (targa_header.image_type==10)
+	{
+		// Runlength encoded RGB images
+		x = 0;
+		y = 0;
+		while (y < image_height && fin < enddata)
+		{
+			runlen = *fin++;
+			if (runlen & 0x80)
+			{
+				// RLE compressed run
+				runlen = 1 + (runlen & 0x7f);
+				if (targa_header.pixel_size == 24)
+				{
+					if (fin + 3 > enddata)
+						break;
+					blue = *fin++;
+					green = *fin++;
+					red = *fin++;
+					alpha = 255;
+				}
+				else
+				{
+					if (fin + 4 > enddata)
+						break;
+					blue = *fin++;
+					green = *fin++;
+					red = *fin++;
+					alpha = *fin++;
+				}
+
+				while (runlen && y < image_height)
+				{
+					run = runlen;
+					if (run > image_width - x)
+						run = image_width - x;
+					x += run;
+					runlen -= run;
+					while(run--)
+					{
+						*pixbuf++ = red;
+						*pixbuf++ = green;
+						*pixbuf++ = blue;
+						*pixbuf++ = alpha;
+					}
+					if (x == image_width)
+					{
+						// end of line, advance to next
+						x = 0;
+						y++;
+						pixbuf += row_inc;
+					}
+				}
+			}
+			else
+			{
+				// RLE uncompressed run
+				runlen = 1 + (runlen & 0x7f);
+				while (runlen && y < image_height)
+				{
+					run = runlen;
+					if (run > image_width - x)
+						run = image_width - x;
+					x += run;
+					runlen -= run;
+					if (targa_header.pixel_size == 24)
+					{
+						if (fin + run * 3 > enddata)
+							break;
+						while(run--)
+						{
+							*pixbuf++ = fin[2];
+							*pixbuf++ = fin[1];
+							*pixbuf++ = fin[0];
+							*pixbuf++ = 255;
+							fin += 3;
+						}
+					}
+					else
+					{
+						if (fin + run * 4 > enddata)
+							break;
+						while(run--)
+						{
+							*pixbuf++ = fin[2];
+							*pixbuf++ = fin[1];
+							*pixbuf++ = fin[0];
+							*pixbuf++ = fin[3];
+							fin += 4;
+						}
+					}
+					if (x == image_width)
+					{
+						// end of line, advance to next
+						x = 0;
+						y++;
+						pixbuf += row_inc;
+					}
+				}
+			}
+		}
+	}
+	free(f);
+	return image_rgba;
+}
+
+dpmheader_t *dpmload(char *filename)
+{
+	int bonenum, meshnum, framenum, vertnum, num, *index, filesize;
+	dpmbone_t *bone;
+	dpmbonepose_t *bonepose;
+	dpmmesh_t *mesh;
+	dpmbonevert_t *bonevert;
+	dpmvertex_t *vert;
+	dpmframe_t *frame;
+	dpmheader_t *dpm;
+	dpm = (void *)loadfile(filename, &filesize);
+	if (!dpm)
+		return NULL;
+	InitSwapFunctions();
+	if (memcmp(dpm->id, "DARKPLACESMODEL\0", 16))
+	{
+		free(dpm);
+		return NULL;
+	}
+	dpm->type = BigLong(dpm->type);
+	if (dpm->type != 2)
+	{
+		free(dpm);
+		return NULL;
+	}
+	dpm->filesize = BigLong(dpm->filesize);
+	dpm->mins[0] = BigFloat(dpm->mins[0]);
+	dpm->mins[1] = BigFloat(dpm->mins[1]);
+	dpm->mins[2] = BigFloat(dpm->mins[2]);
+	dpm->maxs[0] = BigFloat(dpm->maxs[0]);
+	dpm->maxs[1] = BigFloat(dpm->maxs[1]);
+	dpm->maxs[2] = BigFloat(dpm->maxs[2]);
+	dpm->yawradius = BigFloat(dpm->yawradius);
+	dpm->allradius = BigFloat(dpm->allradius);
+	dpm->num_bones = BigLong(dpm->num_bones);
+	dpm->num_meshs = BigLong(dpm->num_meshs);
+	dpm->num_frames = BigLong(dpm->num_frames);
+	dpm->ofs_bones = BigLong(dpm->ofs_bones);
+	dpm->ofs_meshs = BigLong(dpm->ofs_meshs);
+	dpm->ofs_frames = BigLong(dpm->ofs_frames);
+	for (bonenum = 0, bone = (void *)((unsigned char *)dpm + dpm->ofs_bones);bonenum < dpm->num_bones;bonenum++, bone++)
+	{
+		bone->parent = BigLong(bone->parent);
+		bone->flags = BigLong(bone->flags);
+	}
+	for (meshnum = 0, mesh = (void *)((unsigned char *)dpm + dpm->ofs_meshs);meshnum < dpm->num_meshs;meshnum++, mesh++)
+	{
+		mesh->num_verts = BigLong(mesh->num_verts);
+		mesh->num_tris = BigLong(mesh->num_tris);
+		mesh->ofs_verts = BigLong(mesh->ofs_verts);
+		mesh->ofs_texcoords = BigLong(mesh->ofs_texcoords);
+		mesh->ofs_indices = BigLong(mesh->ofs_indices);
+		mesh->ofs_groupids = BigLong(mesh->ofs_groupids);
+		for (vertnum = 0, vert = (void *)((unsigned char *)dpm + mesh->ofs_verts);vertnum < mesh->num_verts;vertnum++)
+		{
+			vert->numbones = BigLong(vert->numbones);
+			for (bonenum = 0, bonevert = (dpmbonevert_t *)(vert + 1);bonenum < vert->numbones;bonenum++, bonevert++)
+			{
+				bonevert->origin[0] = BigFloat(bonevert->origin[0]);
+				bonevert->origin[1] = BigFloat(bonevert->origin[1]);
+				bonevert->origin[2] = BigFloat(bonevert->origin[2]);
+				bonevert->influence = BigFloat(bonevert->influence);
+				bonevert->normal[0] = BigFloat(bonevert->normal[0]);
+				bonevert->normal[1] = BigFloat(bonevert->normal[1]);
+				bonevert->normal[2] = BigFloat(bonevert->normal[2]);
+				bonevert->bonenum   = BigLong(bonevert->bonenum);
+			}
+			vert = (dpmvertex_t *)bonevert;
+		}
+		for (num = 0, index = (void *)((unsigned char *)dpm + mesh->ofs_texcoords);num < mesh->num_verts * 2;num++, index++)
+			index[0] = BigLong(index[0]);
+		for (num = 0, index = (void *)((unsigned char *)dpm + mesh->ofs_indices);num < mesh->num_tris * 3;num++, index++)
+			index[0] = BigLong(index[0]);
+		for (num = 0, index = (void *)((unsigned char *)dpm + mesh->ofs_groupids);num < mesh->num_tris;num++, index++)
+			index[0] = BigLong(index[0]);
+	}
+	for (framenum = 0, frame = (void *)((unsigned char *)dpm + dpm->ofs_frames);framenum < dpm->num_frames;framenum++, frame++)
+	{
+		frame->mins[0] = BigFloat(frame->mins[0]);
+		frame->mins[1] = BigFloat(frame->mins[1]);
+		frame->mins[2] = BigFloat(frame->mins[2]);
+		frame->maxs[0] = BigFloat(frame->maxs[0]);
+		frame->maxs[1] = BigFloat(frame->maxs[1]);
+		frame->maxs[2] = BigFloat(frame->maxs[2]);
+		frame->yawradius = BigFloat(frame->yawradius);
+		frame->allradius = BigFloat(frame->allradius);
+		frame->ofs_bonepositions = BigLong(frame->ofs_bonepositions);
+		for (bonenum = 0, bonepose = (void *)((unsigned char *)dpm + frame->ofs_bonepositions);bonenum < dpm->num_bones;bonenum++, bonepose++)
+		{
+			bonepose->matrix[0][0] = BigFloat(bonepose->matrix[0][0]);
+			bonepose->matrix[0][1] = BigFloat(bonepose->matrix[0][1]);
+			bonepose->matrix[0][2] = BigFloat(bonepose->matrix[0][2]);
+			bonepose->matrix[0][3] = BigFloat(bonepose->matrix[0][3]);
+			bonepose->matrix[1][0] = BigFloat(bonepose->matrix[1][0]);
+			bonepose->matrix[1][1] = BigFloat(bonepose->matrix[1][1]);
+			bonepose->matrix[1][2] = BigFloat(bonepose->matrix[1][2]);
+			bonepose->matrix[1][3] = BigFloat(bonepose->matrix[1][3]);
+			bonepose->matrix[2][0] = BigFloat(bonepose->matrix[2][0]);
+			bonepose->matrix[2][1] = BigFloat(bonepose->matrix[2][1]);
+			bonepose->matrix[2][2] = BigFloat(bonepose->matrix[2][2]);
+			bonepose->matrix[2][3] = BigFloat(bonepose->matrix[2][3]);
+		}
+	}
+	return dpm;
+}
+
+void freedpm(dpmheader_t *dpm)
+{
+	free(dpm);
+}
+
+void dpmscenenamefromframename(const char *framename, char *scenename)
+{
+	int n;
+	strcpy(scenename, framename);
+	for (n = strlen(scenename) - 1;n >= 0 && scenename[n] >= '0' && scenename[n] <= '9';n--);
+	scenename[n + 1] = 0;
+}
+
+typedef struct scenerange_s
+{
+	char name[32];
+	int firstframe, numframes;
+}
+scenerange_t;
+
+typedef struct sceneranges_s
+{
+	int numscenes;
+	scenerange_t *scenes;
+}
+sceneranges_t;
+
+sceneranges_t *dpmbuildsceneranges(dpmheader_t *dpm)
+{
+	int framenum;
+	dpmframe_t *frame;
+	scenerange_t *scene;
+	sceneranges_t *sceneranges;
+	char scenename[32];
+	// this is wasteful, but...
+	sceneranges = malloc(sizeof(sceneranges_t) + dpm->num_frames * sizeof(scenerange_t));
+	if (!sceneranges)
+		return NULL;
+	sceneranges->numscenes = 0;
+	sceneranges->scenes = (void *)(sceneranges + 1);
+	scene = NULL;
+	for (framenum = 0;framenum < dpm->num_frames;framenum++)
+	{
+		frame = (dpmframe_t *)((unsigned char *)dpm + dpm->ofs_frames + framenum * sizeof(dpmframe_t));
+		dpmscenenamefromframename(frame->name, scenename);
+		if (!scene || strcmp(scene->name, scenename))
+		{
+			scene = sceneranges->scenes + sceneranges->numscenes;
+			sceneranges->numscenes++;
+			strcpy(scene->name, scenename);
+			scene->firstframe = framenum;
+			scene->numframes = 0;
+		}
+		scene->numframes++;
+	}
+	return sceneranges;
+}
+
+#define GL_PROJECTION				0x1701
+#define GL_MODELVIEW				0x1700
+#define GL_UNSIGNED_BYTE			0x1401
+#define GL_MAX_TEXTURE_SIZE			0x0D33
+#define GL_TEXTURE_2D				0x0DE1
+#define GL_RGBA					0x1908
+#define GL_QUADS				0x0007
+#define GL_COLOR_BUFFER_BIT			0x00004000
+#define GL_DEPTH_BUFFER_BIT			0x00000100
+#define GL_UNSIGNED_SHORT			0x1403
+#define GL_DEPTH_TEST				0x0B71
+#define GL_CULL_FACE				0x0B44
+#define GL_TEXTURE_MAG_FILTER			0x2800
+#define GL_TEXTURE_MIN_FILTER			0x2801
+#define GL_LINEAR				0x2601
+#define GL_VERTEX_ARRAY				0x8074
+#define GL_NORMAL_ARRAY				0x8075
+#define GL_COLOR_ARRAY				0x8076
+#define GL_TEXTURE_COORD_ARRAY			0x8078
+#define GL_FLOAT				0x1406
+#define GL_TRIANGLES				0x0004
+#define GL_UNSIGNED_INT				0x1405
+
+void (GLAPIENTRY *glEnable)(GLenum cap);
+void (GLAPIENTRY *glDisable)(GLenum cap);
+void (GLAPIENTRY *glGetIntegerv)(GLenum pname, GLint *params);
+void (GLAPIENTRY *glOrtho)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val);
+void (GLAPIENTRY *glFrustum)(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val);
+void (GLAPIENTRY *glGenTextures)(GLsizei n, GLuint *textures);
+void (GLAPIENTRY *glBindTexture)(GLenum target, GLuint texture);
+void (GLAPIENTRY *glTexImage2D)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels );
+void (GLAPIENTRY *glTexParameteri)(GLenum target, GLenum pname, GLint param);
+void (GLAPIENTRY *glColor4f)(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
+void (GLAPIENTRY *glTexCoord2f)(GLfloat s, GLfloat t);
+void (GLAPIENTRY *glVertex3f)(GLfloat x, GLfloat y, GLfloat z);
+void (GLAPIENTRY *glBegin)(GLenum mode);
+void (GLAPIENTRY *glEnd)(void);
+GLenum (GLAPIENTRY *glGetError)(void);
+void (GLAPIENTRY *glClearColor)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+void (GLAPIENTRY *glClear)(GLbitfield mask);
+void (GLAPIENTRY *glMatrixMode)(GLenum mode);
+void (GLAPIENTRY *glLoadIdentity)(void);
+void (GLAPIENTRY *glRotatef)(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+void (GLAPIENTRY *glTranslatef)(GLfloat x, GLfloat y, GLfloat z);
+void (GLAPIENTRY *glVertexPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
+void (GLAPIENTRY *glNormalPointer)(GLenum type, GLsizei stride, const GLvoid *ptr);
+void (GLAPIENTRY *glColorPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
+void (GLAPIENTRY *glTexCoordPointer)(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
+void (GLAPIENTRY *glDrawElements)(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+
+void resampleimage(unsigned char *inpixels, int inwidth, int inheight, unsigned char *outpixels, int outwidth, int outheight)
+{
+	unsigned char *inrow, *inpix;
+	int x, y, xf, xfstep;
+	xfstep = (int) (inwidth * 65536.0f / outwidth);
+	for (y = 0;y < outheight;y++)
+	{
+		inrow = inpixels + ((y * inheight / outheight) * inwidth * 4);
+		for (x = 0, xf = 0;x < outwidth;x++, xf += xfstep)
+		{
+			inpix = inrow + (xf >> 16) * 4;
+			outpixels[0] = inpix[0];
+			outpixels[1] = inpix[1];
+			outpixels[2] = inpix[2];
+			outpixels[3] = inpix[3];
+			outpixels += 4;
+		}
+	}
+}
+
+GLuint maxtexturesize;
+
+#define IMAGETEXTURE_HASHINDICES 1024
+typedef struct imagetexture_s
+{
+	struct imagetexture_s *next;
+	char *name;
+	GLuint texnum;
+}
+imagetexture_t;
+
+imagetexture_t *imagetexturehash[IMAGETEXTURE_HASHINDICES];
+
+void initimagetextures(void)
+{
+	int i;
+	for (i = 0;i < IMAGETEXTURE_HASHINDICES;i++)
+		imagetexturehash[i] = NULL;
+}
+
+int textureforimage(const char *name)
+{
+	int i, hashindex, pixels_width, pixels_height, width, height, alpha;
+	unsigned char *pixels, *texturepixels;
+	imagetexture_t *image;
+	char nametga[1024];
+	hashindex = 0;
+	for (i = 0;name[i];i++)
+		hashindex += name[i];
+	hashindex = (hashindex + i) % IMAGETEXTURE_HASHINDICES;
+	for (image = imagetexturehash[hashindex];image;image = image->next)
+		if (!strcmp(image->name, name))
+			return image->texnum;
+	image = malloc(sizeof(imagetexture_t));
+	image->name = malloc(strlen(name) + 1);
+	strcpy(image->name, name);
+	image->texnum = 0;
+	image->next = imagetexturehash[hashindex];
+	imagetexturehash[hashindex] = image;
+
+	pixels = LoadTGA(name, &pixels_width, &pixels_height);
+	if (!pixels)
+	{
+		sprintf(nametga, "%s.tga", name);
+		pixels = LoadTGA(nametga, &pixels_width, &pixels_height);
+		if (!pixels)
+			printf("failed both %s and %s\n", name, nametga);
+	}
+	if (pixels)
+	{
+		for (width = 1;width < pixels_width && width < maxtexturesize;width *= 2);
+		for (height = 1;height < pixels_height && height < maxtexturesize;height *= 2);
+		texturepixels = malloc(width * height * 4);
+		resampleimage(pixels, pixels_width, pixels_height, texturepixels, width, height);
+		alpha = 0;
+		for (i = 3;i < width * height * 4;i += 4)
+			if (texturepixels[i] < 255)
+				alpha = 1;
+		CHECKGLERROR
+		glGenTextures(1, &image->texnum);CHECKGLERROR
+		glBindTexture(GL_TEXTURE_2D, image->texnum);CHECKGLERROR
+		glTexImage2D(GL_TEXTURE_2D, 0, alpha ? 4 : 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texturepixels);CHECKGLERROR
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);CHECKGLERROR
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);CHECKGLERROR
+		free(texturepixels);
+		free(pixels);
+	}
+	return image->texnum;
+}
+
+void bindimagetexture(const char *name)
+{
+	CHECKGLERROR
+	glBindTexture(GL_TEXTURE_2D, textureforimage(name));
+	CHECKGLERROR
+}
+
+void dpmprecacheimages(dpmheader_t *dpm)
+{
+	int i;
+	dpmmesh_t *mesh;
+	for (i = 0, mesh = (void *)((unsigned char *)dpm + dpm->ofs_meshs);i < dpm->num_meshs;i++, mesh++)
+		textureforimage(mesh->shadername);
+}
+
+void dpmlerpbones(dpmheader_t *dpm, int lerpframe1, int lerpframe2, float lerp, dpmbonepose_t *out)
+{
+	int i;
+	float ilerp;
+	dpmbonepose_t *pose1, *pose2, *parent, *baseout, m;
+	dpmbone_t *bone;
+	pose1 = (dpmbonepose_t *)((unsigned char *)dpm + ((dpmframe_t *)((unsigned char *)dpm + dpm->ofs_frames) + lerpframe1)->ofs_bonepositions);
+	pose2 = (dpmbonepose_t *)((unsigned char *)dpm + ((dpmframe_t *)((unsigned char *)dpm + dpm->ofs_frames) + lerpframe2)->ofs_bonepositions);
+	bone = (dpmbone_t *)((unsigned char *)dpm + dpm->ofs_bones);
+	baseout = out;
+	ilerp = 1 - lerp;
+	for (i = 0;i < dpm->num_bones;i++, bone++, pose1++, pose2++, out++)
+	{
+		if (lerp)
+		{
+			m.matrix[0][0] = pose1->matrix[0][0] * ilerp + pose2->matrix[0][0] * lerp;
+			m.matrix[0][1] = pose1->matrix[0][1] * ilerp + pose2->matrix[0][1] * lerp;
+			m.matrix[0][2] = pose1->matrix[0][2] * ilerp + pose2->matrix[0][2] * lerp;
+			m.matrix[0][3] = pose1->matrix[0][3] * ilerp + pose2->matrix[0][3] * lerp;
+			m.matrix[1][0] = pose1->matrix[1][0] * ilerp + pose2->matrix[1][0] * lerp;
+			m.matrix[1][1] = pose1->matrix[1][1] * ilerp + pose2->matrix[1][1] * lerp;
+			m.matrix[1][2] = pose1->matrix[1][2] * ilerp + pose2->matrix[1][2] * lerp;
+			m.matrix[1][3] = pose1->matrix[1][3] * ilerp + pose2->matrix[1][3] * lerp;
+			m.matrix[2][0] = pose1->matrix[2][0] * ilerp + pose2->matrix[2][0] * lerp;
+			m.matrix[2][1] = pose1->matrix[2][1] * ilerp + pose2->matrix[2][1] * lerp;
+			m.matrix[2][2] = pose1->matrix[2][2] * ilerp + pose2->matrix[2][2] * lerp;
+			m.matrix[2][3] = pose1->matrix[2][3] * ilerp + pose2->matrix[2][3] * lerp;
+		}
+		else
+			m = *pose1;
+		if (bone->parent >= 0)
+		{
+			parent = baseout + bone->parent;
+			out->matrix[0][0] = parent->matrix[0][0] * m.matrix[0][0] + parent->matrix[0][1] * m.matrix[1][0] + parent->matrix[0][2] * m.matrix[2][0];
+			out->matrix[0][1] = parent->matrix[0][0] * m.matrix[0][1] + parent->matrix[0][1] * m.matrix[1][1] + parent->matrix[0][2] * m.matrix[2][1];
+			out->matrix[0][2] = parent->matrix[0][0] * m.matrix[0][2] + parent->matrix[0][1] * m.matrix[1][2] + parent->matrix[0][2] * m.matrix[2][2];
+			out->matrix[0][3] = parent->matrix[0][0] * m.matrix[0][3] + parent->matrix[0][1] * m.matrix[1][3] + parent->matrix[0][2] * m.matrix[2][3] + parent->matrix[0][3];
+			out->matrix[1][0] = parent->matrix[1][0] * m.matrix[0][0] + parent->matrix[1][1] * m.matrix[1][0] + parent->matrix[1][2] * m.matrix[2][0];
+			out->matrix[1][1] = parent->matrix[1][0] * m.matrix[0][1] + parent->matrix[1][1] * m.matrix[1][1] + parent->matrix[1][2] * m.matrix[2][1];
+			out->matrix[1][2] = parent->matrix[1][0] * m.matrix[0][2] + parent->matrix[1][1] * m.matrix[1][2] + parent->matrix[1][2] * m.matrix[2][2];
+			out->matrix[1][3] = parent->matrix[1][0] * m.matrix[0][3] + parent->matrix[1][1] * m.matrix[1][3] + parent->matrix[1][2] * m.matrix[2][3] + parent->matrix[1][3];
+			out->matrix[2][0] = parent->matrix[2][0] * m.matrix[0][0] + parent->matrix[2][1] * m.matrix[1][0] + parent->matrix[2][2] * m.matrix[2][0];
+			out->matrix[2][1] = parent->matrix[2][0] * m.matrix[0][1] + parent->matrix[2][1] * m.matrix[1][1] + parent->matrix[2][2] * m.matrix[2][1];
+			out->matrix[2][2] = parent->matrix[2][0] * m.matrix[0][2] + parent->matrix[2][1] * m.matrix[1][2] + parent->matrix[2][2] * m.matrix[2][2];
+			out->matrix[2][3] = parent->matrix[2][0] * m.matrix[0][3] + parent->matrix[2][1] * m.matrix[1][3] + parent->matrix[2][2] * m.matrix[2][3] + parent->matrix[2][3];
+		}
+		else
+			*out = m;
+	}
+}
+
+#define MAX_TEXTUREUNITS 8
+
+int textureunits = 1;
+
+int varraysize;
+float *varray_vertex;
+float *varray_normal;
+float *varray_color;
+float *varray_texcoord[MAX_TEXTUREUNITS];
+
+void R_Mesh_Init(void)
+{
+	int i;
+	varraysize = 0;
+	varray_vertex = NULL;
+	varray_normal = NULL;
+	varray_color = NULL;
+	for (i = 0;i < MAX_TEXTUREUNITS;i++)
+		varray_texcoord[i] = NULL;
+}
+
+void R_Mesh_ResizeCheck(int numverts)
+{
+	int i;
+	if (varraysize < numverts)
+	{
+		if (varray_vertex)
+			free(varray_vertex);
+		varraysize = numverts;
+		varray_vertex = malloc(varraysize * (4 + 4 + 4 + 4 * textureunits) * sizeof(float));
+		memset(varray_vertex, 0, varraysize * (4 + 4 + 4 + 4 * textureunits) * sizeof(float));
+		varray_normal = varray_vertex + varraysize * 4;
+		varray_color = varray_normal + varraysize * 4;
+		varray_texcoord[0] = varray_color + varraysize * 4;
+		for (i = 1;i < textureunits;i++)
+			varray_texcoord[i] = varray_texcoord[i - 1] + varraysize * 4;
+		glVertexPointer(3, GL_FLOAT, sizeof(float[4]), varray_vertex);
+		glNormalPointer(GL_FLOAT, sizeof(float[4]), varray_normal);
+		glColorPointer(4, GL_FLOAT, sizeof(float[4]), varray_color);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(float[4]), varray_texcoord[0]);
+	}
+}
+
+void dpmdraw(dpmheader_t *dpm, dpmbonepose_t *bonepose)
+{
+	int meshnum, vertnum, i;
+	float *outv, *outn, *outtc, *tc;
+	dpmbonepose_t *m;
+	dpmvertex_t *vert;
+	dpmbonevert_t *bonevert;
+	dpmmesh_t *mesh;
+	if (varray_vertex)
+	{
+		glVertexPointer(3, GL_FLOAT, sizeof(float[4]), varray_vertex);
+		glNormalPointer(GL_FLOAT, sizeof(float[4]), varray_normal);
+		glColorPointer(4, GL_FLOAT, sizeof(float[4]), varray_color);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(float[4]), varray_texcoord[0]);
+	}
+	glEnable(GL_VERTEX_ARRAY);
+	glEnable(GL_NORMAL_ARRAY);
+	glDisable(GL_COLOR_ARRAY);
+	glEnable(GL_TEXTURE_COORD_ARRAY);
+	for (meshnum = 0, mesh = (dpmmesh_t *)((unsigned char *)dpm + dpm->ofs_meshs);meshnum < dpm->num_meshs;meshnum++, mesh++)
+	{
+		R_Mesh_ResizeCheck(mesh->num_verts);
+		for (vertnum = 0, outv = varray_vertex, outn = varray_normal, vert = (dpmvertex_t *)((unsigned char *)dpm + mesh->ofs_verts);vertnum < mesh->num_verts;vertnum++, outv += 4, outn += 4)
+		{
+			if (vert->numbones == 1)
+			{
+				bonevert = (dpmbonevert_t *)(vert + 1);
+				m = bonepose + bonevert->bonenum;
+				outv[0] = bonevert->origin[0] * m->matrix[0][0] + bonevert->origin[1] * m->matrix[0][1] + bonevert->origin[2] * m->matrix[0][2] + m->matrix[0][3];
+				outv[1] = bonevert->origin[0] * m->matrix[1][0] + bonevert->origin[1] * m->matrix[1][1] + bonevert->origin[2] * m->matrix[1][2] + m->matrix[1][3];
+				outv[2] = bonevert->origin[0] * m->matrix[2][0] + bonevert->origin[1] * m->matrix[2][1] + bonevert->origin[2] * m->matrix[2][2] + m->matrix[2][3];
+				outn[0] = bonevert->normal[0] * m->matrix[0][0] + bonevert->normal[1] * m->matrix[0][1] + bonevert->normal[2] * m->matrix[0][2];
+				outn[1] = bonevert->normal[0] * m->matrix[1][0] + bonevert->normal[1] * m->matrix[1][1] + bonevert->normal[2] * m->matrix[1][2];
+				outn[2] = bonevert->normal[0] * m->matrix[2][0] + bonevert->normal[1] * m->matrix[2][1] + bonevert->normal[2] * m->matrix[2][2];
+				vert = (dpmvertex_t *)(bonevert + 1);
+			}
+			else
+			{
+				outv[0] = 0;
+				outv[1] = 0;
+				outv[2] = 0;
+				outn[0] = 0;
+				outn[1] = 0;
+				outn[2] = 0;
+				for (i = 0, bonevert = (dpmbonevert_t *)(vert + 1);i < vert->numbones;i++, bonevert++)
+				{
+					m = bonepose + bonevert->bonenum;
+					outv[0] += bonevert->origin[0] * m->matrix[0][0] + bonevert->origin[1] * m->matrix[0][1] + bonevert->origin[2] * m->matrix[0][2] + bonevert->influence * m->matrix[0][3];
+					outv[1] += bonevert->origin[0] * m->matrix[1][0] + bonevert->origin[1] * m->matrix[1][1] + bonevert->origin[2] * m->matrix[1][2] + bonevert->influence * m->matrix[1][3];
+					outv[2] += bonevert->origin[0] * m->matrix[2][0] + bonevert->origin[1] * m->matrix[2][1] + bonevert->origin[2] * m->matrix[2][2] + bonevert->influence * m->matrix[2][3];
+					outn[0] += bonevert->normal[0] * m->matrix[0][0] + bonevert->normal[1] * m->matrix[0][1] + bonevert->normal[2] * m->matrix[0][2];
+					outn[1] += bonevert->normal[0] * m->matrix[1][0] + bonevert->normal[1] * m->matrix[1][1] + bonevert->normal[2] * m->matrix[1][2];
+					outn[2] += bonevert->normal[0] * m->matrix[2][0] + bonevert->normal[1] * m->matrix[2][1] + bonevert->normal[2] * m->matrix[2][2];
+				}
+				vert = (dpmvertex_t *)bonevert;
+			}
+		}
+		for (vertnum = 0, outtc = varray_texcoord[0], tc = (float *)((unsigned char *)dpm + mesh->ofs_texcoords);vertnum < mesh->num_verts;vertnum++, tc += 2, outtc += 4)
+		{
+			outtc[0] = tc[0];
+			outtc[1] = tc[1];
+		}
+		glColor4f(1,1,1,1);
+		bindimagetexture(mesh->shadername);
+		glDrawElements(GL_TRIANGLES, mesh->num_tris * 3, GL_UNSIGNED_INT, (GLuint *)((unsigned char *)dpm + mesh->ofs_indices));
+	}
+	glDisable(GL_VERTEX_ARRAY);
+	glDisable(GL_NORMAL_ARRAY);
+	glDisable(GL_COLOR_ARRAY);
+	glDisable(GL_TEXTURE_COORD_ARRAY);
+}
+
+SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
+{
+	SDL_Surface *surface;
+	if (SDL_GL_LoadLibrary (NULL))
+	{
+		printf("Unable to load GL library\n");
+		SDL_Quit();
+		exit(1);
+	}
+	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
+	surface = SDL_SetVideoMode(640, 480, 16, SDL_OPENGL | (fullscreen ? (SDL_FULLSCREEN | SDL_DOUBLEBUF) : 0));
+	if (!surface)
+		return NULL;
+
+	glEnable = SDL_GL_GetProcAddress("glEnable");
+	glDisable = SDL_GL_GetProcAddress("glDisable");
+	glGetIntegerv = SDL_GL_GetProcAddress("glGetIntegerv");
+	glOrtho = SDL_GL_GetProcAddress("glOrtho");
+	glFrustum = SDL_GL_GetProcAddress("glFrustum");
+	glGenTextures = SDL_GL_GetProcAddress("glGenTextures");
+	glBindTexture = SDL_GL_GetProcAddress("glBindTexture");
+	glTexImage2D = SDL_GL_GetProcAddress("glTexImage2D");
+	glTexParameteri = SDL_GL_GetProcAddress("glTexParameteri");
+	glColor4f = SDL_GL_GetProcAddress("glColor4f");
+	glTexCoord2f = SDL_GL_GetProcAddress("glTexCoord2f");
+	glVertex3f = SDL_GL_GetProcAddress("glVertex3f");
+	glBegin = SDL_GL_GetProcAddress("glBegin");
+	glEnd = SDL_GL_GetProcAddress("glEnd");
+	glGetError = SDL_GL_GetProcAddress("glGetError");
+	glClearColor = SDL_GL_GetProcAddress("glClearColor");
+	glClear = SDL_GL_GetProcAddress("glClear");
+	glMatrixMode = SDL_GL_GetProcAddress("glMatrixMode");
+	glLoadIdentity = SDL_GL_GetProcAddress("glLoadIdentity");
+	glRotatef = SDL_GL_GetProcAddress("glRotatef");
+	glTranslatef = SDL_GL_GetProcAddress("glTranslatef");
+	glVertexPointer = SDL_GL_GetProcAddress("glVertexPointer");
+	glNormalPointer = SDL_GL_GetProcAddress("glNormalPointer");
+	glColorPointer = SDL_GL_GetProcAddress("glColorPointer");
+	glTexCoordPointer = SDL_GL_GetProcAddress("glTexCoordPointer");
+	glDrawElements = SDL_GL_GetProcAddress("glDrawElements");
+
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxtexturesize);
+	return surface;
+}
+
+void drawstring(const char *string, float x, float y, float scalex, float scaley)
+{
+	int num;
+	float bases, baset, scales, scalet;
+	scales = 1.0f / 16.0f;
+	scalet = 1.0f / 16.0f;
+	glBegin(GL_QUADS);
+	while (*string)
+	{
+		num = *string++;
+		if (num != ' ')
+		{
+			bases = ((num & 15) * scales);
+			baset = ((num >> 4) * scalet);
+			glTexCoord2f(bases         , baset         );glVertex3f(x         , y         , 10);
+			glTexCoord2f(bases         , baset + scalet);glVertex3f(x         , y + scaley, 10);
+			glTexCoord2f(bases + scales, baset + scalet);glVertex3f(x + scalex, y + scaley, 10);
+			glTexCoord2f(bases + scales, baset         );glVertex3f(x + scalex, y         , 10);
+		}
+		x += scalex;
+	}
+	glEnd();
+}
+
+dpmbonepose_t bonepose[256];
+void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
+{
+	char caption[1024];
+	float xmax, ymax, zNear, zFar;
+	int oldtime, currenttime;
+	int playback;
+	double timedifference;
+	SDL_Event event;
+	SDL_Surface *surface;
+	double playedtime;
+	int playedframes;
+	dpmheader_t *dpm;
+	int scenenum, scenefirstframe, scenenumframes, sceneframerate;
+	float sceneframe;
+	float origin[3], angles[3];
+	sceneranges_t *sceneranges;
+	char tempstring[256];
+	int fps = 0, fpsframecount = 0;
+	double fpsbasetime = 0;
+
+
+	glerrornum = 0;
+	quit = 0;
+
+	if (!(dpm = dpmload(filename)))
+	{
+		printf("unable to load %s\n", filename);
+		return;
+	}
+	printf("Initializing SDL.\n");
+
+	/* Initialize defaults, Video and Audio */
+	if ((SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) == -1))
+	{
+		printf("Could not initialize SDL: %s.\n", SDL_GetError());
+		SDL_Quit();
+		exit(-1);
+	}
+
+	surface = initvideo(width, height, bpp, fullscreen);
+
+	initimagetextures();
+	dpmprecacheimages(dpm);
+
+	//glClearColor(0,0,0,0);
+
+	origin[0] = 0;
+	origin[1] = 0;
+	origin[2] = -(dpm->allradius * 0.5 + 1);
+
+	printf("SDL initialized.\n");
+
+	printf("using an SDL opengl %dx%dx%dbpp surface.\n", surface->w, surface->h, surface->format->BitsPerPixel);
+
+	sprintf(caption, "dpmviewer: %s", filename);
+	SDL_WM_SetCaption(caption, NULL);
+
+	sceneranges = dpmbuildsceneranges(dpm);
+
+	playedtime = 0;
+	playedframes = 0;
+	playback = 1;
+	oldtime = currenttime = SDL_GetTicks();
+	scenenum = 0;
+	sceneframe = 0;
+	sceneframerate = 10;
+	scenefirstframe = 0;
+	scenenumframes = 1;
+	angles[0] = 0;
+	angles[1] = 0;
+	angles[2] = 0;
+	while (!quit)
+	{
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+			case SDL_KEYDOWN:
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_LEFT:
+					angles[2] -= 15;
+					break;
+				case SDLK_RIGHT:
+					angles[2] += 15;
+					break;
+				case SDLK_UP:
+					angles[1] -= 15;
+					break;
+				case SDLK_DOWN:
+					angles[1] += 15;
+					break;
+				case SDLK_PAGEUP:
+					angles[0] -= 15;
+					break;
+				case SDLK_PAGEDOWN:
+					angles[0] += 15;
+					break;
+				case SDLK_COMMA:
+					scenenum--;
+					sceneframe = 0;
+					break;
+				case SDLK_PERIOD:
+					scenenum++;
+					sceneframe = 0;
+					break;
+				case SDLK_0:
+				case SDLK_1:
+				case SDLK_2:
+				case SDLK_3:
+				case SDLK_4:
+				case SDLK_5:
+				case SDLK_6:
+				case SDLK_7:
+				case SDLK_8:
+				case SDLK_9:
+					// keep last two characters
+					sceneframerate = (sceneframerate % 10) * 10 + (event.key.keysym.sym - SDLK_0);
+					break;
+				case SDLK_SPACE:
+					playback = !playback;
+					break;
+				case SDLK_q:
+				case SDLK_ESCAPE:
+					quit = 1;
+					break;
+				default:
+					break;
+				}
+				break;
+			case SDL_KEYUP:
+				break;
+			case SDL_QUIT:
+				quit = 1;
+				break;
+			default:
+				break;
+			}
+		}
+		if (quit)
+			break;
+		oldtime = currenttime;
+		currenttime = SDL_GetTicks();
+		timedifference = (currenttime - oldtime) * (1.0 / 1000.0);
+		if (timedifference < 0)
+			timedifference = 0;
+		if (playback)
+			sceneframe += timedifference * sceneframerate;
+		if (scenenum < 0)
+			scenenum = sceneranges->numscenes - 1;
+		if (scenenum >= sceneranges->numscenes)
+			scenenum = 0;
+		scenefirstframe = sceneranges->scenes[scenenum].firstframe;
+		scenenumframes = sceneranges->scenes[scenenum].numframes;
+		while (sceneframe >= scenenumframes)
+			sceneframe -= scenenumframes;
+
+		while (angles[0] < 0) angles[0] += 360;while (angles[0] >= 360) angles[0] -= 360;
+		while (angles[1] < 0) angles[1] += 360;while (angles[1] >= 360) angles[1] -= 360;
+		while (angles[2] < 0) angles[2] += 360;while (angles[2] >= 360) angles[2] -= 360;
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		zNear = 1;
+		zFar = 1 + dpm->allradius * 2;
+		xmax = zNear;
+		ymax = xmax * (double) height / (double) width;
+		glMatrixMode(GL_PROJECTION);CHECKGLERROR
+		glLoadIdentity();CHECKGLERROR
+		glFrustum(-xmax, xmax, -ymax, ymax, zNear, zFar);CHECKGLERROR
+		glMatrixMode(GL_MODELVIEW);CHECKGLERROR
+		glLoadIdentity();
+		glTranslatef(origin[0], origin[1], origin[2]);
+		//glRotatef(270, 1, 0, 0);
+		//glRotatef(90, 0, 0, 1);
+		glRotatef(angles[0], 1, 0, 0);
+		glRotatef(angles[1], 0, 1, 0);
+		glRotatef(angles[2], 0, 0, 1);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		dpmlerpbones(dpm, scenefirstframe + ((int) sceneframe) % scenenumframes, scenefirstframe + ((int) sceneframe + 1) % scenenumframes, sceneframe - (int) sceneframe, bonepose);
+		dpmdraw(dpm, bonepose);
+
+		playedtime += timedifference;
+		playedframes++;
+		//i = SDL_GetTicks();
+		//printf("%dms per frame\n", i - currenttime);
+
+		glMatrixMode(GL_PROJECTION);CHECKGLERROR
+		glLoadIdentity();CHECKGLERROR
+		glOrtho(0, 640, 480, 0, -100, 100);CHECKGLERROR
+		glMatrixMode(GL_MODELVIEW);CHECKGLERROR
+		glLoadIdentity();
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_DEPTH_TEST);
+		//glDisable(GL_CULL_FACE);
+		bindimagetexture("lhfont.tga");
+		glColor4f(1,1,1,1);
+		fpsframecount++;
+		if (currenttime >= fpsbasetime + 1000 || fpsframecount >= 100)
+		{
+			fps = (int) ((double) fpsframecount * 1000.0 / ((double) currenttime - (double) fpsbasetime));
+			fpsbasetime = currenttime;
+			fpsframecount = 0;
+		}
+		sprintf(tempstring, "fps%5i angles %3.0f %3.0f %3.0f playrate %02d frame %s", fps, angles[0], angles[1], angles[2], sceneframerate, ((dpmframe_t *)((unsigned char *)dpm + dpm->ofs_frames))[scenefirstframe + ((int) sceneframe) % scenenumframes].name);
+		drawstring(tempstring, 0, 480 - 8, 8, 8);
+		// note: SDL_GL_SwapBuffers does a glFinish for us
+		SDL_GL_SwapBuffers();
+
+		SDL_Delay(1);
+	}
+
+	printf("%d frames rendered in %f seconds, %f average frames per second\n", playedframes, playedtime, playedframes / playedtime);
+
+	free(sceneranges);
+	freedpm(dpm);
+
+	// close the screen surface
+	SDL_QuitSubSystem (SDL_INIT_VIDEO);
+
+	printf("Quiting SDL.\n");
+
+	/* Shutdown all subsystems */
+	SDL_Quit();
+
+	printf("Quiting....\n");
+}
+
+int main(int argc, char **argv)
+{
+	if (argc != 2)
+	{
+		printf("usage: dpmviewer <filename.dpm>\n");
+		return 1;
+	}
+	dpmviewer(argv[1], 640, 480, 16, 0);
+	return 0;
+}
