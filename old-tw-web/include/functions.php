@@ -66,7 +66,7 @@
 		global $browser_css;
 
 		if (!$browser_css) {
-			echo ("<br>\n");
+			echo ("<br />\n");
 		}
 		boxstart ($style);
 		box ($style . "title", $title);

@@ -16,7 +16,7 @@
 
 	while (list ($nick, $person) = each ($userinfo)) {
 		if (!$browser_css) {
-			echo ("<br>");
+			echo ("<br />");
 		}
 		boxstart ("uinfo");
 		echo ("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n" .

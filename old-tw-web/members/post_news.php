@@ -34,7 +34,7 @@
 	echo "<input type=\"hidden\" name=\"textchanged\" value=\"" . ($action == "Preview" ? "1" : "0") . "\">\n";
 	echo newsitem("Now", $authdata['u_username'], "<textarea name=\"newspost\" rows=5 cols=70 onFocus=\"if (newsform.textchanged.value == 0) { newsform.textchanged.value = 1; newsform.newspost.value = ''; }\">" .
 		($newspost == "" ? "Enter news item here." : $newspost) .
-		"</textarea><br>
+		"</textarea><br />
 <input type=\"submit\" name=\"action\" value=\"Post\">
 <input type=\"submit\" name=\"action\" value=\"Preview\">
 \n");

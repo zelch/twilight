@@ -32,7 +32,7 @@
 
 		news => "width=\"100%\" bgcolor=\"#000fb5\" cellspacing=\"1\"" ,
 		newstitle => "width=\"100%\" bgcolor=\"#000fb5\"" ,
-		newstitlepre => "<div align=right><font face=\"verdana,arial\" " .
+		newstitlepre => "<div align=\"right\"><font face=\"verdana,arial\" " .
 				"size=\"-1\">" ,
 		newstitlepost => "</font></div>" ,
 		newscontent => "width=\"100%\" bgcolor=\"#000440\"" ,
@@ -50,8 +50,8 @@
 		titlepre => "<font face=\"verdana,arial\" size=\"+3\"><strong>" ,
 		titlepost => "</strong></font>" . ($browser_name == lynx ?
 			"<hr>\n" : "<img width=\"100%\" height=\"1\" " .
-			"src=\"/images/whitepix.gif\" alt=\"\">\n<img width=\"100%\" " .
-			"height=\"10\" src=\"/images/clearpix.gif\" alt=\"\">") ,
+			"src=\"/images/whitepix.gif\" alt=\"\" />\n<img width=\"100%\" " .
+			"height=\"10\" src=\"/images/clearpix.gif\" alt=\"\" />") ,
 
 		para => "width=\"100%\" cellspacing=\"10\"" ,
 		parapre => "<font face=\"verdana,arial\">" ,
@@ -63,7 +63,7 @@
 
 		sub => "width=\"100%\" cellspacing=\"10\"" ,
 		subpre => "<img width=\"100%\" height=\"5\" " .
-			"src=\"/images/clearpix.gif\" alt=\"\">" .
+			"src=\"/images/clearpix.gif\" alt=\"\" />" .
 			"<font face=\"verdana,arial\" size=\"+2\"><strong>" ,
 		subpost => "</strong></font>"
 	);

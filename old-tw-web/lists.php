@@ -28,13 +28,13 @@
 		"<form method=\"post\" action=\"/subscribe.php\">\n" .
 		"<table" . ($browser_css ? "" : " align=\"center\"") . ">\n" .
 		"<tr><td>Email:&nbsp;</td><td>\n" .
-		"<input type=\"text\" name=\"sub_email\" size=\"30\"></td><td>\n" .
+		"<input type=\"text\" name=\"sub_email\" size=\"30\" /></td><td>\n" .
 		"&nbsp;&nbsp;\n" .
-		"<input type=\"submit\" name=\"sub_button\" value=\"Subscribe\">\n" .
+		"<input type=\"submit\" name=\"sub_button\" value=\"Subscribe\" />\n" .
 		"</td></tr><tr><td>\n" .
 		"<input type=\"hidden\" name=\"sub_list\"\n" .
-		"value=\"twilight-devel\">\n</td><td colspan=\"2\">" .
-		"<input type=\"checkbox\" name=\"sub_digest\">" .
+		"value=\"twilight-devel\" />\n</td><td colspan=\"2\">" .
+		"<input type=\"checkbox\" name=\"sub_digest\" />" .
 		" Messages in digest format\n</td></tr></table></form>\n"
 	);
 
@@ -56,13 +56,13 @@
 	titlebox ("subscr", "Subscribe to twilight-commits",
 		"<form method=\"post\" action=\"/subscribe.php\">\n" .
 		"<table" . ($browser_css ? "" : " align=\"center\"") . "><tr><td>\nEmail:&nbsp;</td><td>\n" .
-		"<input type=\"text\" name=\"sub_email\" size=\"30\"></td><td>\n" .
+		"<input type=\"text\" name=\"sub_email\" size=\"30\" /></td><td>\n" .
 		"&nbsp;&nbsp;\n" .
-		"<input type=\"submit\" name=\"sub_button\" value=\"Subscribe\">\n" .
+		"<input type=\"submit\" name=\"sub_button\" value=\"Subscribe\" />\n" .
 		"</td></tr><tr><td>\n" .
 		"<input type=\"hidden\" name=\"sub_list\"\n" .
-		"value=\"twilight-commits\">\n</td><td colspan=\"2\">" .
-		"<input type=\"checkbox\" name=\"sub_digest\">" .
+		"value=\"twilight-commits\" />\n</td><td colspan=\"2\">" .
+		"<input type=\"checkbox\" name=\"sub_digest\" />" .
 		" Messages in digest format\n</td></tr></table></form>\n"
 	);
 
