@@ -1,34 +1,42 @@
 <?php
-	$page = "News";
+	$title = "News";
+	$section = "News";
 	$pageroot = ".";
 	require ($pageroot . "/include/header.php");
 
-	newsitem ("23 Jul 2001", "Knghtbrd", "The SourceForge guys have " .
-		"imported the twilight CVS branch for us - thanks " .
-		"<a href=\"mailto:moorman@users.sourceforge.net\">moorman</a>!  " .
-		"The -commits list got 29 fresh messages logging all of my changes" .
-		"to the code before having it imported this morning.  The devel " .
-		"stuff for the website is next."
+	box ("title", "Recent news");
+
+	newsitem ("29 Jul 2001", "Knghtbrd", "We still need a logo to replace\n" .
+		"the one at the top of this page. &nbsp;Send me email if you want\n" .
+		"to do one.  The new website layout I've been working on is now\n" .
+		"up, if you couldn't tell.&nbsp; ;)&nbsp; I am also happy to\n" .
+		"report that the engine compiles on win32 in VC++ 4 and 6 thanks\n" .
+		"to " . email (LordHavoc) . " and " . email (Vic) . ".&nbsp\n" .
+		email (zinx) . " made the code use auto* for Linux people,\n" .
+		"although with today being the last day of\n" .
+		"<a href=\"http://qexpo.condemned.com/\">QExpo</a>, it is\n" .
+		" doubtful that we'll have binaries ready for download in time.\n" .
+		"&nbsp;If you haven't had a look at the QExpo site, you have no\n" .
+		"idea what you're missing.\n"
 	);
 
-	newsitem ("22 Jul 2001", "Knghtbrd", "The website will now be updated " .
-		"automatically shortly after someone commits changes.  Stub pages " .
-		"for the main site sections are now up."
+	newsitem ("23 Jul 2001", "Knghtbrd", "The SourceForge guys have\n" .
+		"imported the twilight CVS branch for us - thanks\n" .
+		"<a href=\"mailto:moorman@users.sourceforge.net\">moorman\n" .
+		"</a>!&nbsp; The -commits list got 29 fresh messages logging all\n" .
+		"of my changes to the code before having it imported this \n" .
+		"morning.&nbsp; The devel stuff for the website is next.\n"
 	);
 
-	newsitem ("22 Jul 2001", "Knghtbrd", "The website is finally online!  " .
-		"Well, sortof anyway.  The index page is all there is right now, " .
-		"but from here things should start to happen fast.  Watch this " .
-		"space for updates");
-
-	box ("plugs",
-		"<a href=\"http://sourceforge.net\"> <img width=\"88\" height=\"31\"" .
-			"src=\"http://sourceforge.net/sflogo.php?group_id=31385\" " .
-			"border=\"0\" alt=\"SourceForge\"></a>" .
-		"<a href=\"http://www.opengl.org\"><img src=\"images/opengl.gif\" " .
-			"alt=\"OpenGL\" border=\"0\"></a>"
-		
+	newsitem ("22 Jul 2001", "Knghtbrd", "The website will now be updated\n" .
+		"automatically shortly after someone commits changes.&nbsp; Stub\n" .
+		"pages for the main site sections are now up.\n"
 	);
+
+	newsitem ("22 Jul 2001", "Knghtbrd", "The website is finally\n" .
+		"online!&nbsp; Well, sortof anyway.&nbsp; The index page is all\n" .
+		"there is right now, but from here things should start to happen\n" .
+		"fast.&nbsp; Watch this space for updates.\n");
 
 	require ($pageroot . "/include/footer.php");
 ?>

@@ -1,5 +1,6 @@
 <?php
-	$page = "Downloads";
+	$title = "Downloads";
+	$section = "Downloads";
 	$pageroot = "..";
 	require ($pageroot . "/include/header.php");
 

@@ -1,4 +1,17 @@
 <?php
+	function email ($person)
+	{
+		return "<a href=\"mailto:" . $userinfo[$person]["email"] . "\">" .
+			$person . "</a>";
+	}
+
+	function in_array($needle,$haystack)
+	{
+		for($i = 0; $i < count($haystack) && $haystack[$i] != $needle; $i++);
+
+		return ($i != count($haystack));
+	}
+
 	function boxstart ($style)
 	{
 		global $browser_css;
@@ -7,7 +20,7 @@
 		if ($browser_css) {
 			echo ("<div class=\"" . $style . "\">\n");
 		} else {
-			echo ("<table " . $display[$style . "table"] . ">\n<tr><td>\n");
+			echo ("<table " . $display[$style] . ">\n<tr><td>\n");
 			if ($display[$style . "pre"]) {
 				echo ($display[$style . "pre"] . "\n");
 			}
@@ -53,7 +66,7 @@
 
 	function newsitem ($date, $submitter, $content)
 	{
-		titlebox ("news", "posted " . $date . " by " . $submitter,
+		titlebox ("news", "posted " . $date . " by " . email($submitter),
 			$content);
 	}
 ?>

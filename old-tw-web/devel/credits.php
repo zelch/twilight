@@ -1,12 +1,12 @@
 <?php
-	$page = "Development";
+	$section = "Development";
+	$title = "Credits";
 	$pageroot = "..";
 	require ($pageroot . "/include/header.php");
 
-	// yeah this is a nono - but it works and it's a stub anyway..
-	echo ("<font size=\"+2\">Project Credits</font>");
+	box ("title" ,"Project Credits");
 
-	echo ("<p>This page has not been written yet.</p>");
+	box ("para", "This page has not been written yet.");
 
 	require ($pageroot . "/include/footer.php");
 ?>

@@ -5,41 +5,45 @@
 				"alink=\"#0080ff\" vlink=\"#0080ff\" link=\"#0080ff\"",
 		basefont => "face=\"verdana, arial\"" ,
 
-		headertable => "width=\"100%\" bgcolor=\"#000440\"" ,
+		header => "width=\"100%\" bgcolor=\"#000fb5\"" ,
 
-		footertable => "width=\"100%\" bgcolor=\"#000440\"" ,
+		footer => "width=\"100%\" bgcolor=\"#000fb5\"" ,
 		footerpre => "<center><font face=\"verdana, arial\" size=\"-2\">" ,
 		footerpost => "</font></center>",
 
-		navtable => "width=\"100%\" bgcolor=\"#000fb5\"" ,
+		nav => "bgcolor=\"#000fb5\" width=\"15%\" valign=\"top\"" ,
 		navpre => "<font face=\"verdana, arial\" size=\"+1\"><strong>" ,
 		navpost => "</strong></font>" ,
 
-		plugstable => "width=\"100%\"" ,
+		snav => "valign=\"top\"" ,
+		snavpre => "<font size=\"-1\">" ,
+		snavpost => "</font>" ,
+
+		plugs => "width=\"100%\"" ,
 		plugspre => "<center>" ,
 		plugspost => "</center>" ,
 
-		newstable => "width=\"100%\" bgcolor=\"#00087f\" cellspacing=\"1\"" ,
-		newstitletable => "width=\"100%\" bgcolor=\"#00087f\"" ,
+		news => "width=\"100%\" bgcolor=\"#00087f\" cellspacing=\"1\"" ,
+		newstitle => "width=\"100%\" bgcolor=\"#00087f\"" ,
 		newstitlepre => "<div align=right><font face=\"verdana,arial\" " .
 				"size=\"-1\">" ,
 		newstitletablepost => "</font></div>" ,
-		newscontenttable => "width=\"100%\" bgcolor=\"#000440\"" ,
+		newscontent => "width=\"100%\" bgcolor=\"#000440\"" ,
 		newscontentpre => "<font face=\"verdana, arial\">" ,
 		newscontentpost => "</font>" ,
 
-		titletable => "width=\"100%\"" ,
+		title => "width=\"100%\"" ,
 		titlepre => "<font face=\"verdana,arial\" size=\"+3\"><strong>" ,
 		titlepost => "</strong></font><img width=\"100%\" height=\"1\" " .
 			"src=\"/images/whitepix.gif\" alt=\"------\">\n<img " .
 			"width=\"100%\" height=\"10\" src=\"/images/clearpix.gif\" " .
 			"alt=\"\">" ,
 
-		paratable => "width=\"100%\" cellspacing=\"10\"" ,
+		para => "width=\"100%\" cellspacing=\"10\"" ,
 		parapre => "<font face=\"verdana,arial\">" ,
 		parapost => "</font>" ,
 		
-		subtable => "width=\"100%\" cellspacing=\"10\"" ,
+		sub => "width=\"100%\" cellspacing=\"10\"" ,
 		subpre => "<img width=\"100%\" height=\"5\" " .
 			"src=\"/images/clearpix.gif\" alt=\"\">" .
 			"<font face=\"verdana,arial\" size=\"+2\"><strong>" ,
@@ -51,9 +55,9 @@
 <style type="text/css">
 <!--
 body {
-   background: #000000;
-   color: #ffffff;
-   font: 100% verdana, sans-serif;
+	background: #000000;
+	color: #ffffff;
+	font: 100% verdana, sans-serif;
 }
 
 a {
@@ -62,35 +66,42 @@ a {
 }
 
 
-div.header {
-	width: 100%;
-	background: #000440
-		url(/images/hdrbar.jpg)
+td.header {
+	background: #00087f
+		url(/images/border.jpg)
 		repeat-y;
 }
 
-div.footer {
-   width: 100%;
-   background: #000440;
-   margin-top: 10px;
-   border-top: 5px solid #000440;
-   border-bottom: 5px solid #000440;
-   text-align: center;
-   font-size: 80%;
+td.footer {
+	background: #00087f
+		url(/images/border.jpg)
+		repeat-y;
+	margin-top: 10px;
+	text-align: center;
+	font-size: 80%;
+}
+
+td.side {
+	width: 15%;
+	background: #00087f
+		url(/images/border.jpg)
+		repeat-y;
+	vertical-align: top;
+	color: white;
 }
 
 div.nav {
-	width: 100%;
-	background: #000fb5;
-	border-bottom: solid 2px #000fb5;
-	color: white;
 	font: bolder 110% verdana, sans-serif;
+}
+
+div.snav {
+	font: bolder 90% verdana, sans-serif;
 }
 
 div.news {
 	margin: 10px;
 	background: #000440;
-	border: solid 1px #00087f;
+	border: solid 2px #00087f;
 }
 div.newstitle {
 	background: #00087f;
@@ -125,14 +136,50 @@ div.sub {
 -->
 </style>
 		<?php
+	} else {
+		?>
+<style type="text/css">
+<!--
+a {
+	// No harm in TRYING to get rid of the underline, is there?
+	color: #0080ff;
+	text-decoration: none;
+}		
+-->
+</style>
+		<?php
 	}
 
 	$nav_items = array (
-		News => "/index.php" ,
-		Downloads => "/files/index.php" ,
-		Development => "/devel/index.php" ,
-		Links => "/links.php" ,
-		Contact => "/contact.php"
+		News => array (
+			News => "/index.php"
+		) ,
+		Downloads => array (
+			Downloads => "/files/index.php"
+		) ,
+		Development => array (
+			Development => "/devel/index.php" ,
+			Overview => "/devel/overview.php" ,
+			Credits => "/devel/credits.php"
+		) ,
+		Links => array (
+			Links => "/links.php"
+		) ,
+		Contact => array (
+			Contact => "/contact.php"
+		)
 	);
+
+	$userinfo["Knghtbrd"]["name"] = "Joseph Carter";
+	$userinfo["Knghtbrd"]["email"] = "knghtbrd@debian.org";
+	$userinfo["zinx"]["name"] = "Zinx Verituse";
+	$userinfo["zinx"]["email"] = "zinx@magenet.net";
+	$userinfo["LordHavoc"]["name"] = "Forest Hale";
+	$userinfo["LordHavoc"]["email"] = "lordhavoc@users.sourceforge.net";
+	$userinfo["Vic"]["name"] = "Victor Luchits";
+	$userinfo["Vic"]["email"] = "digiman@users.sourceforge.net";
+
+	// Add yourself above!
+	
 ?>
 
