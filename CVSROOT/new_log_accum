@@ -26,7 +26,6 @@
 use strict;
 
 use vars qw($MAILER $CVS $debug $boundary);
-use Time::HiRes;
 use MD5;
 
 # Set this to the full path of a mailer that takes a list
@@ -329,7 +328,7 @@ sub build_header ($@) {
 	# current time
 	$digest = new MD5;
 	$digest->reset();
-	$digest->add(Time::HiRes::time());
+	$digest->add(time() . rand());
 	$boundary = "----=MIME." . unpack("H*", $digest->digest());
 	
 	# Build the mail header
