@@ -380,6 +380,212 @@ void WritePCX(char *filename, unsigned char *data, int width, int height, unsign
 	free(pcx);
 }
 
+void WriteTGA(char *filename, unsigned char *data, int width, int height, const unsigned char *palettergb)
+{
+	int maxrun, run, c, x, y;
+	unsigned char *buffer, *in, *end, *out, *flipdata;
+
+	// flip the image first
+	// (the top left origin mode is not supported by Quake's TGA loader)
+	flipdata = malloc(width*height);
+
+	for (y = 0;y < height;y++)
+	{
+		in = data + (height - 1 - y) * width;
+		out = flipdata + y * width;
+		for (x = 0;x < width;x++)
+			*out++ = *in++;
+	}
+
+	for (c = 0;c < width*height;c++)
+		if (flipdata[c] == 255)
+			break;
+	if (c < width*height)
+	{
+		// contains transparent pixels
+		// BGRA truecolor since some programs can't deal with BGRA colormaps
+		// a buffer big enough to store the worst compression ratio possible (1 extra byte per pixel)
+		buffer = malloc(18+width*height*5);
+
+		memset (buffer, 0, 18);
+		buffer[2] = 10;		// RLE truecolor
+		buffer[12] = (width >> 0) & 0xFF;
+		buffer[13] = (width >> 8) & 0xFF;
+		buffer[14] = (height >> 0) & 0xFF;
+		buffer[15] = (height >> 8) & 0xFF;
+		buffer[16] = 32;	// pixel size
+		buffer[17] = 8; // 8 attribute bits per pixel, bottom left origin
+		out = buffer + 18;
+
+		// copy image
+		in = flipdata;
+		end = flipdata + width*height;
+		while (in < end)
+		{
+			maxrun = end - in;
+			if (maxrun > 128)
+				maxrun = 128;
+			if (maxrun >= 2 && in[1] == in[0])
+			{
+				// run a loop that stops when the next byte is not the same
+				for (run = 1;run < maxrun && in[run] == in[0];run++);
+				*out++ = 0x80 + (run - 1);
+				if (in[0] == 255)
+				{
+					*out++ = 0;
+					*out++ = 0;
+					*out++ = 0;
+					*out++ = 0;
+				}
+				else
+				{
+					*out++ = palettergb[in[0]*3+2];
+					*out++ = palettergb[in[0]*3+1];
+					*out++ = palettergb[in[0]*3+0];
+					*out++ = 255;
+				}
+				in += run;
+			}
+			else
+			{
+				// run a loop that stops when the next two bytes are the same
+				for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
+				*out++ = 0x00 + (run - 1);
+				for (c = 0;c < run;c++)
+				{
+					if (in[0] == 255)
+					{
+						*out++ = 0;
+						*out++ = 0;
+						*out++ = 0;
+						*out++ = 0;
+					}
+					else
+					{
+						*out++ = palettergb[in[0]*3+2];
+						*out++ = palettergb[in[0]*3+1];
+						*out++ = palettergb[in[0]*3+0];
+						*out++ = 255;
+					}
+					in++;
+				}
+			}
+		}
+	}
+	else
+	{
+#if 1
+		buffer = malloc(18+width*height*4);
+
+		memset (buffer, 0, 18);
+		buffer[2] = 10;		// RLE truecolor
+		buffer[12] = (width >> 0) & 0xFF;
+		buffer[13] = (width >> 8) & 0xFF;
+		buffer[14] = (height >> 0) & 0xFF;
+		buffer[15] = (height >> 8) & 0xFF;
+		buffer[16] = 24;	// pixel size
+		buffer[17] = 0; // 0 attribute bits per pixel, bottom left origin
+		out = buffer + 18;
+
+		// copy image
+		in = flipdata;
+		end = flipdata + width*height;
+		while (in < end)
+		{
+			maxrun = end - in;
+			if (maxrun > 128)
+				maxrun = 128;
+			if (maxrun >= 2 && in[1] == in[0])
+			{
+				// run a loop that stops when the next byte is not the same
+				for (run = 1;run < maxrun && in[run] == in[0];run++);
+				*out++ = 0x80 + (run - 1);
+				*out++ = palettergb[in[0]*3+2];
+				*out++ = palettergb[in[0]*3+1];
+				*out++ = palettergb[in[0]*3+0];
+				in += run;
+			}
+			else
+			{
+				// run a loop that stops when the next two bytes are the same
+				for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
+				*out++ = 0x00 + (run - 1);
+				for (c = 0;c < run;c++)
+				{
+					*out++ = palettergb[in[0]*3+2];
+					*out++ = palettergb[in[0]*3+1];
+					*out++ = palettergb[in[0]*3+0];
+					in++;
+				}
+			}
+		}
+#else
+		// contains only opaque pixels
+		// a buffer big enough to store the worst compression ratio possible (2 bytes per pixel)
+		buffer = malloc(18+768+width*height*2);
+
+		memset (buffer, 0, 18);
+		buffer[1] = 1; // colormap type 1
+		buffer[2] = 9;		// RLE compressed colormapped
+		// colormap_index
+		buffer[3] = (0 >> 0) & 0xFF;
+		buffer[4] = (0 >> 8) & 0xFF;
+		// colormap_length
+		buffer[5] = (256 >> 0) & 0xFF;
+		buffer[6] = (256 >> 8) & 0xFF;
+		// colormap_size
+		buffer[7] = 24; // 32bit BGRA colormap entries
+		buffer[12] = (width >> 0) & 0xFF;
+		buffer[13] = (width >> 8) & 0xFF;
+		buffer[14] = (height >> 0) & 0xFF;
+		buffer[15] = (height >> 8) & 0xFF;
+		buffer[16] = 8;	// pixel size
+		buffer[17] = 0; // 0 attribute bits per pixel, origin bottom left
+		out = buffer + 18;
+
+		// store BGRA palette of 256 RGB colors
+		for (c = 0;c < 256;c++)
+		{
+			*out++ = palettergb[c*3+2];
+			*out++ = palettergb[c*3+1];
+			*out++ = palettergb[c*3+0];
+		}
+
+		// copy image
+		in = flipdata;
+		end = flipdata + width*height;
+		while (in < end)
+		{
+			maxrun = end - in;
+			if (maxrun > 128)
+				maxrun = 128;
+			if (maxrun >= 2 && in[1] == in[0])
+			{
+				// run a loop that stops when the next byte is not the same
+				for (run = 1;run < maxrun && in[run] == in[0];run++);
+				*out++ = 0x80 + (run - 1);
+				*out++ = in[0];
+				in += run;
+			}
+			else
+			{
+				// run a loop that stops when the next two bytes are the same
+				for (run = 1;run < maxrun && (run >= maxrun - 1 || in[run+1] != in[run]);run++);
+				*out++ = 0x00 + (run - 1);
+				for (c = 0;c < run;c++)
+					*out++ = *in++;
+			}
+		}
+#endif
+	}
+
+	writefile(filename, buffer, out - buffer);
+
+	free(buffer);
+
+	free(flipdata);
+}
+
 
 unsigned char quakepalette[768] =
 {
@@ -550,7 +756,7 @@ void ConvertWAD(char *filename)
 	wad = (void *)waddata;
 	if (memcmp(wad->identification, "WAD2", 4))
 	{
-		printf("ConvertWAD: \"%s\" is not a wad file\n", filename);
+		printf("ConvertWAD: \"%s\" is not a quake wad2 file\n", filename);
 		return;
 	}
 	numlumps = LittleLong(wad->numlumps);
@@ -558,69 +764,88 @@ void ConvertWAD(char *filename)
 	lump = (void *)((int) waddata + wad->infotableofs);
 	for (i = 0;i < numlumps;i++, lump++)
 	{
-		wad_cleanname(lump->name, tempname);
 		if (lump->compression != CMP_NONE)
 		{
-			printf("lump \"%s\" is compressed, compression is unsupported\n", tempname);
+			printf("lump \"%s\" is compressed, compression is unsupported\n", lump->name);
 			continue;
 		}
 		data = lump->filepos + (unsigned char *) waddata;
 		size = lump->disksize;
+		wad_cleanname(lump->name, tempname);
+		// conchars = weird
+		if (!strcmp(tempname, "conchars"))
+		{
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".bin");
+			writefile(tempname, data, size);
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".pcx");
+			WritePCX(tempname, data, 128, 128, quakepalette);
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".tga");
+			WriteTGA(tempname, data, 128, 128, quakepalette);
+			continue;
+		}
 		switch(lump->type)
 		{
 		case TYP_NONE:
-			printf("encountered lump type 'NONE' named \"%s\"\n", tempname);
+			printf("encountered lump type 'NONE' named \"%s\"\n", lump->name);
 			break;
 		case TYP_LABEL:
-			printf("encountered lump type 'LABEL' named \"%s\"\n", tempname);
+			printf("encountered lump type 'LABEL' named \"%s\"\n", lump->name);
 			break;
 		case TYP_LUMPY:
-//			printf("encountered lump type 'LUMPY' named \"%s\"\n", tempname);
+//			printf("encountered lump type 'LUMPY' named \"%s\"\n", lump->name);
+			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".bin");
 			writefile(tempname, data, size);
 			break;
 		case TYP_QTEX:
-			printf("encountered lump type 'QTEX' named \"%s\"\n", tempname);
+			printf("encountered lump type 'QTEX' named \"%s\"\n", lump->name);
 			break;
 		case TYP_QPIC:
-//			printf("encountered lump type 'QPIC' named \"%s\"\n", tempname);
-			strcat(tempname, ".pcx");
+//			printf("encountered lump type 'QPIC' named \"%s\"\n", lump->name);
 			width = LittleLong(((int *)data)[0]);
 			height = LittleLong(((int *)data)[1]);
 			if (width < 0 || height < 0 || width > 512 || height > 512)
 			{
-				printf("\"%s\" is not a valid qpic\n", tempname);
+				printf("\"%s\" is not a valid qpic\n", lump->name);
 				continue;
 			}
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".lmp");
+			writefile(tempname, data, size);
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".pcx");
 			WritePCX(tempname, data+8, width, height, quakepalette);
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".tga");
+			WriteTGA(tempname, data+8, width, height, quakepalette);
 			break;
 		case TYP_SOUND:
-			printf("encountered lump type 'SOUND' named \"%s\"\n", tempname);
+			printf("encountered lump type 'SOUND' named \"%s\"\n", lump->name);
 			break;
 		case TYP_MIPTEX:
-//			printf("encountered lump type 'MIPTEX' named \"%s\"\n", tempname);
-			if (!strcmp(tempname, "conchars"))
+//			printf("encountered lump type 'MIPTEX' named \"%s\"\n", lump->name);
+			width = LittleLong(((int *)data)[4]);
+			height = LittleLong(((int *)data)[5]);
+			if (width < 0 || height < 0 || width > 512 || height > 512)
 			{
-				strcat(tempname, ".pcx");
-				WritePCX(tempname, data, 128, 128, quakepalette);
+				printf("\"%s\" is not a valid miptex\n", lump->name);
+				continue;
 			}
-			else
-			{
-				strcat(tempname, ".mip");
-				writefile(tempname, data, size);
-				strcat(tempname, ".pcx");
-				width = LittleLong(((int *)data)[4]);
-				height = LittleLong(((int *)data)[5]);
-				if (width < 0 || height < 0 || width > 512 || height > 512)
-				{
-					printf("\"%s\" is not a valid miptex\n", tempname);
-					continue;
-				}
-				WritePCX(tempname, data+40, width, height, quakepalette);
-			}
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".mip");
+			writefile(tempname, data, size);
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".pcx");
+			WritePCX(tempname, data+40, width, height, quakepalette);
+			wad_cleanname(lump->name, tempname);
+			strcat(tempname, ".tga");
+			WriteTGA(tempname, data+40, width, height, quakepalette);
 			break;
 		default:
-			printf("encountered unknown lump type named \"%s\"\n", tempname);
+			printf("encountered unknown lump type named \"%s\"\n", lump->name);
 			break;
 		}
 	}
