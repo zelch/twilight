@@ -988,6 +988,12 @@ string(float n) argv = #442;
 //description:
 //shows that the engine supports the "play2" console command (plays a sound without spatialization).
 
+//PXQ_GFX_LETTERBOX
+//idea: PXQuake
+//darkplaces implementation: LordHavoc
+//description:
+//shows that the engine supports the "r_letterbox" console variable, set to values in the range 0-100 this restricts the view vertically (and turns off sbar and crosshair), value is a 0-100 percentage of how much to constrict the view, <=0 = normal view height, 25 = 75% of normal view height, 50 = 50%, 75 = 25%, >=100 = no view
+
 //TENEBRAE_GFX_DLIGHTS
 //idea: Tenebrae
 //darkplaces implementation: LordHavoc
