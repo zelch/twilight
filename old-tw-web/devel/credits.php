@@ -14,9 +14,10 @@
 
 	$authors = file ($pageroot . "/../cvs-snap/twilight/AUTHORS");
 
+	$endofheader = false;
 	function print_author ($item, $key)
 	{
-		static $endofheader = false;
+		global $endofheader;
 		if ($endofheader) {
 			box ("line", htmlify_line ($item));
 		}
