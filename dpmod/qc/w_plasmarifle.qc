@@ -8,7 +8,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaRifl
 		deathstring3 = attacker.netname;
 		deathstring4 = "'s plasma rifle";
 		if (targ.bodyhealth < 1)
-			deathstring3 = " was splattered by ";
+			deathstring2 = " was splattered by ";
 	}
 	else
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
