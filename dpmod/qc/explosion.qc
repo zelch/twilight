@@ -26,7 +26,7 @@ void() explosionfx_precache =
 void() harmlessfireball_think =
 {
 	self.nextthink = time + 0.01;
-	self.angles = vectoangles(self.velocity);
+	self.angles = vectoangles(self.velocity) + '90 0 0';
 	if (time > self.cnt)
 		remove(self);
 };
@@ -36,7 +36,7 @@ void(vector org, vector vel, float lifetime) SpawnHarmlessFireball =
 	newmis = spawn();
 	newmis.classname = "harmlessfireball";
 	setorigin(newmis, org);
-	setmodel(newmis, "progs/fireball.mdl");
+	setmodel(newmis, "progs/flame2.mdl");
 	setsize (newmis, '0 0 0', '0 0 0');
 	newmis.velocity = vel;
 	newmis.think = harmlessfireball_think;
@@ -45,6 +45,16 @@ void(vector org, vector vel, float lifetime) SpawnHarmlessFireball =
 	newmis.solid = SOLID_NOT;
 	newmis.movetype = MOVETYPE_BOUNCE;
 	newmis.effects = EF_ADDITIVE;
+};
+
+.float anim_fps;
+.float anim_endtime;
+void() explosionanimate =
+{
+	self.nextthink = time;
+	self.frame = self.frame + self.anim_fps * frametime;
+	if (time > self.anim_endtime)
+		remove(self);
 };
 
 void(entity e, float damg, float force, float radius, entity ignore, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) BecomeExplosion =
@@ -82,15 +92,23 @@ void(entity e, float damg, float force, float radius, entity ignore, string dt, 
 		te_explosionrgb(e.origin, explosioncolor);
 
 	T_RadiusDamage(e, e.owner, damg, force, radius, world, dt, DT_EXPLOSION, obitfunc);
-	remove(e);
+	//remove(e);
 
 	v = findbetterlocation3(org); // move animation away from walls
 	// TODO: make caller do the sprite effect so this can go away
 	//effect(v, "progs/s_explod.spr", 0, 6, 10);
-	if (game == GAME_NEXUIZ)
-		effect(v, "models/sprites/dpexplosion1.spr32", 0, 20, 40);
-	else
-		effect(v, "progs/dpexplosion.spr32", 0, 20, 40);
+	//if (game == GAME_NEXUIZ)
+	//	effect(v, "models/sprites/dpexplosion1.spr32", 0, 20, 40);
+	//else
+	//	effect(v, "progs/dpexplosion.spr32", 0, 20, 40);
+	setorigin(e, v);
+	setmodel(e, "progs/dpexplosion.spr32");
+	e.frame = 0;
+	e.anim_fps = 40;
+	e.anim_endtime = time + 0.5;
+	e.think = explosionanimate;
+	e.nextthink = time;
+	e.velocity = '0 0 0';
 
 	/*
 	// LordHavoc: HACKY HACKY, experimental!!

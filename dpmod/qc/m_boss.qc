@@ -239,7 +239,7 @@ void(vector p) boss_missile =
 
 	vec = normalize (d - org);
 
-	LaunchFireball(org, vec * shotspeed, self, 90, 90, 110, self.deathtype, Obituary_Generic);
+	LaunchFireball(org, vec * shotspeed, self, 30, 30, 110, 60, 90, self.deathtype, Obituary_Generic);
 	newmis.movetype = MOVETYPE_FLYMISSILE;
 	sound (self, CHAN_WEAPON, "boss1/throw.wav", 1, ATTN_NORM);
 

@@ -80,18 +80,10 @@ void() Fire_burnthink =
 			sound (self, CHAN_WEAPON, "fire/burn.wav", 1, ATTN_NORM);
 			self.pain_finished = time + 0.5;
 		}
-		a = 4;b = 4;
-		// nothing to burn
-		if (self.enemy.takedamage == DAMAGE_NO) {a = b = 10;}
-		//// for sake of single-player
-		//if (self.enemy.flags & FL_MONSTER) {a = b = 5;}
-		//// for better 'viewing' of burning gibs/whatever :)
-		//if (self.enemy.iscorpse) {a = 10;b = 0;}
-		////if (self.enemy.isgib) {a = 10;b = 0;}
-		if (a == b)
+		a = 4; // 40 damage per second
 		if (a > self.cnt)
-			a = b = self.cnt;
-		self.cnt = self.cnt - b;
+			a = self.cnt;
+		self.cnt = self.cnt - a;
 		if (self.enemy.classname != "monster_hell_knight") // immune
 		if (self.enemy.takedamage)
 		{
@@ -180,33 +172,44 @@ float(entity victim, entity attacker, float amount, string dt, vector v) SpawnFi
 T_BurnRadius
 ============
 */
-/*
-float(entity inflictor, entity attacker, float damage, float mburn, entity ignore, string dt) T_BurnRadius =
+float(entity inflictor, entity attacker, float damage, float radius, float mburn, entity ignore, string dt) T_BurnRadius =
 {
-	local   float   points, p, c, dist;
+	local   float   points, p, c, dist, totalpoints;
 	local   entity  head;
+
+	traceline(inflictor.origin, inflictor.origin, TRUE, world);
+	if (trace_startsolid)
+	{
+		dprint("T_BurnRadius: inflictor in a solid\n");
+		return 0; // uh, it's in a wall, uh, lets be as sensible as we can in this strange situation...
+	}
 
 	if (damage > mburn)
 		damage = mburn;
 
-	head = findradius(inflictor.origin, damage+300);
+	head = findradius(inflictor.origin, radius);
 
+	totalpoints = 0;
 	while (head)
 	{
 		if (head.takedamage)
 		if (head.solid != SOLID_BSP)
 		if (head != ignore)
 		{
-			points = RadDamage(head, ignore, inflictor.origin, damage, 3, 0.01);
+			points = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 3);
 			if (points > damage)
 				points = damage;
 			if (head.flame.classname == "fire")
 			if ((head.flame.cnt + points) >= mburn)
 				points = mburn - head.flame.cnt;
 			if (points > 0)
+			{
+				totalpoints = totalpoints + points;
 				SpawnFire(head, attacker, points, dt, head.origin);
+			}
 		}
 		head = head.chain;
 	}
+	return totalpoints;
 };
-*/
+

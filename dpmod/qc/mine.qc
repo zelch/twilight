@@ -3,9 +3,10 @@ float MINE_LASERTRIP = 1;
 float MINE_PROXIMITY = 2;
 float MINE_IMMUNETODAMAGE = 4;
 float MINE_TENWARHEAD = 8;
-float MINE_FIVEWARHEAD = 64;
 float MINE_DETONATABLE = 16;
 float MINE_HOP = 32;
+float MINE_FIVEWARHEAD = 64;
+float MINE_IMPACTCREATURE = 128;
 
 .float activemines;
 void() MineExplode =
@@ -121,14 +122,15 @@ void() MineThink =
 			return;
 		}
 		if (self.weapon & (MINE_PROXIMITY | MINE_LASERTRIP))
+		if (time > self.cnt2)
 		{
-			head = findradius(self.origin, self.dmg2 * 0.5);
+			head = findradius(self.origin, self.dmg2 * 0.25);
 			while (head)
 			{
 				if ((head.flags & FL_MONSTER) || head.classname == "player")
-				if (head != self.owner)
-				if (head.team == 0 || head.team != self.owner.team || teamplay == 0)
-				if (head != self.enemy)
+				//if (head != self.owner)
+				//if (head.team == 0 || head.team != self.owner.team || teamplay == 0)
+				//if (head != self.enemy)
 				{
 					traceline(head.origin, self.origin, TRUE, world);
 					if (trace_fraction == 1)
@@ -155,7 +157,7 @@ void() MineThink =
 				self.dest = trace_endpos;
 				if (trace_ent)
 				if ((trace_ent.flags & FL_MONSTER) || trace_ent.classname == "player")
-				if (trace_ent.team == 0 || trace_ent.team != self.owner.team)
+				//if (trace_ent.team == 0 || trace_ent.team != self.owner.team)
 				{
 					// trigger
 					self.count = time + 1000;
@@ -177,6 +179,7 @@ void(entity targ) MineAttach =
 		self.solid = SOLID_BBOX;
 	else
 		self.solid = SOLID_TRIGGER;
+	self.cnt2 = time + self.cnt2;
 	setsize(self, '-8 -8 -8', '8 8 8');
 	// set up the follow parameters
 	self.aiment = targ;
@@ -276,7 +279,7 @@ void() MineTouch =
 			if (!other.takedamage)
 				return;
 		}
-		if (self.weapon & (MINE_PROXIMITY | MINE_LASERTRIP))
+		if (self.weapon & (MINE_IMPACTCREATURE))
 		{
 			MineExplode();
 			return;
@@ -287,7 +290,7 @@ void() MineTouch =
 	}
 };
 
-void(vector org, vector vel, entity own, float damage, float force, float damage2, float impactdamage, float impactbodydamage, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMine =
+void(vector org, vector vel, entity own, float damage, float force, float damage2, float impactdamage, float impactbodydamage, float type, float lifetime, float armdelay, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMine =
 {
 	local   vector  v;
 	DelayGibComment();      // make him wait before commenting on gibs so it's not drown out by explosions etc
@@ -324,6 +327,7 @@ void(vector org, vector vel, entity own, float damage, float force, float damage
 	}
 	// set newmis duration
 	newmis.cnt = time + lifetime;
+	newmis.cnt2 = armdelay;
 	newmis.deathtype = dethtype;
 	newmis.obitfunc1 = obitfunc;
 	newmis.weapon = type;

@@ -1,6 +1,6 @@
 
 void(vector org, vector vel, entity own, float damage, float force, float damage2, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchGrenade;
-void(vector org, vector vel, entity own, float damg, float force, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchFireball;
+void(vector org, vector vel, entity own, float damg, float force, float blastradius, float burndamg, float mburn, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchFireball;
 
 void() SmallFireballExplode =
 {

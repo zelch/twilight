@@ -68,6 +68,7 @@ float   AMMO_GRUNT_NAILGUN_ROUNDS       =   20;
 float   AMMO_ENFORCER_ROCKETS           =    5;
 float   AMMO_ENFORCER_PLASMACELLS       =   20;
 float   AMMO_ENFORCER_LASERCELLS        =   10;
+float   AMMO_ENFORCER_FLAMERCELLS       =   10;
 float   AMMO_OGRE_GRENADES              =    5;
 
 // respawn times
@@ -120,6 +121,11 @@ float   DMG_ENFORCER_PLASMA_RADIUS      =   20;
 float   DMG_ENFORCER_ROCKET_DAMAGE      =   60;
 float   DMG_ENFORCER_ROCKET_FORCE       =   60;
 float   DMG_ENFORCER_ROCKET_RADIUS      =  100;
+float   DMG_ENFORCER_FLAMER_DAMAGE      =   20;
+float   DMG_ENFORCER_FLAMER_FORCE       =   20;
+float   DMG_ENFORCER_FLAMER_BURNDAMAGE  =   70;
+float   DMG_ENFORCER_FLAMER_BURNLIMIT   =   90;
+float   DMG_ENFORCER_FLAMER_RADIUS      =  100;
 float   DMG_TARBABY_DAMAGE              =   90;
 float   DMG_TARBABY_FORCE               =   90;
 float   DMG_TARBABY_RADIUS              =  200;

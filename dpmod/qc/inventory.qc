@@ -260,6 +260,16 @@ void() ItemClass_RegisterDefaultClasses =
 	//item.bulkpercount = 0.1;
 	item.items = IT_WEAPON3;
 
+	item = ItemClass_Register("flamer");
+	setmodel(item, "progs/backpack.mdl");
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.count1 = 1;
+	//item.bulkbase = 0;
+	//item.bulkpercount = 0.1;
+	item.items = IT_WEAPON8;
+
 	item = ItemClass_Register("axe");
 	setmodel(item, "progs/backpack.mdl");
 	item.mdl = item.model;

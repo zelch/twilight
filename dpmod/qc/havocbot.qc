@@ -297,33 +297,11 @@ void() havocbot_serverframe =
 		}
 		self = saveself;
 	}
+	havocbots = cvar("bots");
 	if (havoccurrentbots < havocbots)
 		havocbot_new();
 	else if (havoccurrentbots > havocbots)
 		havocbot_removenewest();
-};
-
-void(float howmany) havocbot_add =
-{
-	if (howmany < 1)
-		return;
-	if (!coop && !deathmatch)
-	{
-		sprint(self, "Sorry, can't spawn bots in singleplayer, please set deathmatch 1 first.\n");
-		return;
-	}
-	havocbots = havocbots + howmany;
-	if (havocbots > 32)
-		havocbots = 32;
-};
-
-void(float howmany) havocbot_remove =
-{
-	if (howmany < 1)
-		return;
-	havocbots = havocbots - howmany;
-	if (havocbots < 0)
-		havocbots = 0;
 };
 
 //float   WP_JUMP = 1;
@@ -1128,18 +1106,13 @@ void() havocbot_aim =
 		return;
 	self.nextaim = time + 0.1;
 	self.ping = self.ping + (((4 - skill) * 0.1 + random() * 0.05) - self.ping) * frametime * 3;
-	if (self.enemy != world)
-	{
-		selfvel = self.velocity;
-		if (!self.waterlevel)
-			selfvel_z = 0;
-		enemyvel = self.enemy.velocity;
-		if (!self.enemy.waterlevel)
-			enemyvel_z = 0;
-		lag_additem(time + self.ping, 0, 0, self.enemy, self.origin, selfvel, self.enemy.origin, enemyvel);
-	}
-	else
-		lag_additem(time + self.ping, 0, 0, world, '0 0 0', '0 0 0', '0 0 0', '0 0 0');
+	selfvel = self.velocity;
+	if (!self.waterlevel)
+		selfvel_z = 0;
+	enemyvel = self.enemy.velocity;
+	if (!self.enemy.waterlevel)
+		enemyvel_z = 0;
+	lag_additem(time + self.ping, 0, 0, self.enemy, self.origin, selfvel, self.enemy.origin, enemyvel);
 };
 
 .entity aimtarg;
@@ -1157,6 +1130,14 @@ void(float t, float f1, float f2, entity e1, vector v1, vector v2, vector v3, ve
 	self.aimtargorigin = v3;
 	self.aimtargvelocity = v4;
 };
+
+/*
+void() havocbot_doaim =
+{
+	local entity targ;
+	targ = self.aimtarg;
+};
+*/
 
 /*
 .float painintensity;
@@ -1355,8 +1336,10 @@ void(entity e) waypointspawnforitem =
 
 void() havocbot_impulses =
 {
-	     if (self.impulse == 101) {havocbot_add(1);self.impulse = 0;}
-	else if (self.impulse == 102) {havocbot_remove(1);self.impulse = 0;}
+	local float f;
+	local string s;
+	     if (self.impulse == 101) {f = cvar("bots") + 1;f = bound(0, f, 32);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
+	else if (self.impulse == 102) {f = cvar("bots") - 1;f = bound(0, f, 32);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
 };
 
 entity(vector org, vector m1, vector m2) findwaysurface =

@@ -146,15 +146,18 @@ vector(vector targorigin, vector targvelocity, float shotspeed, float shotdelay)
 
 float(float shotspeed, float maxshottime) w_directattackaim =
 {
+	local float f;
 	local vector v;
 	v = w_shotlead(self.aimtargorigin, self.aimtargvelocity, shotspeed, self.aimlatency);
+	bprintvector(v);bprint("\n");
+	f = w_aimdir(v - shotorg, 0.1);
 	if (vlen(v - shotorg) < maxshottime * shotspeed)
 		return FALSE;
 	traceline(shotorg, v, FALSE, self);
 	if (trace_fraction == 1)
-		return w_aimdir(v - shotorg, 0.1);
+		return f;
 	if (w_shouldattack(trace_ent))
-		return w_aimdir(v - shotorg, 0.1);
+		return f;
 	return FALSE;
 };
 
@@ -742,16 +745,16 @@ float ROCKETLAUNCHER_LOADTIME = 0.2;
 float ROCKETLAUNCHER_MAXLOAD = 3;
 float ROCKETLAUNCHER_VELOCITY = 5000;
 float ROCKETLAUNCHER_TRIPLE_VELOCITY = 5000;
-float THUNDERBOLT_CELL_HEALTH = 30;
+float THUNDERBOLT_CELL_HEALTH = 60;
 float THUNDERBOLT_CELL_BODY = 15;
-float THUNDERBOLT_CELLSPERSECOND = 10;
-float PLASMARIFLE_NORMAL_CELL = 30;
+float THUNDERBOLT_CELLSPERSECOND = 5;
+float PLASMARIFLE_NORMAL_CELL = 60;
 float PLASMARIFLE_NORMAL_CELLS = 1;
 float PLASMARIFLE_NORMAL_RADIUS = 80;
 float PLASMARIFLE_NORMAL_VELOCITY = 5000;
-float PLASMARIFLE_NORMAL_REFIRE = 0.1;
-float PLASMARIFLE_SUPER_CELL = 30;
-float PLASMARIFLE_SUPER_CELLS = 7;
+float PLASMARIFLE_NORMAL_REFIRE = 0.2;
+float PLASMARIFLE_SUPER_CELL = 60;
+float PLASMARIFLE_SUPER_CELLS = 4;
 float PLASMARIFLE_SUPER_RADIUS = 80;
 float PLASMARIFLE_SUPER_VELOCITY = 5000;
 float PLASMARIFLE_SUPER_REFIRE = 0.5;
@@ -783,6 +786,26 @@ float LASERRIFLE_CELL = 45;
 float LASERRIFLE_BURST = 3;
 float LASERRIFLE_BURSTREFIRE = 0.1;
 float LASERRIFLE_BETWEENBURSTREFIRE = 0.3;
+float FLAMER_SHOT_VELOCITY = 1200;
+float FLAMER_SHOT_TIME = 1;
+float FLAMER_SHOT_CELLS = 3;
+float FLAMER_SHOT_DAMAGE = 30;
+float FLAMER_SHOT_BURN = 180;
+float FLAMER_SHOT_BURNLIMIT = 2000;
+float FLAMER_SHOT_FORCE = 25;
+float FLAMER_SHOT_RADIUS = 100;
+float FLAMER_SHOT_REFIRE = 0.7;
+float FLAMER_SHOT_COOLDOWN = 0;
+float FLAMER_DROP_VELOCITY = 600;
+float FLAMER_DROP_UPVELOCITY = 200;
+float FLAMER_DROP_SPREAD = 0.1;
+float FLAMER_DROP_TIME = 15;
+float FLAMER_DROP_CELLS = 3;
+float FLAMER_DROP_COUNT = 3;
+float FLAMER_DROP_DAMAGE = 120;
+float FLAMER_DROP_FORCE = 120;
+float FLAMER_DROP_RADIUS = 200;
+float FLAMER_DROP_REFIRE = 0.8;
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Pistol =
 {
@@ -1295,7 +1318,8 @@ float(float request) w_nailgun =
 			Inventory_AdjustQuantity(self, "rockets", -1);
 			w_muzzleflash(shotorg, 1);
 			//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80, 80, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
-			LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 200, 70, 20, 10, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
+			//LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 200, 70, 20, 10, MINE_LASERTRIP, 60, 2, "LASERTRIPMINE", Obituary_NailgunMine);
+			LaunchMine(shotorg, shotdir * 600 + v_up * 200, self, 100, 100, 250, 20, 10, MINE_PROXIMITY, 60, 3, "PROXIMITYMINE", Obituary_NailgunMine);
 			wsetanim(WANIM_FIRE2, 0, 0, 0.6);
 		}
 		return TRUE;
@@ -1347,6 +1371,42 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_ProximityM
 			deathstring2 = " was turned into kibble by his own mine";
 		else
 			deathstring2 = " was thrown into the afterlife by his own mine";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_SuperNailgunGrenade =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring3 = attacker.netname;
+		if (targ.bodyhealth < -150) // gib
+		{
+			deathstring2 = " was turned into a fine red mist by ";
+			deathstring4 = "'s grenade";
+		}
+		else if (targ.bodyhealth < 1) // gib
+		{
+			deathstring2 = " was turned into kibble by ";
+			deathstring4 = "'s grenade";
+		}
+		else
+		{
+			deathstring2 = " was thrown into the afterlife by ";
+			deathstring4 = "'s grenade";
+		}
+	}
+	else if (dtype == DTYPE_SUICIDE)
+	{
+		deathstring1 = targ.netname;
+		if (targ.bodyhealth < -100) // gib
+			deathstring2 = " was turned into a fine red mist by his own grenade";
+		else if (targ.bodyhealth < 1) // gib
+			deathstring2 = " was turned into kibble by his own grenade";
+		else
+			deathstring2 = " was thrown into the afterlife by his own grenade";
 	}
 	else
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
@@ -1430,12 +1490,13 @@ float(float request) w_supernailgun =
 			W_Hostile();
 			sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 			self.wfiretime = time;
-			a = 3;
+			a = 1;
 			if (a > Inventory_Quantity(self, "rockets"))
 				a = Inventory_Quantity(self, "rockets");
 			Inventory_AdjustQuantity(self, "rockets", 0 - a);
 			w_muzzleflash(shotorg, 3);
-			LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100, a * 100, 350, 20, 10, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
+			//LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100, a * 100, 350, 20, 10, MINE_PROXIMITY, 60, 2, "PROXIMITYMINE", Obituary_ProximityMine);
+			LaunchGrenade(shotorg, shotdir * 600 + v_up * 200, self, a * 150, a * 150, 200, GRENADE_IMPACT, 60, "SUPERNAILGUNGRENADE", Obituary_SuperNailgunGrenade);
 			wsetanim(WANIM_FIRE2, 0, 0, 0.6);
 		}
 		return TRUE;
@@ -2143,6 +2204,125 @@ float(float request) w_laserrifle =
 		{
 			self.wload = LASERRIFLE_BURST;
 			wsetanim(WANIM_FIRE1, 1, 0, 0);
+		}
+		return TRUE;
+	}
+	return TRUE;
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Flamer =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was set ablaze by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "'s flamer";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_FlamerShell =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was charred by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "'s firebombs";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_flamer =
+{
+	local float f;
+	local vector v;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/flame2.mdl");
+		precache_model("progs/grenade.mdl");
+		precache_model("progs/s_explode.spr");
+		precache_sound("fire/launch.wav");
+		precache_sound("fire/burn.wav");
+		registerweapon(10, "Flamer", w_flamer, "flamer", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_CELLS, 0, FLAMER_SHOT_VELOCITY, FLAMER_SHOT_DAMAGE / FLAMER_SHOT_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return Inventory_Quantity(self, "cells");
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request == WR_ANIMATIONFINISH)
+	{
+		if (self.wanim_id == WANIM_LOWER)
+			wswitch();
+		else if (self.wanim_id == WANIM_FIRE1)
+		{
+			if (self.button0)
+			if (Inventory_Quantity(self, "cells"))
+			{
+				W_Hostile();
+				sound(self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
+				Inventory_AdjustQuantity(self, "cells", 0 - FLAMER_SHOT_CELLS);
+				w_muzzleflash(shotorg, 1);
+				//LaunchFlamer(self, shotorg, shotdir * FLAMER_SHOT_VELOCITY, FLAMER_SHOT_TIME, FLAMER_SHOT_DAMAGE, FLAMER_SHOT_FORCE, FLAMER_SHOT_RADIUS, "FLAMER", Obituary_Flamer);
+				LaunchFireball(shotorg, shotdir * FLAMER_SHOT_VELOCITY, self, FLAMER_SHOT_DAMAGE, FLAMER_SHOT_FORCE, FLAMER_SHOT_RADIUS, FLAMER_SHOT_BURN, FLAMER_SHOT_BURNLIMIT, "FLAMER", Obituary_Flamer);
+				wsetanim(WANIM_FIRE1, 1, 0, FLAMER_SHOT_REFIRE);
+				return TRUE;
+			}
+			wsetanim(WANIM_FIRE2, 2, 5, FLAMER_SHOT_COOLDOWN);
+		}
+		else
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "cells");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(FLAMER_SHOT_VELOCITY, FLAMER_SHOT_TIME);
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		{
+			if (Inventory_Quantity(self, "cells") >= FLAMER_SHOT_CELLS)
+				wsetanim(WANIM_FIRE1, 1, 0, 0);
+		}
+		else if (self.button3)
+		{
+			if (Inventory_Quantity(self, "cells") >= FLAMER_DROP_CELLS)
+			{
+				W_Hostile();
+				sound(self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
+				Inventory_AdjustQuantity(self, "cells", 0 - FLAMER_DROP_CELLS);
+				w_muzzleflash(shotorg, 1);
+				f = 0;
+				while (f < FLAMER_DROP_COUNT)
+				{
+					f = f + 1;
+					v = (shotdir + randomvec() * FLAMER_DROP_SPREAD) * FLAMER_DROP_VELOCITY + '0 0 1' * FLAMER_DROP_UPVELOCITY;
+					//LaunchFireBomb(self, shotorg, v, FLAMER_DROP_TIME, FLAMER_DROP_DAMAGE, FLAMER_DROP_FORCE, FLAMER_DROP_RADIUS, "FLAMERSHELL", Obituary_FlamerShell);
+					LaunchGrenade(shotorg, v, self, FLAMER_DROP_DAMAGE, FLAMER_DROP_FORCE, FLAMER_DROP_RADIUS, GRENADE_DETONATEONCREATURE, FLAMER_DROP_TIME, "FLAMERSHELL", Obituary_FlamerShell);
+				}
+				wsetanim(WANIM_FIRE2, 1, 6, FLAMER_DROP_REFIRE);
+			}
 		}
 		return TRUE;
 	}
@@ -4730,7 +4910,7 @@ float(float request) w_bomblauncher =
 			sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 			//Inventory_AdjustQuantity(self, "rockets", -1);
 			w_muzzleflash(shotorg, 0);
-			LaunchMine(shotorg, shotdir * 600 + v_up * 200, self, BOMBLAUNCHER_SINGLE_DAMAGE, BOMBLAUNCHER_SINGLE_FORCE, BOMBLAUNCHER_SINGLE_RADIUS, 1, 1, /*MINE_PROXIMITY | */MINE_DETONATABLE, 5, "BOMB", Obituary_Bomb);
+			LaunchMine(shotorg, shotdir * 600 + v_up * 200, self, BOMBLAUNCHER_SINGLE_DAMAGE, BOMBLAUNCHER_SINGLE_FORCE, BOMBLAUNCHER_SINGLE_RADIUS, 1, 1, /*MINE_PROXIMITY | */MINE_DETONATABLE, 5, 0, "BOMB", Obituary_Bomb);
 			newmis.radiusdamage_ownerdamagescale = 0.1;
 			//newmis.th_gib = BombExplodeFireballs;
 			wsetanim(WANIM_FIRE1, 1, 6, BOMBLAUNCHER_SINGLE_REFIRE);
@@ -5280,7 +5460,8 @@ void() W_Precache =
 			w_thunderbolt(WR_REGISTER);
 			w_plasmarifle(WR_REGISTER);
 			w_plasmawave(WR_REGISTER);
-		
+			w_flamer(WR_REGISTER);
+
 			//w_handgrenade(WR_REGISTER);
 			//w_hopper(WR_REGISTER);
 			//w_rifle(WR_REGISTER);
