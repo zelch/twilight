@@ -1,6 +1,6 @@
 {
 "classname" "worldspawn"
-"sky" "dpzoo_sky_"
+"sky" "sky1_dpzoo_"
 "wad" "dpzoo.wad"
 {
 ( 120 216 112 ) ( 120 224 112 ) ( 136 224 112 ) wall1_dpzoo 0 0 0 1.000000 1.000000
