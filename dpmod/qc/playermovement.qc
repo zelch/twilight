@@ -131,7 +131,7 @@ void() SV_PlayerPhysics =
 		// airborn
 		return;
 	}
-		
+
 	// acceleration
 	if (time >= self.teleport_time)
 	{
