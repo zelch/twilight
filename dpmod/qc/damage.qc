@@ -52,13 +52,13 @@ float   AMMO_NAILS                      =   25; // double if big box
 float   AMMO_ROCKETS                    =    5; // double if big box
 float   AMMO_CELLS                      =   14; // double if big box
 
-float   AMMO_GRUNT_PISTOL_ROUNDS        =    5;
-float   AMMO_GRUNT_SHOTGUN_SHELLS       =    2;
-float   AMMO_GRUNT_NAILGUN_ROUNDS       =    5;
-float   AMMO_ENFORCER_ROCKETS           =    2;
-float   AMMO_ENFORCER_PLASMACELLS       =    5;
-float   AMMO_ENFORCER_LASERCELLS        =    5;
-float   AMMO_OGRE_GRENADES              =    2;
+float   AMMO_GRUNT_PISTOL_ROUNDS        =   10;
+float   AMMO_GRUNT_SHOTGUN_SHELLS       =    5;
+float   AMMO_GRUNT_NAILGUN_ROUNDS       =   20;
+float   AMMO_ENFORCER_ROCKETS           =    5;
+float   AMMO_ENFORCER_PLASMACELLS       =   20;
+float   AMMO_ENFORCER_LASERCELLS        =   10;
+float   AMMO_OGRE_GRENADES              =    5;
 
 // respawn times
 float   RESPAWNTIME_AMMO = 20;
@@ -106,7 +106,7 @@ float   DMG_ENFORCER_PLASMA             =   20;
 float   DMG_ENFORCER_ROCKET             =   60;
 float   DMG_ENFORCER_ROCKET_RADIUS      =  100;
 float   DMG_TARBABY                     =   90;
-float   DMG_TARBABY_RADIUS              =  100;
+float   DMG_TARBABY_RADIUS              =  200;
 float   DMG_CHTHON_LAVABALL             =   60;
 float   DMG_CHTHON_LAVABALL_RADIUS      =  100;
 float   DMG_ZOMBIE_CHUNK                =   20;
@@ -122,7 +122,7 @@ float MH_OGRE      =   200;float MB_OGRE      =   250;
 float MH_ROTFISH   =    25;float MB_ROTFISH   =    50;
 float MH_SHALRATH  =   400;float MB_SHALRATH  =   400;
 float MH_SHAMBLER  =  1200;float MB_SHAMBLER  =  1200;
-float MH_TARBABY   =    50;
+float MH_TARBABY   =    20;
 float MH_WIZARD    =    80;float MB_WIZARD    =    70;
 float MH_ZOMBIE    =   200; // explosives do more damage than normal
 
