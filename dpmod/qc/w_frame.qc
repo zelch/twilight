@@ -74,6 +74,24 @@ void() W_WeaponFrame =
 	shotorg = self.origin + self.view_ofs + v_right * 6 - v_up * 6 + v_forward * 15;
 	shotdir = v_forward;
 
+	/*
+	// DP_QC_TRACE_MOVETYPE_HITMODEL test code
+	traceline(shotorg, shotorg + shotdir * 1000, MOVE_NORMAL, self);
+	if (trace_fraction < 1)
+	if (trace_ent.solid == SOLID_SLIDEBOX)
+	{
+		sprint(self, "aiming at slidebox entity ");
+		s = etos(trace_ent);
+		sprint(self, s);
+		sprint(self, " box");
+		traceline(shotorg, shotorg + shotdir * 1000, MOVE_HITMODEL, self);
+		if (trace_fraction < 1)
+		if (trace_ent.solid == SOLID_SLIDEBOX)
+			sprint(self, " model");
+		sprint(self, \n");
+	}
+	*/
+
 	self.idealzoom = 1;
 	if (self.button4)
 		self.idealzoom = 0.2;

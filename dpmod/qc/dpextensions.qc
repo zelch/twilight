@@ -16,6 +16,32 @@ float(string s) checkextension = #99;
 //	ext_setcolor = TRUE;
 //from then on you can check ext_setcolor to know if that extension is available
 
+//DP_QC_TRACE_MOVETYPES
+//idea: LordHavoc
+//darkplaces implementation: id Software
+//constant definitions:
+float MOVE_NORMAL = 0; // same as FALSE
+float MOVE_NOMONSTERS = 1; // same as TRUE
+float MOVE_MISSILE = 2; // save as movement with .movetype == MOVETYPE_FLYMISSILE
+//description:
+//this extension does nothing (do not check for it), it only documents existing MOVE_ values that were never defined in defs.qc, these are passed as the 'nomonsters' parameter to traceline/tracebox
+
+//DP_QC_TRACE_MOVETYPE_WORLDONLY
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//constant definitions:
+float MOVE_WORLDONLY = 3;
+//description:
+//allows traces to hit only world (see DP_QC_TRACE_MOVETYPES for how to use this)
+
+//DP_QC_TRACE_MOVETYPE_HITMODEL
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//constant definitions:
+float MOVE_HITMODEL = 4;
+//description:
+//allows traces to hit alias models (not sprites!) instead of entity boxes (see DP_QC_TRACE_MOVETYPES for how to use this)
+
 // LordHavoc: HIGHLY experimental, do not implement this in other engines
 //DP_CGAME
 //idea: LordHavoc
@@ -271,7 +297,7 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 //replace "visor" "common/nodraw" // this makes the visor mesh invisible
 ////it is not possible to rename tags using this format
 //
-//Or the Quake3 syntax (100% compatible withe Quake3's .skin files):
+//Or the Quake3 syntax (100% compatible with Quake3's .skin files):
 //helmet,progs/test/helmet1.tga // this is a mesh shader replacement
 //teamstripes,progs/test/redstripes.tga
 //visor,common/nodraw // this makes the visor mesh invisible
