@@ -14,7 +14,7 @@ float	modelindex_eyes/*, modelindex_player*/;
 float   modelindex_nogun;
 
 float   VWEP_GENERIC = 0;
-//float   VWEP_AXE = 1;
+float   VWEP_AXE = 1;
 float   VWEP_SHOTGUN = 2;
 float   VWEP_SUPER_SHOTGUN = 3;
 float   VWEP_NAILGUN = 4;
