@@ -1,5 +1,5 @@
 <?php
-	$pageroot = ".";
+	$pageroot = "..";
 	$pagerealm = "Twilight Members";
 	$usertable = "members";
 	$newacct = 0;
