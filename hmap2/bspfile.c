@@ -294,28 +294,6 @@ void AddLump (int lumpnum, void *data, int len)
 	SafeWrite (wadfile, data, (len+3)&~3);
 }
 
-void CheckLightmaps(void)
-{
-	/*
-	int i, l;
-	dface_t *face;
-	if (lightdatasize == 0)
-		return;
-
-	for (i = 0;i < numfaces;i++)
-	{
-		face = dfaces + i;
-		l = face->lightofs - 3;//1000;
-		if (l >= 0)
-		{
-			for (;l < face->lightofs;l++)
-				if (dlightdata[l] != (l & 0xFF))
-					printf("%i = %i\n", l, dlightdata[l]);
-		}
-	}
-	*/
-}
-
 /*
 =============
 WriteBSPFile

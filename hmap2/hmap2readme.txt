@@ -4,7 +4,7 @@ Emails: lordhavoc@ghdigital.com and vic@quakesrc.org
 Websites: http://icculus.org/twilight/darkplaces and http://hkitchen.quakesrc.org
 
 What is it:
-hmap2 is a quake map compiler suite, a combination of qbsp+vis+light+bsp2prt all in one, written by LordHavoc and Vic, it has many new features.
+hmap2 is a quake map compiler suite, a combination of qbsp+vis+light+bsp2prt+bspinfo all in one, written by LordHavoc and Vic, it has many new features.
 
 How to use:
 Basically just this:
@@ -20,7 +20,7 @@ Would recompile the vis data in e1m1, note that bsp2prt automatically makes wate
 (Note that quake prefers paks over regular files, so if you want the new e1m1.bsp to be loaded this would have to be done in a mod directory for quake to actually load it, or assorted other solutions)
 
 Relighting a map:
-hmap2 -light -extra8x8 -intensity 0.5 -radiusscale 2 e1m1
+hmap2 -light -extra8x8 e1m1
 Would make a version of e1m1 with much softer lighting, and higher quality shadows.
 
 See the usage information later in this readme for information on each utility.
@@ -60,9 +60,10 @@ usage: hmap2 [options] sourcefile [destfile]
 Compiles .map to .bsp, does not compile vis or lighting data
 other utilities available:
 -bsp2prt    bsp2prt utility, run -bsp2prt as the first parameter for more
+-bspinfo    bspinfo utility, run -bspinfo as the first parameter for more
 -light      lighting utility, run -light as the first parameter for more
 -vis        vis utility, run -vis as the first parameter for more
-options:
+What the options do:
 -nowater    disable watervis; r_wateralpha in glquake will not work right
 -notjunc    disable tjunction fixing; glquake will have holes between polygons
 -nofill     disable sealing of map and vis, used for ammoboxes
@@ -71,12 +72,20 @@ options:
 -darkplaces allow really big polygons
 -noforcevis don't make a .prt if the map leaks
 
+
 usage: hmap2 -bsp2prt sourcefile
 Makes a .prt file from a .bsp, to allow it to be vised
+What the options do:
+-nowater    disable watervis; r_wateralpha in glquake will not work right
+
+
+usage: hmap2 -bspinfo sourcefile
+Prints information about a .bsp file
+
 
 usage: hmap2 -vis [options] bspfile
 Compiles visibility data in a .bsp, needs a .prt file
-options:
+What the options do:
 -level 0-4      quality, default 4
 -fast           fast but bad quality vis
 -v              verbose
@@ -88,6 +97,7 @@ options:
 -noambientlava  disable ambient lava sounds (unused by quake)
 -noambientsky   disable ambient sky sounds (wind)
 -noreuse        disable merging of identical vis data (less compression)
+
 
 usage: hmap2 -light [options] bspfile
 Compiles lighting data in a .bsp and also makes .lit colored lighting data
@@ -120,16 +130,22 @@ Options from here on are incompatible with darkplaces realtime lighting mode
 
 Vic's changes:
 general:
-hmap2 is hqbsp + hlight + hvis + bsp2prt combined
+hmap2 is hqbsp + hlight + hvis + bsp2prt + bspinfo combined
 fixed memory leaks
 general code cleanup
 rewrote many parts of the code to run faster and be easier to read
 bsp2prt allows maps to be re-vised
+bspinfo prints info about compiled maps
 qbsp:
 no hull files
 support for maps where "worldspawn" is not the first entity
 support for "func_group" entities
 reduced memory usage
+hqbsp now properly calculates node bounding boxes making them much smaller for non-axial 
+planes (this means maps run faster in engines other than darkplaces; darkplaces already did this on loading)
+detects and skips degenerate edges
+corrected CheckWindingArea for portals area checking
+precise .prt files output (may fix some vis errors on complex maps)
 misc bugfixes
 light:
 added -extra8x8 lightmap antialiasing option

@@ -11,7 +11,6 @@ qboolean noclip;
 qboolean onlyents;
 qboolean verbose;
 qboolean allverbose;
-qboolean transwater;
 qboolean forcevis;
 
 int		subdivide_size;
@@ -25,6 +24,7 @@ char	portfilename[1024];
 int		Vis_Main( int argc, char **argv );
 int		Light_Main( int argc, char **argv );
 int		Bsp2Prt_Main( int argc, char **argv );
+int		BspInfo_Main( int argc, char **argv );
 
 //===========================================================================
 
@@ -200,10 +200,25 @@ int main (int argc, char **argv)
 	char		destname[1024];
 
 	//	malloc_debug (15);
+	printf( "hmap2 by LordHavoc and Vic\n");
+	printf( "based on id Software's quake qbsp, light and vis utilities source code\n" );
+	printf( "\n" );
 
 	//
 	// check command line flags
 	//
+
+	if( argc == 1 )
+		goto error;
+
+	if( !strcmp( argv[1], "-bsp2prt" ) )
+		return Bsp2Prt_Main( argc - 1, argv + 1 );
+	else if( !strcmp( argv[1], "-bspinfo" ) )
+		return BspInfo_Main( argc - 1, argv + 1 );
+	else if( !strcmp( argv[1], "-vis" ) )
+		return Vis_Main( argc - 1, argv + 1 );
+	else if( !strcmp( argv[1], "-light" ) )
+		return Light_Main( argc - 1, argv + 1 );
 
 	nofill = false;
 	notjunc = false;
@@ -214,16 +229,6 @@ int main (int argc, char **argv)
 	transwater = true;
 	forcevis = true;
 	subdivide_size = 240;
-
-	if( argc == 1 )
-		goto error;
-
-	if( !strcmp( argv[1], "-bsp2prt" ) )
-		return Bsp2Prt_Main( argc - 1, argv + 1 );
-	else if( !strcmp( argv[1], "-vis" ) )
-		return Vis_Main( argc - 1, argv + 1 );
-	else if( !strcmp( argv[1], "-light" ) )
-		return Light_Main( argc - 1, argv + 1 );
 
 	for (i=1 ; i<argc ; i++)
 	{
@@ -254,7 +259,7 @@ int main (int argc, char **argv)
 		else if (!strcmp (argv[i],"-noforcevis"))
 			forcevis = false;
 		else
-			Error ("qbsp: Unknown option '%s'", argv[i]);
+			Error ("Unknown option '%s'", argv[i]);
 	}
 
 	if (i != argc - 2 && i != argc - 1)
@@ -262,11 +267,14 @@ error:
 		Error ("%s",
 "usage: hmap2 [options] sourcefile [destfile]\n"
 "Compiles .map to .bsp, does not compile vis or lighting data\n"
+"\n"
 "other utilities available:\n"
 "-bsp2prt    bsp2prt utility, run -bsp2prt as the first parameter for more\n"
+"-bspinfo    bspinfo utility, run -bspinfo as the first parameter for more\n"
 "-light      lighting utility, run -light as the first parameter for more\n"
 "-vis        vis utility, run -vis as the first parameter for more\n"
-"options:\n"
+"\n"
+"What the options do:\n"
 "-nowater    disable watervis; r_wateralpha in glquake will not work right\n"
 "-notjunc    disable tjunction fixing; glquake will have holes between polygons\n"
 "-nofill     disable sealing of map and vis, used for ammoboxes\n"

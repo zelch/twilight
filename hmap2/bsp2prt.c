@@ -68,7 +68,7 @@ static void Bsp2Prt_GetWorldBounds( vec3_t mins, vec3_t maxs )
 Bsp2Prt_ProcessFile
 ==================
 */
-static void Bsp2Prt_ProcessFile( char *filename )
+static void Bsp2Prt_ProcessFile( const char *filename )
 {
 	tree_t		*tree;
 
@@ -100,14 +100,28 @@ Bsp2Prt_Main
 */
 int Bsp2Prt_Main( int argc, char **argv )
 {
+	int			i;
 	double		start, end;
 
-	if( argc < 2 ) {
-		Error ("%s",
-"usage: hmap2 -bsp2prt sourcefile\n"
-"Makes a .prt file from a .bsp, to allow it to be vised\n"
-		);
+	transwater = true;
+
+	for( i = 1; i < argc; i++ ) {
+		if (!strcmp (argv[i],"-nowater"))
+			transwater = false;
+		else if( argv[i][0] == '-' )
+			Error( "Unknown option \"%s\"", argv[i] );
+		else
+			break;
 	}
+
+	if( i != argc - 1 )
+		Error( "%s",
+"usage: hmap2 -bsp2prt [options] sourcefile\n"
+"Makes a .prt file from a .bsp, to allow it to be vised\n"
+"\n"
+"What the options do:\n"
+"-nowater    disable watervis; r_wateralpha in glquake will not work right\n"
+		);
 
 	// init memory
 	Q_InitMem ();

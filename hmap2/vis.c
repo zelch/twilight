@@ -658,7 +658,8 @@ int Vis_Main( int argc, char **argv )
 		Error ("%s",
 "usage: hmap2 -vis [options] bspfile\n"
 "Compiles visibility data in a .bsp, needs a .prt file\n"
-"options:\n"
+"\n"
+"What the options do:\n"
 "-level 0-4      quality, default 4\n"
 "-fast           fast but bad quality vis\n"
 "-v              verbose\n"

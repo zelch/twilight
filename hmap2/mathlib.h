@@ -55,6 +55,17 @@ typedef struct
 // LordHavoc: moved BOGUS_RANGE from bsp5.h and increased from 18000 to 1000000000
 #define	BOGUS_RANGE		1000000000
 
+#ifndef max
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
+#define bound(a,b,c) ((a) >= (c) ? (a) : (b) < (a) ? (a) : (b) > (c) ? (c) : (b))
+#define clamp(a,b,c) ((b) >= (c) ? (a)=(b) : (a) < (b) ? (a)=(b) : (a) > (c) ? (a)=(c) : (a))
+
 #define DotProduct(x,y) ((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define VectorSet(a,x,y,z) ((a[0])=(x),(a)[1]=(y),(a)[2]=(z))
 #define VectorCopy(a,b) ((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
@@ -70,7 +81,6 @@ typedef struct
 #define VectorNegate(a,b) ((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 #define VectorInverse(v) ((v)[0]=-(v)[0],(v)[1]=-(v)[1],(v)[2]=-(v)[2])
 #define VectorScale(v, scale, out) ((out)[0]=(v)[0]*(scale),(out)[1]=(v)[1]*(scale),(out)[2]=(v)[2]*(scale))
-#define bound(min, value, max) ((value) < (min) ? (min) : ((value) > (max) ? (max) : (value)))
 #define PlaneDiff(point,plane) (((plane)->type < 3 ? (point)[(plane)->type] : DotProduct((point), (plane)->normal)) - (plane)->dist)
 
 vec_t VectorNormalize( vec3_t v );
@@ -86,4 +96,3 @@ void NormalizePlane( plane_t *dp );
 qboolean PlaneCompare( plane_t *p1, plane_t *p2 );
 
 #endif
-

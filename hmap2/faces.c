@@ -119,12 +119,10 @@ int SubdivideFace( face_t *f, face_t **prevptr )
 	plane_t		plane;
 	winding_t	*w;
 	face_t		*front, *back, *next;
-	texinfo_t	*tex;
-
-	tex = &texinfo[f->texturenum];
+	texinfo_t	*tex = &texinfo[f->texturenum];
 
 	// special (non-surface cached) faces don't need subdivision
-	if ( tex->flags & TEX_SPECIAL )
+	if( tex->flags & TEX_SPECIAL )
 		return 0;
 
 	subdivides = 0;

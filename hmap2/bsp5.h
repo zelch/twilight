@@ -195,6 +195,7 @@ extern	qboolean noclip;
 extern	qboolean verbose;
 extern	qboolean forcevis;
 extern	qboolean oldbsp;
+extern	qboolean transwater;
 
 extern	int		subdivide_size;
 

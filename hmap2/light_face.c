@@ -6,8 +6,6 @@
 
 SAMPLE POINT DETERMINATION
 
-void SetupBlock (dface_t *f) Returns with point[] set
-
 This is a little tricky because the lightmap covers more area than the face.
 If done in the straightforward fashion, some of the
 sample points will be inside walls or on the other side of walls, causing
@@ -27,14 +25,14 @@ towards the center until it is valid.
 
 typedef struct
 {
-	vec3_t		v;
-	qboolean	occluded;
-	int			samplepos; // the offset into the lightmap that this point contributes to
+	vec3_t			v;
+	qboolean		occluded;
+	int				samplepos;	// the offset into the lightmap that this point contributes to
 } lightpoint_t;
 
 typedef struct
 {
-	vec3_t c;
+	vec3_t			c;
 } lightsample_t;
 
 typedef struct
@@ -44,6 +42,7 @@ typedef struct
 
 	int				numpoints;
 	int				numsamples;
+
 	int				maxsamples;
 	lightpoint_t	*point;
 	lightsample_t	*sample[MAXLIGHTMAPS];
@@ -59,7 +58,9 @@ typedef struct
 	dface_t			*face;
 } lightinfo_t;
 
-//#define BUGGY_TEST
+//===============================================================================
+
+static qboolean ranout = false;
 
 /*
 ================
@@ -68,63 +69,56 @@ CalcFaceVectors
 Fills in texorg, worldtotex. and textoworld
 ================
 */
-void CalcFaceVectors (lightinfo_t *l, vec3_t faceorg)
+static void CalcFaceVectors( lightinfo_t *l, const vec3_t faceorg )
 {
-	texinfo_t	*tex;
-	int			i, j;
-	vec3_t	texnormal;
-	vec_t	distscale;
-	vec_t	dist, len;
+	int			i;
+	texinfo_t	*tex = &texinfo[l->face->texinfo];
+	vec3_t		texnormal;
+	vec_t		dist, len, distscale;
 
-	tex = &texinfo[l->face->texinfo];
+	// convert from float to vec_t
+	VectorCopy( tex->vecs[0], l->worldtotex[0] );
+	VectorCopy( tex->vecs[1], l->worldtotex[1] );
 
-// convert from float to vec_t
-	for (i=0 ; i<2 ; i++)
-		for (j=0 ; j<3 ; j++)
-			l->worldtotex[i][j] = tex->vecs[i][j];
+	// calculate a normal to the texture axis. points can be moved along this
+	// without changing their S/T
+	CrossProduct( tex->vecs[1], tex->vecs[0], texnormal );
+	VectorNormalize( texnormal );
 
-// calculate a normal to the texture axis.  points can be moved along this
-// without changing their S/T
-	// LordHavoc: this is actually a CrossProduct
-	texnormal[0] = tex->vecs[1][1]*tex->vecs[0][2] - tex->vecs[1][2]*tex->vecs[0][1];
-	texnormal[1] = tex->vecs[1][2]*tex->vecs[0][0] - tex->vecs[1][0]*tex->vecs[0][2];
-	texnormal[2] = tex->vecs[1][0]*tex->vecs[0][1] - tex->vecs[1][1]*tex->vecs[0][0];
-	VectorNormalize (texnormal);
-
-// flip it towards plane normal
-	distscale = DotProduct (texnormal, l->facenormal);
-	if (!distscale)
-		Error ("Texture axis perpendicular to face");
-	if (distscale < 0)
-	{
+	// flip it towards plane normal
+	distscale = DotProduct( texnormal, l->facenormal );
+	if( !distscale )
+		Error( "Texture axis perpendicular to face" );
+	if( distscale < 0 ) {
 		distscale = -distscale;
-		VectorNegate (texnormal, texnormal);
+		VectorNegate( texnormal, texnormal );
 	}
 
-// distscale is the ratio of the distance along the texture normal to
-// the distance along the plane normal
-	distscale = 1/distscale;
+	// distscale is the ratio of the distance along the texture normal to
+	// the distance along the plane normal
+	distscale = 1.0 / distscale;
 
-	for (i=0 ; i<2 ; i++)
-	{
-		len = VectorLength (l->worldtotex[i]);
-		dist = DotProduct (l->worldtotex[i], l->facenormal);
+	for( i = 0; i < 2; i++ ) {
+		len = 1.0 / VectorLength( l->worldtotex[i] );
+		len *= len;
+
+		dist = DotProduct( l->worldtotex[i], l->facenormal);
 		dist *= distscale;
-		VectorMA (l->worldtotex[i], -dist, texnormal, l->textoworld[i]);
-		VectorScale (l->textoworld[i], (1/len)*(1/len), l->textoworld[i]);
+
+		VectorMA( l->worldtotex[i], -dist, texnormal, l->textoworld[i] );
+		VectorScale( l->textoworld[i], len, l->textoworld[i] );
 	}
 
-
-// calculate texorg on the texture plane
-	for (i=0 ; i<3 ; i++)
+	// calculate texorg on the texture plane
+	for( i = 0; i < 3; i++ )
 		l->texorg[i] = -tex->vecs[0][3] * l->textoworld[0][i] - tex->vecs[1][3] * l->textoworld[1][i];
 
-	VectorAdd(l->texorg, faceorg, l->texorg);
+	VectorAdd( l->texorg, faceorg, l->texorg );
 
-// project back to the face plane
-	dist = DotProduct (l->texorg, l->facenormal) - l->facedist - 1;
+	// project back to the face plane
+	dist = DotProduct( l->texorg, l->facenormal ) - l->facedist - 1;
 	dist *= distscale;
-	VectorMA (l->texorg, -dist, texnormal, l->texorg);
+	VectorMA( l->texorg, -dist, texnormal, l->texorg );
 }
 
 /*
@@ -135,93 +129,74 @@ Fills in s->texmins[] and s->texsize[]
 also sets exactmins[] and exactmaxs[]
 ================
 */
-void CalcFaceExtents (lightinfo_t *l)
+static void CalcFaceExtents( lightinfo_t *l )
 {
-	dface_t *s;
-	vec_t	mins[2], maxs[2], val;
-	int		i,j, e;
+	int			i, j, e;
+	dface_t		*s = l->face;
 	dvertex_t	*v;
-	texinfo_t	*tex;
-
-	s = l->face;
+	texinfo_t	*tex = &texinfo[s->texinfo];
+	vec_t		mins[2], maxs[2], val;
 
 	mins[0] = mins[1] = BOGUS_RANGE;
 	maxs[0] = maxs[1] = -BOGUS_RANGE;
 
-	tex = &texinfo[s->texinfo];
-
-	for (i=0 ; i<s->numedges ; i++)
-	{
-		e = dsurfedges[s->firstedge+i];
-		if (e >= 0)
+	for( i = 0; i < s->numedges; i++ ) {
+		e = dsurfedges[s->firstedge + i];
+		if( e >= 0 )
 			v = dvertexes + dedges[e].v[0];
 		else
 			v = dvertexes + dedges[-e].v[1];
 
-		for (j=0 ; j<2 ; j++)
-		{
-			val = v->point[0] * tex->vecs[j][0] +
-				v->point[1] * tex->vecs[j][1] +
-				v->point[2] * tex->vecs[j][2] +
-				tex->vecs[j][3];
-			if (val < mins[j])
+		for( j = 0; j < 2; j++ ) {
+			val = DotProduct( v->point, tex->vecs[j] ) + tex->vecs[j][3];
+			if( val < mins[j] )
 				mins[j] = val;
-			if (val > maxs[j])
+			if( val > maxs[j] )
 				maxs[j] = val;
 		}
 	}
 
-	for (i=0 ; i<2 ; i++)
-	{
+	for( i = 0; i < 2; i++ ) {
 		l->exactmins[i] = mins[i];
 		l->exactmaxs[i] = maxs[i];
 
-		mins[i] = floor(mins[i]/16);
-		maxs[i] = ceil(maxs[i]/16);
+		mins[i] = floor( mins[i] / 16 );
+		maxs[i] = ceil( maxs[i] / 16 );
 
 		l->texmins[i] = mins[i];
 		l->texsize[i] = maxs[i] + 1 - mins[i];
-		if (l->texsize[i] > 256) // LordHavoc: was 17, much much bigger allowed now
-			Error ("Bad surface extents");
+		if( l->texsize[i] > 256 ) // LordHavoc: was 17, much much bigger allowed now
+			Error( "Bad surface extents" );
 	}
 }
 
-void CalcSamples (lightinfo_t *l)
+/*
+================
+CalcSamples
+================
+*/
+static void CalcSamples( lightinfo_t *l )
 {
 	int				mapnum;
-	/*
-	int				i;
-	lightsample_t	*sample;
-	*/
 
 	l->numsamples = l->texsize[0] * l->texsize[1];
-	if (l->numsamples > SINGLEMAP)
-		Error ("Bad lightmap size: %i", l->numsamples);
+	if( l->numsamples > SINGLEMAP )
+		Error( "Bad lightmap size: %i", l->numsamples );
 
 	if( l->numsamples > l->maxsamples ) {
 		l->maxsamples = l->numsamples;
-
-		qfree( l->point );
+		if( l->point )
+			qfree( l->point );
 		l->point = qmalloc( sizeof( lightpoint_t ) * l->maxsamples * (1<<extrasamplesbit)*(1<<extrasamplesbit) );
 
 		for( mapnum = 0; mapnum < MAXLIGHTMAPS; mapnum++ ) {
-			qfree( l->sample[mapnum] );
+			if( l->sample[mapnum] )
+				qfree( l->sample[mapnum] );
 			l->sample[mapnum] = qmalloc( sizeof( lightsample_t ) * l->maxsamples );
 		}
 	}
 
 	// no need to clear because the lightinfo struct was cleared already
-	/*
-	for (mapnum = 0;mapnum < MAXLIGHTMAPS;mapnum++)
-	{
-		for (i = 0, sample = l->sample[mapnum];i < l->numsamples;i++, sample++)
-		{
-			sample->c[0] = 0;
-			sample->c[1] = 0;
-			sample->c[2] = 0;
-		}
-	}
-	*/
 }
 
 /*
@@ -232,19 +207,20 @@ For each texture aligned grid point, back project onto the plane
 to get the world xyz value of the sample point
 =================
 */
-//int c_bad;
-void CalcPoints (lightinfo_t *l)
+static void CalcPoints( lightinfo_t *l )
 {
-	int j, s, t, w, h, realw, realh, stepbit;
+	int i, j, s, t, w, h, realw, realh, stepbit;
 	vec_t starts, startt, us, ut, mids, midt;
-	vec3_t facemid, base;
-#ifndef BUGGY_TEST
-	vec3_t			v;
-#else
-	int i;
-#endif
-	lightTrace_t	tr;
-	lightpoint_t	*point;
+	vec3_t facemid, base, v;
+	lightTrace_t tr;
+	lightpoint_t *point;
+	vec_t nudgeScale = 1.0 / 8.0;
+	vec_t nudgeFractions[2][9] = 
+	{
+		{ 0, 0, 0, 1, 1, 1, -1, -1, -1 },
+		{ 0, 1, -1, 0, 1, -1, 0, 1, -1 },
+	};
+	int numNudgeFractions = sizeof( nudgeFractions[0] ) / sizeof( nudgeFractions[0][0] );
 
 //
 // fill in point array
@@ -256,7 +232,7 @@ void CalcPoints (lightinfo_t *l)
 
 	VectorAdd( l->texorg, l->facenormal, base );
 
-	for (j = 0;j < 3;j++)
+	for( j = 0; j < 3; j++ )
 		facemid[j] = base[j] + l->textoworld[0][j] * mids + l->textoworld[1][j] * midt;
 
 	realw = l->texsize[0];
@@ -269,89 +245,53 @@ void CalcPoints (lightinfo_t *l)
 	w = realw << extrasamplesbit;
 	h = realh << extrasamplesbit;
 
-	if (stepbit < 4)
-	{
+	if( stepbit < 4 ) {
 		starts -= 1 << stepbit;
 		startt -= 1 << stepbit;
 	}
 
 	point = l->point;
 	l->numpoints = w * h;
-	for (t = 0;t < h;t++)
-	{
-		for (s = 0;s < w;s++, point++)
-		{
+	for( t = 0; t < h; t++ ) {
+		for( s = 0; s < w; s++, point++ ) {
 			us = starts + (s << stepbit);
 			ut = startt + (t << stepbit);
+
 			point->occluded = false;
 			point->samplepos = (t >> extrasamplesbit) * realw + (s >> extrasamplesbit);
 
-#ifndef BUGGY_TEST
 			// calculate texture point
-			for (j = 0;j < 3;j++)
+			for( j = 0; j < 3; j++ )
 				point->v[j] = base[j] + l->textoworld[0][j] * us + l->textoworld[1][j] * ut;
 
-			if( !Light_TraceLine( &tr, facemid, point->v ) ) {
-				// test failed, adjust to nearest position
-				VectorCopy(tr.impact, point->v);
-				VectorSubtract(facemid, point->v, v);
-				VectorNormalize(v);
-				VectorMA(point->v, 0.5, v, point->v);
+			// nudge around the sample point
+			for( i = 0; i < numNudgeFractions; i++ ) {
+				// calculate texture point
+				for( j = 0; j < 3; j++ )
+					v[j] = point->v[j] + nudgeScale * (l->textoworld[0][j] * nudgeFractions[0][i] + l->textoworld[1][j] * nudgeFractions[1][i]);
+
+				if( Light_PointContents( v ) != CONTENTS_SOLID ) {
+					VectorCopy( v, point->v );
+					break;	// got it
+				}
+			}
+
+			if( i == numNudgeFractions ) {	// ok, give it one last chance
+				// note: at this point we already know that
+				// the starting sample point is in solid
+				Light_TraceLine( &tr, facemid, point->v );
+
+				// adjust to nearest position
+				VectorCopy( tr.impact, point->v );
+				VectorSubtract( facemid, point->v, v );
+				VectorNormalize( v );
+				VectorMA( point->v, 0.5, v, point->v );
 
 				if( Light_PointContents( point->v ) == CONTENTS_SOLID ) {
 					c_occluded++;
 					point->occluded = true;
 				}
 			}
-
-			//VectorSubtract(facemid, point->v, v);
-			//VectorNormalize(v);
-			//VectorMA(point->v, 0.25, v, point->v);
-#else
-			// if a line can be traced from point to facemid, the point is good
-			for (i = 0;i < 6;i++)
-			{
-				// calculate texture point
-				for (j = 0;j < 3;j++)
-					point->v[j] = base[j] + l->textoworld[0][j] * us + l->textoworld[1][j] * ut;
-
-				if (!Light_TraceLine (&tr, facemid, point->v))
-					break;	// got it
-
-				if (i & 1)
-				{
-					if (us > mids)
-					{
-						us -= 8;
-						if (us < mids)
-							us = mids;
-					}
-					else
-					{
-						us += 8;
-						if (us > mids)
-							us = mids;
-					}
-				}
-				else
-				{
-					if (ut > midt)
-					{
-						ut -= 8;
-						if (ut < midt)
-							ut = midt;
-					}
-					else
-					{
-						ut += 8;
-						if (ut > midt)
-							ut = midt;
-					}
-				}
-			}
-			//if (i == 2)
-			//	c_bad++;
-#endif
 		}
 	}
 }
@@ -365,78 +305,84 @@ FACE LIGHTING
 ===============================================================================
 */
 
-int		c_culldistplane, c_proper;
-
-int SingleLightFace_FindMapNum(lightinfo_t *l, int style)
+/*
+=================
+SingleLightFace_FindMapNum
+=================
+*/
+static int SingleLightFace_FindMapNum( lightinfo_t *l, int style )
 {
 	int mapnum;
-	for (mapnum = 0;mapnum < MAXLIGHTMAPS;mapnum++)
-	{
-		if (l->lightstyles[mapnum] == style)
+
+	for( mapnum = 0; mapnum < MAXLIGHTMAPS; mapnum++ ) {
+		if( l->lightstyles[mapnum] == style )
 			break;
-		if (l->lightstyles[mapnum] == 255)
-		{
-			if (relight)
+
+		if( l->lightstyles[mapnum] == 255 ) {
+			if( relight )
 				return MAXLIGHTMAPS;
-			// cleared already
-			//memset(l->sample[mapnum], 0, sizeof(lightsample_t) * l->numsamples);
 			l->lightstyles[mapnum] = style;
 			break;
 		}
 	}
 
-	if (mapnum == MAXLIGHTMAPS)
-		printf ("WARNING: Too many light styles on a face\n");
+	if( mapnum == MAXLIGHTMAPS )
+		printf( "WARNING: Too many light styles on a face\n" );
 	return mapnum;
 }
 
-void SingleLightFace_Sun (directlight_t *light, lightinfo_t *l)
+/*
+=================
+SingleLightFace_Sun
+=================
+*/
+static void SingleLightFace_Sun( const directlight_t *light, lightinfo_t *l )
 {
+	int				i, mapnum;
 	vec_t			shade;
 	vec3_t			startpos, endpos, c;
-	int				mapnum;
-	int				i;
 	lightpoint_t	*point;
 	lightsample_t	*sample;
 	lightTrace_t	tr;
 
-	// ignore backfaces
-	shade = -DotProduct (light->spotdir, l->facenormal);
-	if (shade <= 0)
-		return;
+	shade = -DotProduct( light->spotdir, l->facenormal );
+	if( shade <= 0 )
+		return;		// ignore backfaces
+
 	// LordHavoc: FIXME: decide this 0.5 bias based on shader properties (some are dull, some are shiny)
 	shade = (shade * 0.5 + 0.5);
 
 	// mapnum won't be allocated until some light hits the surface
 	mapnum = -1;
-	c_proper++;
 
-	for (i = 0, point = l->point;i < l->numpoints;i++, point++)
-	{
+	for( i = 0, point = l->point; i < l->numpoints; i++, point++ ) {
+		if( point->occluded )
+			continue;
+
 		// LordHavoc: changed to be more realistic (entirely different lighting model)
 		// LordHavoc: FIXME: use subbrightness on all lights, simply to have some distance culling
-		VectorMA(point->v, -(1 / 32.0), light->spotdir, startpos);
-		VectorMA(point->v, -131072, light->spotdir, endpos);
+		VectorMA( point->v, -(1 / 32.0), light->spotdir, startpos );
+		VectorMA( point->v, -131072, light->spotdir, endpos );
+
 		// if trace hits solid don't cast sun
-		if (point->occluded || Light_PointContents(startpos) == CONTENTS_SOLID || (!Light_TraceLine(&tr, startpos, endpos) && tr.endcontents == CONTENTS_SOLID))
+		if( Light_PointContents( startpos ) == CONTENTS_SOLID || (!Light_TraceLine( &tr, startpos, endpos ) && tr.endcontents == CONTENTS_SOLID) )
 			continue;
 
 		c[0] = shade * light->color[0] * tr.filter[0];
 		c[1] = shade * light->color[1] * tr.filter[1];
 		c[2] = shade * light->color[2] * tr.filter[2];
 
-		// ignore colors too dim
-		if (DotProduct(c, c) < (1.0 / 32.0))
-			continue;
+		if( DotProduct(c, c) < (1.0 / 32.0) )
+			continue;	// ignore colors too dim
 
 		// if there is some light, alloc a style for it
-		if (mapnum < 0)
-			if ((mapnum = SingleLightFace_FindMapNum(l, light->style)) >= MAXLIGHTMAPS)
+		if( mapnum < 0 )
+			if( (mapnum = SingleLightFace_FindMapNum( l, light->style )) >= MAXLIGHTMAPS )
 				return;
 
 		// accumulate the lighting
 		sample = &l->sample[mapnum][point->samplepos];
-		VectorMA(sample->c, extrasamplesscale, c, sample->c);
+		VectorMA( sample->c, extrasamplesscale, c, sample->c );
 	}
 }
 
@@ -445,100 +391,100 @@ void SingleLightFace_Sun (directlight_t *light, lightinfo_t *l)
 SingleLightFace
 ================
 */
-void SingleLightFace (directlight_t *light, lightinfo_t *l)
+static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 {
-	vec_t			dist, idist, dist2, dist3, rad2;
+	int				i, mapnum;
+	vec_t			add, dist, idist, dist2, dist3, rad2;
 	vec3_t			incoming, c;
-	vec_t			add;
-	int				mapnum;
-	int				i;
 	lightpoint_t	*point;
 	lightsample_t	*sample;
 	lightTrace_t	tr;
 
-	if (light->type == LIGHTTYPE_SUN)
-	{
-		SingleLightFace_Sun(light, l);
+	if( light->type == LIGHTTYPE_SUN ) {
+		SingleLightFace_Sun( light, l );
 		return;
 	}
 
-	dist = (DotProduct (light->origin, l->facenormal) - l->facedist);
-
-// don't bother with lights behind the surface
-	if (dist < 0)
-		return;
-
-// don't bother with light too far away
-	if (dist > light->radius)
-	{
-		c_culldistplane++;
-		return;
-	}
+	dist = DotProduct( light->origin, l->facenormal ) - l->facedist;
+	if( dist < 0 )
+		return;		// don't bother with lights behind the surface
+	else if( dist > light->radius )
+		return;		// don't bother with light too far away
 
 	// mapnum won't be allocated until some light hits the surface
 	mapnum = -1;
-	c_proper++;
 
-	for (i = 0, point = l->point;i < l->numpoints;i++, point++)
-	{
-		VectorSubtract (light->origin, point->v, incoming);
-		dist = sqrt(DotProduct(incoming, incoming));
-		if (!dist || dist > light->radius)
+	for( i = 0, point = l->point; i < l->numpoints; i++, point++ ) {
+		if( point->occluded )
 			continue;
+
+		VectorSubtract( light->origin, point->v, incoming );
+		dist = VectorLength( incoming );
+		if( !dist || dist > light->radius )
+			continue;
+
 		idist = 1.0 / dist;
 		VectorScale( incoming, idist, incoming );
 
 		// spotlight
-		if (light->spotcone && DotProduct (light->spotdir, incoming) > light->spotcone)
+		if( light->spotcone && DotProduct( light->spotdir, incoming ) > light->spotcone)
 			continue;
 
-		//printf("light->type %i\n", light->type);
 		dist2 = dist / light->radius;
 		dist3 = dist / light->clampradius;
 		rad2 = light->clampradius / light->radius;
-		switch(light->type)
-		{
-		case LIGHTTYPE_MINUSX:  add = (1.0 - (dist2        )) - (1.0 - (rad2       )) * dist3;break;
-		case LIGHTTYPE_MINUSXX: add = (1.0 - (dist2 * dist2)) - (1.0 - (rad2 * rad2)) * dist3;break;
-		case LIGHTTYPE_RECIPX:  add = (1.0 / (dist2        )) - (1.0 / (rad2       )) * dist3;break;
-		case LIGHTTYPE_RECIPXX: add = (1.0 / (dist2 * dist2)) - (1.0 / (rad2 * rad2)) * dist3;break;
-		//case LIGHTTYPE_RECIPXX: add = (1.0 / ((light->distbias + dist) * (light->distbias + dist)) * (light->distscale * light->distscale)) - (1.0 / (((light->distbias + light->radius) * (light->distbias + light->radius)) * (light->distscale * light->distscale))) * (dist / light->radius);break;
-		default: add = 1.0;break;
+
+		switch( light->type ) {
+			case LIGHTTYPE_MINUSX:
+				add = (1.0 - (dist2        )) - (1.0 - (rad2       )) * dist3;
+				break;
+			case LIGHTTYPE_MINUSXX:
+				add = (1.0 - (dist2 * dist2)) - (1.0 - (rad2 * rad2)) * dist3;
+				break;
+			case LIGHTTYPE_RECIPX:
+				add = (1.0 / (dist2        )) - (1.0 / (rad2       )) * dist3;
+				break;
+			case LIGHTTYPE_RECIPXX:
+				add = (1.0 / (dist2 * dist2)) - (1.0 / (rad2 * rad2)) * dist3;
+				break;
+			default:
+				add = 1.0;
+				break;
 		}
 
-		if (add <= 0 || point->occluded || !Light_TraceLine(&tr, point->v, light->origin) || tr.startcontents == CONTENTS_SOLID)
+		if( add <= 0 || !Light_TraceLine(&tr, point->v, light->origin) || tr.startcontents == CONTENTS_SOLID)
 			continue;
 
 		// LordHavoc: FIXME: decide this 0.5 bias based on shader properties (some are dull, some are shiny)
-		add = add * (DotProduct (incoming, l->facenormal) * 0.5 + 0.5);
+		add = add * (DotProduct( incoming, l->facenormal ) * 0.5 + 0.5);
+		if( add <= 0 )
+			continue;
+
 		c[0] = add * light->color[0] * tr.filter[0];
 		c[1] = add * light->color[1] * tr.filter[1];
 		c[2] = add * light->color[2] * tr.filter[2];
 
-		// ignore colors too dim
-		if (DotProduct(c, c) < (1.0 / 32.0))
-			continue;
+		if( DotProduct( c, c ) < (1.0 / 32.0) )
+			continue;	// ignore colors too dim
 
 		// if there is some light, alloc a style for it
-		if (mapnum < 0)
-			if ((mapnum = SingleLightFace_FindMapNum(l, light->style)) >= MAXLIGHTMAPS)
+		if( mapnum < 0 )
+			if( (mapnum = SingleLightFace_FindMapNum( l, light->style )) >= MAXLIGHTMAPS )
 				return;
 
 		// accumulate the lighting
 		sample = &l->sample[mapnum][point->samplepos];
-		VectorMA(sample->c, extrasamplesscale, c, sample->c);
+		VectorMA( sample->c, extrasamplesscale, c, sample->c );
 	}
 }
-
-int ranout = false;
 
 /*
 ============
 LightFace
 ============
 */
-lightinfo_t l; // if this is made multithreaded again, this should be inside the function, but be warned, it's currently 38mb
-void LightFace (dface_t *f, lightchain_t *lightchain, directlight_t **novislight, int novislights, vec3_t faceorg)
+lightinfo_t l; // if this is made multithreaded again, this should be inside the function
+void LightFace( dface_t *f, const lightchain_t *lightchain, const directlight_t **novislight, int novislights, const vec3_t faceorg )
 {
 	int				i, j, size;
 	int				red, green, blue, white;
@@ -548,124 +494,97 @@ void LightFace (dface_t *f, lightchain_t *lightchain, directlight_t **novislight
 	//memset (&l, 0, sizeof(l));
 	l.face = f;
 
-//
-// some surfaces don't need lightmaps
-//
-
-	if (relight)
-	{
-		if (f->lightofs == -1)
+	// some surfaces don't need lightmaps
+	if( relight ) {
+		if( f->lightofs == -1 )
 			return;
-	}
-	else
-	{
-		for (i = 0;i < MAXLIGHTMAPS;i++)
+	} else {
+		for( i = 0; i < MAXLIGHTMAPS; i++ )
 			f->styles[i] = l.lightstyles[i] = 255;
 		f->lightofs = -1;
 
-		if (texinfo[f->texinfo].flags & TEX_SPECIAL)
-		{
-			// non-lit texture
-			return;
-		}
+		if( texinfo[f->texinfo].flags & TEX_SPECIAL )
+			return;		// non-lit texture
 	}
 
-//
-// rotate plane
-//
-	VectorCopy (dplanes[f->planenum].normal, l.facenormal);
+	// rotate plane
+	VectorCopy( dplanes[f->planenum].normal, l.facenormal );
 	l.facedist = dplanes[f->planenum].dist;
-	if (f->side)
-	{
-		VectorNegate (l.facenormal, l.facenormal);
+
+	if( f->side ) {
+		VectorNegate( l.facenormal, l.facenormal );
 		l.facedist = -l.facedist;
 	}
 
-	CalcFaceVectors (&l, faceorg);
-	CalcFaceExtents (&l);
-	CalcSamples (&l);
-	CalcPoints (&l);
+	CalcFaceVectors( &l, faceorg );
+	CalcFaceExtents( &l );
+	CalcSamples( &l );
+	CalcPoints( &l );
 
 	// clear all the samples to 0
-	for (i = 0;i < MAXLIGHTMAPS;i++)
-		memset(l.sample[i], 0, sizeof(lightsample_t) * l.numsamples);
+	for( i = 0; i < MAXLIGHTMAPS; i++ )
+		memset( l.sample[i], 0, sizeof( lightsample_t ) * l.numsamples );
 
 	// if -minlight or -ambientlight is used we always allocate style 0
-	if (minlight > 0 || ambientlight > 0)
+	if( minlight > 0 || ambientlight > 0 )
 		l.lightstyles[0] = 0;
 
-	if (relight)
-	{
+	if( relight ) {
 		// reserve the correct light styles
-		for (i = 0;i < MAXLIGHTMAPS;i++)
+		for( i = 0; i < MAXLIGHTMAPS; i++ )
 			l.lightstyles[i] = f->styles[i];
 	}
 
-//
-// cast all lights
-//
-	while (lightchain)
-	{
-		SingleLightFace (lightchain->light, &l);
+	// cast all lights
+	while( lightchain ) {
+		SingleLightFace( lightchain->light, &l );
 		lightchain = lightchain->next;
 	}
-	while (novislights--)
-		SingleLightFace (*novislight++, &l);
+
+	while( novislights-- )
+		SingleLightFace( *novislight++, &l );
 
 	// apply ambientlight if needed
-	if (ambientlight > 0)
-		for (i = 0;i < l.numsamples;i++)
-			for (j = 0;j < 3;j++)
+	if( ambientlight > 0 ) {
+		for( i = 0; i < l.numsamples; i++ )
+			for( j = 0; j < 3; j++)
 				l.sample[0][i].c[j] += ambientlight;
+	}
 
 	// apply minlight if needed
-	if (minlight > 0)
-		for (i = 0;i < l.numsamples;i++)
-			for (j = 0;j < 3;j++)
-				if (l.sample[0][i].c[j] < minlight)
+	if( minlight > 0 ) {
+		for( i = 0; i < l.numsamples; i++ )
+			for( j = 0; j < 3; j++ )
+				if( l.sample[0][i].c[j] < minlight )
 					l.sample[0][i].c[j] = minlight;
-
-// save out the values
-
-	if (relight)
-	{
-		// relighting an existing map without changing it's lightofs table
-
-		for (i = 0;i < MAXLIGHTMAPS;i++)
-			if (f->styles[i] == 255)
-				break;
-		size = l.numsamples * i;
-
-		if (f->lightofs < 0 || f->lightofs + size > lightdatasize)
-			Error("LightFace: Error while trying to relight map: invalid lightofs value, %i must be >= 0 && < %i\n", f->lightofs, lightdatasize);
 	}
-	else
-	{
-		// creating lightofs table from scratch
 
-		for (i = 0;i < MAXLIGHTMAPS;i++)
-			if (l.lightstyles[i] == 255)
-				break;
+	// save out the values
+	if( relight ) {
+		// relighting an existing map without changing it's lightofs table
+		for( i = 0; i < MAXLIGHTMAPS && f->styles[i] != 255; i++ );
+
 		size = l.numsamples * i;
+		if( f->lightofs < 0 || f->lightofs + size > lightdatasize )
+			Error( "LightFace: Error while trying to relight map: invalid lightofs value, %i must be >= 0 && < %i\n", f->lightofs, lightdatasize );
+	} else {
+		// creating lightofs table from scratch
+		for( i = 0; i < MAXLIGHTMAPS && l.lightstyles[i] != 255; i++ );
 
-		if (!size)
-		{
-			// no light styles
+		size = l.numsamples * i;
+		if( !size )
+			return;	// no light styles
+
+		if( lightdatasize + size > MAX_MAP_LIGHTING ) {
+			if( !ranout ) {
+				printf( "LightFace: ran out of lightmap dataspace" );
+				ranout = true;
+			}
 			return;
 		}
 
-		if (lightdatasize + size > MAX_MAP_LIGHTING)
-		{
-			//Error("LightFace: ran out of lightmap dataspace");
-			if (!ranout)
-				printf("LightFace: ran out of lightmap dataspace");
-			ranout = true;
-			return;
-		}
-
-		for (i = 0;i < MAXLIGHTMAPS;i++)
+		for( i = 0; i < MAXLIGHTMAPS; i++ )
 			f->styles[i] = l.lightstyles[i];
-
 		f->lightofs = lightdatasize;
 		lightdatasize += size;
 	}
@@ -675,27 +594,17 @@ void LightFace (dface_t *f, lightchain_t *lightchain, directlight_t **novislight
 	out = dlightdata + f->lightofs;
 	lit = drgblightdata + f->lightofs * 3;
 
-	for (i = 0;i < MAXLIGHTMAPS && f->styles[i] != 255;i++)
-	{
-		for (j = 0, sample = l.sample[i];j < l.numsamples;j++, sample++)
-		{
-			red   = (int) sample->c[0];
-			green = (int) sample->c[1];
-			blue  = (int) sample->c[2];
-			white = (int) ((sample->c[0] + sample->c[1] + sample->c[2]) * (1.0 / 3.0));
-			if (red > 255) red = 255;
-			if (red < 0) red = 0;
-			if (green > 255) green = 255;
-			if (green < 0) green = 0;
-			if (blue > 255) blue = 255;
-			if (blue < 0) blue = 0;
-			if (white > 255) white = 255;
-			if (white < 0) white = 0;
-			*lit++ = red;
-			*lit++ = green;
-			*lit++ = blue;
-			*out++ = white;
+	for( i = 0; i < MAXLIGHTMAPS && f->styles[i] != 255; i++ ) {
+		for( j = 0, sample = l.sample[i]; j < l.numsamples; j++, sample++ ) {
+			red   = (int)sample->c[0];
+			green = (int)sample->c[1];
+			blue  = (int)sample->c[2];
+			white = (int)((sample->c[0] + sample->c[1] + sample->c[2]) * (1.0 / 3.0));
+
+			*lit++ = bound( 0, red, 255 );
+			*lit++ = bound( 0, green, 255 );
+			*lit++ = bound( 0, blue, 255 );
+			*out++ = bound( 0, white, 255 );
 		}
 	}
 }
-

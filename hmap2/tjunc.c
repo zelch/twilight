@@ -475,7 +475,10 @@ void FixTJunctions(tree_t *tree)
 	qprintf ("---- tjunc ----\n");
 	
 	if (notjunc)
+	{
+		printf ("skipped\n");
 		return;
+	}
 
 //
 // identify all points on common edges

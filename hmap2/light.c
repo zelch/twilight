@@ -2,37 +2,31 @@
 
 #include "light.h"
 
-/*
-
-NOTES
------
-
-*/
-
-dmodel_t	*bspmodel;
-
 qboolean	lightvis;
 qboolean	relight;
 qboolean	verbose;
 
-int			extrasamplesbit; // power of 2 extra sampling (0 = 1x1 sampling, 1 = 2x2 sampling, 2 = 4x4 sampling, etc)
-vec_t		extrasamplesscale; // 1.0 / pointspersample (extrasamples related)
+int			extrasamplesbit;	// power of 2 extra sampling (0 = 1x1 sampling, 1 = 2x2 sampling, 2 = 4x4 sampling, etc)
+vec_t		extrasamplesscale;	// 1.0 / pointspersample (extrasamples related)
+
 vec_t		globallightscale;
 vec_t		globallightradiusscale;
+
 lighttype_t	defaultlighttype;
 int			overridelighttypes;
 
 int			minlight;
 int			ambientlight;
 
-// filename to write light list to
-char lightsfilename[1024];
+#ifdef WRITE_LIGHTSFILE
+char lightsfilename[1024];		// filename to write light list to
+#endif
 
-byte currentvis[(MAX_MAP_LEAFS + 7) / 8];
+byte		currentvis[(MAX_MAP_LEAFS + 7) / 8];
 
 int			c_occluded;
 
-int num_directlights;
+int			num_directlights;
 directlight_t directlights[MAP_DIRECTLIGHTS];
 
 /*
@@ -47,12 +41,17 @@ If a light has a targetname, generate a unique style in the 32-63 range
 int		numlighttargets;
 char	lighttargets[32][128];
 
+/*
+==================
+LightStyleForTargetname
+==================
+*/
 int LightStyleForTargetname( char *targetname )
 {
 	int		i;
 
 	for( i = 0; i < numlighttargets; i++ ) {
-		if( !strcmp (lighttargets[i], targetname) )
+		if( !strcmp( lighttargets[i], targetname ) )
 			return 32 + i;
 	}
 
@@ -63,7 +62,6 @@ int LightStyleForTargetname( char *targetname )
 	numlighttargets++;
 	return numlighttargets - 1 + 32;
 }
-
 
 /*
 ==================
@@ -268,45 +266,40 @@ void ParseLightEntities( void )
 	}
 }
 
+#ifdef WRITE_LIGHTSFILE
+/*
+==================
+WriteLights
+==================
+*/
 void WriteLights( void )
 {
-#if 0
 	int i;
 	FILE *f;
 	directlight_t *l;
 
-	if (minlight > 0 || ambientlight > 0)
-	{
-		printf("can't save .lights file - minlight or ambientlight used\n");
+	if( minlight > 0 || ambientlight > 0 ) {
+		printf( "can't save .lights file - minlight or ambientlight used\n" );
 		return;
 	}
 
-	for( i = 0, l = directlights; i < num_directlights; i++, l++ )
-	{
-		if (l->type != LIGHTTYPE_RECIPXX)
-		{
-			printf("can't save .lights file - .lights only supports LIGHTTYPE_RECIPXX\n");
+	for( i = 0, l = directlights; i < num_directlights; i++, l++ ) {
+		if( l->type != LIGHTTYPE_RECIPXX ) {
+			printf( "can't save .lights file - .lights only supports LIGHTTYPE_RECIPXX\n" );
 			return;
 		}
 	}
 
-	printf("saving .lights file for enhanced model lighting in darkplaces\n");
+	printf( "saving .lights file for enhanced model lighting in darkplaces\n" );
 
 	f = fopen( lightsfilename, "wb" );
 	for( i = 0, l = directlights; i < num_directlights; i++, l++ )
-		fprintf( f, "%f %f %f %f %f %f %f %f %f %f %f %f %f %d\n", (double)l->origin[0], (double)l->origin[1], (double)l->origin[2], (double)l->falloff, (double)l->color[0], (double)l->color[1], (double)l->color[2], (double)l->subbrightness, (double)l->spotdir[0], (double)l->spotdir[1], (double)l->spotdir[2], (double)l->spotcone, (double)l->lightoffset, l->style );
+		fprintf( f, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %d\n", (double)l->origin[0], (double)l->origin[1], (double)l->origin[2], (double)l->falloff, (double)l->color[0], (double)l->color[1], (double)l->color[2], (double)l->subbrightness, (double)l->spotdir[0], (double)l->spotdir[1], (double)l->spotdir[2], (double)l->spotcone, (double)l->lightoffset, l->style );
 	fclose( f );
+}
 #endif
-}
 
-dleaf_t *Light_PointInLeaf(vec3_t point)
-{
-	int num;
-	num = 0;
-	while (num >= 0)
-		num = dnodes[num].children[DotProduct(point, dplanes[dnodes[num].planenum].normal) < dplanes[dnodes[num].planenum].dist];
-	return dleafs + (-1 - num);
-}
+//===============================================================================
 
 #define LIGHTCHAINS (MAX_MAP_FACES * 32)
 
@@ -323,8 +316,7 @@ int lightchainbufindex;
 LightWorld
 =============
 */
-extern int dlightdatapos;
-void LightWorld (void)
+void LightWorld( void )
 {
 	int			i, k, n, m, count;
 	unsigned short	*mark;
@@ -335,54 +327,53 @@ void LightWorld (void)
 	vec3_t		org;
 	char		name[8];
 	entity_t	*ent;
-//	filebase = file_p = dlightdata;
-//	file_end = filebase + MAX_MAP_LIGHTING;
-	if (!relight)
+
+	if( !relight )
 		lightdatasize = 0;
 	rgblightdatasize = 0;
-	lightstarttime = time(NULL);
+	lightstarttime = time( NULL );
 
 	lightchainbufindex = 0;
 	novislights = alllights = 0;
-	memset(surfacelightchain, 0, sizeof(surfacelightchain));
+	memset( surfacelightchain, 0, sizeof( surfacelightchain ) );
 
 	// LordHavoc: find the right leaf for each entity
-	for (i = 0, light = directlights;i < num_directlights;i++, light++)
-	{
+	for( i = 0, light = directlights; i < num_directlights; i++, light++ ) {
 		lightcount++;
 		alllight[alllights++] = light;
 		leaf = Light_PointInLeaf(light->origin);
 		ignorevis = false;
-		switch (leaf->contents)
-		{
-		case CONTENTS_EMPTY:
-			emptycount++;
-			break;
-		case CONTENTS_SOLID:
-			solidcount++;
-			ignorevis = true;
-			break;
-		case CONTENTS_WATER:
-			watercount++;
-			break;
-		case CONTENTS_SLIME:
-			slimecount++;
-			break;
-		case CONTENTS_LAVA:
-			lavacount++;
-			break;
-		case CONTENTS_SKY:
-			skycount++;
-			ignorevis = true;
-			break;
-		default:
-			misccount++;
-			break;
+
+		switch( leaf->contents ) {
+			case CONTENTS_EMPTY:
+				emptycount++;
+				break;
+			case CONTENTS_SOLID:
+				solidcount++;
+				ignorevis = true;
+				break;
+			case CONTENTS_WATER:
+				watercount++;
+				break;
+			case CONTENTS_SLIME:
+				slimecount++;
+				break;
+			case CONTENTS_LAVA:
+				lavacount++;
+				break;
+			case CONTENTS_SKY:
+				skycount++;
+				ignorevis = true;
+				break;
+			default:
+				misccount++;
+				break;
 		}
-		if (ignorevis)
-			printf("light at origin '%f %f %f' is in solid or sky, ignoring vis\n", light->origin[0], light->origin[1], light->origin[2]);
-		if (leaf->visofs == -1 || ignorevis || !lightvis || light->type == LIGHTTYPE_SUN)
-		{
+
+		if( ignorevis )
+			printf( "light at origin '%f %f %f' is in solid or sky, ignoring vis\n", light->origin[0], light->origin[1], light->origin[2] );
+
+		if( leaf->visofs == -1 || ignorevis || !lightvis || light->type == LIGHTTYPE_SUN ) {
 			/*
 			if ((lightchainbufindex + numfaces) > LIGHTCHAINS)
 				Error("LightWorld: ran out of light chains!  complain to maintainer of hlight\n");
@@ -396,102 +387,95 @@ void LightWorld (void)
 			*/
 			castcount += numfaces;
 			novislight[novislights++] = light;
-		}
-		else
-		{
-			DecompressVis(dvisdata + leaf->visofs, currentvis, (numleafs + 7) >> 3);
-			memset(surfacehit, 0, numfaces);
-			for (n = 0, leaf = dleafs+1;n < numleafs;n++, leaf++) // leafs begin at 1
-			{
-				if (!leaf->nummarksurfaces)
+		} else {
+			DecompressVis( dvisdata + leaf->visofs, currentvis, (dmodels[0].visleafs + 7) >> 3 );
+			memset( surfacehit, 0, numfaces );
+
+			for( n = 0, leaf = dleafs + 1; n < numleafs; n++, leaf++ ) {	// leafs begin at 1
+				if( !leaf->nummarksurfaces )
 					continue;
-				if (currentvis[n >> 3] & (1 << (n & 7)))
-				{
-					if ((lightchainbufindex + leaf->nummarksurfaces) > LIGHTCHAINS)
-						Error("LightWorld: ran out of light chains!  complain to maintainer of hlight\n");
-					for (m = 0, mark = dmarksurfaces + leaf->firstmarksurface;m < leaf->nummarksurfaces;m++, mark++)
-					{
-						if (surfacehit[*mark])
-							continue;
-						surfacehit[*mark] = true;
-						castcount++;
-						lightchainbuf[lightchainbufindex].light = light;
-						lightchainbuf[lightchainbufindex].next = surfacelightchain[*mark];
-						surfacelightchain[*mark] = &lightchainbuf[lightchainbufindex++];
-					}
+				if( !(currentvis[n >> 3] & (1 << (n & 7))) )
+					continue;
+
+				if( (lightchainbufindex + leaf->nummarksurfaces) > LIGHTCHAINS )
+					Error( "LightWorld: ran out of light chains!  complain to maintainer of hlight\n" );
+
+				for( m = 0, mark = dmarksurfaces + leaf->firstmarksurface; m < leaf->nummarksurfaces; m++, mark++ ) {
+					if( surfacehit[*mark] )
+						continue;
+					surfacehit[*mark] = true;
+					castcount++;
+					lightchainbuf[lightchainbufindex].light = light;
+					lightchainbuf[lightchainbufindex].next = surfacelightchain[*mark];
+					surfacelightchain[*mark] = &lightchainbuf[lightchainbufindex++];
 				}
 			}
 		}
 	}
 
-	printf("%4i lights, %4i air, %4i solid, %4i water, %4i slime, %4i lava, %4i sky, %4i unknown\n", lightcount, emptycount, solidcount, watercount, slimecount, lavacount, skycount, misccount);
+	printf( "%4i lights, %4i air, %4i solid, %4i water, %4i slime, %4i lava, %4i sky, %4i unknown\n", lightcount, emptycount, solidcount, watercount, slimecount, lavacount, skycount, misccount );
 
 	i = 0;
-	for (m = 0;m < numfaces;m++)
-		if (surfacelightchain[m])
+	for( m = 0; m < numfaces; m++ ) {
+		if( surfacelightchain[m] )
 			i++;
-	printf("%5i faces, %5i (%3i%%) may receive light\n", numfaces, i, i * 100 / numfaces);
+	}
+	printf( "%5i faces, %5i (%3i%%) may receive light\n", numfaces, i, i * 100 / numfaces );
 
-	if (solidcount || skycount)
-		printf("warning: %4i lights of %4i lights (%3i%%) were found in sky or solid and will not be accelerated using vis, move them out of the solid or sky to accelerate compiling\n", solidcount+skycount, lightcount, (solidcount+skycount) * 100 / lightcount);
+	if( solidcount || skycount )
+		printf( "warning: %4i lights of %4i lights (%3i%%) were found in sky or solid and will not be accelerated using vis, move them out of the solid or sky to accelerate compiling\n", solidcount+skycount, lightcount, (solidcount+skycount) * 100 / lightcount );
 
-	printf("%4i lights will be cast onto %5i surfaces, %10i casts will be performed\n", lightcount, numfaces, castcount);
+	printf( "%4i lights will be cast onto %5i surfaces, %10i casts will be performed\n", lightcount, numfaces, castcount );
 
 	// LordHavoc: let there be light
 	count = dmodels[0].numfaces;
-//	k = 1;
-//	j = (int) ((double) count * (double) k * (1.0 / 100.0));
 	org[0] = org[1] = org[2] = 0;
-	oldtime = time(NULL);
-	for (m = 0;m < count;)
-	{
-		LightFace (dfaces + m + dmodels[0].firstface, surfacelightchain[m + dmodels[0].firstface], novislight, novislights, org);
+	oldtime = time( NULL );
+
+	c_occluded = 0;
+	for( m = 0; m < count; ) {
+		LightFace( dfaces + m + dmodels[0].firstface, surfacelightchain[m + dmodels[0].firstface], novislight, novislights, org );
 		m++;
-		newtime = time(NULL);
-		if (newtime != oldtime)
-		{
-			printf ("\rworld face %5i of %5i (%3i%%), estimated time left: %5i ", m, count, (int) (m*100)/count, (int) (((count-m)*(newtime-lightstarttime))/m));
-			fflush(stdout);
+		newtime = time( NULL );
+		if( newtime != oldtime ) {
+			printf( "\rworld face %5i of %5i (%3i%%), estimated time left: %5i ", m, count, (int) (m*100)/count, (int) (((count-m)*(newtime-lightstarttime))/m) );
+			fflush( stdout );
 			oldtime = newtime;
 		}
 	}
-	printf ("\n%5i faces done\nlightdatasize: %i\n", numfaces, lightdatasize);
-	printf ("c_occluded: %i\n", c_occluded);
+	printf( "\n%5i faces done\nlightdatasize: %i\n", numfaces, lightdatasize );
+	printf( "c_occluded: %i\n", c_occluded );
 
-	printf("\nlighting %5i submodels:\n", nummodels);
-	fflush(stdout);
+	printf( "\nlighting %5i submodels:\n", nummodels );
+	fflush( stdout );
+
+	c_occluded = 0;
 	// LordHavoc: light bmodels
-	for (k = 1;k < nummodels;k++)
-	{
-		newtime = time(NULL);
-		if (newtime != oldtime)
-		{
+	for( k = 1; k < nummodels; k++ ) {
+		newtime = time( NULL );
+		if( newtime != oldtime ) {
 			m = k;
 			count = nummodels;
-			printf ("\rsubmodel %3i of %3i (%3i%%), estimated time left: %5i ", m, count, (int) (m*100)/count, (int) (((count-m)*(newtime-lightstarttime))/m));
-			fflush(stdout);
+			printf( "\rsubmodel %3i of %3i (%3i%%), estimated time left: %5i ", m, count, (int) (m*100)/count, (int) (((count-m)*(newtime-lightstarttime))/m) );
+			fflush( stdout );
 			oldtime = newtime;
 		}
-		sprintf(name, "*%d", k);
-		ent = FindEntityWithKeyPair("model", name);
-		if (!ent)
-			Error("FindFaceOffsets: Couldn't find entity for model %s.\n", name);
+
+		sprintf( name, "*%d", k );
+		ent = FindEntityWithKeyPair( "model", name );
+		if( !ent )
+			Error( "FindFaceOffsets: Couldn't find entity for model %s.\n", name );
 
 		// LordHavoc: changed this to support origins on all submodels
-		GetVectorForKey(ent, "origin", org);
+		GetVectorForKey( ent, "origin", org );
 
-		for (m = 0;m < dmodels[k].numfaces;m++)
-			LightFace (dfaces + m + dmodels[k].firstface, NULL, alllight, alllights, org);
+		for( m = 0; m < dmodels[k].numfaces; m++ )
+			LightFace( dfaces + m + dmodels[k].firstface, NULL, alllight, alllights, org );
 	}
 
-//	lightdatasize = file_p - filebase;
-//	rgblightdatasize = lightdatasize * 3;
-
-	printf ("\n%5i submodels done\nlightdatasize: %i\n", nummodels, lightdatasize);
-	printf ("c_occluded: %i\n", c_occluded);
+	printf( "\n%5i submodels done\nlightdatasize: %i\n", nummodels, lightdatasize );
+	printf( "c_occluded: %i\n", c_occluded );
 }
-
-void CheckLightmaps(void);
 
 /*
 ========
@@ -500,15 +484,12 @@ Light_Main
 light modelfile
 ========
 */
-int Light_Main (int argc, char **argv)
+int Light_Main( int argc, char **argv )
 {
 	char source[1024];
 	double start, end;
 	int i;
 
-// LordHavoc
-	printf ("hlight 1.04 by LordHavoc\n");
-	printf ("based on id Software's quake light utility source code\n");
 	extrasamplesbit = 0;
 	lightvis = true;
 	relight = false;
@@ -519,96 +500,73 @@ int Light_Main (int argc, char **argv)
 	defaultlighttype = LIGHTTYPE_MINUSX;
 	overridelighttypes = false;
 
-	for (i=1 ; i<argc ; i++)
-	{
-		if (!strcmp(argv[i],"-extra"))
-		{
+	for( i = 1; i < argc; i++ ) {
+		if( !strcmp( argv[i],"-extra" ) ) {
 			extrasamplesbit = 1;
-			printf ("2x2 sampling enabled (tip: -extra4x4 is even higher quality)\n");
-		}
-		else if (!strcmp(argv[i],"-extra4x4"))
-		{
+			printf( "2x2 sampling enabled (tip: -extra4x4 is even higher quality)\n" );
+		} else if( !strcmp( argv[i],"-extra4x4" ) ) {
 			extrasamplesbit = 2;
-			printf ("4x4 sampling enabled\n");
-		}
-		else if (!strcmp(argv[i],"-extra8x8"))
-		{
+			printf( "4x4 sampling enabled\n" );
+		} else if( !strcmp( argv[i],"-extra8x8" ) ) {
 			extrasamplesbit = 3;
-			printf ("8x8 sampling enabled\n");
-		}
-		else if (!strcmp(argv[i],"-nolightvis"))
-		{
-			printf("use of vis data to optimize lighting disabled\n");
+			printf( "8x8 sampling enabled\n" );
+		} else if( !strcmp( argv[i],"-nolightvis" ) ) {
+			printf( "use of vis data to optimize lighting disabled\n" );
 			lightvis = false;
-		}
-		else if (!strcmp(argv[i],"-relight"))
-		{
-			printf("relighting map to create .lit file without modifying .bsp\n");
+		} else if( !strcmp( argv[i],"-relight" ) ) {
+			printf( "relighting map to create .lit file without modifying .bsp\n" );
 			relight = true;
-		}
-		else if (!strcmp(argv[i],"-intensity"))
-		{
+		} else if( !strcmp( argv[i],"-intensity" ) ) {
 			i++;
-			if (i >= argc)
-				Error("no value was given to -intensity\n");
-			globallightscale = atof(argv[i]);
-			if (globallightscale < 0.01)
+			if( i >= argc )
+				Error( "no value was given to -intensity\n" );
+			globallightscale = atof( argv[i] );
+			if( globallightscale < 0.01 )
 				globallightscale = 0.01;
-		}
-		else if (!strcmp(argv[i],"-radiusscale"))
-		{
+		} else if( !strcmp( argv[i],"-radiusscale" ) ) {
 			i++;
-			if (i >= argc)
-				Error("no value was given to -radiusscale\n");
-			globallightradiusscale = atof(argv[i]);
-			if (globallightradiusscale < 0.01)
+			if( i >= argc )
+				Error( "no value was given to -radiusscale\n" );
+			globallightradiusscale = atof( argv[i] );
+			if( globallightradiusscale < 0.01 )
 				globallightradiusscale = 0.01;
-		}
-		else if (!strcmp(argv[i],"-minlight"))
-		{
+		} else if( !strcmp( argv[i],"-minlight" ) ) {
 			i++;
-			if (i >= argc)
-				Error("no value was given to -minlight\n");
-			minlight = atof(argv[i]);
-			if (minlight < 0)
+			if( i >= argc )
+				Error( "no value was given to -minlight\n" );
+			minlight = atof( argv[i] );
+			if( minlight < 0 )
 				minlight = 0;
-		}
-		else if (!strcmp(argv[i],"-ambientlight"))
-		{
+		} else if( !strcmp( argv[i], "-ambientlight" ) ) {
 			i++;
-			if (i >= argc)
-				Error("no value was given to -ambientlight\n");
-			ambientlight = atof(argv[i]);
-			if (ambientlight < 0)
+			if( i >= argc )
+				Error( "no value was given to -ambientlight\n" );
+			ambientlight = atof( argv[i] );
+			if( ambientlight < 0 )
 				ambientlight = 0;
-		}
-		else if (!strcmp(argv[i],"-defaulttype"))
-		{
+		} else if( !strcmp( argv[i],"-defaulttype" ) ) {
 			i++;
-			if (i >= argc)
-				Error("no value was given to -defaulttype\n");
-			defaultlighttype = atoi(argv[i]);
-			if (defaultlighttype < 0 || defaultlighttype >= LIGHTTYPE_TOTAL)
-				Error("invalid value given to -defaulttype\n");
-		}
-		else if (!strcmp(argv[i],"-overridetypes"))
-		{
-			printf("overriding all light types with current default\n");
+			if( i >= argc )
+				Error( "no value was given to -defaulttype\n" );
+			defaultlighttype = atoi( argv[i] );
+			if( defaultlighttype < 0 || defaultlighttype >= LIGHTTYPE_TOTAL )
+				Error( "invalid value given to -defaulttype\n" );
+		} else if( !strcmp( argv[i],"-overridetypes" ) ) {
+			printf( "overriding all light types with current default\n" );
 			overridelighttypes = true;
-		}
-		else if (argv[i][0] == '-')
-			Error ("Unknown option \"%s\"", argv[i]);
+		} else if( argv[i][0] == '-' )
+			Error( "Unknown option \"%s\"", argv[i] );
 		else
 			break;
 	}
 
 	extrasamplesscale = 1.0f / (1 << (extrasamplesbit * 2));
 
-// LordHavoc
-	if (i != argc - 1)
-		Error ("%s",
+	if( i != argc - 1 )
+		Error( "%s",
 "usage: hmap2 -light [options] bspfile\n"
 "Compiles lighting data in a .bsp and also makes .lit colored lighting data\n"
+"\n"
 "Quick usage notes for entities: (place these in key/value pairs)\n"
 "wait - falloff rate: 1.0 default, 0.5 = double radius, 2 = half radius\n"
 "_color - red green blue, specifies color of light, example 1 0.6 0.3 is orange\n"
@@ -620,6 +578,7 @@ int Light_Main (int argc, char **argv)
 "3: 1          fast, no fade, useful for sky lights, tyrlite compatible\n"
 "4: sun        slow, directional sunlight, uses target direction like spotlights\n"
 "5: 1-x/r*x/r  fast, looks like darkplaces/tenebrae lights\n"
+"\n"
 "What the options do:\n"
 "-extra        antialiased lighting, takes much longer, higher quality\n"
 "-extra4x4     antialiased lighting, even slower and better than -extra\n"
@@ -640,59 +599,59 @@ int Light_Main (int argc, char **argv)
 	// init memory
 	Q_InitMem ();
 
-	printf ("----- LightFaces ----\n");
+	printf( "----- LightFaces ----\n" );
 
 //	InitThreads ();
 
 	start = I_DoubleTime ();
 
-	strcpy(source, argv[i]);
-	strcpy(lightsfilename, source);
-	DefaultExtension(source, ".bsp");
-	ReplaceExtension(lightsfilename, ".lights");
+	strcpy( source, argv[i] );
 
-	LoadBSPFile (source);
-	memset(dlightdata, 0, sizeof(dlightdata));
-	memset(drgblightdata, 0, sizeof(drgblightdata));
-	//for (i = 0;i < sizeof(dlightdata);i++)
-	//	dlightdata[i] = i;
-	CheckLightmaps();
+#ifdef WRITE_LIGHTSFILE
+	strcpy( lightsfilename, source );
+#endif
 
-	if (!visdatasize)
-	{
-		printf("no visibility data found (run -vis before -light to compile faster)\n");
+	DefaultExtension( source, ".bsp" );
+
+#ifdef WRITE_LIGHTSFILE
+	ReplaceExtension( lightsfilename, ".lights" );
+#endif
+
+	LoadBSPFile( source );
+
+	memset( dlightdata, 0, sizeof( dlightdata ) );
+	memset( drgblightdata, 0, sizeof( drgblightdata ) );
+
+	if( !visdatasize ) {
+		printf( "no visibility data found (run -vis before -light to compile faster)\n" );
 		lightvis = false;
 	}
 
 	ParseEntities ();
-	printf ("%i entities read\n", num_entities);
+	printf( "%i entities read\n", num_entities );
 
 	ParseLightEntities ();
 
-	CheckLightmaps();
-
-	MakeTnodes (&dmodels[0]);
-	CheckLightmaps();
+	MakeTnodes ();
 
 	LightWorld ();
-	CheckLightmaps();
 
+#ifdef WRITE_LIGHTSFILE
 	WriteLights ();
+#endif
 
 	UnparseEntities ();
 
-	CheckLightmaps();
-	WriteBSPFile (source, relight);
-	CheckLightmaps();
+	WriteBSPFile( source, relight );
 
 	end = I_DoubleTime ();
-	printf ("%5.2f seconds elapsed\n\n", end-start);
+	printf( "%5.2f seconds elapsed\n\n", end - start );
 
 	// print memory stats
 	Q_PrintMem ();
 
 #if _MSC_VER && _DEBUG
-	printf("press any key\n");
+	printf( "press any key\n" );
 	getchar();
 #endif
 
@@ -701,4 +660,3 @@ int Light_Main (int argc, char **argv)
 
 	return 0;
 }
-

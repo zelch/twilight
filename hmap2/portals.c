@@ -1,6 +1,6 @@
-
 #include "bsp5.h"
 
+qboolean transwater;
 
 node_t	outside_node;		// portals outside the world face this
 
@@ -385,8 +385,6 @@ PORTAL FILE GENERATION
 FILE	*pf;
 int		num_visleafs;				// leafs the player can be in
 int		num_visportals;
-
-qboolean transwater;
 
 // Vic: proper float output
 void WriteFloatToPortalFile (vec_t f)

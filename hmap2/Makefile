@@ -13,7 +13,7 @@ UNIX_LDFLAGS=-lm
 HMAPOBJECTS= cmdlib.o mathlib.o bspfile.o mem.o winding.o scriptlib.o \
     brush.o csg4.o faces.o map.o outside.o portals.o \
     qbsp.o solidbsp.o tjunc.o tree.o writebsp.o \
-    wad.o bsp2prt.o vis.o vis_flow.o vis_sound.o light.o \
+    wad.o bsp2prt.o bspinfo.o vis.o vis_flow.o vis_sound.o light.o \
     light_face.o light_trace.o
 
 CC=gcc
