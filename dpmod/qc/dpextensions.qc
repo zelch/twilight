@@ -22,6 +22,25 @@ float(string s) checkextension = #99;
 //	ext_setcolor = TRUE;
 //from then on you can check ext_setcolor to know if that extension is available
 
+//DP_BUTTONCHAT
+//idea: Vermeulen
+//darkplaces implementation: LordHavoc
+//field definitions:
+.float buttonchat;
+//description:
+//true if the player is currently chatting (in messagemode, menus or console)
+
+//DP_BUTTONUSE
+//idea: id Software
+//darkplaces implementation: LordHavoc
+//field definitions:
+.float buttonuse;
+//client console commands:
+//+use
+//-use
+//description:
+//made +use and -use commands work, they now control the .buttonuse field (.button1 was used by many mods for other purposes).
+
 // LordHavoc: HIGHLY experimental, do not implement this in other engines
 //DP_CGAME
 //idea: LordHavoc
@@ -131,16 +150,13 @@ float   EF_STARDUST     = 2048;
 //description:
 //controls opacity of the entity, 0.0 is forced to be 1.0 (otherwise everything would be invisible), use -1 if you want to make something invisible, 1.0 is solid (like normal).
 
-/*
-//NOTE: no longer supported by darkplaces because no one used it
-//DP_ENT_COLORMOD // no longer supported
+//DP_ENT_COLORMOD
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
 //field definition:
 .vector colormod;
 //description:
-//controls color of the entity, '0 0 0', is forced to be '1 1 1' (otherwise everything would be black), used for tinting objects, for instance using '1 0.6 0.4' on an ogre would give you an orange ogre (order is red green blue).
-*/
+//controls color of the entity, '0 0 0', is forced to be '1 1 1' (otherwise everything would be black), used for tinting objects, for instance using '1 0.6 0.4' on an ogre would give you an orange ogre (order is red green blue), note the colors can go up to '8 8 8' (8x as bright as normal).
 
 //DP_ENT_CUSTOMCOLORMAP
 //idea: LordHavoc
@@ -1079,6 +1095,26 @@ string(float n) argv = #442;
 //darkplaces implementation: LordHavoc
 //description:
 //shows that the engine supports the "r_letterbox" console variable, set to values in the range 0-100 this restricts the view vertically (and turns off sbar and crosshair), value is a 0-100 percentage of how much to constrict the view, <=0 = normal view height, 25 = 75% of normal view height, 50 = 50%, 75 = 25%, >=100 = no view
+
+//PRYDON_CLIENTCURSOR
+//idea: FrikaC
+//darkplaces implementation: LordHavoc
+//effects bit:
+float EF_SELECTABLE = 16384; // allows cursor to highlight entity (brighten)
+//field definitions:
+.float cursor_active; // true if cl_prydoncursor mode is on
+.vector cursor_screen; // screen position of cursor as -1 to +1 in _x and _y (_z unused)
+.vector cursor_trace_start; // position of camera
+.vector cursor_trace_endpos; // position of cursor in world (as traced from camera)
+.entity cursor_trace_ent; // entity the cursor is pointing at
+//cvar definitions:
+//cl_prydoncursor (0/1+, default 0, 1 and above use cursors named gfx/prydoncursor%03i.lmp - or .tga and such if DP_GFX_EXTERNALTEXTURES is implemented)
+//description:
+//shows that the engine supports the cl_prydoncursor cvar, this puts a clientside mouse pointer on the screen and feeds input to the server for the QuakeC to use as it sees fit.
+//the mouse pointer triggers button4 if cursor is at left edge of screen, button5 if at right edge of screen, button6 if at top edge of screen, button7 if at bottom edge of screen.
+//the clientside trace skips transparent entities (except those marked EF_SELECTABLE).
+//the selected entity highlights only if EF_SELECTABLE is set, a typical selection method would be doubling the brightness of the entity by some means (such as colormod[] *= 2).
+//intended to be used by Prydon Gate.
 
 //TENEBRAE_GFX_DLIGHTS
 //idea: Tenebrae
