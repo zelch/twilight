@@ -328,9 +328,9 @@ pcx_t;
 
 void WritePCX(char *filename, unsigned char *data, int width, int height, unsigned char *palette)
 {
-	int 	i, run, pix;
-	pcx_t	*pcx;
-	unsigned char	*pack;
+	int i, y, run, pix;
+	pcx_t *pcx;
+	unsigned char *pack, *dataend;
 
 	pcx = malloc(width * height * 2 + 1000);
 	if (!pcx)
@@ -350,80 +350,32 @@ void WritePCX(char *filename, unsigned char *data, int width, int height, unsign
 	pcx->ymax = LittleShort ((short) (height - 1));
 	pcx->hres = LittleShort ((short) width);
 	pcx->vres = LittleShort ((short) height);
-//	memset (pcx->palette, 0, sizeof (pcx->palette));
 	pcx->color_planes = 1;				// chunky image
-	pcx->bytes_per_line = LittleShort ((short) width);
+	pcx->bytes_per_line = LittleShort ((short) ((width + 1) & ~1));
 	pcx->palette_type = LittleShort (2);	// not a grey scale
-//	memset (pcx->filler, 0, sizeof (pcx->filler));
 
 	// pack the image
 	pack = (unsigned char*)&pcx[1];
 
-	run = 0xC1;
-	pix = *data++;
-	for (i = 1;i < width*height;i++)
+	for (y = 0;y < height;y++)
 	{
-		if (*data == pix && run < 0xFF)
-			run++;
-		else
+		for (dataend = data + width;data < dataend;)
 		{
-			if (run == 0xC1 && pix < 0xC0) // single pixel
-				*pack++ = pix;
-			else
-			{
+			for (pix = *data++, run = 0xC1;data < dataend && run < 0xFF && *data == pix;data++, run++);
+			if (run > 0xC1 || pix >= 0xC0)
 				*pack++ = run;
-				*pack++ = pix;
-			}
-			run = 0xC1;
-			pix = *data;
-		}
-		data++;
-	}
-	if (run == 0xC1 && pix < 0xC0) // single pixel
-		*pack++ = pix;
-	else
-	{
-		*pack++ = run;
-		*pack++ = pix;
-	}
-	/*
-	for (i = 0; i < height; i++)
-	{
-		run = 0xC1;
-		pix = *data++;
-		for (j = 1; j < width; j++)
-		{
-			if (*data == pix && run < 0xFF)
-				run++;
-			else
-			{
-				if (run == 0xC1 && pix < 0xC0) // single pixel
-					*pack++ = pix;
-				else
-				{
-					*pack++ = run;
-					*pack++ = pix;
-				}
-				run = 0xC1;
-				pix = *data;
-			}
-		}
-		if (run == 0xC1 && pix < 0xC0) // single pixel
-			*pack++ = pix;
-		else
-		{
-			*pack++ = run;
 			*pack++ = pix;
 		}
+		if (width & 1)
+			*pack++ = 0;
 	}
-	*/
 
 	// write the palette
 	*pack++ = 0x0c;						// palette ID byte
 	for (i = 0; i < 768; i++)
 		*pack++ = *palette++;
 
-	// write output file 
+	// write output file
 	writefile(filename, pcx, pack - (unsigned char *) pcx);
 
 	free(pcx);
