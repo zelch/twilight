@@ -9,7 +9,9 @@
 
 		titlebox ("subscr", "Subscribe to " . $listname,
 			"<form method=\"post\" action=\"/subscribe.php\">\n" .
-			"<table" . ($browser_css ? "" : " align=\"center\"") . ">\n" .
+# funny how their attempts to decrease <table> use results in the opposite.
+			($browser_css ? "<table width=\"100%\" style=\"text-align: center\"><tr><td align=\"center\">" : "") .
+			"<table " . ($browser_css ? "" : " align=\"center\"") . ">\n" .
 			"<tr><td>Email:&nbsp;</td><td>\n" .
 			"<input type=\"text\" name=\"sub_email\" size=\"30\" /></td>\n" .
 			"<td>&nbsp;&nbsp;<input type=\"submit\" name=\"sub_button\"\n" .
@@ -17,7 +19,9 @@
 			"<tr><td><input type=\"hidden\" name=\"sub_list\"\n" .
 			"value=\"" . $listname . "\" />\n</td><td colspan=\"2\">\n" .
 			"<input type=\"checkbox\" name=\"sub_digest\" />\n" .
-			" Messages in digest format\n</td></tr></table></form>\n"
+			" Messages in digest format\n</td></tr></table>" .
+			($browser_css ? "</td></tr></table>" : "") .
+			"</form>\n"
 		);
 	}
 

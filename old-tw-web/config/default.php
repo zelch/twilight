@@ -160,7 +160,6 @@ div.subscrtitle {
 }
 div.subscrcontent {
 	margin: 5px;
-	content-align: center;
 }
 
 div.plugs {

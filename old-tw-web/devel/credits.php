@@ -43,10 +43,12 @@
 		}
 	}
 
-	// FIXME: is legal XHTML 1.0 ?
-	echo ("<center><table width=\"90%\"");
+	if ($browser_css)
+		echo ("<table width=\"90%\" style=\"text-align: center\">\n");
+	else
+		echo ("<center><table width=\"90%\">\n");
 	array_walk ($thanks, 'print_quakeguys');
-	echo ("</table></center>");
+	echo ("</table>" . ($browser_css ? "" : "</center>") . "\n");
 
 	require ($pageroot . "/include/footer.php");
 ?>
