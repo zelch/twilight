@@ -12,7 +12,9 @@ int			nummapplanes;
 plane_t		mapplanes[MAX_MAP_PLANES];
 
 int			nummiptex;
-char		miptex[MAX_MAP_TEXINFO][16];
+char		miptex[MAX_MAP_TEXINFO][128]; // LordHavoc: was [16]
+
+int mapversion = 0;
 
 //============================================================================
 
@@ -89,7 +91,7 @@ int	FindTexinfo( texinfo_t *t )
 	texinfo_t	*tex;
 
 	// set the special flag
-	if( miptex[t->miptex][0] == '*' || !Q_strncasecmp (miptex[t->miptex], "sky", 3) )
+	if( (miptex[t->miptex][0] == '*' && !waterlightmap) || !Q_strncasecmp (miptex[t->miptex], "sky", 3) )
 		t->flags |= TEX_SPECIAL;
 
 	tex = texinfo;
@@ -136,79 +138,110 @@ vec3_t	baseaxis[18] =
 	{0,-1,0}, {1,0,0}, {0,0,-1}			// north wall
 };
 
-void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv)
+void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv, qboolean q3brush)
 {
-	int		bestaxis;
-	vec_t	dot,best;
-	int		i;
-
-	best = 0;
-	bestaxis = 0;
-
-	for (i=0 ; i<6 ; i++)
+	if (q3brush)
 	{
-		dot = DotProduct (pln->normal, baseaxis[i*3]);
-		if (dot > best)
-		{
-			best = dot;
-			bestaxis = i;
-		}
+		// LordHavoc: why oh why did they have to change it?
+		float a, ac, as, bc, bs;
+		a = -atan2(pln->normal[2], sqrt(pln->normal[0]*pln->normal[0]+pln->normal[1]*pln->normal[1]));
+		ac = cos(a);
+		as = sin(a);
+		a = atan2(pln->normal[1], pln->normal[0]);
+		bc = cos(a);
+		bs = sin(a);
+		xv[0] = -bs;
+		xv[1] = bc;
+		xv[2] = 0;
+		yv[0] = -as*bc;
+		yv[1] = -as*bs;
+		yv[2] = -ac;
 	}
-
-	VectorCopy (baseaxis[bestaxis*3+1], xv);
-	VectorCopy (baseaxis[bestaxis*3+2], yv);
+	else
+	{
+		int		bestaxis;
+		vec_t	dot,best;
+		int		i;
+	
+		best = 0;
+		bestaxis = 0;
+	
+		for (i=0 ; i<6 ; i++)
+		{
+			dot = DotProduct (pln->normal, baseaxis[i*3]);
+			if (dot > best)
+			{
+				best = dot;
+				bestaxis = i;
+			}
+		}
+	
+		VectorCopy (baseaxis[bestaxis*3+1], xv);
+		VectorCopy (baseaxis[bestaxis*3+2], yv);
+	}
 }
 
 
 //=============================================================================
 
 
-/*
-=================
-ParseBrush
-=================
-*/
-void ParseBrush (entity_t *ent)
+typedef enum brushtype_e
 {
-	int			i, j, sv, tv, hltexdef;
-	vec_t		planepts[3][3], t1[3], t2[3], d, rotate, scale[2], vecs[2][4], ang, sinv, cosv, ns, nt;
-	mbrush_t	*b;
+	BRUSHTYPE_QUAKE,
+	BRUSHTYPE_PATCHDEF2,
+	BRUSHTYPE_BRUSHDEF3,
+	BRUSHTYPE_PATCHDEF3
+}
+brushtype_t;
+
+void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushtype)
+{
+	int			i, j, sv, tv, hltexdef, facecontents, faceflags, facevalue, q2brushface, q3brushface, bpface;
+	vec_t		planepts[3][3], t1[3], t2[3], d, rotate, scale[2], vecs[2][4], ang, sinv, cosv, ns, nt, bp[2][3];
 	mface_t		*f, *f2;
 	plane_t	plane;
 	texinfo_t	tx;
+	mbrush_t	*b;
 
-	b = &mapbrushes[nummapbrushes];
-	nummapbrushes++;
-	b->next = ent->brushes;
-	ent->brushes = b;
-
-	do
+	if (brushtype == BRUSHTYPE_PATCHDEF2 || brushtype == BRUSHTYPE_PATCHDEF3)
+		return;
+	// read the three point plane definition
+	if (strcmp (token, "(") )
+		Error ("parsing brush on line %d\n", scriptline);
+	GetToken (false);
+	planepts[0][0] = atof(token);
+	GetToken (false);
+	planepts[0][1] = atof(token);
+	GetToken (false);
+	planepts[0][2] = atof(token);
+	GetToken (false);
+	if (!strcmp(token, ")"))
 	{
-		if (!GetToken (true))
-			break;
-		if (!strcmp (token, "}") )
-			break;
+		GetToken (false);
+		if (strcmp(token, "("))
+			Error("parsing brush on line %d\n", scriptline);
+		GetToken (false);
+		planepts[1][0] = atof(token);
+		GetToken (false);
+		planepts[1][1] = atof(token);
+		GetToken (false);
+		planepts[1][2] = atof(token);
+		GetToken (false);
+		if (strcmp(token, ")"))
+			Error("parsing brush on line %d\n", scriptline);
 
-		// read the three point plane definition
-		for (i = 0;i < 3;i++)
-		{
-			if (i != 0)
-				GetToken (true);
-			if (strcmp (token, "(") )
-				Error ("parsing brush on line %d\n", scriptline);
-
-			for (j = 0;j < 3;j++)
-			{
-				GetToken (false);
-				planepts[i][j] = (vec_t)atof(token); // LordHavoc: float coords
-			}
-
-			GetToken (false);
-			if (strcmp (token, ")") )
-				Error ("parsing brush on line %d\n", scriptline);
-		}
-
-		//fflush(stdout);
+		GetToken (false);
+		if (strcmp(token, "("))
+			Error("parsing brush on line %d\n", scriptline);
+		GetToken (false);
+		planepts[2][0] = atof(token);
+		GetToken (false);
+		planepts[2][1] = atof(token);
+		GetToken (false);
+		planepts[2][2] = atof(token);
+		GetToken (false);
+		if (strcmp(token, ")"))
+			Error("parsing brush on line %d\n", scriptline);
 
 		// convert points to a plane
 		VectorSubtract(planepts[0], planepts[1], t1);
@@ -216,14 +249,65 @@ void ParseBrush (entity_t *ent)
 		CrossProduct(t1, t2, plane.normal);
 		VectorNormalize(plane.normal);
 		plane.dist = DotProduct(planepts[1], plane.normal);
+	}
+	else
+	{
+		// oh, it's actually a 4 value plane
+		plane.normal[0] = planepts[0][0];
+		plane.normal[1] = planepts[0][1];
+		plane.normal[2] = planepts[0][2];
+		plane.dist = -atof(token);
+		GetToken (false);
+		if (strcmp(token, ")"))
+			Error("parsing brush on line %d\n", scriptline);
+	}
 
-		// read the texturedef
-		memset (&tx, 0, sizeof(tx));
+	// read the texturedef
+	memset (&tx, 0, sizeof(tx));
+	GetToken (false);
+	bpface = false;
+	hltexdef = false;
+	if (!strcmp(token, "("))
+	{
+		// brush primitives, utterly insane
+		bpface = true;
+		// (
+		GetToken(false);
+		// (
+		GetToken(false);
+		bp[0][0] = atof(token);
+		GetToken(false);
+		bp[0][1] = atof(token);
+		GetToken(false);
+		bp[0][2] = atof(token);
+		GetToken(false);
+		// )
+		GetToken(false);
+		// (
+		GetToken(false);
+		bp[1][0] = atof(token);
+		GetToken(false);
+		bp[1][1] = atof(token);
+		GetToken(false);
+		bp[1][2] = atof(token);
+		GetToken(false);
+		// )
+		GetToken (false);
 		GetToken (false);
 		tx.miptex = FindMiptex (token);
+		rotate = 0;
+		scale[0] = 1;
+		scale[1] = 1;
+	}
+	else
+	{
+		// if the texture name contains a / then this is a q2/q3 brushface
+		// strip off the path, wads don't use a path on texture names
+		tx.miptex = FindMiptex (token);
 		GetToken (false);
-		if ((hltexdef = !strcmp(token, "[")))
+		if (!strcmp(token, "["))
 		{
+			hltexdef = true;
 			// S vector
 			GetToken(false);
 			vecs[0][0] = (vec_t)atof(token);
@@ -261,7 +345,126 @@ void ParseBrush (entity_t *ent)
 		scale[0] = (vec_t)atof(token); // LordHavoc: was already float coords
 		GetToken (false);
 		scale[1] = (vec_t)atof(token); // LordHavoc: was already float coords
+	}
+	// q3 .map properties, currently unused but parsed
+	facecontents = 0;
+	faceflags = 0;
+	facevalue = 0;
+	q2brushface = false;
+	q3brushface = false;
+	if (GetToken (false))
+	{
+		q2brushface = true;
+		facecontents = atoi(token);
+		if (GetToken (false))
+		{
+			faceflags = atoi(token);
+			if (GetToken (false))
+			{
+				q2brushface = false;
+				q3brushface = true;
+				facevalue = atoi(token);
+			}
+		}
+	}
+	// skip trailing info (the 3 q3 .map parameters for example)
+	while (GetToken (false));
 
+	if (DotProduct(plane.normal, plane.normal) < 0.1)
+	{
+		printf ("WARNING: brush plane with no normal on line %d\n", scriptline);
+		return;
+	}
+
+	if (bpface)
+	{
+		// fake proper texture vectors from QuakeEd style
+		TextureAxisFromPlane(&plane, vecs[0], vecs[1], true);
+		// FIXME: deal with the bp stuff here
+		printf("warning: brush primitive texturing not yet supported (line %d)\n", scriptline);
+		// generic texturing
+		tx.vecs[0][0] = vecs[0][0];
+		tx.vecs[0][1] = vecs[0][1];
+		tx.vecs[0][2] = vecs[0][2];
+		tx.vecs[0][3] = vecs[0][3];
+		tx.vecs[1][0] = vecs[1][0];
+		tx.vecs[1][1] = vecs[1][1];
+		tx.vecs[1][2] = vecs[1][2];
+		tx.vecs[1][3] = vecs[1][3];
+	}
+	else
+	{
+		if (!hltexdef)
+		{
+			// fake proper texture vectors from QuakeEd style
+			TextureAxisFromPlane(&plane, vecs[0], vecs[1], q3brushface);
+		}
+		// rotate axis
+			 if (rotate ==  0) {sinv = 0;cosv = 1;}
+		else if (rotate == 90) {sinv = 1;cosv = 0;}
+		else if (rotate == 180) {sinv = 0;cosv = -1;}
+		else if (rotate == 270) {sinv = -1;cosv = 0;}
+		else {ang = rotate * (Q_PI / 180);sinv = sin(ang);cosv = cos(ang);}
+
+		// LordHavoc: I don't quite understand this
+		for (sv = 0;sv < 2 && !vecs[0][sv];sv++);
+		for (tv = 0;tv < 2 && !vecs[1][tv];tv++);
+
+		for (i = 0;i < 2;i++)
+		{
+			// rotate
+			ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
+			nt = sinv * vecs[i][sv] + cosv * vecs[i][tv];
+			vecs[i][sv] = ns;
+			vecs[i][tv] = nt;
+			// scale and store into texinfo
+			d = 1.0 / (scale[i] ? scale[i] : 1.0);
+			for (j = 0;j < 3;j++)
+				tx.vecs[i][j] = vecs[i][j] * d;
+			tx.vecs[i][3] = vecs[i][3];
+		}
+	}
+
+	/*
+	// LordHavoc: fix for CheckFace: point off plane errors in some maps (most notably QOOLE ones),
+	// and hopefully preventing most 'portal clipped away' warnings
+	VectorNormalize (plane.normal);
+	for (j = 0;j < 3;j++)
+		plane.normal[j] = (Q_rint((vec_t) plane.normal[j] * (vec_t) 8.0)) * (vec_t) (1.0 / 8.0);
+	VectorNormalize (plane.normal);
+	plane.dist = DotProduct (t3, plane.normal);
+	d = (Q_rint(plane.dist * 8.0)) * (1.0 / 8.0);
+	//if (fabs(d - plane.dist) >= (0.4 / 8.0))
+	//	printf("WARNING: correcting minor math errors in brushface on line %d\n", scriptline);
+	plane.dist = d;
+	*/
+
+	/*
+	VectorNormalize (plane.normal);
+	plane.dist = DotProduct (t3, plane.normal);
+
+	VectorCopy(plane.normal, v);
+	//for (j = 0;j < 3;j++)
+	//	v[j] = (Q_rint((vec_t) v[j] * (vec_t) 32.0)) * (vec_t) (1.0 / 32.0);
+	VectorNormalize (v);
+	d = (Q_rint(DotProduct (t3, v) * 8.0)) * (1.0 / 8.0);
+
+	// if deviation is too high, warn  (frequently happens on QOOLE maps)
+	if (fabs(DotProduct(v, plane.normal) - 1.0) > (0.5 / 32.0)
+	 || fabs(d - plane.dist) >= (0.25 / 8.0))
+		printf("WARNING: minor misalignment of brushface on line %d\n"
+			   "normal     %f %f %f (l: %f d: %f)\n"
+			   "rounded to %f %f %f (l: %f d: %f r: %f)\n",
+			   scriptline,
+			   (vec_t) plane.normal[0], (vec_t) plane.normal[1], (vec_t) plane.normal[2], (vec_t) sqrt(DotProduct(plane.normal, plane.normal)), (vec_t) DotProduct (t3, plane.normal),
+			   (vec_t) v[0], (vec_t) v[1], (vec_t) v[2], (vec_t) sqrt(DotProduct(v, v)), (vec_t) DotProduct(t3, v), (vec_t) d);
+	//VectorCopy(v, plane.normal);
+	//plane.dist = d;
+	*/
+
+	b = *brushpointer;
+	if (b)
+	{
 		// if the three points are all on a previous plane, it is a
 		// duplicate plane
 		for (f2 = b->faces ; f2 ; f2=f2->next)
@@ -278,91 +481,73 @@ void ParseBrush (entity_t *ent)
 		if (f2)
 		{
 			printf ("WARNING: brush with duplicate plane (first point is at %g %g %g, .map file line number %d)\n", planepts[0][0], planepts[0][1], planepts[0][2], scriptline);
-			continue;
+			return;
 		}
-
-		if (DotProduct(plane.normal, plane.normal) < 0.1)
-		{
-			printf ("WARNING: brush plane with no normal on line %d\n", scriptline);
-			continue;
-		}
-
-		/*
-		// LordHavoc: fix for CheckFace: point off plane errors in some maps (most notably QOOLE ones),
-		// and hopefully preventing most 'portal clipped away' warnings
-		VectorNormalize (plane.normal);
-		for (j = 0;j < 3;j++)
-			plane.normal[j] = (Q_rint((vec_t) plane.normal[j] * (vec_t) 8.0)) * (vec_t) (1.0 / 8.0);
-		VectorNormalize (plane.normal);
-		plane.dist = DotProduct (t3, plane.normal);
-		d = (Q_rint(plane.dist * 8.0)) * (1.0 / 8.0);
-		//if (fabs(d - plane.dist) >= (0.4 / 8.0))
-		//	printf("WARNING: correcting minor math errors in brushface on line %d\n", scriptline);
-		plane.dist = d;
-		*/
-
-		/*
-		VectorNormalize (plane.normal);
-		plane.dist = DotProduct (t3, plane.normal);
-
-		VectorCopy(plane.normal, v);
-		//for (j = 0;j < 3;j++)
-		//	v[j] = (Q_rint((vec_t) v[j] * (vec_t) 32.0)) * (vec_t) (1.0 / 32.0);
-		VectorNormalize (v);
-		d = (Q_rint(DotProduct (t3, v) * 8.0)) * (1.0 / 8.0);
-
-		// if deviation is too high, warn  (frequently happens on QOOLE maps)
-		if (fabs(DotProduct(v, plane.normal) - 1.0) > (0.5 / 32.0)
-		 || fabs(d - plane.dist) >= (0.25 / 8.0))
-			printf("WARNING: minor misalignment of brushface on line %d\n"
-			       "normal     %f %f %f (l: %f d: %f)\n"
-			       "rounded to %f %f %f (l: %f d: %f r: %f)\n",
-			       scriptline,
-			       (vec_t) plane.normal[0], (vec_t) plane.normal[1], (vec_t) plane.normal[2], (vec_t) sqrt(DotProduct(plane.normal, plane.normal)), (vec_t) DotProduct (t3, plane.normal),
-			       (vec_t) v[0], (vec_t) v[1], (vec_t) v[2], (vec_t) sqrt(DotProduct(v, v)), (vec_t) DotProduct(t3, v), (vec_t) d);
-		//VectorCopy(v, plane.normal);
-		//plane.dist = d;
-		*/
-
-		if (!hltexdef)
-		{
-			// fake proper texture vectors from QuakeEd style
-			TextureAxisFromPlane(&plane, vecs[0], vecs[1]);
-		}
-
-		// rotate axis
-		     if (rotate ==  0) {sinv = 0;cosv = 1;}
-		else if (rotate == 90) {sinv = 1;cosv = 0;}
-		else if (rotate == 180) {sinv = 0;cosv = -1;}
-		else if (rotate == 270) {sinv = -1;cosv = 0;}
-		else {ang = rotate * (Q_PI / 180);sinv = sin(ang);cosv = cos(ang);}
-
-		// LordHavoc: I don't quite understand this
-		for (sv = 0;sv < 2 && !vecs[0][sv];sv++);
-		for (tv = 0;tv < 2 && !vecs[1][tv];tv++);
-
-		for (i = 0;i < 2;i++)
-		{
-			// rotate
-			ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
-			nt = sinv * vecs[i][sv] +  cosv * vecs[i][tv];
-			vecs[i][sv] = ns;
-			vecs[i][tv] = nt;
-			// scale and store into texinfo
-			d = 1.0 / (scale[i] ? scale[i] : 1.0);
-			for (j = 0;j < 3;j++)
-				tx.vecs[i][j] = vecs[i][j] * d;
-			tx.vecs[i][3] = vecs[i][3];
-		}
-
-		f = qmalloc(sizeof(mface_t));
-		f->next = b->faces;
-		b->faces = f;
-		f->plane = plane;
-		f->texinfo = FindTexinfo (&tx);
-		nummapbrushfaces++;
 	}
-	while (1);
+	else
+	{
+		b = &mapbrushes[nummapbrushes];
+		nummapbrushes++;
+		b->next = ent->brushes;
+		ent->brushes = b;
+		*brushpointer = b;
+	}
+
+	f = qmalloc(sizeof(mface_t));
+	f->next = b->faces;
+	b->faces = f;
+	f->plane = plane;
+	f->texinfo = FindTexinfo (&tx);
+	nummapbrushfaces++;
+}
+
+/*
+=================
+ParseBrush
+=================
+*/
+void ParseBrush (entity_t *ent)
+{
+	brushtype_t	brushtype;
+	mbrush_t	*b;
+
+	b = NULL;
+
+	brushtype = BRUSHTYPE_QUAKE;
+	for (;;)
+	{
+		if (!GetToken (true))
+			break;
+		if (!strcmp (token, "patchDef2"))
+		{
+			brushtype = BRUSHTYPE_PATCHDEF2;
+			printf("patches not supported, skipping patch on line %d\n", scriptline);
+		}
+		else if (!strcmp (token, "brushDef3"))
+			brushtype = BRUSHTYPE_BRUSHDEF3;
+		else if (!strcmp (token, "patchDef3"))
+		{
+			brushtype = BRUSHTYPE_PATCHDEF3;
+			printf("patches not supported, skipping patch on line %d\n", scriptline);
+		}
+		else if (!strcmp (token, "{") && brushtype != BRUSHTYPE_QUAKE)
+		{
+			for (;;)
+			{
+				if (!GetToken(true))
+					Error("parsing brush on line %d\n", scriptline);
+				if (!strcmp (token, "}"))
+					break;
+				ParseBrushFace(ent, &b, brushtype);
+			}
+		}
+		else if (!strcmp (token, "}"))
+			break;
+		else if (!strcmp (token, "("))
+			ParseBrushFace(ent, &b, BRUSHTYPE_QUAKE);
+		else
+			Error("parsing brush on line %d, unknown token \"%s\"\n", scriptline, token);
+	}
 }
 
 /*
@@ -402,6 +587,12 @@ qboolean ParseEntity (void)
 
 	if( !GetToken( true ) )
 		return false;
+	if (!strcmp(token, "Version"))
+	{
+		GetToken(true);
+		mapversion = atof(token);
+		GetToken(true);
+	}
 	if( strcmp( token, "{" ) )
 		Error( "ParseEntity: { not found" );
 
@@ -457,6 +648,7 @@ void LoadMapFile (char *filename)
 	nummapbrushes = 0;
 	nummapplanes = 0;
 	nummiptex = 0;
+	mapversion = 0;
 
 	LoadFile (filename, &buf);
 

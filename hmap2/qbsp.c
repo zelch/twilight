@@ -12,6 +12,7 @@ qboolean onlyents;
 qboolean verbose;
 qboolean allverbose;
 qboolean forcevis;
+qboolean waterlightmap;
 
 int		subdivide_size;
 
@@ -228,6 +229,7 @@ int main (int argc, char **argv)
 	allverbose = false;
 	transwater = true;
 	forcevis = true;
+	waterlightmap = true;
 	subdivide_size = 240;
 
 	for (i=1 ; i<argc ; i++)
@@ -246,6 +248,8 @@ int main (int argc, char **argv)
 			onlyents = true;
 		else if (!strcmp (argv[i],"-verbose"))
 			allverbose = true;
+		else if (!strcmp (argv[i],"-nowaterlightmap"))
+			waterlightmap = false;
 		else if (!strcmp (argv[i],"-subdivide"))
 		{
 			subdivide_size = atoi(argv[i+1]);
@@ -282,6 +286,7 @@ error:
 "-verbose    show more messages\n"
 "-darkplaces allow really big polygons\n"
 "-noforcevis don't make a .prt if the map leaks\n"
+"-nowaterlightmap disable darkplaces lightmapped water feature\n"
 		);
 
 	// argv[i] and argv[arc-1] are the same if only one name is supplied

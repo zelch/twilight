@@ -14,43 +14,63 @@ void StartTokenParsing (char *data)
 
 qboolean GetToken (qboolean crossline)
 {
-	char    *token_p;
+	char    *token_p, *temp;
 
 	if (unget)                         // is a token already waiting?
 		return true;
 
+	// return something even if the caller ignores a return false
+	token[0] = 0;
+
 	//
 	// skip space
 	//
-	skipspace:
-	while (*script_p <= 32)
+	for (;;)
 	{
-		if (!*script_p)
+		if (*script_p == 0)
+			return false; 
+		else if (*script_p == '\n')
 		{
 			if (!crossline)
-				Error ("Line %i is incomplete",scriptline);
-			return false;
-		}
-		if (*script_p++ == '\n')
-		{
-			if (!crossline)
-				Error ("Line %i is incomplete",scriptline);
+				return false;
+			script_p++;
 			scriptline++;
 		}
-	}
-
-	if (script_p[0] == '/' && script_p[1] == '/')	// comment field
-	{
-		if (!crossline)
-			Error ("Line %i is incomplete\n",scriptline);
-		while (*script_p++ != '\n')
-			if (!*script_p)
+		else if (*script_p <= ' ')
+			script_p++;
+		else if (script_p[0] == '/' && script_p[1] == '/')
+		{
+			while (*script_p && *script_p != '\n')
+				script_p++;
+		}
+		else if (script_p[0] == '/' && script_p[1] == '*')
+		{
+			temp = script_p;
+			for (;;)
 			{
-				if (!crossline)
-					Error ("Line %i is incomplete",scriptline);
-				return false;
+				if (*script_p == 0)
+					break;
+				else if (script_p[0] == '*' && script_p[1] == '/')
+				{
+					script_p += 2;
+					break;
+				}
+				else if (*script_p == '\n')
+				{
+					if (!crossline)
+					{
+						script_p = temp;
+						return false;
+					}
+					script_p++;
+					scriptline++;
+				}
+				else
+					script_p++;
 			}
-		goto skipspace;
+		}
+		else
+			break;
 	}
 
 	//

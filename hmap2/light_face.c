@@ -212,11 +212,14 @@ to get the world xyz value of the sample point
 */
 static void CalcPoints( lightinfo_t *l )
 {
-	int i, j, s, t, w, h, realw, realh, stepbit;
+	int j, s, t, w, h, realw, realh, stepbit;
 	vec_t starts, startt, us, ut, mids, midt;
-	vec3_t facemid, base, v;
+	vec3_t facemid, base;
 	lightTrace_t tr;
 	lightpoint_t *point;
+	/*
+	int i;
+	vec3_t v;
 	vec_t nudgeScale = 1.0 / 8.0;
 	vec_t nudgeFractions[2][9] = 
 	{
@@ -224,6 +227,7 @@ static void CalcPoints( lightinfo_t *l )
 		{ 0, 1, -1, 0, 1, -1, 0, 1, -1 },
 	};
 	int numNudgeFractions = sizeof( nudgeFractions[0] ) / sizeof( nudgeFractions[0][0] );
+	*/
 
 //
 // fill in point array

@@ -59,11 +59,8 @@ void CleanupName (char *in, char *out)
 int MipTexUsed(char *texname)
 {
 	int i;
-	char name[16];
-	CleanupName(texname, name);
-
 	for (i = 0;i < nummiptex;i++)
-		if (!strcmp(miptex[i], name))
+		if (!Q_strcasecmp(miptex[i], texname))
 			return true;
 	return false;
 }
@@ -71,12 +68,18 @@ int MipTexUsed(char *texname)
 miptexfile_t *FindMipTexFile(char *texname)
 {
 	int i;
-	char name[16];
-	CleanupName(texname, name);
 
-	for (i = 0;i < nummiptexfiles;i++)
-		if (!strcmp(miptexfile[i].name, name))
-			return miptexfile + i;
+	// search for exact match, then a match with first path element stripped, then next path element, and so on...
+	while (*texname)
+	{
+		for (i = 0;i < nummiptexfiles;i++)
+			if (!Q_strcasecmp(miptexfile[i].name, texname))
+				return miptexfile + i;
+		if (strchr(texname, '/'))
+			texname = strchr(texname, '/') + 1;
+		else
+			break;
+	}
 	return NULL;
 }
 
@@ -84,7 +87,7 @@ void AddAnimatingTextures (void)
 {
 	int		base;
 	int		i, j;
-	char	name[32];
+	char	name[128];
 
 	base = nummiptex;
 
@@ -92,7 +95,8 @@ void AddAnimatingTextures (void)
 	{
 		if (miptex[i][0] != '+')
 			continue;
-		CleanupName (miptex[i], name);
+		strncpy (miptex[i], name, sizeof(name) - 1);
+		name[sizeof(name)-1] = 0;
 
 		for (j = 0;j < 20;j++)
 		{
@@ -231,8 +235,8 @@ void WriteMiptex (void)
 		if (!path || !path[0])
 		{
 			printf ("WriteMiptex: no wads specified in \"wad\" key in worldspawn\n");
-			texdatasize = 0;
-			return;
+			//texdatasize = 0;
+			//return;
 		}
 	}
 
@@ -286,9 +290,6 @@ void WriteMiptex (void)
 		}
 	}
 
-	for (i = 0;i < nummiptex;i++)
-		CleanupName(miptex[i], miptex[i]);
-
 	AddAnimatingTextures();
 
 	miptex_lumps = (dmiptexlump_t *)dtexdata;
@@ -319,8 +320,47 @@ void WriteMiptex (void)
 		}
 		else
 		{
-			miptex_lumps->dataofs[i] = -1;
-			printf(" (NOT FOUND)\n");
+			if (miptex_data + (sizeof(miptex_t) + 16 * 16 + 8 * 8 + 4 * 4 + 2 * 2) - dtexdata >= MAX_MAP_MIPTEX)
+			{
+				miptex_lumps->dataofs[i] = -1;
+				printf(" (MAX_MAP_MIPTEX exceeded)\n");
+			}
+			else
+			{
+				miptex_t blankmiptex;
+				char *s;
+				int j, x, y;
+				printf(" (NOT FOUND)\n");
+				miptex_lumps->dataofs[i] = miptex_data - (byte *)miptex_lumps;
+				s = miptex[i];
+				if (strrchr(s, '/'))
+					s = strrchr(s, '/') + 1;
+				memset(blankmiptex.name, 0, sizeof(blankmiptex.name));
+				strncpy(blankmiptex.name, s, sizeof(blankmiptex.name) - 1);
+				blankmiptex.width = LittleLong(16);
+				blankmiptex.height = LittleLong(16);
+				blankmiptex.offsets[0] = LittleLong(sizeof(miptex_t));
+				blankmiptex.offsets[1] = LittleLong(sizeof(miptex_t) + 16 * 16);
+				blankmiptex.offsets[2] = LittleLong(sizeof(miptex_t) + 16 * 16 + 8 * 8);
+				blankmiptex.offsets[3] = LittleLong(sizeof(miptex_t) + 16 * 16 + 8 * 8 + 4 * 4);
+				memcpy(miptex_data, &blankmiptex, sizeof(miptex_t) + 16 * 16 + 8 * 8 + 4 * 4 + 2 * 2);
+				miptex_data += sizeof(miptex_t);
+				for (j = 0;j < 4;j++)
+				{
+					for (y = 0;y < (16 >> j);y++)
+					{
+						for (x = 0;x < (16 >> j);x++)
+						{
+							if ((x ^ y) & (8 >> j))
+								*miptex_data++ = 10;
+							else
+								*miptex_data++ = 6;
+						}
+					}
+				}
+				//memset(miptex_data, 15, 16 * 16 + 8 * 8 + 4 * 4 + 2 * 2);
+				//miptex_data += 16 * 16 + 8 * 8 + 4 * 4 + 2 * 2;
+			}
 		}
 	}
 

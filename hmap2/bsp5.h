@@ -196,6 +196,7 @@ extern	qboolean verbose;
 extern	qboolean forcevis;
 extern	qboolean oldbsp;
 extern	qboolean transwater;
+extern	qboolean waterlightmap;
 
 extern	int		subdivide_size;
 

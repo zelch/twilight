@@ -462,10 +462,29 @@ brush_t *LoadBrush (mbrush_t *mb, int hullnum)
 	//
 	// check texture name for attributes
 	//
-	name = miptex[texinfo[mb->faces->texinfo].miptex];
 
-	if (!Q_strcasecmp(name, "clip") && hullnum == 0)
-		return NULL;		// "clip" brushes don't show up in the draw hull
+	for (f = mb->faces;f;f = f->next)
+	{
+		name = miptex[texinfo[f->texinfo].miptex];
+		if (hullnum == 0)
+		{
+			// textures which don't show up in the drawing hull
+			if (!Q_strcasecmp(name, "clip"))
+				return NULL;
+			if (!Q_strcasecmp(name, "common/nodraw"))
+				return NULL;
+			if (!Q_strcasecmp(name, "textures/common/nodraw"))
+				return NULL;
+			if (!Q_strcasecmp(name, "textures/common/clip"))
+				return NULL;
+			if (!Q_strcasecmp(name, "textures/common/full_clip"))
+				return NULL;
+		}
+		if (!Q_strcasecmp(name, "textures/editor/visportal"))
+			return NULL;
+	}
+
+	name = miptex[texinfo[mb->faces->texinfo].miptex];
 
 	if (name[0] == '*')		// entities never use water merging
 	{
