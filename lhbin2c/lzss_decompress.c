@@ -57,32 +57,6 @@ int hapi_lzss_decompressbuffer(const unsigned char *in, const unsigned char *ine
 }
 #endif
 
-#if 0
-// This function extracts quickly, sacrificing overrun detection (it still
-// knows if there was an error, but it may have read or written too much)
-int lzss_decompressbuffer_fastandunsafe(const unsigned char *in, const unsigned char *inend, unsigned char *out, unsigned char *outend)
-{
-	int i, commandbyte, code;
-	const unsigned char *copy;
-	unsigned char *outcopyend;
-	while (in < inend)
-	{
-		for (i = 0x80, commandbyte = *in++;i && in < inend;i >>= 1)
-		{
-			if (commandbyte & i)
-			{
-				for (code = (*in++) * 0x100, code += *in++, outcopyend = out + ((code >> 12) & 15) + 3, copy = out - ((code & 0xFFF) + 1), in++;out < outcopyend;)
-					*out++ = *copy++;
-			}
-			else
-				*out++ = *in++;
-		}
-	}
-	return in != inend || out != outend; // corrupt if non-zero
-}
-#endif
-
-// This function tries to extract quickly but safety comes first
 int lzss_decompressbuffer(const unsigned char *in, const unsigned char *inend, unsigned char *out, unsigned char *outend)
 {
 	int i, commandbyte, code;
