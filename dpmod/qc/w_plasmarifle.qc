@@ -10,6 +10,13 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaRifl
 		if (targ.bodyhealth < 1)
 			deathstring2 = " was splattered by ";
 	}
+	else if (dtype == DTYPE_SUICIDE)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " became crispy";
+		deathstring3 = "";
+		deathstring4 = "";
+	}
 	else
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
