@@ -1,6 +1,7 @@
 <?php
 	$title = "Recent News";
 	$pageroot = ".";
+	require ($pageroot . "/include/sql.php");
 	require ($pageroot . "/include/header.php");
 
 	box ("title", "Recent News");

@@ -1,9 +1,5 @@
 <?php
 
-
-        // load the database config
-        require($pageroot . "/../web-private/sql.conf");
-
 	$display = array (
 		logo => "/images/twilight.gif" ,
 		body => "text=\"#ffffff\" bgcolor=\"#000000\"" .
