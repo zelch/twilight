@@ -6,6 +6,19 @@
 
 	box ("title", "Recent news");
 
+    newsitem ("02 Aug 2001", "knghtbrd", "We've got a bit nicer logo now\n" .
+		"thanks to some ideas given by everyone and my stubborn refusal\n" .
+		"to let gimp have the last laugh with the old one.&nbsp; I'm sure\n" .
+		"we can all agree the last one sucked.&nbsp; Thanks to everyone\n" .
+		"for their patience as I muddle through PHP, CSS, and my attempts\n" .
+		"at graphics desing.&nbsp; As a side bonus, Konqueror users will\n" .
+		"find the page does not look totally retarded now, though it does\n" .
+		"lack CSS.&nbsp; Complain upstream, and give them\n" .
+		"<a href=\"http://twilight.sf.net/index.php?use_css=yes\">this\n" .
+		"URL</a> as an example of valid CSS their browser breaks on, and\n" .
+		"please let me know the first version that doesn't break anymore!\n"
+	);
+
 	newsitem ("29 Jul 2001", "Knghtbrd", "We still need a logo to replace\n" .
 		"the one at the top of this page. &nbsp;Send me email if you want\n" .
 		"to do one.  The new website layout I've been working on is now\n" .

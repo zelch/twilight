@@ -27,7 +27,7 @@
 	} else {
 		echo ("<tr><td colspan=\"2\"" . $display["header"] .">\n");
 	}
-	echo ("<img width=\"339\" height=\"88\" src=\"" . $display["logo"] .
+	echo ("<img width=\"403\" height=\"82\" src=\"" . $display["logo"] .
 		"\" alt=\"Project Twilight\">\n</td></tr>\n");
 	if ($browser_css) {
 		echo ("<tr><td width=\"15%\" class=\"side\">\n");
@@ -61,11 +61,11 @@
 		"<a href=\"http://sourceforge.net\">" .
 		"<img width=\"88\" height=\"31\" " .
 		"src=\"http://sourceforge.net/sflogo.php?group_id=31385\" " .
-		"border=\"0\" alt=\"SourceForge\"></a><br>" .
+		"border=\"0\" alt=\"SourceForge\"></a><br>\n" .
 		
 		"<a href=\"http://www.opengl.org\">" .
 		"<img width=\"75\" height=\"33\" " .
-		"src=\"/images/opengl.gif\" alt=\"OpenGL\" border=\"0\"></a>"
+		"src=\"/images/opengl.gif\" alt=\"OpenGL\" border=\"0\"></a><br>\n"
 		
 	);
 
