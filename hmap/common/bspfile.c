@@ -248,7 +248,7 @@ void	LoadBSPFile (char *filename)
 	LoadFile (filename, (void **)&header);
 
 	// swap the header
-	for (i=0 ; i< sizeof(dheader_t)/4 ; i++)
+	for (i=0 ; i< (int)sizeof(dheader_t)/4 ; i++)
 		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
 
 	if (header->version != BSPVERSION)
