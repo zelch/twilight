@@ -30,9 +30,9 @@ const string MENU_INGAME_DEFAULT =
 "	\"name\"		\"ingame\"\n"
 "}";
 
-const string MENU_FILENAME_LIST =
-"medit.menu"
-"";
+// insert the files here
+var string MENU_FILENAME_LIST =
+"test.menu medit.menu"
 
 const float MENU_ALLOWINGAME = FALSE;
 
@@ -105,12 +105,18 @@ vector menu_cursor;
 
 // used for global managing
 void(void) menu_init;
+// used to reload everything mmanager related
+void(void) menu_restart;
+// loads all files the file lists consists of
+void(void) menu_load;
 // used to reset the menu states everytime the menu is activated
 void(void) menu_performreinit;
 
 // decide whether to toggle the menu
 void(void) menu_toggle;
 
+// use this to add a file to the file list
+void(string file) menu_addfiletolist;
 // these 2 functions are pretty private, so dont call them !
 void(string file) menu_loadmenu;
 void(void) menu_linkwindows;

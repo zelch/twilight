@@ -152,4 +152,6 @@ float	getkeydest(void)	= #602;
 void	setmousetarget(float trg) = #603;
 float	getmousetarget(void)	  = #604;
 
+void	callfunction(...) = #605;
+void	writetofile(float fhandle, entity ent) = #606;
 

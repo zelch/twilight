@@ -149,6 +149,8 @@ gfx_fillarea =
 
 void(vector position, vector size) gfx_setcliparea =
 {
+	position = gfx_converttocon(position);
+	size = gfx_converttocon(size);
 	drawsetcliparea(position_x, position_y, size_x, size_y);
 };
 

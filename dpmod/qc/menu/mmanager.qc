@@ -7,6 +7,13 @@
 
 void(void) menu_init =
 {
+	registercvar("menu_reloadlist","0");
+
+	menu_load();
+};
+
+void(void) menu_load =
+{
 	// load the menu files
 	float count, i;
 
@@ -21,6 +28,87 @@ void(void) menu_init =
 	menu_linkwindows();
 };
 
+void(string file) menu_addfiletolist =
+{
+	float count, i;
+
+	count = tokenize(MENU_FILENAME_LIST);
+
+	for(i = 0; i < count; i = i + 1)
+	{
+		if(argv(i) == file)
+		{
+			return;
+		}
+	}
+
+	MENU_FILENAME_LIST = strcat(MENU_FILENAME_LIST," ",file);
+};
+
+void(void) menu_restart =
+{
+	// actually we empty the ent list and load everything one more time, thats it
+	entity ent;
+	float  selfused;
+	string oldself;
+	string oldactive;
+	string oldselected;
+
+	// we backup the active window name and the name of the selected item
+	oldactive = menu_activewindow.name;
+	oldselected = menu_selected.name;
+	// backup self's name
+	if(self != null_entity)
+	{
+		oldself = self.name;
+		selfused = true;
+	}
+	else
+	{
+		selfused = false;
+	}
+
+	// we remove all items
+	ent = null_entity;
+	while((ent = nextent(ent)) != null_entity)
+	{
+		remove(ent);
+	}
+
+	// FIXME: here's a "little" hack (so PRVM_ED_Alloc replaces the items instead of creating new ones)
+	time = time + 1.0;
+
+	// now call menu_load
+	menu_load();
+
+	time = time - 1.0;	// we cant use gettime cause that always returns time :-/
+
+	// perform the init
+	menu_performreinit();
+
+	ent = menu_getitem(oldactive);
+	if(ent)
+	{
+		menu_activewindow = ent;
+		ent = menu_getitem(oldselected);
+		if(ent)
+		{
+			menu_selected = ent;
+		}
+	}
+
+	if(selfused)
+	{
+		ent = menu_getitem(oldself);
+		if(ent)
+		{
+			self = ent;
+		} else // we have no current self...
+		{
+			error("Reloaded menu files, but the former self (", oldself ,") item is missing !\n");
+		}
+	}
+};
 void(string file) menu_loadmenu =
 {
 	loadfromfile(file);
@@ -68,6 +156,20 @@ void(void) menu_linkwindows =
 	if(ent == null_entity)
 		error("Bad MENU_INGAME_DEFAULT !\n");
 
+	// verify that every name is only used *once*
+	ent = null_entity;
+	while((ent = nextent(ent)) != null_entity)
+	{
+		self = ent;
+		while((self = findstring(self, name, ent.name)) != null_entity)
+		{
+			if(self != null_entity)
+			{
+				objerror("Name ", ent.name, " already used !\n");
+			}
+		}
+	}
+
 	// now we have to :
 	// set the parent field with parent_name
 	// set the next and prev fields
@@ -94,6 +196,10 @@ void(void) menu_linkwindows =
 			}
 
 			self._parent = ent;
+		}
+		else
+		{
+			self._parent = null_entity;
 		}
 	}
 
@@ -172,7 +278,7 @@ void(void) menu_linkwindows =
 void(void) menu_toggle =
 {
 	// only let the qc toggle the menu if we are ingame or a developer
-	if(gamestatus & GAME_CONNECTED || gamestatus & GAME_DEVELOPER)
+	if(gamestatus & GAME_CONNECTED || cvar("developer"))
 	{
 		// then allow toggling
 		m_toggle();
@@ -217,7 +323,7 @@ void(entity par) menu_processmouse =
 	// self is parent
 	// loop through all childs
 	// and try to find an object whose click rect fits to the mouse coords
-	entity ent, old_history;
+	entity ent, old_history, old_selected;
 
 	ent = par.child;
 	if(ent == null_entity)
@@ -270,16 +376,23 @@ void(entity par) menu_processmouse =
 			// if ent has children recurse through them
 			if(ent.child != null_entity)
 			{
-				old_history = ent.child._history;
-				if(ent._history)
+				/*old_history = ent.child._history;
+				old_selected = menu_selected;
+
+				if(ent._history != null_entity)
+				{
 					ent.child._history = ent._history;
+				}
 				else
-					ent.child._history = ent.parent;
+				{
+					ent.child._history = ent._parent;
+				}*/
 				menu_processmouse(ent);
-				if(ent._history == menu_selected)
+/*
+				if(menu_selected == old_selected)
 				{
 					ent.child._history = old_history;
-				}
+				}*/
 			}
 		}
 	} while((ent = ent.next) != null_entity);
@@ -289,6 +402,14 @@ void(entity par) menu_processmouse =
 
 void(void) menu_frame =
 {
+	// this is only for debugging purposes
+	// thus its unstable and *won't* work any more when Ive changed dp's behavior with
+	// the builtin list (the precache functions will only work for menu_init)
+	if(cvar("menu_reloadlist"))
+	{
+		cvar_set("menu_reloadlist","0");
+		menu_restart();
+	}
 	// if mouse moved, process it
 	if(cursor_rel != '0 0 0')
 		menu_processmouse(menu_activewindow);
@@ -348,6 +469,8 @@ void(entity menu) menu_drawwindow =
 			// reset the clip area to the current menu's
 			if(menu_clip_size != '0 0 0')
 				gfx_setcliparea(menu_clip_pos, menu_clip_size);
+			else
+				gfx_resetcliparea();
 		}
 	} while((ent = ent.next) != null_entity);
 
@@ -420,7 +543,7 @@ void(void) menu_shutdown =
 void(float keynr, float ascii) menu_keydown =
 {
 	// before calling the current keydown functions, process the mouse again
-	// so only the correct action is called
+	// so only the correct item is called
 	// (except mouse wheel up and down)
 	// if the mouse doesnt point to an item, there wont be a reaction on the clicking
 	if(K_MOUSE1 <= keynr && keynr <= K_MOUSE10)
@@ -429,12 +552,14 @@ void(float keynr, float ascii) menu_keydown =
 		keysel = menu_selected;
 		menu_selected = null_entity;
 		menu_processmouse(menu_activewindow);
-		if(menu_selected == null_entity)
+		// not the current item selected ?
+		if(menu_selected != keysel)
 		{
 			// -> no reaction
 			menu_selected = keysel;
 			return;
 		}
+		// go on
 	}
 
 	// call current selected keydown function
@@ -539,7 +664,6 @@ void(void) menu_selectdown =
 	ent = menu_selected.child;
 	do
 	{
-		//eprint(ent);
 		if(menu_selectable(ent))
 		{
 			// found one -> break
@@ -556,8 +680,11 @@ void(void) menu_selectdown =
 	{
 		if(ent.child != null_entity)
 		{
+			entity ch;
+			ch = ent.child;
 			// set the history
 			ent._history = menu_selected;
+
 			// give it a try
 			menu_selected = ent;
 			menu_selectdown();
@@ -590,6 +717,8 @@ void(void) menu_selectup =
 	ent = menu_selected;
 	menu_selected = null_entity;
 
+	print("Selectup called !\n");
+
 	while(ent._parent != null_entity || ent._history != null_entity)
 	{
 		// prefer _history
@@ -611,11 +740,19 @@ void(void) menu_selectup =
 			menu_activewindow = null_entity;
 
 		menu_selected = ent;
+		// is it selecteable ?
 		if(menu_selectable(ent))
 		{
 			// we found our item !
 			break;
 		}
+
+		// if it has a history then we walk up the history, else we search its neighbors
+		if(ent._history != null_entity)
+		{
+			continue;
+		}
+
 		// try selectnext
 		menu_selectnext();
 		if(menu_selected != ent)
@@ -631,6 +768,8 @@ void(void) menu_selectup =
 			break;
 		}
 	}
+
+	eprint(menu_selected);
 
 	// evalute our results:
 	// have we reached the 'main' menu ?

@@ -18,6 +18,7 @@ ITEM_CUSTIOM
 ITEM_PICTURE
 ITEM_TEXT
 ITEM_BUTTON
+ITEM_TEXTBUTTON
 ITEM_RECTANGLE
 */
 // item constants
@@ -25,6 +26,32 @@ ITEM_RECTANGLE
 // ITEM_PICTURE
 const vector 	ITEM_PICTURE_DEFAULT_COLOR 		= '1 1 1';
 const float 	ITEM_PICTURE_DEFAULT_ALPHA		= 1;
+
+// ITEM_BUTTON
+const vector 	ITEM_BUTTON_DEFAULT_COLOR 			= '1 1 1';
+const float 	ITEM_BUTTON_DEFAULT_ALPHA			= 1;
+const vector 	ITEM_BUTTON_DEFAULT_COLOR_SELECTED	= '1 1 1';
+const float 	ITEM_BUTTON_DEFAULT_ALPHA_SELECTED	= 1;
+const vector 	ITEM_BUTTON_DEFAULT_COLOR_PRESSED	= '1 1 1';
+const float 	ITEM_BUTTON_DEFAULT_ALPHA_PRESSED	= 1;
+
+const float		ITEM_BUTTON_DEFAULT_HOLD_PRESSED	= 0.2;
+
+// ITEM_TEXTBUTTON
+const vector 	ITEM_TEXTBUTTON_DEFAULT_COLOR 			= '1 1 1';
+const float 	ITEM_TEXTBUTTON_DEFAULT_ALPHA			= 1;
+const vector 	ITEM_TEXTBUTTON_DEFAULT_COLOR_SELECTED	= '0.5 0 0';
+const float 	ITEM_TEXTBUTTON_DEFAULT_ALPHA_SELECTED	= 1;
+const vector 	ITEM_TEXTBUTTON_DEFAULT_COLOR_PRESSED	= '1 0 0';
+const float 	ITEM_TEXTBUTTON_DEFAULT_ALPHA_PRESSED	= 1;
+
+const float		ITEM_TEXTBUTTON_DEFAULT_HOLD_PRESSED	= 0.2;
+
+const float		TEXTBUTTON_STYLE_BOX 		= 2;
+const float		TEXTBUTTON_STYLE_OUTLINE 	= 1;
+const float		TEXTBUTTON_STYLE_TEXT		= 0;
+
+const float		TEXTBUTTON_OUTLINE_WIDTH	= 1.0;
 
 //ITEM_TEXT
 const vector 	ITEM_TEXT_DEFAULT_COLOR 	= '1 1 1';
@@ -36,18 +63,24 @@ const float		TEXT_ALIGN_CENTER	= 1;
 const float 	TEXT_ALIGN_RIGHT	= 2;
 const float		TEXT_ALIGN_CENTERPOS = 4;
 
+// ITEM_BUTTON/ITEM_TEXTBUTTON states
+const float		BUTTON_NORMAL	= 0;
+const float		BUTTON_SELECTED = 1;
+const float		BUTTON_PRESSED	= 2;
+
 // flags constant
 
 const float	FLAG_STANDARD		= 1;	// use this flag if you want the standard behavior and not what the control recommends
 const float FLAG_HIDDEN 		= 2;	// events wont be called and it wont be drawn, etc.
 const float FLAG_NOSELECT 		= 4; 	// cant be selected (but events will be called)
-const float FLAG_SERVERONLY		= 8;	// only displayed if server
-const float FLAG_DEVELOPERONLY  = 16;	// only displayed if developer
-const float _FLAG_MOUSEINAREA 	= 32; 	// used to determine wheter to call mouse_enter/_leave
-const float FLAG_DRAWONLY		= 64; 	// only the draw event will be called
-const float	FLAG_AUTOSETCLICK 	= 128;	// used to make click_pos and click_size always the same as pos and size
-const float FLAG_AUTOSETCLIP	= 256;	// used to make clip_pos/_size always the same like pos and size
-const float FLAG_CHILDDRAWONLY	= 512;	// used to make the children
+const float FLAG_CONNECTEDONLY	= 8
+const float FLAG_SERVERONLY		= 16;	// only displayed if server
+const float FLAG_DEVELOPERONLY  = 32;	// only displayed if developer
+const float _FLAG_MOUSEINAREA 	= 64; 	// used to determine wheter to call mouse_enter/_leave
+const float FLAG_DRAWONLY		= 128; 	// only the draw event will be called
+const float	FLAG_AUTOSETCLICK 	= 256;	// used to make click_pos and click_size always the same as pos and size
+const float FLAG_AUTOSETCLIP	= 512;	// used to make clip_pos/_size always the same like pos and size
+const float FLAG_CHILDDRAWONLY	= 1024;	// used to make the children
 
 // control fields
 // fields used by multiple items
@@ -71,6 +104,26 @@ const float FLAG_CHILDDRAWONLY	= 512;	// used to make the children
 // ITEM_BUTTON
 .string picture_selected;
 .string picture_pressed;
+.string sound_selected;
+.string sound_pressed;
+
+.vector		color_selected;
+.vector		color_pressed;
+.float		alpha_selected;
+.float 		alpha_pressed;
+.float		drawflag_selected;
+.float		drawflag_pressed;
+
 .float	_press_time;
-.float 	time_pressed;
+.float 	hold_pressed;
+
+.float  _button_state;
+
+// ITEM_TEXTBUTTON
+//.string	text;
+//.vector 	font_size;
+//.float	alignment;
+.float		style;
+
+
 

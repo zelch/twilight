@@ -116,16 +116,67 @@ void(float keynr, float ascii)	def_keyevent =
 	{
 		// move to the previous element
 		menu_loopprev();
+
+		if(menu_selected == self)
+		{
+			if(self.prev)
+			{
+				menu_selected = self.prev;
+				menu_selectdown();
+				if(menu_selected != self.prev)
+				{
+					return;
+				}
+			}
+			menu_selected = self;
+		}
 	} else if(keynr == K_RIGHTARROW || keynr == K_DOWNARROW)
 	{
 		// move to the  next element
 		menu_loopnext();
+
+		if(menu_selected == self)
+		{
+			if(self.next)
+			{
+				menu_selected = self.next;
+				menu_selectdown();
+				if(menu_selected != self.next)
+				{
+					return;
+				}
+			}
+			menu_selected = self;
+		}
 	} else if(keynr == K_ENTER || keynr == K_MOUSE1)
 	{
+		print("Action called\n");
 		if(self._action)
 			self._action();
 		// move to the child menu
 		menu_selectdown();
+	} else if(keynr == K_TAB)
+	{
+		// select next and try to "go" down
+		if(self.next)
+		{
+			menu_selected = self.next;
+			menu_selectdown();
+			if(menu_selected != self.next)
+			{
+				return;
+			}
+		}
+		if(self.prev)
+		{
+			menu_selected = self.prev;
+			menu_selectdown();
+			if(menu_selected != self.prev)
+			{
+				return;
+			}
+		}
+		menu_selected = self;
 	}
 };
 
