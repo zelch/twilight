@@ -13,8 +13,8 @@ void() bullet_touch =
 	{
 		if (self.lefty == 4) // nail
 		{
-//			nailpuff(self.origin - dir * 4, self.effects & EF_BLUE);
-			if (maxclients == 1)
+			nailpuff(self.origin - dir * 4, self.effects & EF_BLUE);
+			//if (maxclients == 1)
 				newwallspike (self.origin, other, dir);
 		}
 		else if (self.lefty == 1) // shotgun pellet
@@ -56,7 +56,6 @@ void(entity realbulletowner, entity bulletowner, float bullettype, float shotcou
 		newmis.think = SUB_Remove;
 		if (bulletowner.items & IT_QUAD)
 		{
-			newmis.effects = newmis.effects | EF_BLUE;
 			newmis.dmg = newmis.dmg * 4;
 			newmis.count = newmis.count * 4;
 			newmis.dmg2 = newmis.dmg2 * 4;
@@ -70,6 +69,8 @@ void(entity realbulletowner, entity bulletowner, float bullettype, float shotcou
 			// only visible in singleplayer (network bandwidth reasons)
 			setmodel(newmis, "progs/s_spike.mdl");
 			newmis.angles = vectoangles(newmis.velocity);
+			if (bulletowner.items & IT_QUAD)
+				newmis.effects = newmis.effects | EF_BLUE;
 		}
 		setsize(newmis, '0 0 0', '0 0 0');
 	}

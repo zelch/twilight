@@ -1677,7 +1677,7 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	else
 		dtype = DTYPE_OTHER;
 
-	if (targ.doobits || (deathmatch && (targ.flags & FL_MONSTER) && targ.netname != ""))
+	if (targ.doobits/* || (deathmatch && (targ.flags & FL_MONSTER) && targ.netname != "")*/)
 	{
 		newmis = spawn();
 		newmis.classname = "obituaryentity";

@@ -34,6 +34,7 @@ void() casingthink =
 	local   float   p;
 	self.nextthink = time + 0.1;
 	if (self.flags & FL_ONGROUND)
+	if (!self.lefty)
 	{
 	// just keep the yaw angle
 		self.angles_x = 0;
@@ -59,6 +60,7 @@ void() casingthink =
 // knock loose the casing when disturbed
 void() casingknockedloosefunc =
 {
+	self.lefty = FALSE;
 	self.movetype = MOVETYPE_BOUNCE;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.avelocity = randomvec() * 300;
@@ -74,19 +76,19 @@ void(vector org, vector vel, float randomvel, vector ang, vector avel, float ran
 
 	e = newdecor();
 	e.isdecor = TRUE;
+	e.createdtime = time;
 	e.alpha = 1;
-	e.forcescale = 15;
-	e.movetype = MOVETYPE_BOUNCE;
-	e.solid = SOLID_TRIGGER;
-	e.velocity = vel + randomvec() * randomvel;
 	e.angles = ang;
 	e.avelocity = avel + randomvec() * randomavel;
+	e.forcescale = 15;
+	e.knockedloosefunc = casingknockedloosefunc;
+	e.movetype = MOVETYPE_BOUNCE;
 	e.nextthink = time;
+	e.solid = SOLID_TRIGGER;
 	e.think = casingthink;
 	e.touch = casingtouch;
-	e.knockedloosefunc = casingknockedloosefunc;
+	e.velocity = vel + randomvec() * randomvel;
 	//e.effects = EF_LOWPRECISION;
-	e.createdtime = time;
 	if (game == GAME_NEXUIZ)
 	{
 		setmodel (e, "models/casing.mdl");

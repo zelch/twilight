@@ -1,5 +1,7 @@
 vector  raddamage_lasthit;
 
+float raddamage_tracetype = MOVE_NOMONSTERS;
+
 /*
 ============
 CanDamage
@@ -26,7 +28,7 @@ float(entity targ, entity inflictor) CanDamage =
                 v_x = m1_x + random() * m2_x;
                 v_y = m1_y + random() * m2_y;
                 v_z = m1_z + random() * m2_z;
-                traceline(inflictor.origin, v, FALSE, inflictor);
+                traceline(inflictor.origin, v, raddamage_tracetype, inflictor);
                 if ((trace_fraction == 1 || trace_ent == targ) && !trace_startsolid)
                 {
                         raddamage_lasthit = trace_endpos;
@@ -56,7 +58,7 @@ float(entity targ, entity ignore, vector org, float checkcount) CanRadDamage =
                 v_x = m1_x + random() * m2_x;
                 v_y = m1_y + random() * m2_y;
                 v_z = m1_z + random() * m2_z;
-                traceline(org, v, FALSE, ignore);
+                traceline(org, v, raddamage_tracetype, ignore);
                 if (!trace_startsolid)
                 if (trace_fraction == 1 || trace_ent == targ)
                         d = d + 1;
@@ -106,7 +108,7 @@ float(entity targ, entity ignore, vector org, float amount, float radius, float 
         raddamage_lasthit = v;
 
         // direct hit
-        traceline(org, v, FALSE, ignore);
+        traceline(org, v, raddamage_tracetype, ignore);
         if (!trace_startsolid)
         if (trace_fraction == 1 || trace_ent == targ)
                 return b;
@@ -157,7 +159,7 @@ float(entity targ, entity ignore, vector org, float amount, float radius, float 
         raddamage_lasthit = v;
 
         // direct hit
-        traceline(org, v, FALSE, ignore);
+        traceline(org, v, raddamage_tracetype, ignore);
         if (!trace_startsolid)
         if (trace_inwater)
         if (!trace_inopen)
@@ -198,7 +200,7 @@ float(entity targ, entity ignore, vector org, vector dir, float mindot, float am
         if (b < 1)
                 return 0; // no damage
 
-        traceline(org, v, FALSE, ignore);
+        traceline(org, v, raddamage_tracetype, ignore);
         if (trace_ent == targ || trace_fraction >= 1)
         {
                 raddamage_lasthit = trace_endpos;
@@ -216,7 +218,7 @@ float(entity targ, entity ignore, vector org, vector dir, float mindot, float am
                 if (dp >= mindot)
                 {
                         c2 = c2 + 1;
-                        traceline(org, v, FALSE, ignore);
+                        traceline(org, v, raddamage_tracetype, ignore);
                         if (trace_ent == targ || trace_fraction >= 1)
                         {
                                 raddamage_lasthit = trace_endpos;
@@ -262,7 +264,7 @@ float(entity targ, entity ignore, vector org, float amount, float radius, float 
         raddamage_lasthit = v;
 
         // direct hit
-        traceline(org, v, FALSE, ignore);
+        traceline(org, v, raddamage_tracetype, ignore);
         if (!trace_startsolid)
         if (trace_fraction == 1 || trace_ent == targ)
                 return b;

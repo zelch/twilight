@@ -4,10 +4,10 @@
 .float  ammo_rockets;
 .float  ammo_cells;
 
-float   AMMOMAX_SHELLS          =  250;
-float   AMMOMAX_NAILS           =  250;
+float   AMMOMAX_SHELLS          =  300;
+float   AMMOMAX_NAILS           =  500;
 float   AMMOMAX_ROCKETS         =  100;
-float   AMMOMAX_CELLS           =  250;
+float   AMMOMAX_CELLS           =  300;
 
 // LordHavoc: since constants can't have math in them, the ITEMS are inlined in client.qc :(
 float   STARTPARMSDM_AMMO_SHELLS     =   50; // 20

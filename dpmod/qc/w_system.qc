@@ -5,10 +5,10 @@ void(vector muzzleorg, float kickback) w_muzzleflash =
 {
 	local float image;
 	image = floor(random() * 9.7);
-	if (kickback >= 3)
-		effect(muzzleorg, "progs/muzzleflash.spr32", image + 10, 1, 20);
-	else
-		effect(muzzleorg, "progs/muzzleflash.spr32", image, 1, 30);
+	//if (kickback >= 3)
+	//	effect(muzzleorg, "progs/muzzleflash.spr32", image + 10, 1, 20);
+	//else
+	//	effect(muzzleorg, "progs/muzzleflash.spr32", image, 1, 30);
 	//te_smallflash(muzzleorg);
 	self.effects = self.effects | EF_MUZZLEFLASH;
 	//if (self.flags & FL_CLIENT)
@@ -713,17 +713,17 @@ float PISTOL_NAIL = 30;
 float PISTOL_NAILS = 1;
 float PISTOL_EMPTY = 15; // damage pistol does when empty (0 = disable)
 float PISTOL_REFIRE = 0.7;
-float SHOTGUN_SHELL = 90;
+float SHOTGUN_SHELL = 160;
 float SHOTGUN_SHELLS = 1;
 float SHOTGUN_REFIRE = 0.9;
-float PLASMASHOTGUN_SHELL = 90;
+float PLASMASHOTGUN_SHELL = 150;
 float PLASMASHOTGUN_CELL = 30;
-float PLASMASHOTGUN_CELLS = 2;
+float PLASMASHOTGUN_CELLS = 3;
 float PLASMASHOTGUN_RADIUS = 60;
 float PLASMASHOTGUN_REFIRE = 0.9;
-float DBSHOTGUN_SHELL = 90;
+float DBSHOTGUN_SHELL = 150;
 float DBSHOTGUN_SHELLS = 2;
-float DBSHOTGUN_REFIRE = 1.6;
+float DBSHOTGUN_REFIRE = 1.4;
 float NAILGUN_NAIL = 15;
 float NAILGUN_NAILS = 1;
 float NAILGUN_REFIRE = 0.1;
@@ -849,7 +849,7 @@ float(float request) w_pistol =
 			{
 				Inventory_AdjustQuantity(self, "nails", -1);
 				FireBullets(self, self, 1, 1, PISTOL_NAIL, PISTOL_NAIL, 0, 0, shotdir * 10000, 0.025, "PISTOL", DT_NAIL, Obituary_Pistol);
-				ejectcasing(shotorg + v_forward * -5, v_right * 150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+				//ejectcasing(shotorg + v_forward * -5, v_right * 150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 			}
 			else
 				FireBullets(self, self, 1, 1, PISTOL_EMPTY, PISTOL_EMPTY, 0, 0, shotdir * 10000, 0.025, "PISTOL", DT_NAIL, Obituary_Pistol);
@@ -1242,13 +1242,13 @@ float(float request) w_nailgun =
 				{
 					shotorg = shotorg + v_right;
 					FireBullets(self, self, 4, 1, NAILGUN_NAIL, NAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
-					ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+					//ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				}
 				else
 				{
 					shotorg = shotorg - v_right;
 					FireBullets(self, self, 4, 1, NAILGUN_NAIL, NAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
-					ejectcasing(shotorg + v_forward * -5, v_right * -150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 0);
+					//ejectcasing(shotorg + v_forward * -5, v_right * -150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 0);
 				}
 				shotorg = v;
 				return TRUE;
@@ -1389,7 +1389,7 @@ float(float request) w_supernailgun =
 				w_muzzleflash(shotorg, 2);
 				Inventory_AdjustQuantity(self, "nails", -1);
 				FireBullets(self, self, 4, 1, SUPERNAILGUN_NAIL, SUPERNAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
-				ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+				//ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -1696,11 +1696,11 @@ float(float request) w_plasmarifle =
 					cells = PLASMARIFLE_NORMAL_CELLS;
 				FirePlasma(self, shotorg, shotdir * PLASMARIFLE_NORMAL_VELOCITY, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
-				while (cells > 0)
-				{
-					cells = cells - 1;
-					ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 100, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
-				}
+				//while (cells > 0)
+				//{
+				//	cells = cells - 1;
+				//	ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 100, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+				//}
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -1741,11 +1741,11 @@ float(float request) w_plasmarifle =
 				cells = PLASMARIFLE_SUPER_CELLS;
 			FirePlasma(self, shotorg, shotdir * PLASMARIFLE_SUPER_VELOCITY, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
 			Inventory_AdjustQuantity(self, "cells", 0 - cells);
-			while (cells > 0)
-			{
-				cells = cells - 1;
-				ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 100, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
-			}
+			//while (cells > 0)
+			//{
+			//	cells = cells - 1;
+			//	ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 100, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+			//}
 			self.attack_finished = time + PLASMARIFLE_SUPER_REFIRE;
 			return TRUE;
 		}
@@ -1863,8 +1863,8 @@ float(float request) w_thunderbolt =
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "weapons/lhit.wav", 1, ATTN_NORM);
 				Inventory_AdjustQuantity(self, "cells", -1);
-				W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, THUNDERBOLT_CELL_HEALTH, THUNDERBOLT_CELL_BODY, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
-				te_lightning2(self, shotorg, trace_endpos);
+				v = W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, THUNDERBOLT_CELL_HEALTH, THUNDERBOLT_CELL_BODY, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
+				te_lightning2(self, shotorg, v);
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);

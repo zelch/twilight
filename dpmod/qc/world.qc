@@ -961,8 +961,8 @@ void() startframe_creaturecode =
 						// normal quake maps
 						b = self.origin;
 						b_z = self.absmin_z;
-						T_Damage (self, world, world, (-650 - self.jump_flag) * 0.1, (-650 - self.jump_flag) * 0.1, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
-						//T_Damage (self, world, world, 5, 5, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
+						//T_Damage (self, world, world, (-650 - self.jump_flag) * 0.1, (-650 - self.jump_flag) * 0.1, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
+						T_Damage (self, world, world, 5, 5, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
 						if (!self.deadflag)
 							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
 					}
@@ -971,7 +971,8 @@ void() startframe_creaturecode =
 						// Dark Places maps
 						b = self.origin;
 						b_z = self.absmin_z;
-						T_Damage (self, world, world, (-500 - self.jump_flag) * 0.3, (-500 - self.jump_flag) * 0.3, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
+						//T_Damage (self, world, world, (-500 - self.jump_flag) * 0.3, (-500 - self.jump_flag) * 0.3, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
+						T_Damage (self, world, world, 5, 5, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
 						if (!self.deadflag)
 							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
 					}

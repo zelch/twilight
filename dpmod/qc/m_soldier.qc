@@ -159,7 +159,7 @@ void(vector hit) army_pistol =
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 1);
-	ejectcasing (shotorg, '0 0 0', 50, ang, '0 0 0', 150, 0);
+	//ejectcasing (shotorg, '0 0 0', 50, ang, '0 0 0', 150, 0);
 	FireBullets (self, self, 4, 1, DMG_SOLDIER_PISTOL_DAMAGE, DMG_SOLDIER_PISTOL_BDAMAGE, 0, 0, shotdir * 6000, 0.025, self.deathtype, DT_NAIL, Obituary_Generic);
 };
 
@@ -191,7 +191,7 @@ void(vector hit) army_nail =
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 1);
-	ejectcasing (shotorg, '0 0 0', 50, ang, '0 0 0', 150, 0);
+	//ejectcasing (shotorg, '0 0 0', 50, ang, '0 0 0', 150, 0);
 	FireBullets (self, self, 4, 1, DMG_SOLDIER_MACHINEGUN_DAMAGE, DMG_SOLDIER_MACHINEGUN_BDAMAGE, 0, 0, shotdir * 5000, 0.05, self.deathtype, DT_NAIL, Obituary_Generic);
 };
 

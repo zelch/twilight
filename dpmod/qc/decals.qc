@@ -104,20 +104,22 @@ void(vector org, entity en, vector dir) newwallspike =
 	dir = normalize(dir);
 
 	e = newdecor();
+	e.isdecor = TRUE;
 	e.createdtime = time;
+	e.alpha = 1;
 	e.angles = vectoangles(dir);
-	e.forcescale = 15;
-	e.solid = SOLID_TRIGGER;
-	e.movetype = MOVETYPE_BOUNCE;
-	e.groundentity = en;
+	e.cnt = time + 10;
+	e.effects = EF_LOWPRECISION;
 	e.flags = FL_ONGROUND;
-	e.frame = 0;
-	e.nextthink = 0;
+	e.forcescale = 15;
+	e.groundentity = en;
+	e.knockedloosefunc = casingknockedloosefunc;
+	e.movetype = MOVETYPE_BOUNCE;
+	e.nextthink = time;
+	e.solid = SOLID_TRIGGER;
 	e.think = casingthink;
 	e.touch = casingtouch;
-	e.knockedloosefunc = casingknockedloosefunc;
-	e.cnt = time; // used for bounce noise
-	e.effects = EF_LOWPRECISION;
+	e.lefty = TRUE;
 	setmodel (e, "progs/s_spike.mdl");
 	setsize (e, '0 0 0', '0 0 0');
 	setorigin (e, org - dir * 3);
