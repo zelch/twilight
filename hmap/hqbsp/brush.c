@@ -507,8 +507,8 @@ vec3_t	hull_size[3][2] =
 };
 
 // LordHavoc: these were 32 and 64 respectively
-#define	MAX_HULL_POINTS	128
-#define	MAX_HULL_EDGES	256
+#define	MAX_HULL_POINTS	512
+#define	MAX_HULL_EDGES	1024
 
 int		num_hull_points;
 vec3_t	hull_points[MAX_HULL_POINTS];
