@@ -1047,6 +1047,10 @@ int main (int argc, char **argv)
 	ProcessFile (sourcename, destname);
 	end = I_DoubleTime ();
 	printf ("%5.1f seconds elapsed\n", end-start);
+#if _MSC_VER && _DEBUG
+	printf("press any key\n");
+	getchar();
+#endif
 
 	return 0;
 }
