@@ -24,3 +24,5 @@
 #DEFAULT (echo ""; id; echo %s; date; cat) >> $CVSROOT/CVSROOT/commitlog
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
+DEFAULT $CVSROOT/CVSROOT/log_accum.pl -r -s -h -F cvs.twilight.sourceforge.net -m twilight-commits@lists.sourceforge.net %s -R twilight-devel@lists.sourceforge.net
+CVSROOT $CVSROOT/CVSROOT/do_nothing
