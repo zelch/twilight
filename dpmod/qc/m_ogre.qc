@@ -75,9 +75,6 @@ float() OgreCheckAttack =
 	if (time < self.attack_finished)
 		return FALSE;
 
-	if (!enemy_vis)
-		return FALSE;
-
 	// don't fire when out of ammo
 	if (self.ammo_rockets < 1 && self.ammo_nails < 1)
 		return FALSE;

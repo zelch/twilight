@@ -108,9 +108,6 @@ float() ShamCheckAttack =
 	if (time < self.attack_finished)
 		return FALSE;
 
-	if (!enemy_vis)
-		return FALSE;
-
 	targ = self.enemy;
 
 // see if any entities are in the way of the shot
