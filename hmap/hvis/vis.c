@@ -100,9 +100,11 @@ pthread_addr_t LeafThread (pthread_addr_t thread)
 void *LeafThread (int thread)
 #endif
 {
-	portal_t	*p;
+	time_t oldtime, newtime;
+	portal_t *p;
 
 //printf ("Begining LeafThread: %i\n",(int)thread);
+	oldtime = time(NULL);
 	do
 	{
 		p = GetNextPortal ();
@@ -117,7 +119,15 @@ void *LeafThread (int thread)
 		if (verbose)
 			printf ("portal %4i of %4i mightsee:%4i  cansee:%4i\n", (int) portalschecked, (int) numportals * 2, (int) p->nummightsee, (int) p->numcansee);
 		else
-			printf("\rportal %4i of %4i (%3i%%), estimated time left: %i seconds", (int) portalschecked, (int) numportals * 2, (int) (portalschecked*100/(numportals*2)), (int) ((numportals*2-portalschecked)*(time(NULL)-portalizestarttime)/portalschecked));
+		{
+			newtime = time(NULL);
+			if (newtime != oldtime)
+			{
+				printf("\rportal %4i of %4i (%3i%%), estimated time left: %i seconds", (int) portalschecked, (int) numportals * 2, (int) (portalschecked*100/(numportals*2)), (int) ((numportals*2-portalschecked)*(newtime-portalizestarttime)/portalschecked));
+				fflush(stdout);
+				oldtime = newtime;
+			}
+		}
 	} while (1);
 	printf("\n");
 
@@ -313,9 +323,9 @@ CalcVis
 void CalcVis (void)
 {
 	int		i;
-	
+
 	BasePortalVis ();
-	
+
 	CalcPortalVis ();
 
 //
@@ -323,8 +333,9 @@ void CalcVis (void)
 //
 	for (i=0 ; i<portalleafs ; i++)
 		LeafFlow (i);
-		
+
 	printf ("average leafs visible: %i\n", totalvis / portalleafs);
+	fflush(stdout);
 }
 
 /*
@@ -752,24 +763,24 @@ int main (int argc, char **argv)
 	strcat (portalfile, ".prt");
 
 	LoadPortals (portalfile);
-	
+
 	uncompressed = malloc(bitbytes*portalleafs);
 	memset (uncompressed, 0, bitbytes*portalleafs);
-	
+
 //	CalcPassages ();
 
 	CalcVis ();
 
 	printf ("c_chains: %i\n",c_chains);
-	
-	visdatasize = vismap_p - dvisdata;	
+
+	visdatasize = vismap_p - dvisdata;
 	printf ("visdatasize:%i  compressed from %i\n", visdatasize, originalvismapsize);
 
 	if (!noambient)
 		CalcAmbientSounds ();
 
 	WriteBSPFile (source, false);
-	
+
 //	unlink (portalfile);
 
 	end = I_DoubleTime ();

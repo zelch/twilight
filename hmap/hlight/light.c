@@ -70,7 +70,7 @@ void LightWorld (void)
 {
 	int			i, k, n, m, count;
 	unsigned short	*mark;
-	time_t		lightstarttime, lasttime, newtime;
+	time_t		lightstarttime, oldtime, newtime;
 	entity_t	*entity;
 	dleaf_t		*leaf;
 	int			lightcount = 0, castcount = 0, emptycount = 0, solidcount = 0, watercount = 0, slimecount = 0, lavacount = 0, skycount = 0, misccount = 0, ignorevis;
@@ -184,30 +184,35 @@ void LightWorld (void)
 //	k = 1;
 //	j = (int) ((double) count * (double) k * (1.0 / 100.0));
 	org[0] = org[1] = org[2] = 0;
-	lasttime = 0;
+	oldtime = time(NULL);
 	for (m = 0;m < count;)
 	{
 		LightFace (dfaces + m + dmodels[0].firstface, surfacelightchain[m + dmodels[0].firstface], novislight, novislights, org);
 		m++;
 		newtime = time(NULL);
-		if (newtime != lasttime)
-			printf ("\rworld face %5i of %5i (%3i%%), estimated time left: %5i ", m, count, (int) (m*100)/count, (int) (((count-m)*(newtime-lightstarttime))/m));
-		lasttime = newtime;
-		/*
-		if (m >= j)
+		if (newtime != oldtime)
 		{
-			printf ("\rworld face %5i of %5i (%3i%%), estimated time left: %5i ", m, count, k, (int) (m ? ((count-m)*(time(NULL)-lightstarttime))/m : 0));
-			k++;
-			j = (int) ((double) count * (double) k * (1.0 / 100.0));
+			printf ("\rworld face %5i of %5i (%3i%%), estimated time left: %5i ", m, count, (int) (m*100)/count, (int) (((count-m)*(newtime-lightstarttime))/m));
+			fflush(stdout);
+			oldtime = newtime;
 		}
-		*/
 	}
+	printf ("\n%5i faces done\nlightdatasize: %i\n", numfaces, lightdatasize);
 
-	printf("\nlighting bmodels");
+	printf("\nlighting %5i submodels:\n", nummodels);
+	fflush(stdout);
 	// LordHavoc: light bmodels
 	for (k = 1;k < nummodels;k++)
 	{
-		printf(".");
+		newtime = time(NULL);
+		if (newtime != oldtime)
+		{
+			m = k;
+			count = nummodels;
+			printf ("\rsubmodel %3i of %3i (%3i%%), estimated time left: %5i ", m, count, (int) (m*100)/count, (int) (((count-m)*(newtime-lightstarttime))/m));
+			fflush(stdout);
+			oldtime = newtime;
+		}
 		sprintf(name, "*%d", k);
 		ent = FindEntityWithKeyPair("model", name);
 		if (!ent)
@@ -224,7 +229,7 @@ void LightWorld (void)
 //	lightdatasize = file_p - filebase;
 //	rgblightdatasize = lightdatasize * 3;
 
-	printf ("\n%5i faces done\nlightdatasize: %i\n", numfaces, lightdatasize);
+	printf ("\n%5i submodels done\nlightdatasize: %i\n", nummodels, lightdatasize);
 }
 
 void CheckLightmaps(void);

@@ -675,12 +675,13 @@ BasePortalVis
 */
 void BasePortalVis (void)
 {
-	int			i, j, k, progresscheck;
-	portal_t	*tp, *p;
-	vec_t		d;
-	winding_t	*w;
+	int i, j, k;
+	portal_t *tp, *p;
+	vec_t d;
+	winding_t *w;
+	time_t oldtime, newtime;
 
-	progresscheck = 100;
+	oldtime = time(NULL);
 	for (i=0, p = portals ; i<numportals*2 ; i++, p++)
 	{
 		p->mightsee = malloc (bitbytes);
@@ -725,13 +726,16 @@ void BasePortalVis (void)
 		SimpleFlood (p, p->leaf);
 		p->nummightsee = c_leafsee;
 //		printf ("portal:%4i  c_leafsee:%4i \n", i, c_leafsee);
-		if (i >= progresscheck)
+		newtime = time(NULL);
+		if (newtime != oldtime)
 		{
 			printf ("\rbasevis: portal%5i of%5i", i, numportals*2);
-			progresscheck += 100;
+			fflush(stdout);
+			newtime = oldtime;
 		}
 	}
 	printf ("\rbasevis done                \n");
+	fflush(stdout);
 }
 
 
