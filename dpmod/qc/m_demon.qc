@@ -203,15 +203,12 @@ float()	CheckDemonJump =
 {
 	local vector dist, old;
 	local float d;
-	//local float a, c;
-	//local vector u, v, w;
 
-	if (self.origin_z + self.mins_z > self.enemy.origin_z + self.enemy.mins_z
-	+ 0.75 * self.enemy.size_z)
+	/*
+	if (self.origin_z + self.mins_z > self.enemy.origin_z + self.enemy.mins_z + 0.75 * self.enemy.size_z)
 		return FALSE;
 
-	if (self.origin_z + self.maxs_z < self.enemy.origin_z + self.enemy.mins_z
-	+ 0.25 * self.enemy.size_z)
+	if (self.origin_z + self.maxs_z < self.enemy.origin_z + self.enemy.mins_z + 0.25 * self.enemy.size_z)
 		return FALSE;
 
 	dist = self.enemy.origin + self.enemy.velocity * 0.4 - self.origin;
@@ -227,6 +224,7 @@ float()	CheckDemonJump =
 		if (random() < 0.9)
 			return FALSE;
 	}
+	*/
 
 	// LordHavoc: do further checking now
 	old = self.velocity;
@@ -235,42 +233,6 @@ float()	CheckDemonJump =
 	self.velocity = old;
 	if (trace_ent != self.enemy)
 		return FALSE;
-	// LordHavoc: old code before tracetoss
-	/*
-	c = 0;w = self.origin;a = 0;
-	while (c < 0.9)
-	{
-		c = c + 0.2;
-		u = w;
-		if (c < 0.5)
-			w = dist * c + self.origin + c * '0 0 100'; // about 50 units up
-		else
-			w = dist * c + self.origin + '0 0 100' * (1 - c);
-		tracebox(u, self.mins, self.maxs, w, FALSE, self);
-		if (trace_ent == self.enemy)
-			return TRUE; // the jump will hit
-		if (trace_fraction < 1)
-			return FALSE; // hit a wall
-
-	*/
-		/*
-		d = 0;
-		while (d < 20)
-		{
-			d = d + 1;
-			v = randompos(self.mins, self.maxs);
-			traceline(u + v, w + v, FALSE, self);
-			if (trace_ent == self.enemy)
-				return TRUE; // the jump will hit
-			if (trace_fraction < 0.9)
-				a = a + 1; // blocked
-			if (trace_startsolid)
-				a = a + 1; // blocked
-			if (a >= 10)
-				return FALSE; // too many checks were blocked
-		}
-		*/
-	//}
 
 	return TRUE;
 };

@@ -19,9 +19,9 @@ void() W_PistolFireCode =
 	ejectcasing(shotorg, shotdir, v_right * 150 + v_up * 50, 50, 0);
 	bullet_type = 4;
 	if (self.button3)
-		FireBullets(1, 30, 30, shotdir * 7000, 0.05, "PISTOL", DT_NAIL, Obituary_Pistol);
+		FireBullets(1, 30 * damagescale, 30 * damagescale, shotdir * 7000, 0.05, "PISTOL", DT_NAIL, Obituary_Pistol);
 	else
-		FireBullets(1, 30, 30, shotdir * 7000, 0.0125, "PISTOL", DT_NAIL, Obituary_Pistol);
+		FireBullets(1, 30 * damagescale, 30 * damagescale, shotdir * 7000, 0.0125, "PISTOL", DT_NAIL, Obituary_Pistol);
 };
 
 void() w_pistoldrop1;

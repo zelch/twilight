@@ -213,7 +213,7 @@ float(float p) checkteamcolor =
 
 void(entity e, float pants, float shirt) setplayercolor =
 {
-	local string s;
+	//local string s;
 	local float old;
 	e.c_pants = pants;
 	e.c_shirt = shirt;
@@ -333,7 +333,7 @@ void() modesetup =
 float monsterspawn;
 void() spawnmonster_think =
 {
-	local float c;
+	//local float c;
 	local void() sfunc;
 	self.nextthink = time;
 	if (time > self.cnt)
@@ -344,30 +344,36 @@ void() spawnmonster_think =
 	if (vlen(self.velocity) > 5)
 		return; // try again later
 
+	//if (!(self.flags & FL_FLY))
+	//	droptofloor();
 	// don't spawn if something is in the way
-	if (!(self.flags & FL_FLY))
-		droptofloor();
+	/*
+	// walk around a lot
+	if (walkmove(0,0))
+	{
+		if (self.lefty > 0)
+		{
+			c = 100;
+			self.lefty = self.lefty - 1;
+			self.angles = '0 0 0';
+			while(c > 0)
+			{
+				c = c - 1;
+				if (!walkmove(self.angles_y, 16))
+					self.angles_y = random() * 360;
+			}
+			self.angles = '0 0 0';
+			return;
+		}
+	}
+	*/
+	// don't spawn if something is in the way
 	if (!walkmove(0,0))
 	{
 		self.lefty = 10;
-		//setorigin(self, self.dest);
+		setorigin(self, self.dest);
 		self.flags = self.flags - (self.flags & FL_ONGROUND);
 		self.velocity = randomvec() * 700 + '0 0 1000';
-		return;
-	}
-	// walk around a lot
-	if (self.lefty > 0)
-	{
-		c = 100;
-		self.lefty = self.lefty - 1;
-		self.angles = '0 0 0';
-		while(c > 0)
-		{
-			c = c - 1;
-			if (!walkmove(self.angles_y, 16))
-				self.angles_y = random() * 360;
-		}
-		self.angles = '0 0 0';
 		return;
 	}
 	newmis = findchain(classname, "player");
@@ -440,7 +446,7 @@ void(float c1, float c2, string cname, void() spawnfunc, vector m1, vector m2) s
 		newmis.think = spawnmonster_think;
 		newmis.nextthink = time + random() * 0.5 + 0.3;
 		setorigin(newmis, head.origin);
-		//setmodel(newmis, "progs/s_explod.spr");
+		setmodel(newmis, "progs/s_explod.spr");
 		setsize(newmis, m1, m2);
 	}
 };

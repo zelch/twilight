@@ -26,7 +26,7 @@ void() W_SuperNailgunFireCode =
 	w_muzzleflash(shotorg, 1);
 	//ejectcasing(shotorg, shotdir, v_right * 200 + v_up * 50, 50, 0);
 	bullet_type = 4;
-	FireBullets(1, 15, 15, shotdir * 7000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
+	FireBullets(1, 15 * damagescale, 15 * damagescale, shotdir * 7000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
 	shotorg = v;
 
 	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}
@@ -77,7 +77,7 @@ void() W_SuperNailgunMineFireCode =
 		a = self.ammo_rockets;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - a;
 	w_muzzleflash(shotorg, 3);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100, a * 100 + 50, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100 * damagescale, a * 100 + 50, MINE_PROXIMITY, 60, "PROXIMITYMINE", Obituary_ProximityMine);
 };
 
 void() w_snailgundrop1;

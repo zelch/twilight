@@ -18,9 +18,9 @@ void() W_SingleShotgunFireCode =
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	w_muzzleflash(shotorg, 2);
 	bullet_type = 1;
-	FireBullets(5, 5, 5, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+	FireBullets(5, 5 * damagescale, 5 * damagescale, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 	bullet_type = 0;
-	FireBullets(10, 5, 5, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+	FireBullets(10, 5 * damagescale, 5 * damagescale, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 	self.wload = -1;
 };
 

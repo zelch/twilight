@@ -102,7 +102,6 @@ regen.qc
 superdamagesound.qc
 cheatcode.qc
 impulse_main.qc
-impulse_dead.qc
 w_frame.qc
 
 music.qc // music :)

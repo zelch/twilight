@@ -146,6 +146,9 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		{
 			targ.flags = targ.flags - (targ.flags & FL_ONGROUND);
 			targ.velocity = targ.velocity + force * targ.forcescale;
+			targ.punchvector = targ.punchvector + force * targ.forcescale * -0.2;
+			if (vlen(targ.punchvector) > 4)
+				targ.punchvector = normalize(targ.punchvector) * 4;
 		}
 	}
 

@@ -1130,6 +1130,16 @@ void() PlayerPreThink =
 {
 	local   float   r, r1, r2, r3, t, a;
 
+	// fade pain view kick
+	a = vlen(self.punchvector);
+	if (a)
+	{
+		r = a - frametime * 15;
+		if (r < 0)
+			r = 0;
+		self.punchvector = self.punchvector * (r / a);
+	}
+
 	if (!self.solid) // observer
 	{
 		self.frame = 0;
@@ -1318,7 +1328,7 @@ void() CheckPowerups =
 	if (self.super_damage_finished > time)
 		self.effects = self.effects | (EF_BLUE/* + EF_REFLECTIVE*/);
 
-	// suit	
+	// suit
 	if (self.radsuit_finished)
 	{
 		self.items = self.items + IT_SUIT;
@@ -1375,7 +1385,7 @@ void() PlayerPostThink =
 		return; // intermission or finale
 
 	if (self.impulse)
-		EvenWhenDeadImpulses();
+		ImpulseCommands();
 
 	if (self.solid)
 	{
@@ -1553,8 +1563,6 @@ called when a player dies
 */
 void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, entity a, string m, float dtyp) obitfunc) ClientObituary =
 {
-	local float dtype;
-
 	statkill(targ, attacker, dmsg); // count it in the stats
 
 	if (targ == attacker)

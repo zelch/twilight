@@ -49,13 +49,13 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc) W_DBShotgunFireShe
 		return; // never happens
 	w_muzzleflash(v, 4);
 	//bullet_type = 1;
-	//FireBullets(5, 9, 9, shotdir * 4000, 0.1, "SUPERSHOTGUN", DT_SHOTGUN, obitfunc);
+	//FireBullets(5, 9 * damagescale, 9 * damagescale, shotdir * 4000, 0.1, "SUPERSHOTGUN", DT_SHOTGUN, obitfunc);
 	//bullet_type = 0;
-	//FireBullets(10, 9, 9, shotdir * 4000, 0.1, "SUPERSHOTGUN", DT_SHOTGUN, obitfunc);
+	//FireBullets(10, 9 * damagescale, 9 * damagescale, shotdir * 4000, 0.1, "SUPERSHOTGUN", DT_SHOTGUN, obitfunc);
 	bullet_type = 1;
-	FireBullets(5, 4, 4, shotdir * 4000, 0.1, "SUPERSHOTGUN", DT_SHOTGUN, obitfunc);
+	FireBullets(5, 4 * damagescale, 4 * damagescale, shotdir * 4000, 0.1, "SUPERSHOTGUN", DT_SHOTGUN, obitfunc);
 	bullet_type = 0;
-	FireBullets(10, 4, 4, shotdir * 4000, 0.1, "SUPERSHOTGUN", DT_SHOTGUN, obitfunc);
+	FireBullets(10, 4 * damagescale, 4 * damagescale, shotdir * 4000, 0.1, "SUPERSHOTGUN", DT_SHOTGUN, obitfunc);
 	shotorg = v;
 };
 
@@ -81,7 +81,7 @@ void() W_DBShotgunMineFireCode =
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 250, MINE_PROXIMITY | MINE_DETONATEONBUTTON3, 2.5, "DBSHOTGUNMINE", Obituary_DBShotgunMine);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200 * damagescale, 250, MINE_PROXIMITY | MINE_DETONATEONBUTTON3, 2.5, "DBSHOTGUNMINE", Obituary_DBShotgunMine);
 };
 */
 
@@ -111,8 +111,8 @@ void() W_DBShotgunGrenadeFireCode =
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 200, 250, GRENADE_IMPACT, 2.5, "DBSHOTGUNGRENADE", Obituary_DBShotgunGrenade);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 100, 250, GRENADE_IMPACT, 2.5, "DBSHOTGUNGRENADE", Obituary_DBShotgunGrenade);
+	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 200 * damagescale, 250, GRENADE_IMPACT, 2.5, "DBSHOTGUNGRENADE", Obituary_DBShotgunGrenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 100 * damagescale, 250, GRENADE_IMPACT, 2.5, "DBSHOTGUNGRENADE", Obituary_DBShotgunGrenade);
 };
 
 void() w_dbshotgundrop1;

@@ -55,8 +55,8 @@ void(float shotcount, float damage, float bdamage, vector vel, float spread, str
 			newmis.dmg = newmis.dmg * 4;
 			newmis.count = newmis.count * 4;
 		}
-		newmis.dmg = newmis.dmg * damagescale;
-		newmis.count = newmis.count * damagescale;
+		newmis.dmg = newmis.dmg;
+		newmis.count = newmis.count;
 		if (bullet_type < 0)
 			newmis.movetype = MOVETYPE_FLY;
 		else

@@ -518,10 +518,12 @@ void(entity attacker, float take) player_pain =
 {
 	if (self.health < 1)
 		return; // dead
+
 	if (take < 5) // ignore
 		return;
-	if (self.weaponframe)
-		return;
+
+	//if (self.weaponframe)
+	//	return;
 
 	if (self.invisible_finished > time)
 		return;		// eyes don't have pain frames

@@ -75,13 +75,13 @@ void() MissileThink =
 			p = 5000;
 		self.velocity = self.velocity + (v * p - self.velocity) * frametime;
 	}
-	else*/ if ((self.velocity * self.dest) < 5000)
+	else*/ if ((self.velocity * self.dest) < self.speed)
 	{
-		self.velocity = self.velocity + self.dest * 10000 * frametime;
+		self.velocity = self.velocity + self.dest * self.speed * 2 * frametime;
 		p = self.velocity * self.dest;
-		if (p > 5001)
+		if (p > (self.speed + 1))
 		{
-			p = 5000 - p;
+			p = self.speed - p;
 			self.velocity = self.velocity + self.dest * p;
 		}
 	}
@@ -110,9 +110,9 @@ void(vector org, vector dir, entity own, float damg, float blastradius, string d
 	newmis.classname = "missile";
 	newmis.deathtype = dethtype;
 	newmis.obitfunc1 = obitfunc;
-	newmis.velocity = dir * 20;
-	newmis.dest = dir;
-	newmis.angles = vectoangles(dir);
+	newmis.dest = normalize(dir);
+	newmis.velocity = newmis.dest * 20;
+	newmis.angles = vectoangles(newmis.dest);
 	newmis.touch = MissileTouch;
 	newmis.think = MissileThink;
 	newmis.th_die = MissileDet;
@@ -120,10 +120,11 @@ void(vector org, vector dir, entity own, float damg, float blastradius, string d
 	newmis.takedamage = DAMAGE_YES;
 	newmis.health = 40;     // can be detonated inflight
 	newmis.cnt = time + 15; // 15 seconds max flight time
-	newmis.dmg = damg * damagescale;
+	newmis.dmg = damg;
 	newmis.dmg2 = blastradius;
 	newmis.wait = time;
 	newmis.effects = EF_LOWPRECISION;
+	newmis.speed = vlen(dir);
 
 	if (own.items & IT_QUAD)
 	{
@@ -198,7 +199,7 @@ void(vector org, vector dir, entity own, float damg, float blastradius, string d
 	newmis.takedamage = DAMAGE_YES;
 	newmis.health = 40;     // can be detonated inflight
 	newmis.cnt = time + 15; // 15 seconds max flight time
-	newmis.dmg = damg * damagescale;
+	newmis.dmg = damg;
 	newmis.dmg2 = blastradius;
 	newmis.wait = time;
 	newmis.effects = EF_LOWPRECISION;

@@ -34,7 +34,7 @@ void() W_GrenadeFireImpact =
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200/* + self.velocity*/, self, 150, 200, GRENADE_IMPACT, 25, "GRENADE", Obituary_Grenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200/* + self.velocity*/, self, 150 * damagescale, 200, GRENADE_IMPACT, 25, "GRENADE", Obituary_Grenade);
 };
 
 void() W_GrenadeFireProximity =
@@ -43,7 +43,7 @@ void() W_GrenadeFireProximity =
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
-	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200/* + self.velocity*/, self, 100, 150, GRENADE_PROXIMITY, 5, "GRENADE", Obituary_Grenade);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200/* + self.velocity*/, self, 100 * damagescale, 150, GRENADE_PROXIMITY, 5, "GRENADE", Obituary_Grenade);
 };
 
 void() w_grenadedrop1;

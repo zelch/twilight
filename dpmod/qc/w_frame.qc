@@ -41,10 +41,6 @@ void() W_WeaponFrame =
 	if (nofire)
 		self.button0 = self.button3 = self.button4 = self.button5 = self.button6 = self.button7 = self.button8 = 0;
 
-	if (self.impulse) // only if there is one
-	//if (self.attack_finished < time)
-		ImpulseCommands();
-
 	/*
 	realvangle = self.v_angle;
 	makevectors (self.v_angle);
@@ -56,7 +52,7 @@ void() W_WeaponFrame =
 	self.v_angle_z = realvangle_z;
 	self.v_angle_x = 0 - self.v_angle_x;
 	*/
-	makevectors(self.v_angle);
+	makevectors(self.v_angle + self.punchangle);
 	shotorg = self.origin + self.view_ofs + v_right * 6 - v_up * 6 + v_forward * 15;
 	shotdir = v_forward;
 

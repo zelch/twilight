@@ -98,7 +98,7 @@ void(vector hit) enforcer_rocket =
 	shotdir = normalize(hit - shotorg);
 	sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 	w_muzzleflash(shotorg, 5);
-	LaunchMissile(shotorg, shotdir, self, DMG_ENFORCER_ROCKET, DMG_ENFORCER_ROCKET_RADIUS, self.deathtype, Obituary_Generic);
+	LaunchMissile(shotorg, shotdir * 5000, self, DMG_ENFORCER_ROCKET, DMG_ENFORCER_ROCKET_RADIUS, self.deathtype, Obituary_Generic);
 };
 
 //============================================================================

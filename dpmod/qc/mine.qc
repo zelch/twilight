@@ -272,7 +272,7 @@ void(vector org, vector vel, entity own, float damage, float damage2, float type
 	newmis.avelocity = '0 0 0';
 	newmis.angles = vectoangles(newmis.velocity);
 	newmis.touch = MineTouch;
-	newmis.dmg = damage * damagescale;
+	newmis.dmg = damage;
 	newmis.dmg2 = damage2;
 	newmis.effects = EF_LOWPRECISION;
 	if (self.items & IT_QUAD)

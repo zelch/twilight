@@ -7,30 +7,25 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaRifl
 		deathstring2 = " was burned by ";
 		deathstring3 = attacker.netname;
 		deathstring4 = "'s plasma rifle";
+		if (targ.bodyhealth < 1)
+			deathstring3 = " was splattered by ";
 	}
 	else
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-void() W_PlasmaRifleFireRapid =
+void() W_PlasmaRifleFire5 =
 {
-	local vector dir;
-	self.wload = self.wload - 1;
-	self.currentammo = self.ammo_cells = self.ammo_cells - 1;
 	self.wfiretime = time;
-	dir = shotdir + randomvec() * 0.03;
-	w_muzzleflash(shotorg, 1);
-	//FireBullets(self, self, shotorg, 4, 1, 30, 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
-	FirePlasma(self, shotorg, dir, 30, 45, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
+	self.currentammo = self.ammo_cells = self.ammo_cells - 5;
+	FirePlasma(self, shotorg, shotdir, 600 * damagescale, 300, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
 };
 
-void() W_PlasmaRifleFireHighPower =
+void() W_PlasmaRifleFire1 =
 {
-	self.currentammo = self.ammo_cells = self.ammo_cells - self.wload;
 	self.wfiretime = time;
-	//FireBullets(self, self, shotorg, 4, 1, self.wload * 30, self.wload * 30, dir * 10000, 0, "PLASMARIFLE", DT_NAIL, Obituary_PlasmaRifle);
-	FirePlasma(self, shotorg, shotdir, self.wload * 30, 105, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
-	self.wload = 0;
+	self.currentammo = self.ammo_cells = self.ammo_cells - 1;
+	FirePlasma(self, shotorg, shotdir, 120 * damagescale, 60, '0 0 0', "PLASMARIFLE", Obituary_PlasmaRifle);
 };
 
 .float idealzoom;
@@ -41,39 +36,66 @@ void() w_plasmarifleraise1;
 void() w_plasmarifleraise2;
 void() w_plasmarifle =
 {
-	local float charge;
-	if (widle(w_plasmarifledrop1))
-		return;
-
 	if (self.button3)
 		self.idealzoom = 0.2;
 
-	if (self.wload > self.ammo_cells)
-		self.wload = self.ammo_cells;
-	
-	if (self.button0 && self.wload >= 1)
+	if (self.button0)
 	{
-		if (self.viewzoom < 1)
-			W_GenericSlowFireCode("", 0.3, W_PlasmaRifleFireHighPower);
+		// FIXME: need a high power fire sound (and a new low power one)
+		if (self.button3 && self.ammo_cells >= 5)
+			W_GenericSlowFireCode("plasma/plasma.wav", 2, W_PlasmaRifleFire5);
 		else
-			W_GenericSlowFireCode("", 0.1, W_PlasmaRifleFireRapid);
+			W_GenericSlowFireCode("plasma/plasma.wav", 0.7, W_PlasmaRifleFire1);
 	}
-	else if (time > self.attack_finished)
+	else if (!self.button3)
+		if (widle(w_plasmarifledrop1))
+			return;
+
+	/*
+	if (time > self.attack_finished)
 	{
-		charge = self.ammo_cells;
-		if (charge > 8)
-			charge = 8;
-		if (self.wload < charge)
+		if (self.button0)
 		{
-			self.wload = charge;
-			self.attack_finished = time + 0.2;
-			// FIXME: need a charge sound
-			//sound (self, CHAN_WEAPON, "weapons/plasmarifle/charge.wav", 1, ATTN_NORM);
+			if (self.wburst)
+				self.wload = self.wload + frametime * 2;
+			else
+				self.wload = 2;
+			while (self.wload >= 1 && self.ammo_cells >= 1 && self.wburst < 5)
+			{
+				// FIXME: need a proper charge sound
+				//if (!self.wburst)
+				//	sound(self, CHAN_WEAPON, "weapons/plasmarifle/charge.wav", 1, ATTN_NORM);
+				//	sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+				sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
+				self.wburst = self.wburst + 1;
+				self.currentammo = self.ammo_cells = self.ammo_cells - 1;
+				self.wload = self.wload - 1;
+			}
+		}
+		else
+		{
+			if (self.button0)
+			{
+				// fire
+				// FIXME: need a proper fire sound
+				//sound(self, CHAN_WEAPON, "weapons/plasmarifle/fire.wav", 1, ATTN_NORM);
+				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+				W_GenericSlowFireCode("", 0.7, W_PlasmaRifleFire);
+				self.wburst = 0;
+			}
+			else if (self.wload)
+			{
+				// discharge without firing (wasted ammo)
+				// FIXME: need a proper discharge sound
+				//sound(self, CHAN_WEAPON, "weapons/plasmarifle/discharge.wav", 1, ATTN_NORM);
+				sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
+			}
+			else if (widle(w_plasmarifledrop1))
+				return;
+			self.wload = 0;
 		}
 	}
-
-	if (widle(w_plasmarifledrop1))
-		return;
+	*/
 
 	if (self.wfiretime)
 	{
@@ -92,7 +114,7 @@ void() weapon8_precache =
 	precache_model("progs/v_dpshot.mdl");
 	precache_model("progs/s_bubble.spr");
 	precache_model("progs/plasmashot.spr32");
-	//precache_sound("plasma/plasma.wav");
+	precache_sound("plasma/plasma.wav");
 	precache_sound("plasma/plasexpl.wav");
 };
 

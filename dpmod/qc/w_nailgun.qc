@@ -38,7 +38,7 @@ void() W_NailgunFireCode =
 
 	w_muzzleflash(shotorg, 1);
 	bullet_type = 4;
-	FireBullets(1, 15, 15, shotdir * 7000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+	FireBullets(1, 15 * damagescale, 15 * damagescale, shotdir * 7000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
 	shotorg = v;
 
 	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}
@@ -78,8 +78,8 @@ void() W_NailgunGrenadeFireCode =
 	self.wfiretime = time;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 3);
-	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
-	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 70, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
+	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80 * damagescale, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
+	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200 * damagescale, 70, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
 };
 
 
