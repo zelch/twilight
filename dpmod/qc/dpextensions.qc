@@ -6,13 +6,23 @@
 //darkplaces implementation: LordHavoc
 //description:
 //alias models (mdl, md2, md3) can have .skin files to replace conventional texture naming, these have a naming format such as:
-//progs/test.mdl_0.skin
-//progs/test.mdl_1.skin
+//progs/test.md3_0.skin
+//progs/test.md3_1.skin
 //...
+//
 //these files contain replace commands (replace meshname shadername), example:
-//replace "helmet" "progs/test/helmet1.tga"
+//replace "helmet" "progs/test/helmet1.tga" // this is a mesh shader replacement
 //replace "teamstripes" "progs/test/redstripes.tga"
-//replace "visor" "common/nodraw"
+//replace "visor" "common/nodraw" // this makes the visor mesh invisible
+////it is not possible to rename tags using this format
+//
+//Or the Quake3 syntax (100% compatible withe Quake3's .skin files):
+//helmet,progs/test/helmet1.tga // this is a mesh shader replacement
+//teamstripes,progs/test/redstripes.tga
+//visor,common/nodraw // this makes the visor mesh invisible
+//tag_camera, // this defines that the first tag in the model is called tag_camera
+//tag_test, // this defines that the second tag in the model is called tag_test
+//
 //any names that are not replaced are automatically show up as a grey checkerboard to indicate the error status, and "common/nodraw" is a special case that is invisible.
 //this feature is intended to allow multiple skin sets on md3 models (which otherwise only have one skin set).
 //other commands might be added someday but it is not expected.
