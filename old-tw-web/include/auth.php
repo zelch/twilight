@@ -42,4 +42,26 @@ function get_auth($user, $pass) {
 	}
 	return NULL;
 }
+
+function set_auth_password($user, $oldpass, $pass) {
+	global $usertable;
+
+	if (!$user)
+		return NULL;
+
+	if (!get_auth($user, $oldpass))
+		return NULL;
+
+	$query = "UPDATE $usertable SET u_password='" . md5($pass) . "' " .
+		"WHERE u_username='$user';";
+
+	if (($sqlConn = twsql_connect())) {
+		twsql_query($query, $sqlConn);
+		
+		return get_auth($user, $pass);
+	}
+	return NULL;
+}
+
+		
 ?>
