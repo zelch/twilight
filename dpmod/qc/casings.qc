@@ -1,7 +1,9 @@
 
 void() InitCasings =
 {
-	precache_model ("progs/casing.mdl"); // bullet/shell/whatever casing
+	precache_model ("progs/casing_bronze.mdl"); // bullet casing (made by Tomaz)
+	precache_model ("progs/casing_steel.mdl"); // bullet casing (made by Tomaz)
+	precache_model ("progs/casing_shell.mdl"); // shell casing (made by Tomaz)
 	precache_sound ("weapons/tink1.wav");
 };
 
@@ -75,25 +77,26 @@ void(vector org, vector orientation, vector vel, float randomvel, float casingty
 	e.touch = casingtouch;
 	e.knockedloosefunc = casingknockedloosefunc;
 	e.effects = EF_LOWPRECISION;
-	setmodel (e, "progs/casing.mdl");
-	if (maxclients == 1)
-		e.cnt = time + 3000;
-	else
-		e.cnt = time + 30;
-	if (casingtype == 1) // shotgun shell
+	e.createdtime = time;
+	if (casingtype == 1)
 	{
-		//e.cnt = time + 30;
+		setmodel (e, "progs/casing_shell.mdl");
+		e.cnt = time + 30;
+		// bias to make these be considered more important than other things
 		e.createdtime = time + 1;
-		e.skin = 2;
 	}
 	else if (casingtype == 2)
 	{
-		//e.cnt = time + 10;
-		e.createdtime = time;
-		e.skin = 1;
+		setmodel (e, "progs/casing_steel.mdl");
+		e.cnt = time + 10;
 	}
 	else
-		e.createdtime = time;
+	{
+		setmodel (e, "progs/casing_bronze.mdl");
+		e.cnt = time + 10;
+	}
+	if (maxclients == 1)
+		e.cnt = time + 3000;
 	setsize (e, '0 0 -1', '0 0 -1');
 	setorigin (e, org);
 };

@@ -24,9 +24,8 @@ void() W_SuperNailgunFireCode =
 	v = shotorg;
 	shotorg = shotorg + v_up * 2;
 	w_muzzleflash(shotorg, 1);
-	//ejectcasing(shotorg, shotdir, v_right * 200 + v_up * 50, 50, 0);
-	bullet_type = 4;
-	FireBullets(1, 15 * damagescale, 15 * damagescale, shotdir * 7000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
+	ejectcasing(shotorg, shotdir, v_right * 200 + v_up * 50, 50, 2);
+	FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
 	shotorg = v;
 
 	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}

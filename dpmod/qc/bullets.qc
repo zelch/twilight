@@ -7,39 +7,28 @@ void() bullet_touch =
 	local   vector  dir;
 	dir = normalize(self.velocity);
 	T_Damage(other, self, self.realowner, self.dmg, self.count, self.deathtype, self.cnt, self.origin, dir * self.count, self.obitfunc1);
+	if (other.solid == SOLID_BSP) // hit a wall
 	if (self.lefty >= 0)
 	if (pointcontents(self.origin) != CONTENT_SKY)
 	{
-		traceline(self.origin - dir, self.origin + dir, FALSE, self);
-		if (trace_fraction < 1)
-		if (trace_ent.solid == SOLID_BSP) // hit a wall
+		if (self.lefty == 4) // nail
 		{
-			if (self.lefty == 4) // nail
-			{
-				nailpuff(trace_endpos - dir * 4, self.effects & EF_BLUE);
-				//newwallspike (trace_endpos, trace_ent, dir);
-			}
-			else if (self.lefty == 1) // shotgun pellet
-				bulletpuff(trace_endpos - dir * 4, self.effects & EF_BLUE);
+			nailpuff(self.origin - dir * 4, self.effects & EF_BLUE);
+			//newwallspike (self.origin, other, dir);
 		}
+		else if (self.lefty == 1) // shotgun pellet
+			bulletpuff(self.origin - dir * 4, self.effects & EF_BLUE);
 	}
-	remove(self);
+	if (self.count2)
+		BecomeExplosion(self, self.dmg2, self.count2, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
+	else
+		remove(self);
 };
 
-entity bullet_owner;
-entity bullet_ignoreentity;
-entity bullet_launcher;
-float bullet_type;
-void(float shotcount, float damage, float bdamage, vector vel, float spread, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) FireBullets =
+void(entity realbulletowner, entity bulletowner, float bullettype, float shotcount, float damage, float bdamage, float edamage, float eradius, vector vel, float spread, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) FireBullets =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
 	spread = spread * vlen(vel);
-	if (bullet_owner == world)
-		bullet_owner = self;
-	if (bullet_launcher == world)
-		bullet_launcher = bullet_owner;
-	if (bullet_ignoreentity == world && bullet_launcher == bullet_owner)
-		bullet_ignoreentity = bullet_owner;
 	while (shotcount > 0)
 	{
 		shotcount = shotcount - 1;
@@ -48,31 +37,32 @@ void(float shotcount, float damage, float bdamage, vector vel, float spread, str
 		setorigin(newmis, shotorg);
 		newmis.dmg = damage;
 		newmis.count = bdamage;
+		newmis.dmg2 = edamage;
+		newmis.count2 = eradius;
 		newmis.effects = EF_LOWPRECISION;
-		if (bullet_owner.items & IT_QUAD)
-		{
-			newmis.effects = newmis.effects | EF_BLUE;
-			newmis.dmg = newmis.dmg * 4;
-			newmis.count = newmis.count * 4;
-		}
-		newmis.dmg = newmis.dmg;
-		newmis.count = newmis.count;
-		if (bullet_type < 0)
-			newmis.movetype = MOVETYPE_FLY;
-		else
-			newmis.movetype = MOVETYPE_TOSS;
+		newmis.lefty = bullettype;
 		newmis.solid = SOLID_BBOX;
+		newmis.movetype = MOVETYPE_FLY;
 		newmis.velocity = vel + randomvec() * spread;// + bullet_launcher.velocity;
-		newmis.realowner = bullet_owner;
-		newmis.owner = bullet_ignoreentity;
+		newmis.realowner = realbulletowner;
+		newmis.owner = bulletowner;
 		newmis.deathtype = dethtype;
 		newmis.obitfunc1 = obitfunc;
 		newmis.cnt = damgtype;
 		newmis.touch = bullet_touch;
 		newmis.nextthink = time + 3;
 		newmis.think = SUB_Remove;
-		newmis.lefty = bullet_type;
-		if (maxclients == 1/* && bullet_type >= 0*/)
+		if (bulletowner.items & IT_QUAD)
+		{
+			newmis.effects = newmis.effects | EF_BLUE;
+			newmis.dmg = newmis.dmg * 4;
+			newmis.count = newmis.count * 4;
+			newmis.dmg2 = newmis.dmg2 * 4;
+		}
+		//if (self.lefty >= 0)
+		//	newmis.movetype = MOVETYPE_TOSS;
+		//if (self.lefty >= 0)
+		if (maxclients == 1)
 		{
 			// only visible in singleplayer (network bandwidth reasons)
 			setmodel(newmis, "progs/s_spike.mdl");
@@ -80,10 +70,6 @@ void(float shotcount, float damage, float bdamage, vector vel, float spread, str
 		}
 		setsize(newmis, '0 0 0', '0 0 0');
 	}
-	bullet_owner = world;
-	bullet_ignoreentity = world;
-	bullet_launcher = world;
-	bullet_type = 0;
 };
 
 /*

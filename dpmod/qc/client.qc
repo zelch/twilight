@@ -145,6 +145,7 @@ void() SetNewParms =
 	parm7 = STARTSP_AMMO_CELLS;
 	parm8 = STARTSP_WEAPON; // selected weapon
 	parm9 = 0; // armortype * 100
+	parm10 = STARTSP_AMMO_XSHELLS;
 };
 
 void() SetChangeParms =
@@ -167,6 +168,7 @@ void() SetChangeParms =
 	parm7 = self.ammo_cells;
 	parm8 = self.weapon;
 	parm9 = self.armortype * 100;
+	parm10 = self.ammo_xshells;
 };
 
 void() DecodeLevelParms =
@@ -184,6 +186,7 @@ void() DecodeLevelParms =
 		self.ammo_nails = 9999999;
 		self.ammo_rockets = 9999999;
 		self.ammo_cells = 9999999;
+		self.ammo_xshells = 9999999;
 		self.weapon = W_BestWeapon(TRUE);
 	}
 	else if (deathmatch)
@@ -197,6 +200,7 @@ void() DecodeLevelParms =
 		self.ammo_nails = STARTDM_AMMO_NAILS;
 		self.ammo_rockets = STARTDM_AMMO_ROCKETS;
 		self.ammo_cells = STARTDM_AMMO_CELLS;
+		self.ammo_xshells = STARTDM_AMMO_XSHELLS;
 		self.weapon = W_BestWeapon(TRUE);
 	}
 	else // singleplayer or coop
@@ -216,6 +220,7 @@ void() DecodeLevelParms =
 		self.ammo_cells = parm7;
 		self.weapon = parm8;
 		self.armortype = parm9 / 100;
+		self.ammo_xshells = parm10;
 	}
 	self.bodyhealth = self.health + 100;
 	bound_ammo(self);
@@ -846,7 +851,7 @@ void() PutClientInServer =
 		self.solid = SOLID_NOT;
 		self.classname = "player";
 		self.health = 999;
-		self.armortype = self.armorvalue = self.currentammo = self.ammo_shells = self.ammo_nails = self.ammo_rockets = self.ammo_cells = 0;
+		self.armortype = self.armorvalue = self.currentammo = self.ammo_shells = self.ammo_nails = self.ammo_rockets = self.ammo_cells = self.ammo_xshells = 0;
 		self.items = 0;
 		self.think = SUB_Null;
 		self.nextthink = 0;
@@ -1159,6 +1164,7 @@ void() PlayerPreThink =
 		self.ammo_nails = AMMOMAX_NAILS;
 		self.ammo_rockets = AMMOMAX_ROCKETS;
 		self.ammo_cells = AMMOMAX_CELLS;
+		self.ammo_xshells = AMMOMAX_XSHELLS;
 	}
 
 	if (intermission_running)

@@ -123,15 +123,20 @@ void(entity e, float damg, float radius, string dt, vector explosioncolor, float
 	org = e.origin;
 	findbetterlocation2(e);
 
-	if (explosioncolor == '0 0 0')
+	if (explosioncolor_x >= 0)
 	{
-		if (quad)
-			te_explosionquad(e.origin);
+		if (explosioncolor == '0 0 0')
+		{
+			if (quad)
+				te_explosionquad(e.origin);
+			else
+				te_explosion(e.origin);
+		}
 		else
-			te_explosion(e.origin);
+			te_explosionrgb(e.origin, explosioncolor);
 	}
 	else
-		te_explosionrgb(e.origin, explosioncolor);
+		sound(e, CHAN_AUTO, "weapons/r_exp3.wav", 1, ATTN_NORM);
 
 	T_RadiusDamage(e, e.owner, damg, radius, world, dt, DT_EXPLOSION, obitfunc);
 	remove(e);

@@ -37,8 +37,7 @@ void() W_NailgunFireCode =
 	}
 
 	w_muzzleflash(shotorg, 1);
-	bullet_type = 4;
-	FireBullets(1, 15 * damagescale, 15 * damagescale, shotdir * 7000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+	FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.025, "NAILGUN", DT_NAIL, Obituary_Nailgun);
 	shotorg = v;
 
 	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}

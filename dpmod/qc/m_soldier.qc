@@ -159,8 +159,7 @@ void(vector hit) army_pistol =
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 1);
 	ejectcasing (shotorg, shotdir, '0 0 0', 50, 0);
-	bullet_type = 4;
-	FireBullets(1, DMG_SOLDIER_PISTOL_DAMAGE, DMG_SOLDIER_PISTOL_BDAMAGE, shotdir * 6000, 0.025, self.deathtype, DT_NAIL, Obituary_Generic);
+	FireBullets (self, self, 4, 1, DMG_SOLDIER_PISTOL_DAMAGE, DMG_SOLDIER_PISTOL_BDAMAGE, 0, 0, shotdir * 6000, 0.025, self.deathtype, DT_NAIL, Obituary_Generic);
 };
 
 void() army_pistol1 =[$shoot1, army_pistol2] {ai_face();self.dest = monster_shotleadbullet(0.4);};
@@ -191,8 +190,7 @@ void(vector hit) army_nail =
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 1);
 	ejectcasing (shotorg, shotdir, '0 0 0', 50, 0);
-	bullet_type = 4;
-	FireBullets(1, DMG_SOLDIER_MACHINEGUN_DAMAGE, DMG_SOLDIER_MACHINEGUN_BDAMAGE, shotdir * 5000, 0.05, self.deathtype, DT_NAIL, Obituary_Generic);
+	FireBullets (self, self, 4, 1, DMG_SOLDIER_MACHINEGUN_DAMAGE, DMG_SOLDIER_MACHINEGUN_BDAMAGE, 0, 0, shotdir * 5000, 0.05, self.deathtype, DT_NAIL, Obituary_Generic);
 };
 
 void() army_nail1  =[$shoot1, army_nail2 ] {ai_face();self.dest1 = monster_shotleadbullet(0.4);};
@@ -226,8 +224,7 @@ void(vector hit) army_shotgun =
 	sound (self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 2);
 	ejectcasing (shotorg, shotdir, '0 0 0', 50, 1);
-	bullet_type = 1;
-	FireBullets (DMG_SOLDIER_SHOTGUN_PELLETS, DMG_SOLDIER_SHOTGUN_DAMAGE, DMG_SOLDIER_SHOTGUN_BDAMAGE, shotdir * 4000, 0.1, self.deathtype, DT_SHOTGUN, Obituary_Generic);
+	FireBullets (self, self, 1, DMG_SOLDIER_SHOTGUN_PELLETS, DMG_SOLDIER_SHOTGUN_DAMAGE, DMG_SOLDIER_SHOTGUN_BDAMAGE, 0, 0, shotdir * 4000, 0.1, self.deathtype, DT_SHOTGUN, Obituary_Generic);
 };
 
 void() army_shotgun1   =[$shoot1, army_shotgun2  ] {ai_face();self.dest = monster_shotleadbullet(0.4);};

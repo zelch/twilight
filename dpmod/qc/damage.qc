@@ -3,21 +3,25 @@
 .float  ammo_nails;
 .float  ammo_rockets;
 .float  ammo_cells;
+.float  ammo_xshells;
 
 float   AMMOMAX_SHELLS          =  100;
 float   AMMOMAX_NAILS           =  200;
 float   AMMOMAX_ROCKETS         =  100;
-float   AMMOMAX_CELLS           =  100;
+float   AMMOMAX_CELLS           =  200;
+float   AMMOMAX_XSHELLS         =  100;
 
-float   STARTDM_AMMO_SHELLS      =   20;
+float   STARTDM_AMMO_SHELLS      =    0;
 float   STARTDM_AMMO_NAILS       =    0;
 float   STARTDM_AMMO_ROCKETS     =    0;
 float   STARTDM_AMMO_CELLS       =    0;
+float   STARTDM_AMMO_XSHELLS     =    0;
 
-float   STARTSP_AMMO_SHELLS      =   20;
+float   STARTSP_AMMO_SHELLS      =    0;
 float   STARTSP_AMMO_NAILS       =    0;
 float   STARTSP_AMMO_ROCKETS     =    0;
 float   STARTSP_AMMO_CELLS       =    0;
+float   STARTSP_AMMO_XSHELLS     =    0;
 float   STARTSP_WEAPON           = IT_WEAPON2;
 
 // ammo given by collecting weapons when already at weapon's fill-up limit
@@ -25,12 +29,14 @@ float   AMMOWEAPONOVERFLOW              =    0; // false, thus it will give norm
 float   AMMOWEAPONOVERFLOW_SHELLS       =    3;
 float   AMMOWEAPONOVERFLOW_NAILS        =    5;
 float   AMMOWEAPONOVERFLOW_ROCKETS      =    1;
-float   AMMOWEAPONOVERFLOW_CELLS        =    2;
+float   AMMOWEAPONOVERFLOW_CELLS        =    5;
+float   AMMOWEAPONOVERFLOW_XSHELLS      =    3;
 
 float   AMMO_SHELLS                     =   20; // double if big box
 float   AMMO_NAILS                      =   25; // double if big box
 float   AMMO_ROCKETS                    =    5; // double if big box
-float   AMMO_CELLS                      =    7; // double if big box
+float   AMMO_CELLS                      =   14; // double if big box
+float   AMMO_XSHELLS                    =   20; // double if big box
 
 float   AMMO_GRUNT_PISTOL_ROUNDS        =    5;
 float   AMMO_GRUNT_SHOTGUN_SHELLS       =    2;
@@ -112,6 +118,7 @@ void(entity e) bound_ammo =
 	if (e.ammo_nails   > AMMOMAX_NAILS  ) e.ammo_nails   = AMMOMAX_NAILS;
 	if (e.ammo_rockets > AMMOMAX_ROCKETS) e.ammo_rockets = AMMOMAX_ROCKETS;
 	if (e.ammo_cells   > AMMOMAX_CELLS  ) e.ammo_cells   = AMMOMAX_CELLS;
+	if (e.ammo_xshells > AMMOMAX_XSHELLS) e.ammo_xshells = AMMOMAX_XSHELLS;
 };
 
 float(entity e, float t, float a) full_ammo =
@@ -120,6 +127,7 @@ float(entity e, float t, float a) full_ammo =
 	if (t == 2 && (e.ammo_nails   + a) > AMMOMAX_NAILS  ) return (AMMOMAX_NAILS   - e.ammo_nails  );
 	if (t == 3 && (e.ammo_rockets + a) > AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - e.ammo_rockets);
 	if (t == 4 && (e.ammo_cells   + a) > AMMOMAX_CELLS  ) return (AMMOMAX_CELLS   - e.ammo_cells  );
+	if (t == 5 && (e.ammo_xshells + a) > AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - e.ammo_xshells);
 	return a;
 };
 

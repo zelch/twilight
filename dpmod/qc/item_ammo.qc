@@ -31,6 +31,7 @@ void() ammo_touch =
 	if (self.weapon == 2) other.ammo_nails   = other.ammo_nails   + self.aflag;
 	if (self.weapon == 3) other.ammo_rockets = other.ammo_rockets + self.aflag;
 	if (self.weapon == 4) other.ammo_cells   = other.ammo_cells   + self.aflag;
+	if (self.weapon == 5) other.ammo_xshells = other.ammo_xshells + self.aflag;
 
 	bound_ammo (other);
 
@@ -80,21 +81,24 @@ float(entity player, entity item) item_shells_pickupeval = {if (player.ammo_shel
 float(entity player, entity item) item_nails_pickupeval = {if (player.ammo_nails < AMMOMAX_NAILS) return (AMMOMAX_NAILS - player.ammo_nails) * (AMMOMAX_NAILS - player.ammo_nails) * item.dmg;else return 0;};
 float(entity player, entity item) item_rockets_pickupeval = {if (player.ammo_rockets < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - player.ammo_rockets) * (AMMOMAX_ROCKETS - player.ammo_rockets) * item.dmg;else return 0;};
 float(entity player, entity item) item_cells_pickupeval = {if (player.ammo_cells < AMMOMAX_CELLS) return (AMMOMAX_CELLS - player.ammo_cells) * (AMMOMAX_CELLS - player.ammo_cells) * item.dmg;else return 0;};
+float(entity player, entity item) item_xshells_pickupeval = {if (player.ammo_xshells < AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - player.ammo_xshells) * (AMMOMAX_XSHELLS - player.ammo_xshells) * item.dmg;else return 0;};
 
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32)
 */
 
+float spawnxshells;
 void() item_shells =
 {
 	self.touch = ammo_touch;
 
+	self.weapon = 1;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
 		precache_model ("progs/a_shell2.mdl");
 		setmodel (self, "progs/a_shell2.mdl");
 		if (self.aflag < 1)
 			self.aflag = AMMO_SHELLS * 2;
-		self.netname = "You got some shotgun shells\n";
+		self.netname = "You got some shotgun buckshot shells\n";
 	}
 	else
 	{
@@ -102,15 +106,23 @@ void() item_shells =
 		setmodel (self, "progs/a_shell1.mdl");
 		if (self.aflag < 1)
 			self.aflag = AMMO_SHELLS;
-		self.netname = "You got some shotgun shells\n";
+		self.netname = "You got some shotgun buckshot shells\n";
 	}
 	setsize (self, '-16 -16 0', '16 16 8');
 	setorigin(self, self.origin + '16 16 0');
-	self.weapon = 1;
 
 	self.havocpickup = TRUE;
 	self.dmg = 60 * self.aflag / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
 	self.pickupevalfunc = item_shells_pickupeval;
+
+	spawnxshells = spawnxshells + 1;
+	if (spawnxshells & 1)
+	{
+		self.weapon = 5;
+		self.netname = "You got some shotgun explosive slugs\n";
+		self.dmg = 110 * self.aflag / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
+		self.pickupevalfunc = item_xshells_pickupeval;
+	}
 
 	StartItem ();
 };
@@ -154,9 +166,9 @@ void() item_spikes =
 
 void() item_rockets =
 {
-	if (deathmatch == 7) {remove(self);return;}
-
 	self.touch = ammo_touch;
+
+	self.weapon = 3;
 	if (self.spawnflags & WEAPON_BIG2)
 	{
 		precache_model ("progs/a_rock8.mdl");
@@ -175,7 +187,6 @@ void() item_rockets =
 	}
 	setsize (self, '-16 -16 0', '16 16 16');
 	setorigin(self, self.origin + '16 16 0');
-	self.weapon = 3;
 
 	self.havocpickup = TRUE;
 	self.dmg = 120 * self.aflag / (AMMOMAX_ROCKETS * AMMOMAX_ROCKETS);

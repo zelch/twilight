@@ -12,15 +12,22 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Shotgun =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
+float SHOTGUNBUCKSHOT = 75;
+float SHOTGUNEXPLOSIVESLUG = 120;
+
+.float shotgunmode;
 void() W_SingleShotgunFireCode =
 {
 	self.wfiretime = time;
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	w_muzzleflash(shotorg, 2);
-	bullet_type = 1;
-	FireBullets(5, 5 * damagescale, 5 * damagescale, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-	bullet_type = 0;
-	FireBullets(10, 5 * damagescale, 5 * damagescale, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+	if (self.shotgunmode)
+		FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.8 * damagescale, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
+	else
+	{
+		FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+		FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+	}
 	self.wload = -1;
 };
 
@@ -33,6 +40,18 @@ void() w_shotgun =
 	local vector v;
 	if (widle(w_shotgundrop1))
 		return;
+
+	if (self.button5)
+	if (time > self.attack_finished)
+	{
+		self.shotgunmode = !self.shotgunmode;
+		sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
+		self.attack_finished = time + 1;
+		if (self.shotgunmode)
+			sprint(self, "Ammo: Explosive slugs\n");
+		else
+			sprint(self, "Ammo: Buckshot\n");
+	}
 
 	if (self.wload > self.ammo_shells)
 		self.wload = self.ammo_shells;

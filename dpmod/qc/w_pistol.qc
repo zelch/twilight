@@ -17,11 +17,7 @@ void() W_PistolFireCode =
 	self.wfiretime = time;
 	w_muzzleflash(shotorg, 1);
 	ejectcasing(shotorg, shotdir, v_right * 150 + v_up * 50, 50, 0);
-	bullet_type = 4;
-	if (self.button3)
-		FireBullets(1, 30 * damagescale, 30 * damagescale, shotdir * 7000, 0.05, "PISTOL", DT_NAIL, Obituary_Pistol);
-	else
-		FireBullets(1, 30 * damagescale, 30 * damagescale, shotdir * 7000, 0.0125, "PISTOL", DT_NAIL, Obituary_Pistol);
+	FireBullets(self, self, 4, 1, 30 * damagescale, 30 * damagescale, 0, 0, shotdir * 7000, 0, "PISTOL", DT_NAIL, Obituary_Pistol);
 };
 
 void() w_pistoldrop1;
@@ -35,8 +31,6 @@ void() w_pistol =
 
 	if (self.button0)
 		W_GenericSlowFireCode("weapons/rocket1i.wav", 0.4, W_PistolFireCode);
-	else if (self.button3)
-		W_GenericSlowFireCode("weapons/rocket1i.wav", 0.2, W_PistolFireCode);
 
 	if (self.wfiretime)
 	{
@@ -50,15 +44,15 @@ void() w_pistol =
 	havoc_shotanimupdate(self.weaponframe);
 };
 
-void() weapon1_precache =
+void() weapon2_precache =
 {
 	precache_model("progs/v_dpshot.mdl");
 	precache_sound("weapons/rocket1i.wav");
 };
 
 float() w_pistolrating = {return genericweaponrating(0, 99999, 75);};
-void() w_pistolsetup = {wset(IT_WEAPON1, 0, 0, VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
-float(float request) setweapon1 = {return weapongeneric(IT_WEAPON1, TRUE, request, w_pistolsetup, w_pistol, w_pistolraise1, w_directaim, w_pistolrating, "Pistol");};
+void() w_pistolsetup = {wset(IT_WEAPON2, 0, 0, VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
+float(float request) setweapon2 = {return weapongeneric(IT_WEAPON2, TRUE, request, w_pistolsetup, w_pistol, w_pistolraise1, w_directaim, w_pistolrating, "Pistol");};
 
 void() w_pistolraise1 = {wraise(8, w_pistolraise2, 0.1);};
 void() w_pistolraise2 = {wraise(7, w_pistol, 0.1);};

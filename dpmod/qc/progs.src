@@ -82,8 +82,8 @@ item_backpacks.qc
 
 w_common.qc
 
-w_pistol.qc // 1
-w_shotgun.qc // 2
+w_fake1.qc // 1
+w_pistol.qc // 2
 w_dbshotgun.qc // 3
 w_nailgun.qc // 4
 w_supernailgun.qc // 5
