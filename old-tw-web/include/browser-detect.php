@@ -1,6 +1,9 @@
 <?php
 
-if (ereg( "MSIE ([0-9].[0-9]{1,2})",$HTTP_USER_AGENT,$log_version)) {
+if (ereg( "Konqueror ([0-9].[0-9]{1,2})",$HTTP_USER_AGENT,$log_version)) {
+	$browser_name="Konqueror";
+	$browser_version=$log_version[1];
+} elseif (ereg( "MSIE ([0-9].[0-9]{1,2})",$HTTP_USER_AGENT,$log_version)) {
 	$browser_name="MSIE";
 	$browser_version=$log_version[1];
 } elseif (ereg( "Opera ([0-9].[0-9]{1,2})",$HTTP_USER_AGENT,$log_version)) {
