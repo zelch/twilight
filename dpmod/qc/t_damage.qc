@@ -62,10 +62,8 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 		self.enemy = attacker;
 
 	// bump the monster counter
-	if (self.flags & FL_MONSTER && self.classname != "spawnedgrunt")
+	if (self.flags & FL_MONSTER)
 	{
-		if (attacker.classname == "player")
-			attacker.frags = attacker.frags + 1;
 		killed_monsters = killed_monsters + 1;
 		WriteByte (MSG_ALL, SVC_KILLEDMONSTER);
 	}
