@@ -61,7 +61,7 @@ float MOVE_WORLDONLY = 3;
 //constant definitions:
 float MOVE_HITMODEL = 4;
 //description:
-//allows traces to hit alias models (not sprites!) instead of entity boxes (see DP_QC_TRACE_MOVETYPES for how to use this)
+//allows traces to hit alias models (not sprites!) instead of entity boxes (see DP_QC_TRACE_MOVETYPES for how to use this), note that you can hit invisible model entities (alpha < 0 or EF_NODRAW or model "", it only checks modelindex)
 
 // LordHavoc: HIGHLY experimental, do not implement this in other engines
 //DP_CGAME
