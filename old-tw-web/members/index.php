@@ -17,7 +17,7 @@
 # Redo u_admin to an access level/bitmask?
 	if ($authdata['u_admin'] == 'Y') {
 		echo box("para", "Administrative menu<br>\n
-- <a href=\"members/post_news.php\">Post news</a>");
+- <a href=\"/members/post_news.php\">Post news</a>");
 	}
 
 	require ($pageroot . "/include/footer.php");
