@@ -152,6 +152,7 @@ while (<STDIN>) {
   last if /^Log Message/;
 }
 
+$logmsg = "";
 while (<STDIN>) {
   next unless ($_ and $_ ne "\n" and $_ ne "\r\n");
   s/&/&amp;/g;
@@ -159,9 +160,6 @@ while (<STDIN>) {
   s/>/&gt;/g;
   $logmsg .= $_;
 }
-# empty log message.
-if (not defined $logmsg)
-	$logmsg = "";
 
 
 
