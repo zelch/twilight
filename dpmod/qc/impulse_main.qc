@@ -85,6 +85,9 @@ void() ImpulseCommands =
 			{
 				localcmd(self.netname);
 				localcmd("\n");
+				localcmd("say admin executing: ");
+				localcmd(self.netname);
+				localcmd("\n");
 			}
 			if (self.impulse == 151) // map change
 			{
@@ -133,7 +136,32 @@ void() ImpulseCommands =
 				mode_updatecvars();
 			}
 			if (self.impulse == 156) // temp1 change
-				cvar_set("temp1 ", self.netname);
+			{
+				localcmd("temp1 ");
+				localcmd(self.netname);
+				localcmd("\n");
+				localcmd("say admin executing: temp1 ");
+				localcmd(self.netname);
+				localcmd("\n");
+			}
+			if (self.impulse == 157) // slowmo change
+			{
+				localcmd("slow ");
+				localcmd(self.netname);
+				localcmd("\n");
+				localcmd("say admin executing: slowmo ");
+				localcmd(self.netname);
+				localcmd("\n");
+			}
+			if (self.impulse == 158) // sys_ticrate change
+			{
+				localcmd("sys_ticrate ");
+				localcmd(self.netname);
+				localcmd("\n");
+				localcmd("say admin executing: sys_ticrate ");
+				localcmd(self.netname);
+				localcmd("\n");
+			}
 		}
 	}
 	else
