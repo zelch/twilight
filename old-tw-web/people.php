@@ -15,6 +15,9 @@
 	);
 
 	while (list ($nick, $person) = each ($userinfo)) {
+		if (!$browser_css) {
+			echo ("<p>");
+		}
 		boxstart ("uinfo");
 		echo ("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n" .
 			"<tr><td width=\"20%\">\n");
@@ -39,6 +42,9 @@
 		}
 		echo ("</td></tr></table>\n");
 		boxend ("uinfo");
+		if (!$browser_css) {
+			echo ("</p>");
+		}
 	}
 
 	require ($pageroot . "/include/footer.php");

@@ -11,6 +11,9 @@
 		footerpre => "<center><font face=\"verdana, arial\" size=\"-2\">" ,
 		footerpost => "</font></center>",
 
+		uinfo => "width=\"100%\" bgcolor=\"#000fb5\" cellspacing=\"1\"" ,
+		uinfodata => "width=\"100%\" bgcolor=\"#000440\"" ,
+
 		nav => "bgcolor=\"#000430\" width=\"100%\" valign=\"top\"" ,
 		navpre => "<font size=\"-1\">" ,
 		navpost => "</font>" ,
@@ -94,6 +97,10 @@ div.uinfo {
 	border: solid 2px #000fb5;
 	background: #000fb5;
 	margin: 10px;
+}
+
+div.uinfonick {
+	border-left: solid 3px #000fb5;
 }
 
 div.uinfodata {
@@ -197,7 +204,7 @@ a {
 			"Name" => "Joseph Carter" ,
 			"Email" => "knghtbrd@debian.org"
 		) ,
-		"Vic" => array (
+		"digiman" => array (
 			"Name" => "Victor Luchits" ,
 			"Email" => "digiman@users.sourceforge.net"
 		) ,
