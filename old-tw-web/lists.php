@@ -3,6 +3,22 @@
 	$pageroot = ".";
 	require ($pageroot . "/include/header.php");
 
+	function listsub ($listname)
+	{
+		titlebox ("subscr", "Subscribe to " . $listname,
+			"<form method=\"post\" action=\"/subscribe.php\">\n" .
+			"<table" . ($browser_css ? "" : " align=\"center\"") . ">\n" .
+			"<tr><td>Email:&nbsp;</td><td>\n" .
+			"<input type=\"text\" name=\"sub_email\" size=\"30\" /></td>\n" .
+			"<td>&nbsp;&nbsp;<input type=\"submit\" name=\"sub_button\"\n" .
+			"value=\"Subscribe\" /></td></tr>\n" .
+			"<tr><td><input type=\"hidden\" name=\"sub_list\"\n" .
+			"value=\"" . $listname . "\" />\n</td><td colspan=\"2\">\n" .
+			"<input type=\"checkbox\" name=\"sub_digest\" />\n" .
+			" Messages in digest format\n</td></tr></table></form>\n"
+		);
+	}
+
 	box ("title", "Mailing Lists");
 
 	box ("para", "Most of the important discussion about Project Twilight\n" .
@@ -10,6 +26,19 @@
 		"These lists are open to the public and those of you interested\n" .
 		"are encouraged to subscribe.\n"
 	);
+
+
+	box ("sub", "twilight-announce");
+
+	box ("para", "This list is only used for announcement purposes and\n" .
+		"is read-only.&nbsp; Everyone is encouraged to subscribe if they\n" .
+		"are interested in news about the project.&nbsp; Posts here will\n" .
+		"be more formal than the website news.&nbsp; It is intended for\n" .
+		"release announcements and that sort of thing.\n"
+	);
+
+	listsub ("twilight-announce");
+
 
 	box ("sub", "<a href=\"mailto:twilight-devel@lists.sourceforge.net\">" .
 		"twilight-devel</a>"
@@ -24,19 +53,7 @@
 		"light and moderate depending on what we're doing at the time.\n"
 	);
 
-	titlebox ("subscr", "Subscribe to twilight-devel",
-		"<form method=\"post\" action=\"/subscribe.php\">\n" .
-		"<table" . ($browser_css ? "" : " align=\"center\"") . ">\n" .
-		"<tr><td>Email:&nbsp;</td><td>\n" .
-		"<input type=\"text\" name=\"sub_email\" size=\"30\" /></td><td>\n" .
-		"&nbsp;&nbsp;\n" .
-		"<input type=\"submit\" name=\"sub_button\" value=\"Subscribe\" />\n" .
-		"</td></tr><tr><td>\n" .
-		"<input type=\"hidden\" name=\"sub_list\"\n" .
-		"value=\"twilight-devel\" />\n</td><td colspan=\"2\">" .
-		"<input type=\"checkbox\" name=\"sub_digest\" />" .
-		" Messages in digest format\n</td></tr></table></form>\n"
-	);
+	listsub ("twilight-devel");
 
 
 	box ("sub", "twilight-commits");
@@ -53,18 +70,7 @@
 		"yet.\n"
 	);
 
-	titlebox ("subscr", "Subscribe to twilight-commits",
-		"<form method=\"post\" action=\"/subscribe.php\">\n" .
-		"<table" . ($browser_css ? "" : " align=\"center\"") . "><tr><td>\nEmail:&nbsp;</td><td>\n" .
-		"<input type=\"text\" name=\"sub_email\" size=\"30\" /></td><td>\n" .
-		"&nbsp;&nbsp;\n" .
-		"<input type=\"submit\" name=\"sub_button\" value=\"Subscribe\" />\n" .
-		"</td></tr><tr><td>\n" .
-		"<input type=\"hidden\" name=\"sub_list\"\n" .
-		"value=\"twilight-commits\" />\n</td><td colspan=\"2\">" .
-		"<input type=\"checkbox\" name=\"sub_digest\" />" .
-		" Messages in digest format\n</td></tr></table></form>\n"
-	);
+	listsub ("twilight-commits");
 
 	require ($pageroot . "/include/footer.php");
 ?>
