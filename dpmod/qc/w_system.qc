@@ -596,7 +596,7 @@ void() W_WeaponFrame =
 	self.oldfiring = self.firing;
 	self.firing = FALSE;
 	//wanimate();
-	if (self.weaponclass.w_func)
+	if (self.weaponclass)
 	{
 		self.weaponclass.w_func(WR_FRAME);
 		self.weaponclass.w_func(WR_FRAME);
