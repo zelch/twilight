@@ -548,11 +548,14 @@ FinishBSPFile
 void FinishBSPFile (void)
 {
 	printf ("--- FinishBSPFile ---\n");
-	printf ("WriteBSPFile: %s\n", bspfilename);
 
 	WriteMiptex ();
 
+	printf ("BSP file information\n");
 	PrintBSPFileSizes ();
+
+	printf ("WriteBSPFile: %s\n", bspfilename);
+
 	WriteBSPFile (bspfilename, false);
 }
 
