@@ -256,7 +256,8 @@ void ParseBrush (void)
 	mface_t		*f, *f2;
 	vec3_t		planepts[3];
 	vec3_t		t1, t2, t3;
-	int			i, j, funkynormalwarning;
+	//vec3_t		v;
+	int			i, j;
 	texinfo_t	tx;
 	vec_t		d;
 	vec_t		shift[2], rotate, scale[2], iscale[2];
@@ -340,32 +341,53 @@ void ParseBrush (void)
 		}
 
 		CrossProduct(t1,t2, f->plane.normal);
-		if (VectorCompare (f->plane.normal, vec3_origin))
+		if (DotProduct (f->plane.normal, f->plane.normal) < 0.1)
 		{
 			printf ("WARNING: brush plane with no normal on line %d\n", scriptline);
 			b->faces = f->next;
 			free (f);
 			break;
 		}
-		// LordHavoc: fix for CheckFace: point off plane errors in some maps (most notably QOOLE ones)
+
 		VectorNormalize (f->plane.normal);
-		funkynormalwarning = false;
-		for (j = 0;j < 3;j++)
-		{
-			d = rint(f->plane.normal[j] * 64.0) * (1.0 / 64.0);
-			if (fabs(d - f->plane.normal[j]) >= (0.2 / 64.0)) // if deviation is too high, warn
-				funkynormalwarning = true;
-			//f->plane.normal[j] = d;
-		}
-		VectorNormalize (f->plane.normal);
-		if (funkynormalwarning)
-			printf("WARNING: correcting minor misalignment (normal) of face on line %d\n", scriptline);
 		f->plane.dist = DotProduct (t3, f->plane.normal);
-		d = rint(f->plane.dist * 64.0) * (1.0 / 64.0);
-		if (fabs(d - f->plane.normal[j]) >= (0.2 / 64.0)) // if deviation is too high, warn
-			printf("WARNING: correcting minor misalignment (distance) of face on line %d\n", scriptline);
-			//funkynormalwarning = true;
+
+		/*
+		// LordHavoc: fix for CheckFace: point off plane errors in some maps (most notably QOOLE ones),
+		// and hopefully preventing most 'portal clipped away' warnings
+		VectorNormalize (f->plane.normal);
+		for (j = 0;j < 3;j++)
+			f->plane.normal[j] = (Q_rint((vec_t) f->plane.normal[j] * (vec_t) 8.0)) * (vec_t) (1.0 / 8.0);
+		VectorNormalize (f->plane.normal);
+		f->plane.dist = DotProduct (t3, f->plane.normal);
+		d = (Q_rint(f->plane.dist * 8.0)) * (1.0 / 8.0);
+		//if (fabs(d - f->plane.dist) >= (0.4 / 8.0))
+		//	printf("WARNING: correcting minor math errors in brushface on line %d\n", scriptline);
+		f->plane.dist = d;
+		*/
+
+		/*
+		VectorNormalize (f->plane.normal);
+		f->plane.dist = DotProduct (t3, f->plane.normal);
+
+		VectorCopy(f->plane.normal, v);
+		//for (j = 0;j < 3;j++)
+		//	v[j] = (Q_rint((vec_t) v[j] * (vec_t) 32.0)) * (vec_t) (1.0 / 32.0);
+		VectorNormalize (v);
+		d = (Q_rint(DotProduct (t3, v) * 8.0)) * (1.0 / 8.0);
+
+		// if deviation is too high, warn  (frequently happens on QOOLE maps)
+		if (fabs(DotProduct(v, f->plane.normal) - 1.0) > (0.5 / 32.0)
+		 || fabs(d - f->plane.dist) >= (0.25 / 8.0))
+			printf("WARNING: minor misalignment of brushface on line %d\n"
+			       "normal     %f %f %f (l: %f d: %f)\n"
+			       "rounded to %f %f %f (l: %f d: %f r: %f)\n",
+			       scriptline,
+			       (vec_t) f->plane.normal[0], (vec_t) f->plane.normal[1], (vec_t) f->plane.normal[2], (vec_t) sqrt(DotProduct(f->plane.normal, f->plane.normal)), (vec_t) DotProduct (t3, f->plane.normal),
+			       (vec_t) v[0], (vec_t) v[1], (vec_t) v[2], (vec_t) sqrt(DotProduct(v, v)), (vec_t) DotProduct(t3, v), (vec_t) d);
+		//VectorCopy(v, f->plane.normal);
 		//f->plane.dist = d;
+		*/
 
 		// fake proper texture vectors from QuakeEd style
 		{
