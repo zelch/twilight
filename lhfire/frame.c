@@ -1,7 +1,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <search.h>
 #include <time.h>
 
 #include "particle.h"
