@@ -10,7 +10,8 @@
 #define PACKETMAXSYMBOLS 8
 #define REFERENCEHASHBITS 12
 #define REFERENCEHASHSIZE (1 << REFERENCEHASHBITS)
-#define REFERENCEWINDOWSIZE (16384)
+//#define REFERENCEWINDOWSIZE (16384)
+#define REFERENCEWINDOWSIZE (1048576)
 
 /*
 typedef struct lzss_compress_hashitem_s
@@ -53,6 +54,80 @@ typedef struct lzss_compress_state_s
 lzss_compress_state_t;
 */
 
+#if 1
+// works
+unsigned int lzss_compressbuffertobuffer(const unsigned char *in, const unsigned char *inend, unsigned char *out, unsigned char *outend)
+{
+	int windowposition = 0;
+	int windowstart = 0;
+	int windowend = inend - in;
+	int w;
+	int l;
+	int maxl;
+	int c, c1, c2;
+	int bestl;
+	int bestcode;
+	int packetbit;
+	int packetsize;
+	const unsigned char *search, *inpos;
+	unsigned char *outstart;
+	unsigned char packetbytes[1+PACKETMAXSYMBOLS*2];
+	outstart = out;
+	while (windowposition < windowend)
+	{
+		for (packetbit = 0x80, packetbytes[0] = 0, packetsize = 1;windowposition < windowend && packetbit;packetbit >>= 1)
+		{
+			if (windowstart < windowposition - REFERENCEMAXDIST)
+				windowstart = windowposition - REFERENCEMAXDIST;
+			// find matching strings
+			bestl = 1;
+			maxl = windowend - windowposition;
+			if (maxl > REFERENCEMAXSIZE)
+				maxl = REFERENCEMAXSIZE;
+			inpos = in + windowposition;
+			c = inpos[0];
+			if (maxl >= 3)
+			{
+				c1 = inpos[1];
+				c2 = inpos[2];
+				for (w = windowposition-1;w >= windowstart;w--)
+				{
+					// find how long a string match this is
+					search = in + w;
+					if (search[0] == c && search[1] == c1 && search[2] == c2)
+					{
+						for (l = 3;l < maxl && search[l] == inpos[l];l++);
+						// this prefers the closest match
+						if (bestl < l)
+						{
+							bestl = l;
+							bestcode = ((bestl - 3) << 12) | (windowposition - w - 1);
+							// extra speed gain if a full match is found
+							if (bestl >= maxl)
+								break;
+						}
+					}
+				}
+			}
+			if (bestl >= 3)
+			{
+				packetbytes[0] |= packetbit;
+				packetbytes[packetsize++] = (unsigned char)(bestcode >> 8);
+				packetbytes[packetsize++] = (unsigned char)bestcode;
+				windowposition += bestl;
+			}
+			else
+				packetbytes[packetsize++] = in[windowposition++];
+		}
+		if (out + packetsize > outend)
+			return 0;
+		for (l = 0;l < packetsize;l++)
+			*out++ = packetbytes[l];
+	}
+	return out - outstart;
+}
+#else
+//broken, needs more debugging
 unsigned int lzss_compressbuffertobuffer(const unsigned char *in, const unsigned char *inend, unsigned char *out, unsigned char *outend)
 {
 	int windowposition = 0;
@@ -93,7 +168,7 @@ unsigned int lzss_compressbuffertobuffer(const unsigned char *in, const unsigned
 		packetsize = 1;
 		while (windowposition < windowend && packetbit)
 		{
-			while (windowposition - windowstart >= REFERENCEMAXSIZE)
+			while (windowstart < windowposition - REFERENCEMAXDIST)
 			{
 				// remove a hash entry which is too old
 				windowstart++;
@@ -144,6 +219,7 @@ unsigned int lzss_compressbuffertobuffer(const unsigned char *in, const unsigned
 	}
 	return out - outstart;
 }
+#endif
 
 unsigned int lzss_compressbuffertofilebuffer(const unsigned char *indata, size_t insize, unsigned char *outfiledata, size_t outfilesize)
 {
@@ -191,7 +267,7 @@ int main(int argc, char **argv)
 				{
 					if ((outdata = malloc(outfilesize)))
 					{
-						if (fread(indata, 1, infilesize, infile) == infilesize)
+						if ((i = fread(indata, 1, infilesize, infile)) == infilesize)
 						{
 							if ((outfilesize = lzss_compressbuffertofilebuffer(indata, infilesize, outdata, outfilesize)))
 							{

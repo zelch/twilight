@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 			fseek(infile, 0, SEEK_SET);
 			if ((indata = malloc(infilesize)))
 			{
-				if (fread(indata, 1, infilesize, infile) == infilesize)
+				if ((i = fread(indata, 1, infilesize, infile)) == infilesize)
 				{
 					if ((outdata = lzss_decompressfilebuffer_malloc(indata, infilesize, &outfilesize)))
 					{
