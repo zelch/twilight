@@ -1,0 +1,192 @@
+///////////////////////////////////////////////
+// Main Menu File
+///////////////////////
+// This file belongs to dpmod/darkplaces
+// AK contains all main menu related definitions
+////////////////////////////////
+////////////////////////////////
+// Normal Menu
+/////////////////////
+/////////////////////
+// Normal Definition
+///
+{
+	classname	ITEM_WINDOW
+	name		normal
+	origin		"0 0 0"
+}
+//////////////////////
+// Background
+///
+{
+	classname	ITEM_WINDOW
+	name		background
+	origin		"0 0 0"
+}
+//////////////////////
+// Backgroung Link with normal
+///
+{
+	classname	ITEM_REFERENCE
+	name		n_bg_ref
+	parent		normal
+	link		background
+}
+//////////////////////
+// Main Menu
+///
+{
+	classname	ITEM_WINDOW
+	name		main
+	parent		normal
+	origin		"0 0 0"
+}
+///////////////////
+// Main Menu Items
+///
+// Singleplayer
+{
+	classname	ITEM_TEXTBUTTON
+	name		main_singleplayer
+	parent		main
+	text		"Singleplayer"
+	alignment	8					// TEXT_ALIGN_CENTERPOS
+	pos			"400 210 0"
+	flag		256					// FLAG_AUTOSETCLICK
+	font_size   "10 10 0"
+	style		2
+}
+// Multiplayer
+{
+	classname	ITEM_TEXTBUTTON
+	name 		main_multiplayer
+	parent 		main
+	text		"Multiplayer"
+	alignment	8
+	pos			"400 230 0"
+	flag		256
+	font_size	"10 10 0"
+	style		2
+}
+// Options
+{
+	classname	ITEM_TEXTBUTTON
+	name 		main_options
+	parent 		main
+	text		"Options"
+	alignment	8
+	pos			"400 250 0"
+	flag		256
+	font_size	"10 10 0"
+	style		2
+	action		dpmod_display_options
+}
+// Quit
+{
+	classname	ITEM_TEXTBUTTON
+	name 		main_quit
+	parent 		main
+	text		"Quit"
+	alignment	8
+	pos			"400 270 0"
+	flag		256
+	font_size	"10 10 0"
+	action		dpmod_quit
+	style		2
+}
+//////////////////////
+// Quit Menu
+///
+// normal reference
+{
+	classname	ITEM_REFERENCE
+	name		normal_quit_ref
+	parent		normal
+	link		quit
+}
+// ingame reference
+{
+	classname	ITEM_REFERENCE
+	name		ingame_quit_ref
+	parent		ingame
+	link		quit
+}
+// menu
+{
+	classname	ITEM_WINDOW
+	name		quit
+	flag		6
+	origin		"295 250 0"
+}
+// Background #0
+{
+	classname	ITEM_RECTANGLE
+	name		quit_background0
+	parent		quit
+	pos			"0 0 0"
+	size		"210 80 0"
+	color		"1 1 1"
+	alpha		0.5
+	drawflag	0
+}
+// Background #1
+{
+	classname	ITEM_RECTANGLE
+	name		quit_background
+	parent		quit
+	pos			"2 2 0"
+	size		"206 76 0"
+	color		"0.1 0.1 0.1"
+	alpha		1
+	drawflag	0
+}
+// Messagepart 0
+{
+	classname	ITEM_TEXT
+	name		quit_msg_0
+	parent		quit
+	pos			"3 10 0"
+	text		"Wrong mcustom.qc !"	// mcustom is going to insert a usefull text here
+	size		"206 10 0"
+	font_size	"10 10 0"
+	alignment	1
+}
+// Messagepart 1
+{
+	classname	ITEM_TEXT
+	name		quit_msg_1
+	parent		quit
+	pos			"3 30 0"
+	text		"Wrong mcustom.qc !"	// as above
+	size		"206 10 0"
+	font_size	"10 10 0"
+	alignment	1
+}
+// Yes
+{
+	classname	ITEM_TEXTBUTTON
+	name		quit_yes
+	parent		quit
+	orderpos	102		// so yes will always be the second in the order
+	pos			"30 50 0"
+	text		"Yes"
+	font_size 	"10 10 0"
+	alignment	0
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_quit_key
+	action		dpmod_quit_yes
+}
+// No
+{
+	classname	ITEM_TEXTBUTTON
+	name		quit_no
+	parent		quit
+	orderpos	101
+	pos			"100 50 0"
+	text		"No"
+	font_size 	"10 10 0"
+	alignment	0
+	flag		256
+	key			dpmod_quit_key
+	action		dpmod_quit_no
+}

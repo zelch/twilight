@@ -1,0 +1,1023 @@
+///////////////////////////////////////////////
+// Options Menu File
+///////////////////////
+// This file belongs to dpmod/darkplaces
+// AK contains all options menu related definitions
+////////////////////////////////
+///////////////
+// Options Menu
+///
+{
+	classname	ITEM_WINDOW
+	name		options
+	origin		"400 100 0"
+}
+{
+	classname	ITEM_REFERENCE
+	name		op_bg_ref
+	parent		options
+	origin		"0 0 0"
+	link		background
+}
+// Control Stuff
+// TODO: Implement this :-/
+// custom controls
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_custom_control
+	parent		options
+	text		"Customize controls"
+	pos			"0 0 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+}
+// Reset to defaults
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_reset_defaults
+	parent		options
+	text		"Reset to default"
+	pos			"0 15 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+}
+// Video
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_video
+	parent		options
+	text		"Video"
+	pos			"0 30 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+}
+// Effects
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_effects
+	parent 		options
+	text		"Effects"
+	pos			"0 45 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+}
+// Color control
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_color_control
+	parent		options
+	text		"Color control"
+	pos			"0 60 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+}
+// 2D Screen Width
+// Text
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_scrwidth_text
+	parent		options
+	text		"2D Screen Width"
+	pos			"0 75 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_scrwidth_slider
+	parent		options_scrwidth_text
+	pos			"10 75 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"vid_conwidth"
+	cvartype	1		// CVAR_INT
+	min_value	320
+	max_value	2048
+	step		34.56
+	size		"100 8 0"
+	//size		"100 10 0"
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_scrwidth_slidertext
+	parent		options_scrwidth_text
+	link		options_scrwidth_slider
+	pos			"120 75 0"
+	//font_size 	"10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+// 2D Screen Height
+// Text
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_scrheight_text
+	parent		options
+	text		"2D Screen Height"
+	pos			"0 90 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_scrheight_slider
+	parent		options_scrheight_text
+	pos			"10 90 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"vid_conheight"
+	cvartype	1		// CVAR_INT
+	min_value	240
+	max_value	1536
+	step		25.92
+	size		"100 8 0"
+	//size		"100 10 0"
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_scrheight_slidertext
+	parent		options_scrheight_text
+	link		options_scrheight_slider
+	pos			"120 90 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+// Console Speed
+// Text
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_conspeed_text
+	parent		options
+	text		"Console Speed"
+	pos			"0 105 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_conspeed_slider
+	parent		options_conspeed_text
+	pos			"10 105 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"scr_conspeed"
+	cvartype	1		// CVAR_INT
+	min_value	0
+	max_value	1000
+	step		20
+	size		"100 8 0"
+	//size		"100 10 0"
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_conspeed_slidertext
+	parent		options_conspeed_text
+	link		options_conspeed_slider
+	pos			"120 105 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+// Console Alpha
+// Text
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_conalpha_text
+	parent		options
+	text		"Console Alpha"
+	pos			"0 120 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_conalpha_slider
+	parent		options_conalpha_text
+	pos			"10 120 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"scr_conalpha"
+	cvartype	0		// CVAR_FLOAT
+	min_value	0
+	max_value	1
+	step		0.2
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_conalpha_slidertext
+	parent		options_conalpha_text
+	link		options_conalpha_slider
+	pos			"120 120 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// Conback Brightness
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_conback_brgt_text
+	parent		options
+	text		"Conback Brightness"
+	pos			"0 135 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_conback_brgt_slider
+	parent		options_conback_brgt_text
+	pos			"10 135 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"scr_conbrightness"
+	cvartype	0		// CVAR_FLOAT
+	min_value	0
+	max_value	1
+	step		0.20
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_conback_brgt_slidertext
+	parent		options_conback_brgt_text
+	link		options_conback_brgt_slider
+	pos			"120 135 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// Screen size
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_scr_size_text
+	parent		options
+	text		"Screen size"
+	pos			"0 150 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_scr_size_slider
+	parent		options_scr_size_text
+	pos			"10 150 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"viewsize"
+	cvartype	4		// CVAR_STEP
+	min_value	30
+	max_value	120
+	step		10
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_scr_size_slidertext
+	parent		options_scr_size_text
+	link		options_scr_size_slider
+	pos			"120 150 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+// JPEG screenshots
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_jpg_scr_text
+	parent		options
+	text		"JPEG screenshots"
+	pos			"0 165 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_jpg_scr_switch
+	parent		options_jpg_scr_text
+	pos			"10 165 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off' 'On'"
+	cvarname	"scr_screenshot_jpeg"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Sky
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_sky_text
+	parent		options
+	text		"Sky"
+	pos			"0 180 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_sky_switch
+	parent		options_sky_text
+	pos			"10 180 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"r_sky"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Texture Combine
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_tex_comb_text
+	parent		options
+	text		"Texture Combine"
+	pos			"0 195 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_tex_comb_switch
+	parent		options_tex_comb_text
+	pos			"10 195 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"gl_combine"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Dithering
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_dither_text
+	parent		options
+	text		"Dithering"
+	pos			"0 210 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_dither_switch
+	parent		options_dither_text
+	pos			"10 210 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"gl_dither"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Delay gfx (faster)
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_delay_gfx_text
+	parent		options
+	text		"Delay gfx (faster)"
+	pos			"0 225 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_delay_gfx_switch
+	parent		options_delay_gfx_text
+	pos			"10 225 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"gl_delayfinish"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Game Speed (Disabled)
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_game_speed_dis_text
+	parent		options
+	text		"Game Speed"
+	pos			"0 240 0"
+	//font_size	"10 10 0"
+	color		"0.5 0.5 0.5"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		4224//1152	// FLAG_DRAWONLY | FLAG_CHILDDRAWREFRESHONLY
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_game_speed_dis_slider
+	parent		options_game_speed_dis_text
+	pos			"10 240 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	color		"0.6 0.6 0.6"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"slowmo"
+	cvartype	1		// CVAR_INT
+	min_value	0
+	max_value	5
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_game_speed_dis_slidertext
+	parent		options_game_speed_dis_text
+	link		options_game_speed_dis_slider
+	pos			"120 240 0"
+	//font_size "10 10 0"
+	color		"0.5 0.5 0.6"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// Game Speed
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_game_speed_text
+	parent		options
+	text		"Game Speed"
+	pos			"0 240 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		272		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_game_speed_slider
+	parent		options_game_speed_text
+	pos			"10 240 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		276		// FLAG_AUTOSETCLICK | FLAG_NOSELECT | FLAG_SERVERONLY
+	cvarname	"slowmo"
+	cvartype	0		// CVAR_FLOAT
+	min_value	0
+	max_value	5
+	step		0.25
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_game_speed_slidertext
+	parent		options_game_speed_text
+	link		options_game_speed_slider
+	pos			"120 240 0"
+	//font_size "10 10 0"
+	flag		144		// FLAG_DRAWONLY | FLAG_DEVELOPERONLY
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// CD Music Volume
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_cd_vol_text
+	parent		options
+	text		"CD Music Volume"
+	pos			"0 255 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_cd_vol_slider
+	parent		options_cd_vol_text
+	pos			"10 255 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"bgmvolume"
+	cvartype	0		// CVAR_FLOAT
+	min_value	0
+	max_value	1
+	step		0.10
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_cd_vol_slidertext
+	parent		options_cd_vol_text
+	link		options_cd_vol_slider
+	pos			"120 255 0"
+	//font_size "10 10 0"
+	maxlen		3
+	reinit		dpmod_slidertext
+}
+//////
+// Sound Volume
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_snd_vol_text
+	parent		options
+	text		"Sound Volume"
+	pos			"0 270 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_snd_vol_slider
+	parent		options_snd_vol_text
+	pos			"10 270 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"volume"
+	cvartype	0		// CVAR_FLOAT
+	min_value	0
+	max_value	1
+	step		0.10
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_snd_vol_slidertext
+	parent		options_snd_vol_text
+	link		options_snd_vol_slider
+	pos			"120 270 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// Ambient Volume
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_static_vol_text
+	parent		options
+	text		"Ambient Volume"
+	pos			"0 285 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_static_vol_slider
+	parent		options_static_vol_text
+	pos			"10 285 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"snd_staticvolume"
+	cvartype	0		// CVAR_FLOAT
+	min_value	0
+	max_value	1
+	step		0.10
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_static_vol_slidertext
+	parent		options_static_vol_text
+	link		options_static_vol_slider
+	pos			"120 285 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// Crosshair
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_crosshair_text
+	parent		options
+	text		"Crosshair"
+	pos			"0 300 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_crosshair_slider
+	parent		options_crosshair_text
+	pos			"10 300 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"crosshair"
+	cvartype	1		// CVAR_INT
+	min_value	0
+	max_value	5
+	step		1
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_crosshair_slidertext
+	parent		options_crosshair_text
+	link		options_crosshair_slider
+	pos			"120 300 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// Crosshair Size
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_crosshair_size_text
+	parent		options
+	text		"Crosshair Size"
+	pos			"0 315 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_crosshair_size_slider
+	parent		options_crosshair_size_text
+	pos			"10 315 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"crosshair_size"
+	cvartype	1		// CVAR_INT
+	min_value	1
+	max_value	5
+	step		1
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_crosshair_size_slidertext
+	parent		options_crosshair_size_text
+	link		options_crosshair_size_slider
+	pos			"120 315 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// Static Crosshair
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_static_crosshair_text
+	parent		options
+	text		"Static Crosshair"
+	pos			"0 330 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_static_crosshair_switch
+	parent		options_static_crosshair_text
+	pos			"10 330 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"crosshair_static"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Show Framerate
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_showfps_text
+	parent		options
+	text		"Show Framerate"
+	pos			"0 345 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_showfps_switch
+	parent		options_showfps_text
+	pos			"10 345 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"showfps"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Always Run
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_alwaysrun_text
+	parent		options
+	text		"Always Run"
+	pos			"0 360 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_alwaysrun_switch
+	parent		options_alwaysrun_text
+	pos			"10 360 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	switchchange dpmod_options_alwaysrun_switchchange
+	refresh		dpmod_options_alwaysrun_refresh
+}
+//////
+// Lookspring
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_lookspring_text
+	parent		options
+	text		"Lookspring"
+	pos			"0 375 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_lookspring_switch
+	parent		options_lookspring_text
+	pos			"10 375 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"lookspring"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Lookstrafe
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_lookstrafe_text
+	parent		options
+	text		"Lookstrafe"
+	pos			"0 390 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_lookstrafe_switch
+	parent		options_lookstrafe_text
+	pos			"10 390 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"lookstrafe"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Mouse Speed
+////
+// Menu Button
+{
+	classname	ITEM_TEXTBUTTON
+	name		options_mousespeed_text
+	parent		options
+	text		"Mouse Speed"
+	pos			"0 405 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_LEFTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key	// redirects input to the child
+}
+// Slider
+{
+	classname	ITEM_SLIDER
+	name		options_mousespeed_slider
+	parent		options_mousespeed_text
+	pos			"10 405 0"
+	size		"100 8 0"
+	//size		"100 10 0"
+	flag		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	cvarname	"sensitivity"
+	cvartype	0		// CVAR_FLOAT
+	min_value	1
+	max_value	50
+	step		0.5
+	reinit		dpmod_cvar_slider
+}
+// Text
+{
+	classname 	ITEM_TEXT
+	name		options_mousespeed_slidertext
+	parent		options_mousespeed_text
+	link		options_mousespeed_slider
+	pos			"120 405 0"
+	//font_size "10 10 0"
+	maxlen		4
+	reinit		dpmod_slidertext
+}
+//////
+// Mouse Look
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_mouselook_text
+	parent		options
+	text		"Mouse Look"
+	pos			"0 420 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_mouselook_switch
+	parent		options_mouselook_text
+	pos			"10 420 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"freelook"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+//////
+// Invert Mouse
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_invmouse_text
+	parent		options
+	text		"Invert Mouse"
+	pos			"0 435 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_invmouse_switch
+	parent		options_invmouse_text
+	pos			"10 435 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	switchchange dpmod_options_invmouse_switchchange
+	refresh		dpmod_options_invmouse_refresh
+}
+//////
+// Use Mouse
+////
+// Text
+{
+	classname 	ITEM_TEXTBUTTON
+	name		options_use_mouse_text
+	parent		options
+	text		"Use Mouse"
+	pos			"0 450 0"
+	//font_size	"10 10 0"
+	alignment	16		// TEXT_ALIGN_RIGHTPOS
+	flag		256		// FLAG_AUTOSETCLICK
+	key			dpmod_redirect_key
+}
+// Switch
+{
+	classname	ITEM_TEXTSWITCH
+	name		options_use_mouse_switch
+	parent		options_use_mouse_text
+	pos			"10 450 0"
+	//font_size	"10 10 0"
+	flag 		260		// FLAG_AUTOSETCLICK | FLAG_NOSELECT
+	text		"'Off''On'"
+	cvarname	"vid_mouse"
+	cvartype	1		// CVAR_INT
+	reinit		dpmod_cvar_slider	// can use it also here
+}
+
+
