@@ -89,7 +89,7 @@ static void CalcFaceVectors( lightinfo_t *l, const vec3_t faceorg )
 	distscale = DotProduct( texnormal, l->facenormal );
 	if( !distscale )
 	{
-		printf( "Texture axis perpendicular to face at location %f %f %f", l->facemid[0], l->facemid[1], l->facemid[2] );
+		printf( "Texture axis perpendicular to face at location %f %f %f\n", l->facemid[0], l->facemid[1], l->facemid[2] );
 		distscale = 1;
 	}
 	if( distscale < 0 ) {
