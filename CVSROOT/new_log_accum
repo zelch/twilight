@@ -322,7 +322,7 @@ sub build_header ($@) {
 	my ($user, $dummy, $gecos);
 	my ($digest);
 
-	($user, $dummy, $dummy, $dummy, $dummy, $dummy, $gecos) = getpwuid($<);
+	($user, $dummy, $dummy, $dummy, $dummy, $dummy, $gecos, $dummy, $dummy, $dummy) = getpwuid($<);
 
 	@mailto = @{$mailto};
 
