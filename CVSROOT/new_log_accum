@@ -361,12 +361,15 @@ sub build_header ($@) {
 
 # Send the mail message
 sub send_mail {
-    my (@mailto, @text) = @_;
+    my ($mailto, $text) = @_;
+    # I <heart> perl
+    @mailto = @{$mailto};
+    @text = @{$text};
 
 foreach my $item (@mailto) { print "send_mail/mailto: $item\n"; }
 foreach my $item (@text) { print "send_mail/text: $item\n"; }
     open(MAIL, "|$MAILER " . join(' ', @mailto));
-#    push(@data, $boundary);
+    push(@mailto, $boundary);
     print MAIL join("\n", @text), "\n";
     close(MAIL);
 
@@ -599,7 +602,7 @@ if (defined($files[1]) && defined($files[2]) &&
     push(@text, "Log message:", "", @log);
 
     # and send it (synchronously)
-    send_mail(@mailto, @text);
+    send_mail(\@mailto, \@text);
 
     # Clean up after ourselves and exit.
     cleanup_dir($tmpdir);
@@ -617,7 +620,7 @@ if (defined($files[1]) && defined($files[2]) &&
     push(@text, "Log message:", "", @log);
 
     # and send it (synchronously)
-    send_mail(@mailto, @text);
+    send_mail(\@mailto, \@text);
 
     # Clean up after ourselves and exit.
     cleanup_dir($tmpdir);
@@ -750,7 +753,7 @@ foreach my $item (@mailto) { print "main/mailto: $item\n"; }
 foreach my $item (@text) { print "main/text: $item\n"; }
 
 # send the mail...
-send_mail(@mailto, @text);
+send_mail(\@mailto, \@text);
 
 # and clean up after ourselves
 cleanup_dir($tmpdir);
