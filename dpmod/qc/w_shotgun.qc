@@ -13,7 +13,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Shotgun =
 };
 
 //float SHOTGUNBUCKSHOT = 75;
-float SHOTGUNEXPLOSIVESLUG = 95;
+float SHOTGUNEXPLOSIVESLUG = 50;
 
 .float shotgunmode;
 void() W_SingleShotgunFireCode =

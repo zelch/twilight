@@ -66,7 +66,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunD
 };
 
 //float DBSHOTGUNBUCKSHOT = 80;
-float DBSHOTGUNEXPLOSIVESLUG = 85;
+float DBSHOTGUNEXPLOSIVESLUG = 50;
 
 .float shotgunmode, shotgunshells;
 void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost) W_DBShotgunFireShell =
@@ -115,7 +115,7 @@ void() W_DBShotgunDoubleFireCode =
 	if (self.wload > 1)
 	{
 		while (self.wload > 0)
-			W_DBShotgunFireShell(Obituary_DBShotgunDouble, 0.02);
+			W_DBShotgunFireShell(Obituary_DBShotgunDouble, 0);
 	}
 	else
 		W_DBShotgunSingleFireCode();
