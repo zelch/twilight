@@ -1,0 +1,67 @@
+body {
+	background: #000000;
+	color: #e5e5e5;
+	font: 100% verdana, sans-serif;
+}
+
+a {
+	text-decoration: none;
+	color: #76b4e8;
+}
+
+
+/* Project: Twilight page title */
+div.heading {
+	border-bottom: 1px solid #ffffff;
+	margin-bottom: 15px;
+	padding-top: 15px;
+	background: #000000 url("../image/title-back.png");
+}
+
+/* tables for layout *sigh* */
+table.layout {
+	width: 100%;
+	border: 0px;
+	padding: 0px;
+	margin: 0px;
+	vertical-align: top;
+}
+td.layout {
+	vertical-align: top;
+}
+
+/* Side navigation bar */
+div.nav {
+	width: 200px;
+	background: #172b3f;
+	margin-right: 5px;
+	line-height: 19px;
+}
+
+/* Main page */
+div.page {
+	width: "100%";
+	padding-left: 5px;
+}
+
+div.content {
+	width: "100%";
+}
+
+/* News box */
+div.news {
+	border: solid 1px #5aeaff;
+	background: #172b3f;
+	margin: 5px;
+	margin-bottom: 10px;
+}
+div.newsdate {
+	color: #acc8e5;
+	margin: 1px 5px;
+	text-align: right;
+	font: 80% verdana, sans-serif;
+}
+div.newcontent {
+	margin: 1px 5px;
+}
+
