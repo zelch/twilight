@@ -28,5 +28,5 @@
 # Temporarily use SF lists..
 DEFAULT $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@icculus.org %{sVv}
 CVSROOT $CVSROOT/CVSROOT/new_log_accum -m twilight-admin@icculus.org %{sVv}
-tw-web $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@icculus.org %{sVv}; $CVSROOT/CVSROOT/do_webpulse
+website $CVSROOT/CVSROOT/new_log_accum -m twilight-commits@icculus.org %{sVv}; $CVSROOT/CVSROOT/do_webpulse
 
