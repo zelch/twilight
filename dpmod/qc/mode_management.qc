@@ -367,8 +367,13 @@ void() spawnmonster_think =
 	}
 
 	if (self.netname == "monster_fish")
-	if (pointcontents(self.origin) != CONTENT_WATER)
-		remove(self);
+	{
+		if (pointcontents(self.origin) != CONTENT_WATER)
+		{
+			remove(self);
+			return;
+		}
+	}
 
 	// spawn in
 	self.movetype = MOVETYPE_NONE;
