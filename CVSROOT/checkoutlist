@@ -12,7 +12,7 @@
 #
 # comment lines begin with '#'
 new_commit_prep	Error checking out/updating CVSROOT/new_commit_prep
-mew_log_accum	Error checking out/updating CVSROOT/new_log_accum
+new_log_accum	Error checking out/updating CVSROOT/new_log_accum
 log_accum.pl	Error checking out/updating CVSROOT/log_accum.pl
 commit_prep.pl	Error checking out/updating CVSROOT/commit_prep.pl
 do_nothing	Error checking out/updating CVSROOT/do_nothing
