@@ -1,4 +1,4 @@
-hmap utilities by Forest "LordHavoc" Hale ( havoc@gamevisions.com )
+hmap utilities by Forest "LordHavoc" Hale ( lordhavoc@users.sourceforge.net )
 Based on source code from id Software (Quake utilities) and Ritual Entertainment (Scourge of Armagon mission pack)
 Website: http://darkplaces.gamevisions.com
 
