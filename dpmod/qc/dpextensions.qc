@@ -890,6 +890,22 @@ string(float n) argv = #442;
 //description:
 //shows that the engine supports the "play2" console command (plays a sound without spatialization).
 
+//TENEBRAE_GFX_DLIGHTS
+//idea: Tenebrae
+//darkplaces implementation: LordHavoc
+//fields:
+.float light_lev; // radius (does not affect brightness), typical value 350
+.vector color; // color (does not affect radius), typical value '1 1 1' (bright white), can be up to '255 255 255' (nuclear blast)
+.float style; // light style (like normal light entities, flickering torches or switchable, etc)
+.float pflags; // flags (1 is no shadow, 2 is draw corona which is ignored by darkplaces which always uses a corona)
+.vector angles; // orientation of the light
+.float skin; // cubemap filter number (filter disabled if skin < 16), this selects a projective light filter, a value of 16 loads cubemaps/16posx.tga and cubemaps/16negx.tga and posy, negy, posz, and negz, similar to skybox but some sides need to be rotated or flipped
+//description:
+//more powerful dynamic light settings
+//warning: it is best not to use cubemaps on a light entity that has a model, as using a skin number that a model does not have will cause issues in glquake, and produce warnings in darkplaces (use developer 1 to see them) 
+//changes compared to tenebrae (because they're too 'leet' for standards):
+//EF_FULLDYNAMIC does not exist (it conflicts with standard effect flags), so light_lev is used instead (this means that light_lev does not default to 350 like in Tenebrae)
+
 //TW_SV_STEPCONTROL
 //idea: Transfusion
 //darkplaces implementation: LordHavoc
