@@ -1,29 +1,32 @@
 
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunSingle =
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunSingle_Buckshot =
 {
 	if (dtype == DTYPE_PLAYER)
 	{
-		if (dmsg == "SHOTGUNEXPLOSIVESLUG")
+		deathstring1 = targ.netname;
+		deathstring2 = " was blown away by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunSingle_Explosive =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		if (targ.bodyhealth < 1)
 		{
-			if (targ.bodyhealth < 1)
-			{
-				deathstring1 = targ.netname;
-				deathstring2 = " was blown apart by an explosive slug from ";
-				deathstring3 = attacker.netname;
-				deathstring4 = "";
-			}
-			else
-			{
-				deathstring1 = targ.netname;
-				deathstring2 = " met an explosive slug from ";
-				deathstring3 = attacker.netname;
-				deathstring4 = "";
-			}
+			deathstring1 = targ.netname;
+			deathstring2 = " was blown apart by an explosive slug from ";
+			deathstring3 = attacker.netname;
+			deathstring4 = "";
 		}
 		else
 		{
 			deathstring1 = targ.netname;
-			deathstring2 = " was blown away by ";
+			deathstring2 = " met an explosive slug from ";
 			deathstring3 = attacker.netname;
 			deathstring4 = "";
 		}
@@ -32,31 +35,34 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunS
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunDouble =
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunDouble_Buckshot =
 {
 	if (dtype == DTYPE_PLAYER)
 	{
-		if (dmsg == "SHOTGUNEXPLOSIVESLUG")
+		deathstring1 = targ.netname;
+		deathstring2 = " took both barrels from ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunDouble_Explosive =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		if (targ.bodyhealth < 1)
 		{
-			if (targ.bodyhealth < 1)
-			{
-				deathstring1 = targ.netname;
-				deathstring2 = " was blown apart by two explosive slugs from ";
-				deathstring3 = attacker.netname;
-				deathstring4 = "";
-			}
-			else
-			{
-				deathstring1 = targ.netname;
-				deathstring2 = " took two explosive slugs from ";
-				deathstring3 = attacker.netname;
-				deathstring4 = "";
-			}
+			deathstring1 = targ.netname;
+			deathstring2 = " was blown apart by two explosive slugs from ";
+			deathstring3 = attacker.netname;
+			deathstring4 = "";
 		}
 		else
 		{
 			deathstring1 = targ.netname;
-			deathstring2 = " took both barrels from ";
+			deathstring2 = " took two explosive slugs from ";
 			deathstring3 = attacker.netname;
 			deathstring4 = "";
 		}
@@ -65,11 +71,11 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_DBShotgunD
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-//float DBSHOTGUNBUCKSHOT = 80;
+float DBSHOTGUNBUCKSHOT = 50;
 float DBSHOTGUNEXPLOSIVESLUG = 50;
 
 .float shotgunmode, shotgunshells;
-void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost) W_DBShotgunFireShell =
+void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost, float explosive) W_DBShotgunFireShell =
 {
 	local vector v;
 
@@ -93,33 +99,83 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost)
 		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	self.wfiretime = time;
 	w_muzzleflash(v, 4);
-	//if (self.shotgunmode)
+	if (explosive)
 		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG * damagescale, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
-	/*
 	else
 	{
 		FireBullets(self, self, 1, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
 		FireBullets(self, self, 0, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
 	}
-	*/
 	shotorg = v;
 };
 
-void() W_DBShotgunSingleFireCode =
+void() W_DBShotgunSingleFireCode_Buckshot =
 {
-	W_DBShotgunFireShell(Obituary_DBShotgunSingle, 0);
+	W_DBShotgunFireShell(Obituary_DBShotgunSingle_Buckshot, 0, FALSE);
 };
 
-void() W_DBShotgunDoubleFireCode =
+void() W_DBShotgunSingleFireCode_Explosive =
 {
-	if (self.wload > 1)
+	W_DBShotgunFireShell(Obituary_DBShotgunSingle_Explosive, 0, TRUE);
+};
+
+void() W_DBShotgunDoubleFireCode_Buckshot =
+{
+	while (self.wload > 0)
+		W_DBShotgunFireShell(Obituary_DBShotgunDouble_Buckshot, 0, FALSE);
+};
+
+void() W_DBShotgunDoubleFireCode_Explosive =
+{
+	while (self.wload > 0)
+		W_DBShotgunFireShell(Obituary_DBShotgunDouble_Explosive, 0, TRUE);
+};
+
+void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost, float explosive) W_DBShotgunGatlingFireShell =
+{
+	local vector v;
+
+	v = shotorg;
+	if (self.wload)
 	{
-		while (self.wload > 0)
-			W_DBShotgunFireShell(Obituary_DBShotgunDouble, 0);
+		self.wload = 0;
+		self.shotgunshells = self.shotgunshells + 1;
+		shotorg = shotorg - v_right;
 	}
 	else
-		W_DBShotgunSingleFireCode();
+	{
+		self.wload = 1;
+		self.shotgunshells = self.shotgunshells + 2;
+		shotorg = shotorg + v_right;
+	}
+	/*
+	if (self.shotgunmode)
+		self.currentammo = self.ammo_xshells = self.ammo_xshells - 1;
+	else
+	*/
+		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+	self.wfiretime = time;
+	w_muzzleflash(v, 4);
+	if (explosive)
+		FireBullets(self, self, 1, 1, 0, 0, DBSHOTGUNEXPLOSIVESLUG * damagescale, 80, shotdir * 5000, spreadboost, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, obitfunc);
+	else
+	{
+		FireBullets(self, self, 1, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
+		FireBullets(self, self, 0, 5, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, DBSHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, spreadboost + 0.03, "SHOTGUN", DT_SHOTGUN, obitfunc);
+	}
+	shotorg = v;
 };
+
+void() W_DBShotgunGatlingFireCode_Buckshot =
+{
+	W_DBShotgunGatlingFireShell(Obituary_DBShotgunSingle_Buckshot, 0, FALSE);
+};
+
+void() W_DBShotgunGatlingFireCode_Explosive =
+{
+	W_DBShotgunGatlingFireShell(Obituary_DBShotgunSingle_Explosive, 0, TRUE);
+};
+
 
 void() w_dbshotgundrop1;
 void() w_dbshotgundrop2;
@@ -128,7 +184,7 @@ void() w_dbshotgunraise2;
 void() w_dbshotgun =
 {
 	//local float swapmode, otherammo;
-	local vector v;
+	local vector v, ang;
 
 	if (widle(w_dbshotgundrop1))
 		return;
@@ -160,12 +216,37 @@ void() w_dbshotgun =
 	}
 	*/
 
+	if (time > self.attack_finished)
+	{
+		if (self.shotgunshells)
+		{
+			sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
+			v = shotorg + v_forward * -8;
+			ang = self.v_angle;ang_x = 0 - ang_x;
+			if (self.shotgunshells & 1) ejectcasing (v + v_right *  1, '0 0 0', 30, ang, '0 0 0', 150, 1);
+			if (self.shotgunshells & 2) ejectcasing (v + v_right * -1, '0 0 0', 30, ang, '0 0 0', 150, 1);
+			self.shotgunshells = 0;
+		}
+		if (self.ammo_shells > 0)
+		{
+			if (self.button0)
+				W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunGatlingFireCode_Buckshot);
+			else if (self.button3)
+				W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunGatlingFireCode_Explosive);
+		}
+	}
+
+	/*
 	if (self.wload > 0)
 	{
 		if (self.button0)
-			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunSingleFireCode);
+			//W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunSingleFireCode_Buckshot);
+			//W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunDoubleFireCode_Buckshot);
+			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunSingleFireCode_Buckshot);
 		else if (self.button3)
-			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunDoubleFireCode);
+			//W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunDoubleFireCode_Buckshot);
+			//W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunDoubleFireCode_Explosive);
+			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.2, W_DBShotgunSingleFireCode_Explosive);
 	}
 	else
 	{
@@ -176,12 +257,14 @@ void() w_dbshotgun =
 				self.attack_finished = time + 0.4;
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 				v = shotorg + v_forward * -8;
-				if (self.shotgunshells & 1) ejectcasing (v + v_right *  1, shotdir, '0 0 0', 30, 1);
-				if (self.shotgunshells & 2) ejectcasing (v + v_right * -1, shotdir, '0 0 0', 30, 1);
+				ang = self.v_angle;ang_x = 0 - ang_x;
+				if (self.shotgunshells & 1) ejectcasing (v + v_right *  1, '0 0 0', 30, ang, '0 0 0', 150, 1);
+				if (self.shotgunshells & 2) ejectcasing (v + v_right * -1, '0 0 0', 30, ang, '0 0 0', 150, 1);
 				self.shotgunshells = 0;
 			}
 			else
 			{
+	*/
 				/*
 				if (self.shotgunmode)
 				{
@@ -194,6 +277,7 @@ void() w_dbshotgun =
 				}
 				else
 				*/
+	/*
 				{
 					if (self.ammo_shells >= 1)
 					{
@@ -205,6 +289,7 @@ void() w_dbshotgun =
 			}
 		}
 	}
+	*/
 
 	if (self.wfiretime)
 	{

@@ -1247,6 +1247,8 @@ void() havocbot_doaim =
 		}
 	}
 
+	// LordHavoc: todo: deceleration aiming simulation
+
 	ang = vectoangles(aimdir);
 
 	// change to v_angle format

@@ -8,7 +8,7 @@ SOLDIER / PLAYER
 
 $cd id1/models/soldier3
 $origin 0 -6 24
-$base base		
+$base base
 $skin skin
 
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8
@@ -150,15 +150,17 @@ float() SoldierCheckAttack =
 
 void(vector hit) army_pistol =
 {
+	local vector ang;
 	shotdir = normalize (hit - (self.origin + '0 0 12'));
 	shotdir = shotdir * 25 + randomvec();
 	shotdir = normalize(shotdir);
+	ang = vectoangles(shotdir);
 
 	shotorg = self.origin + '0 0 12';
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 1);
-	ejectcasing (shotorg, shotdir, '0 0 0', 50, 0);
+	ejectcasing (shotorg, '0 0 0', 50, ang, '0 0 0', 150, 0);
 	FireBullets (self, self, 4, 1, DMG_SOLDIER_PISTOL_DAMAGE, DMG_SOLDIER_PISTOL_BDAMAGE, 0, 0, shotdir * 6000, 0.025, self.deathtype, DT_NAIL, Obituary_Generic);
 };
 
@@ -181,15 +183,17 @@ float() army_missile_pistol =
 
 void(vector hit) army_nail =
 {
+	local vector ang;
 	shotdir = normalize (hit - (self.origin + '0 0 12'));
 	shotdir = shotdir * 25 + randomvec();
 	shotdir = normalize(shotdir);
+	ang = vectoangles(shotdir);
 
 	shotorg = self.origin + '0 0 12';
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 1);
-	ejectcasing (shotorg, shotdir, '0 0 0', 50, 0);
+	ejectcasing (shotorg, '0 0 0', 50, ang, '0 0 0', 150, 0);
 	FireBullets (self, self, 4, 1, DMG_SOLDIER_MACHINEGUN_DAMAGE, DMG_SOLDIER_MACHINEGUN_BDAMAGE, 0, 0, shotdir * 5000, 0.05, self.deathtype, DT_NAIL, Obituary_Generic);
 };
 
@@ -215,15 +219,17 @@ float() army_missile_nail =
 
 void(vector hit) army_shotgun =
 {
+	local vector ang;
 	shotdir = normalize (hit - (self.origin + '0 0 12'));
 	shotdir = shotdir * 35 + randomvec();
 	shotdir = normalize(shotdir);
+	ang = vectoangles(shotdir);
 
 	shotorg = self.origin + '0 0 12';
 
 	sound (self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 	w_muzzleflash (shotorg, 2);
-	ejectcasing (shotorg, shotdir, '0 0 0', 50, 1);
+	ejectcasing (shotorg, '0 0 0', 50, ang, '0 0 0', 150, 1);
 	FireBullets (self, self, 1, DMG_SOLDIER_SHOTGUN_PELLETS, DMG_SOLDIER_SHOTGUN_DAMAGE, DMG_SOLDIER_SHOTGUN_BDAMAGE, 0, 0, shotdir * 4000, 0.1, self.deathtype, DT_SHOTGUN, Obituary_Generic);
 };
 
@@ -338,7 +344,7 @@ void() army_painc13 = [$painc13, army_run1   ] {};
 void(entity attacker, float damage)	army_pain =
 {
 	local float r;
-	
+
         if (self.pain_finished > time || random() < 0.75)
 		return;
 

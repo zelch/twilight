@@ -14,9 +14,11 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Pistol =
 
 void() W_PistolFireCode =
 {
+	local vector ang;
 	self.wfiretime = time;
 	w_muzzleflash(shotorg, 1);
-	ejectcasing(shotorg, shotdir, v_right * 150 + v_up * 50, 50, 0);
+	ang = self.v_angle;ang_x = 0 - ang_x;
+	ejectcasing(shotorg, v_right * 150 + v_up * 50, 50, ang, '0 250 0', 100, 0);
 	FireBullets(self, self, 4, 1, 35 * damagescale, 35 * damagescale, 0, 0, shotdir * 7000, 0, "PISTOL", DT_NAIL, Obituary_Pistol);
 };
 

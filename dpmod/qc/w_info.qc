@@ -261,7 +261,6 @@ void() CycleWeaponCommand =
 	while (1)
 	{
 		     if (w == IT_WEAPON10) w = IT_WEAPON1;
-		//     if (w == IT_WEAPON9) w = IT_WEAPON1;
 		else if (w == IT_WEAPON1) w = IT_WEAPON2;
 		else if (w == IT_WEAPON2) w = IT_WEAPON3;
 		else if (w == IT_WEAPON3) w = IT_WEAPON4;
@@ -306,7 +305,6 @@ void() CycleWeaponReverseCommand =
 		else if (w == IT_WEAPON3) w = IT_WEAPON2;
 		else if (w == IT_WEAPON2) w = IT_WEAPON1;
 		else if (w == IT_WEAPON1) w = IT_WEAPON10;
-		//else if (w == IT_WEAPON1) w = IT_WEAPON9;
 		if (setweapon(w, WR_SELECTABLE))
 		{
 			self.switchweapon = w;

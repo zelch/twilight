@@ -48,6 +48,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Grenade =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
+/*
 .float grenademode;
 
 void() W_GrenadeFireImpact =
@@ -57,6 +58,15 @@ void() W_GrenadeFireImpact =
 	w_muzzleflash(shotorg, 3);
 	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200 + self.velocity, self, 150 * damagescale, 200, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
 	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 120, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
+};
+*/
+
+void() W_GrenadeFirePipebomb =
+{
+	self.wfiretime = time;
+	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+	w_muzzleflash(shotorg, 3);
+	LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 150 * damagescale, 120, GRENADE_DETONATABLE | GRENADE_DETONATEONCREATURE, 60, "PIPEBOMB", Obituary_Grenade);
 };
 
 /*
@@ -69,6 +79,7 @@ void() W_GrenadeFireProximity =
 };
 */
 
+/*
 void() W_GrenadeFireSticky =
 {
 	self.wfiretime = time;
@@ -76,9 +87,10 @@ void() W_GrenadeFireSticky =
 	w_muzzleflash(shotorg, 3);
 	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 120 * damagescale, 120, 50 * damagescale, 20 * damagescale, MINE_DETONATABLE, 60, "STICKYGRENADE", Obituary_Grenade);
 };
+*/
 
 .float activemines;
-.float oldbutton3;
+//.float oldbutton3;
 void() w_grenadedrop1;
 void() w_grenadedrop2;
 void() w_grenaderaise1;
@@ -89,6 +101,69 @@ void() w_grenade =
 	if (widle(w_grenadedrop1))
 		return;
 
+	if (time > self.detonatetimeout)
+	if (time > self.attack_finished)
+	{
+		if (self.button0)
+		{
+			if (self.activemines < 20)
+			{
+				if (self.ammo_rockets >= 1)
+					W_GenericSlowFireCode("weapons/grenade.wav", 0.3, W_GrenadeFirePipebomb);
+				else
+					self.switchweapon = W_BestWeapon(TRUE);
+			}
+			else
+			{
+				self.attack_finished = time + 0.3;
+				sprint(self, "only 20 remote explosives allowed, you must detonate some before placing more\n");
+			}
+		}
+		if (self.button3)
+		if (self.activemines > 0)
+		{
+			self.attack_finished = time + 0.3;
+			sound(self, CHAN_WEAPON, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
+			self.detonatetimeout = time + 0.1;
+		}
+	}
+
+	/*
+	if (time > self.attack_finished)
+	{
+		if (self.button3)
+		{
+			if (self.activemines < 20)
+			{
+				if (self.ammo_rockets >= 1)
+					W_GenericSlowFireCode("weapons/grenade.wav", 0.6, W_GrenadeFirePipebomb);
+			}
+			else
+			{
+				if (time > self.attack_finished)
+				{
+					self.attack_finished = time + 0.5;
+					sprint(self, "only 20 remote explosives allowed, you must detonate some before placing more\n");
+				}
+			}
+		}
+		else if (self.button0)
+		{
+			if (self.activemines > 0)
+			{
+				self.attack_finished = time + 0.2;
+				sound(self, CHAN_WEAPON, "weapons/bomb/trigger.wav", 1, ATTN_STATIC);
+				self.detonatetimeout = time + 0.1;
+			}
+			else if (self.ammo_rockets >= 1)
+				W_GenericSlowFireCode("weapons/grenade.wav", 0.6, W_GrenadeFireImpact);
+			else
+				self.switchweapon = W_BestWeapon(TRUE);
+		}
+	}
+	*/
+
+	/*
 	if (time > self.attack_finished)
 	{
 		if ((self.button3 && !self.oldbutton3) || (self.activemines < 1 && self.grenademode == 2))
@@ -106,9 +181,9 @@ void() w_grenade =
 				if (self.grenademode >= 2)
 					self.grenademode = 0;
 				if (self.grenademode == 0)
-					sprint(self, "mode: impact explosives\n");
+					sprint(self, "mode: impact grenades\n");
 				else if (self.grenademode == 1)
-					sprint(self, "mode: remote explosives\n");
+					sprint(self, "mode: pipebombs\n");
 			}
 		}
 		else if (self.button0)
@@ -120,7 +195,7 @@ void() w_grenade =
 				else if (self.grenademode == 1)
 				{
 					if (self.activemines < 20)
-						W_GenericSlowFireCode("weapons/grenade.wav", 0.8, W_GrenadeFireSticky);
+						W_GenericSlowFireCode("weapons/grenade.wav", 0.6, W_GrenadeFirePipebomb);
 					else
 					{
 						if (time > self.attack_finished)
@@ -136,6 +211,7 @@ void() w_grenade =
 		}
 	}
 	self.oldbutton3 = self.button3;
+	*/
 	/*
 	if (self.button0)
 	{

@@ -3,7 +3,10 @@ float GRENADE_IMPACT = 1;
 float GRENADE_PROXIMITY = 2;
 float GRENADE_IMMUNETODAMAGE = 4;
 float GRENADE_TENWARHEAD = 8;
-float GRENADE_DETONATEONBUTTON3 = 16;
+float GRENADE_DETONATABLE = 16;
+float GRENADE_DETONATEONCREATURE = 32;
+
+.float activemines;
 
 void() GrenadeExplode =
 {
@@ -30,6 +33,7 @@ void() GrenadeExplode =
 	}
 	else
 		Explosion(self.origin, self.owner, self.dmg, self.dmg2, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+	self.owner.activemines = self.owner.activemines - 1;
 	remove(self);
 };
 
@@ -43,6 +47,8 @@ void() GrenadeDet =
 	self.movetype = MOVETYPE_NONE;
 };
 
+.float detonatetimeout;
+
 void() GrenadeThink =
 {
 	local   entity  head;
@@ -52,6 +58,7 @@ void() GrenadeThink =
 	p = pointcontents(self.origin);
 	if (p == CONTENT_SKY)
 	{
+		self.owner.activemines = self.owner.activemines - 1;
 		remove(self);
 		return;
 	}
@@ -60,11 +67,10 @@ void() GrenadeThink =
 		self.th_die();
 		return;
 	}
-	if (self.weapon & GRENADE_DETONATEONBUTTON3)
-	if (self.owner.button3)
-	if (self.deathtype == "GRENADE")
+	if (self.weapon & GRENADE_DETONATABLE)
+	if (time < self.owner.detonatetimeout)
 	{
-		GrenadeExplode();
+		self.th_die();
 		return;
 	}
 	if (self.weapon & GRENADE_PROXIMITY)
@@ -118,14 +124,14 @@ void() GrenadeTouch =
 	{
 		v = normalize(self.velocity);
 		setorigin(self, self.origin - v * 16);
-		GrenadeExplode();
+		self.th_die();
 		return;
 	}
-	//if (self.weapon & GRENADE_PROXIMITY)
+	if (self.weapon & GRENADE_DETONATEONCREATURE)
 	if ((other.flags & FL_MONSTER) || other.classname == "player")
 	if (other.team == 0 || other.team != self.owner.team)
 	{
-		GrenadeExplode();
+		self.th_die();
 		return;
 	}
 	self.lefty = TRUE;
@@ -137,6 +143,8 @@ void(vector org, vector vel, entity own, float damage, float damage2, float type
 {
 	local   vector  v;
 	DelayGibComment();      // make him wait before commenting on gibs so it's not drown out by explosions etc
+
+	own.activemines = own.activemines + 1;
 
 	fightdone = time + 1; // delay stuff until fighting is over
 	v = normalize(vel);
@@ -150,7 +158,7 @@ void(vector org, vector vel, entity own, float damage, float damage2, float type
 	newmis.classname = "grenade";
 	// set newmis speed
 	newmis.velocity = vel;
-	newmis.avelocity = '0 0 0';
+	newmis.avelocity = randomvec() * 100;//'0 0 0';
 	newmis.angles = vectoangles(newmis.velocity);
 	newmis.touch = GrenadeTouch;
 	newmis.dmg = damage;

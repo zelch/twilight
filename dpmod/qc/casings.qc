@@ -58,12 +58,12 @@ void() casingknockedloosefunc =
 	self.touch = casingtouch;
 };
 
-// orientation is basically v_forward for the direction the casing points
-void(vector org, vector orientation, vector vel, float randomvel, float casingtype) ejectcasing =
+void(vector org, vector vel, float randomvel, vector ang, vector avel, float randomavel, float casingtype) ejectcasing =
 {
 	local entity e;
 	if (cvar("temp1") & 2048)
 		return;
+
 	e = newdecor();
 	e.isdecor = TRUE;
 	e.alpha = 1;
@@ -71,12 +71,13 @@ void(vector org, vector orientation, vector vel, float randomvel, float casingty
 	e.movetype = MOVETYPE_BOUNCE;
 	e.solid = SOLID_TRIGGER;
 	e.velocity = vel + randomvec() * randomvel + self.velocity;
-	e.angles = vectoangles(orientation);
+	e.angles = ang;
+	e.avelocity = avel + randomvec() * randomavel;
 	e.nextthink = time;
 	e.think = casingthink;
 	e.touch = casingtouch;
 	e.knockedloosefunc = casingknockedloosefunc;
-	e.effects = EF_LOWPRECISION;
+	//e.effects = EF_LOWPRECISION;
 	e.createdtime = time;
 	if (casingtype == 1)
 	{

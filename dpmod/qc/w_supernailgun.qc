@@ -14,7 +14,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_SuperNailg
 
 void() W_SuperNailgunFireCode =
 {
-	local vector v;
+	local vector v, ang;
 	self.currentammo = self.ammo_nails = self.ammo_nails - 1;
 	self.wframe = self.wframe + 0.5; // 10fps animation
 	if (self.wframe >= 9)
@@ -24,7 +24,8 @@ void() W_SuperNailgunFireCode =
 	v = shotorg;
 	shotorg = shotorg + v_up * 2;
 	w_muzzleflash(shotorg, 1);
-	ejectcasing(shotorg, shotdir, v_right * 200 + v_up * 50, 50, 2);
+	ang = self.v_angle;ang_x = 0 - ang_x;
+	ejectcasing(shotorg, v_right * 200 + v_up * 50, 50, ang, '0 50 0', 100, 0);
 	FireBullets(self, self, 4, 1, 15 * damagescale, 15 * damagescale, 0, 0, shotdir * 7000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
 	shotorg = v;
 

@@ -14,7 +14,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Nailgun =
 
 void() W_NailgunFireCode =
 {
-	local vector v, casingdir;
+	local vector v, casingdir, ang;
 	if (self.ammo_nails < 1) {stopfiring = TRUE;return;}
 	self.wfiretime = time;
 	self.currentammo = self.ammo_nails = self.ammo_nails - 1;
@@ -25,15 +25,16 @@ void() W_NailgunFireCode =
 	self.punchangle_x = -2;
 
 	v = shotorg;
+	ang = self.v_angle;ang_x = 0 - ang_x;
 	if (self.wframe & 1)
 	{
 		shotorg = shotorg + v_right * 2;
-		//ejectcasing(shotorg, shotdir, v_right *  200 + v_up * 50, 50, 0);
+		ejectcasing(shotorg, v_right * 200 + v_up * 50, 50, ang, '0 250 0', 100, 0);
 	}
 	else
 	{
 		shotorg = shotorg - v_right * 2;
-		//ejectcasing(shotorg, shotdir, v_right * -200 + v_up * 50, 50, 0);
+		ejectcasing(shotorg, v_right * -200 + v_up * 50, 50, ang, '0 -250 0', 100, 0);
 	}
 
 	w_muzzleflash(shotorg, 1);

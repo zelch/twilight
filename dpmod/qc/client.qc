@@ -136,7 +136,7 @@ void() info_intermission =
 
 void() SetNewParms =
 {
-	parm1 = IT_WEAPON1 | IT_WEAPON2; // | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
+	parm1 = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON10; // | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
 	parm2 = HEALTHMAX; // health
 	parm3 = 0; // armorvalue
 	parm4 = STARTSP_AMMO_SHELLS;
@@ -191,7 +191,7 @@ void() DecodeLevelParms =
 	}
 	else if (deathmatch)
 	{
-		self.items = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON9 | IT_ARMOR1; // | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
+		self.items = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON9 | IT_WEAPON10 | IT_ARMOR1; // | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
 		self.health = HEALTHSTART; // health
 		self.max_health = HEALTHMAX;
 		self.armorvalue = 50;
@@ -291,7 +291,7 @@ void() ExitIntermission =
 		GotoNextMap ();
 		return;
 	}
-	
+
 	intermission_exittime = time + 1;
 	intermission_running = intermission_running + 1;
 
@@ -350,7 +350,7 @@ void() ExitIntermission =
 
 		GotoNextMap();
 	}
-	
+
 	if (intermission_running == 3)
 	{
 		if (!cvar("registered"))
@@ -359,14 +359,14 @@ void() ExitIntermission =
 			WriteByte (MSG_ALL, SVC_SELLSCREEN);
 			return;
 		}
-		
+
 		if ( (serverflags&15) == 15)
 		{
 			WriteByte (MSG_ALL, SVC_FINALE);
 			WriteString (MSG_ALL, "Now, you have all four Runes. You sense\ntremendous invisible forces moving to\nunseal ancient barriers. Shub-Niggurath\nhad hoped to use the Runes Herself to\nclear off the Earth, but now instead,\nyou will use them to enter her home and\nconfront her as an avatar of avenging\nEarth-life. If you defeat her, you will\nbe remembered forever as the savior of\nthe planet. If she conquers, it will be\nas if you had never been born.");
 			return;
 		}
-		
+
 	}
 
 	GotoNextMap();
@@ -386,7 +386,7 @@ void() IntermissionThink =
 
 	if (!self.button0 && !self.button1 && !self.button2)
 		return;
-	
+
 	ExitIntermission ();
 };
 
@@ -422,7 +422,7 @@ void() execute_changelevel =
 		other.model = "";
 		setorigin (other, pos.origin);
 		other = other.chain;
-	}	
+	}
 
 	WriteByte (MSG_ALL, SVC_INTERMISSION);
 };
@@ -444,7 +444,7 @@ void() changelevel_touch =
 		bprint (other.netname);
 		bprint (" exited the level\n");
 	}
-	
+
 	nextmap = self.map;
 
 	SUB_UseTargets ();
@@ -455,7 +455,7 @@ void() changelevel_touch =
 		GotoNextMap();
 		return;
 	}
-	
+
 	self.touch = SUB_Null;
 
 // we can't move people right now, because touch functions are called
@@ -471,7 +471,7 @@ void() trigger_changelevel =
 {
 	if (!self.map)
 		objerror ("changelevel trigger doesn't have map");
-	
+
 	InitTrigger ();
 	self.touch = changelevel_touch;
 };
@@ -1098,7 +1098,7 @@ void() CheckWaterJump =
 // check for a jump-out-of-water
 	makevectors (self.angles);
 	start = self.origin;
-	start_z = start_z + 8; 
+	start_z = start_z + 8;
 	v_forward_z = 0;
 	normalize(v_forward);
 	end = start + v_forward*24;
@@ -1205,7 +1205,7 @@ void() PlayerPreThink =
 	else
 		self.flags = self.flags | FL_JUMPRELEASED;
 
-	// teleporters can force a non-moving pause time	
+	// teleporters can force a non-moving pause time
 	if (time < self.pausetime)
 		self.velocity = '0 0 0';
 };
@@ -1371,7 +1371,7 @@ void() CheckPowerups =
 			self.rad_time = 0;
 			self.radsuit_finished = 0;
 		}
-	}	
+	}
 
 // 'glow' armor
 	if (self.armortype == 1.0)

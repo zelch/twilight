@@ -12,24 +12,26 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Shotgun =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-//float SHOTGUNBUCKSHOT = 75;
+float SHOTGUNBUCKSHOT = 50;
 float SHOTGUNEXPLOSIVESLUG = 50;
 
 .float shotgunmode;
-void() W_SingleShotgunFireCode =
+void() W_SingleShotgunFireCode_Buckshot =
 {
 	self.wfiretime = time;
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	w_muzzleflash(shotorg, 2);
-	//if (self.shotgunmode)
-		FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.8 * damagescale, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
-	/*
-	else
-	{
-		FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-		FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-	}
-	*/
+	FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+	FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1 * damagescale, SHOTGUNBUCKSHOT * 0.1 * damagescale, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+	self.wload = -1;
+};
+
+void() W_SingleShotgunFireCode_Explosive =
+{
+	self.wfiretime = time;
+	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+	w_muzzleflash(shotorg, 2);
+	FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.8 * damagescale, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
 	self.wload = -1;
 };
 
@@ -39,7 +41,7 @@ void() w_shotgunraise1;
 void() w_shotgunraise2;
 void() w_shotgun =
 {
-	local vector v;
+	local vector v, ang;
 	if (widle(w_shotgundrop1))
 		return;
 
@@ -63,10 +65,13 @@ void() w_shotgun =
 	if (self.button0)
 	{
 		if (self.wload >= 1) // is it loaded?
-			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.3, W_SingleShotgunFireCode);
+			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.3, W_SingleShotgunFireCode_Buckshot);
 	}
-	else
-		self.notfiring = TRUE;
+	else if (self.button3)
+	{
+		if (self.wload >= 1) // is it loaded?
+			W_GenericSlowFireCode("weapons/shotgn2.wav", 0.3, W_SingleShotgunFireCode_Explosive);
+	}
 
 	if (self.wload < 1 && time > self.attack_finished)
 	{
@@ -75,7 +80,8 @@ void() w_shotgun =
 			self.attack_finished = time + 0.2;
 			sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 			v = shotorg + v_forward * -5;
-			ejectcasing (v, v_forward, (v_right * 100) + v_up * 40, 30, 1);
+			ang = self.v_angle;ang_x = 0 - ang_x;
+			ejectcasing(v, v_right * 100 + v_up * 40, 30, ang, '0 250 0', 100, 1);
 			self.wload = 0;
 		}
 		else if (self.ammo_shells >= 1)

@@ -3,7 +3,9 @@ float MINE_LASERTRIP = 1;
 float MINE_PROXIMITY = 2;
 float MINE_IMMUNETODAMAGE = 4;
 float MINE_TENWARHEAD = 8;
+float MINE_FIVEWARHEAD = 64;
 float MINE_DETONATABLE = 16;
+float MINE_HOP = 32;
 
 .float activemines;
 void() MineExplode =
@@ -13,18 +15,28 @@ void() MineExplode =
 	self.owner.activemines = self.owner.activemines - 1;
 	if (self.weapon & MINE_TENWARHEAD)
 	{
-		basevel = '0 0 250' + '0 0 0.2' * cvar("sv_gravity");
-		t = /*GRENADE_IMPACT + */GRENADE_IMMUNETODAMAGE;
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
-		v = randomvec() * 250 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 0.5, self.deathtype, self.obitfunc1);
+		basevel = '0 0 0.5' * cvar("sv_gravity");
+		t = GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE;
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+	}
+	else if (self.weapon & MINE_FIVEWARHEAD)
+	{
+		basevel = '0 0 0.5' * cvar("sv_gravity");
+		t = GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE;
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
+		v = randomvec() * 500 + basevel;LaunchGrenade(self.origin, v, self.owner, self.dmg, self.dmg2, t, 1, self.deathtype, self.obitfunc1);
 	}
 	else if (self.lefty == 2)
 	{
@@ -47,12 +59,22 @@ void() MineExplode =
 
 void() MineDet =
 {
-	self.think = MineExplode;
-	self.nextthink = time;
-	self.solid = SOLID_NOT;
 	self.takedamage = DAMAGE_NO;
+	self.think = MineExplode;
+	if (self.weapon & MINE_HOP)
+	{
+		self.nextthink = time + 0.3;
+		self.movetype = MOVETYPE_BOUNCE;
+		self.velocity = '0 0 500';
+	}
+	else
+	{
+		self.nextthink = time;
+		self.movetype = MOVETYPE_NONE;
+		self.solid = SOLID_NOT;
+	}
+	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	setsize(self, '0 0 0', '0 0 0');
-	self.movetype = MOVETYPE_NONE;
 };
 
 .float detonatetimeout;
