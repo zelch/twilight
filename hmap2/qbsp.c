@@ -272,7 +272,6 @@ error:
 "-verbose    show more messages\n"
 "-darkplaces allow really big polygons\n"
 "-noforcevis don't make a .prt if the map leaks\n"
-"-fast       build the bsp tree only once, compiles a bit faster (experimental)\n"
 		);
 
 	// argv[i] and argv[arc-1] are the same if only one name is supplied
