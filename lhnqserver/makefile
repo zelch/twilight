@@ -3,10 +3,9 @@ OBJECTS= cmd.o common.o console.o cpu_noasm.o crc.o cvar.o host.o host_cmd.o mat
 OPTIMIZATIONS= -O6 -ffast-math -funroll-loops -fomit-frame-pointer -fexpensive-optimizations
 #OPTIMIZATIONS= -O -g
 
-CFLAGS= -Wall -Werror -I/usr/X11R6/include -I/usr/include/glide $(OPTIMIZATIONS)
-#CFLAGS= -Wall -Werror -I/usr/X11/include -ggdb $(OPTIMIZATIONS)
-#LDFLAGS= -L/usr/X11R6/lib -lm -lX11 -lXext -lXIE -lXxf86dga -lXxf86vm -lGL -ldl
-LDFLAGS= -L/usr/X11R6/lib -lm -lX11 -lXext -lXIE -lXxf86dga -lXxf86vm -lGL -ldl -lasound
+CFLAGS= -Wall -Werror $(OPTIMIZATIONS)
+#CFLAGS= -Wall -Werror -ggdb $(OPTIMIZATIONS)
+LDFLAGS= -lm
 
 all: lhnqserver
 
@@ -14,7 +13,7 @@ all: lhnqserver
 	gcc $(CFLAGS) -c $*.c
 
 lhnqserver: $(OBJECTS)
-	gcc -o $@ $^ $(LDFLAGS)
+	gcc -o $@ $(OBJECTS) $(LDFLAGS)
 
 clean:
 	rm -f lhnqserver $(OBJECTS)
