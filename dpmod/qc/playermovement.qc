@@ -1,5 +1,6 @@
-float lastclientthink, sv_maxspeed, sv_friction, sv_accelerate, sv_stopspeed, sv_edgefriction;
+float lastclientthink, sv_maxspeed, sv_friction, sv_accelerate, sv_stopspeed, sv_edgefriction, sv_gravity;
 .float ladder_time;
+.entity ladder_entity;
 
 void() SV_PlayerPhysics =
 {
@@ -16,6 +17,7 @@ void() SV_PlayerPhysics =
 		sv_friction = cvar("sv_friction");
 		sv_accelerate = cvar("sv_accelerate");
 		sv_stopspeed = cvar("sv_stopspeed");
+		sv_gravity = cvar("sv_gravity");
 	}
 
 	if (self.punchangle != '0 0 0')
@@ -95,13 +97,45 @@ void() SV_PlayerPhysics =
 		return;
 	}
 
-	if (self.movetype == MOVETYPE_NOCLIP || self.movetype == MOVETYPE_FLY || time < self.ladder_time)
+	if (self.movetype == MOVETYPE_NOCLIP || self.movetype == MOVETYPE_FLY)
 	{
-		// noclipping, flying, or on a ladder
+		// noclipping or flying
 		self.velocity = self.velocity * (1 - frametime * sv_friction);
 		makevectors(self.v_angle);
 		//wishvel = v_forward * self.movement_x + v_right * self.movement_y + v_up * self.movement_z;
 		wishvel = v_forward * self.movement_x + v_right * self.movement_y + '0 0 1' * self.movement_z;
+	}
+	else if (time < self.ladder_time)
+	{
+		// on a func_ladder or swimming in func_water
+		self.velocity = self.velocity * (1 - frametime * sv_friction);
+		makevectors(self.v_angle);
+		//wishvel = v_forward * self.movement_x + v_right * self.movement_y + v_up * self.movement_z;
+		wishvel = v_forward * self.movement_x + v_right * self.movement_y + '0 0 1' * self.movement_z;
+		if (self.gravity)
+			self.velocity_z += self.gravity * sv_gravity * frametime;
+		else
+			self.velocity_z += sv_gravity * frametime;
+		if (self.ladder_entity.classname == "func_water")
+		{
+			f = vlen(wishvel);
+			if (f > self.ladder_entity.speed)
+				wishvel = wishvel * (self.ladder_entity.speed / f);
+
+			self.watertype = self.ladder_entity.skin;
+			f = self.ladder_entity.origin_z + self.ladder_entity.maxs_z;
+			if ((self.origin_z + self.view_ofs_z) < f)
+				self.waterlevel = 3;
+			else if ((self.origin_z + (self.mins_z + self.maxs_z) * 0.5) < f)
+				self.waterlevel = 2;
+			else if ((self.origin_z + self.mins_z + 1) < f)
+				self.waterlevel = 1;
+			else
+			{
+				self.waterlevel = 0;
+				self.watertype = CONTENT_EMPTY;
+			}
+		}
 	}
 	else if (self.flags & FL_ONGROUND)
 	{

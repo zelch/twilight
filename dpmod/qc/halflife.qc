@@ -4,6 +4,7 @@
 .float  pitch;
 .float  renderamt;
 .float  rendermode;
+.vector rendercolor;
 
 void() info_node = {};
 void() env_sound = {};
@@ -35,14 +36,42 @@ void() weapon_9mmAR = {};
 
 void() func_ladder_touch =
 {
-        if (other.classname != "player")
-                return;
-        other.ladder_time = time + 0.1;
+	if (other.classname != "player")
+		return;
+	other.ladder_time = time + 0.1;
+	other.ladder_entity = self;
 };
 
 void() func_ladder =
 {
 	InitTrigger ();
-        self.touch = func_ladder_touch;
+	self.touch = func_ladder_touch;
+};
+
+void() func_water =
+{
+	self.solid = SOLID_TRIGGER;
+	setmodel (self, self.model);	// set size and link into world
+	self.touch = func_ladder_touch;
+};
+
+void() light_use;
+void() light_environment =
+{
+	if (!self.targetname)
+	{
+		// inert light
+		remove(self);
+		return;
+	}
+
+	if (self.style >= 32)
+	{
+		self.use = light_use;
+		if (self.spawnflags & 1)
+			lightstyle(self.style, "a");
+		else
+			lightstyle(self.style, "m");
+	}
 };
 
