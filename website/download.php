@@ -13,9 +13,9 @@ foreach (glob("$webspace/release/*.zip") as $filename)
 {
 	$filename = basename($filename);
 	$url = "$urlbase/release/$filename";
-	echo ("<br><a href=\"$url\">$filename</a>\n");
+	echo ("<a href=\"$url\">$filename</a><br>\n");
 }
-echo ("<br></div>");
+echo ("</div>");
 
 echo ("<p>Older releases can be found <a href=\"$urlbase/release/archive\">"
 		. "here</a></p>\n");
@@ -26,9 +26,9 @@ foreach (glob("$webspace/file/*.zip") as $filename)
 {
 	$filename = basename($filename);
 	$url = "$urlbase/file/$filename";
-	echo ("<br><a href=\"$url\">$filename</a>\n");
+	echo ("<br><a href=\"$url\">$filename</a><br>\n");
 }
-echo ("<br></div>");
+echo ("</div>");
 
 ?>
 
