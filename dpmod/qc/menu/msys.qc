@@ -16,7 +16,7 @@ void		end_sys_fields;
 // sys functions
 
 void() m_init;
-void(float keynr) m_keydown;
+void(float keynr, float ascii) m_keydown;
 void() m_draw;
 void() m_toggle;
 void() m_shutdown;
@@ -29,7 +29,7 @@ void() m_shutdown;
 //
 // these are the key numbers that should be passed to Key_Event
 //
-float K_TAB		=	9;
+float K_TAB			=	9;
 float K_ENTER		=	13;
 float K_ESCAPE		=	27;
 float K_SPACE		=	32;
@@ -165,15 +165,38 @@ float FILE_WRITE = 2;
 
 ///////////////////////////
 // logic/boolean constants
+
 float TRUE 	= 1;
 float FALSE = 0;
 
 ///////////////////////////
+// msg constants
+
+float MSG_BROADCAST		= 0;		// unreliable to all
+float MSG_ONE			= 1;		// reliable to one (msg_entity)
+float MSG_ALL			= 2;		// reliable to all
+float MSG_INIT			= 3;		// write to the init string
+
+/////////////////////////////
+// mouse target constants
+
+float MT_MENU = 1;
+float MT_CLIENT = 2;
+
+/////////////////////////
 // client state constants
 
 float CS_DEDICATED 		= 0;
 float CS_DISCONNECTED 	= 1;
 float CS_CONNECTED		= 2;
+
+///////////////////////////
+// blend flags
+
+float DRAWFLAG_NORMAL		= 0;
+float DRAWFLAG_ADDITIVE 	= 1;
+float DRAWFLAG_MODULATE 	= 2;
+float DRAWFLAG_2XMODULATE   = 3;
 
 ///////////////////////////
 // error constants
@@ -183,3 +206,13 @@ float ERR_CANNOTOPEN			= -1; // fopen
 float ERR_NOTENOUGHFILEHANDLES 	= -2; // fopen
 float ERR_INVALIDMODE 			= -3; // fopen
 float ERR_BADFILENAME 			= -4; // fopen
+
+// drawing functions
+
+float ERR_NULLSTRING			= -1;
+float ERR_BADDRAWFLAG			= -2;
+float ERR_BADSCALE				= -3;
+float ERR_BADSIZE				= ERR_BADSCALE;
+float ERR_NOTCACHED				= -4;
+
+
