@@ -134,7 +134,7 @@ MakeHeadnodePortals
 The created portals will face the global outside_node
 ================
 */
-static void MakeHeadnodePortals (node_t *node, vec3_t mins, vec3_t maxs)
+static void MakeHeadnodePortals (node_t *node, const vec3_t mins, const vec3_t maxs)
 {
 	vec3_t		bounds[2];
 	int			i, j, n;
@@ -392,7 +392,7 @@ PortalSidesVisible
 FIXME: add support for detail brushes
 ================
 */
-static qboolean PortalSidesVisible (portal_t *p)
+qboolean PortalSidesVisible (portal_t *p)
 {
 	if (p->nodes[0]->contents == p->nodes[1]->contents)
 		return true;
@@ -506,6 +506,8 @@ static void WritePortalFile_r (node_t *node)
 			p = p->next[1];
 	}
 }
+
+
 
 /*
 ================

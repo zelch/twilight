@@ -226,7 +226,7 @@ skipwhite:
       goto skipwhite;
     }
 
-	// skip /* */ comments
+// skip /* */ comments
 	if (c == '/' && data[1] == '*')
 	{
 		data += 2;
@@ -260,10 +260,7 @@ skipwhite:
 	      return data;
 	    }
 	  if (len < MAXTOKEN)
-	  {
-	  com_token[len] = c;
-	  len++;
-	  }
+		 com_token[len++] = c;
 	} while (1);
     }
 
@@ -271,10 +268,7 @@ skipwhite:
   if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
     {
 	  if (len < MAXTOKEN)
-	  {
-	      com_token[len] = c;
-		  len++;
-	  }
+	      com_token[len++] = c;
 	  if (len == MAXTOKEN)
 		  len = 0;
       com_token[len] = 0;
@@ -285,10 +279,7 @@ skipwhite:
   do
     {
 	  if (len < MAXTOKEN)
-	  {
-	      com_token[len] = c;
-		  len++;
-	  }
+	      com_token[len++] = c;
       data++;
       c = *data;
       if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
