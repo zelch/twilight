@@ -21,7 +21,7 @@ void(float fireexplosive) W_SingleShotgunFireCode =
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
-	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+	self.currentammo = ItemAdjustQuantity(self, "shells", -1);
 	w_muzzleflash(shotorg, 2);
 	if (fireexplosive)
 		FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.2 * damagescale, SHOTGUNEXPLOSIVESLUG * 0.8 * damagescale, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
@@ -57,8 +57,8 @@ void() w_shotgun =
 	}
 	*/
 
-	if (self.wload > self.ammo_shells)
-		self.wload = self.ammo_shells;
+	if (self.wload > ItemQuantity(self, "shells"))
+		self.wload = ItemQuantity(self, "shells");
 
 	if (self.button0 || self.button3)
 	{
@@ -78,7 +78,7 @@ void() w_shotgun =
 			ejectcasing(v, v_right * 100 + v_up * 40, 30, ang, '0 250 0', 100, 1);
 			self.wload = 0;
 		}
-		else if (self.ammo_shells >= 1)
+		else if (ItemQuantity(self, "shells") >= 1)
 		{
 			self.wload = 1;
 			self.attack_finished = time + 0.2;
@@ -109,8 +109,8 @@ void() weapon2_precache =
 };
 
 float() w_shotgunrating = {return genericweaponrating(0, 2000, 128);};
-void() w_shotgunsetup = {wset(IT_WEAPON2, IT_SHELLS, self.ammo_shells, VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
-float(float request) setweapon2 = {return weapongeneric(IT_WEAPON2, self.ammo_shells >= 1, request, w_shotgunsetup, w_shotgun, w_shotgunraise1, w_directaim, w_shotgunrating, "Shotgun");};
+void() w_shotgunsetup = {wset(IT_WEAPON2, IT_SHELLS, ItemQuantity(self, "shells"), VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
+float(float request) setweapon2 = {return weapongeneric(IT_WEAPON2, ItemQuantity(self, "shells") >= 1, request, w_shotgunsetup, w_shotgun, w_shotgunraise1, w_directaim, w_shotgunrating, "Shotgun");};
 
 void() w_shotgunraise1 = {self.wload = 1;wraise(8, w_shotgunraise2, 0.1);};
 void() w_shotgunraise2 = {wraise(7, w_shotgun, 0.1);};

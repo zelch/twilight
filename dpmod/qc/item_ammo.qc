@@ -27,13 +27,11 @@ void() ammo_touch =
 	best = W_BestWeapon(TRUE);
 	self = stemp;
 
-	if (self.weapon == 1) other.ammo_shells  = other.ammo_shells  + self.aflag;
-	if (self.weapon == 2) other.ammo_nails   = other.ammo_nails   + self.aflag;
-	if (self.weapon == 3) other.ammo_rockets = other.ammo_rockets + self.aflag;
-	if (self.weapon == 4) other.ammo_cells   = other.ammo_cells   + self.aflag;
-	if (self.weapon == 5) other.ammo_xshells = other.ammo_xshells + self.aflag;
-
-	bound_ammo (other);
+	if (self.weapon == 1) ItemAdjustQuantity(other, "shells", self.aflag);
+	if (self.weapon == 2) ItemAdjustQuantity(other, "nails", self.aflag);
+	if (self.weapon == 3) ItemAdjustQuantity(other, "rockets", self.aflag);
+	if (self.weapon == 4) ItemAdjustQuantity(other, "cells", self.aflag);
+	if (self.weapon == 5) ItemAdjustQuantity(other, "xshells", self.aflag);
 
 	if (other.flags & FL_CLIENT)
 	{
@@ -77,11 +75,11 @@ void() ammo_touch =
 
 float WEAPON_BIG2 = 1;
 
-float(entity player, entity item) item_shells_pickupeval = {if (player.ammo_shells < AMMOMAX_SHELLS) return (AMMOMAX_SHELLS - player.ammo_shells) * (AMMOMAX_SHELLS - player.ammo_shells) * item.dmg;else return 0;};
-float(entity player, entity item) item_nails_pickupeval = {if (player.ammo_nails < AMMOMAX_NAILS) return (AMMOMAX_NAILS - player.ammo_nails) * (AMMOMAX_NAILS - player.ammo_nails) * item.dmg;else return 0;};
-float(entity player, entity item) item_rockets_pickupeval = {if (player.ammo_rockets < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - player.ammo_rockets) * (AMMOMAX_ROCKETS - player.ammo_rockets) * item.dmg;else return 0;};
-float(entity player, entity item) item_cells_pickupeval = {if (player.ammo_cells < AMMOMAX_CELLS) return (AMMOMAX_CELLS - player.ammo_cells) * (AMMOMAX_CELLS - player.ammo_cells) * item.dmg;else return 0;};
-//float(entity player, entity item) item_xshells_pickupeval = {if (player.ammo_xshells < AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - player.ammo_xshells) * (AMMOMAX_XSHELLS - player.ammo_xshells) * item.dmg;else return 0;};
+float(entity player, entity item) item_shells_pickupeval = {if (ItemQuantity(player, "shells") < AMMOMAX_SHELLS) return (AMMOMAX_SHELLS - ItemQuantity(player, "shells")) * (AMMOMAX_SHELLS - ItemQuantity(player, "shells")) * item.dmg;else return 0;};
+float(entity player, entity item) item_nails_pickupeval = {if (ItemQuantity(player, "nails") < AMMOMAX_NAILS) return (AMMOMAX_NAILS - ItemQuantity(player, "nails")) * (AMMOMAX_NAILS - ItemQuantity(player, "nails")) * item.dmg;else return 0;};
+float(entity player, entity item) item_rockets_pickupeval = {if (ItemQuantity(player, "rockets") < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - ItemQuantity(player, "rockets")) * (AMMOMAX_ROCKETS - ItemQuantity(player, "rockets")) * item.dmg;else return 0;};
+float(entity player, entity item) item_cells_pickupeval = {if (ItemQuantity(player, "cells") < AMMOMAX_CELLS) return (AMMOMAX_CELLS - ItemQuantity(player, "cells")) * (AMMOMAX_CELLS - ItemQuantity(player, "cells")) * item.dmg;else return 0;};
+//float(entity player, entity item) item_xshells_pickupeval = {if (ItemQuantity(player, "xshells") < AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - ItemQuantity(player, "xshells")) * (AMMOMAX_XSHELLS - ItemQuantity(player, "xshells")) * item.dmg;else return 0;};
 
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32)
 */

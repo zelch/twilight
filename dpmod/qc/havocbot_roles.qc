@@ -141,7 +141,7 @@ void(float ratingscale) havocbot_goalrating_ctf_ourstolenflag =
 void(float ratingscale) havocbot_goalrating_ctf_droppedflags =
 {
 	local entity redflag, blueflag;
-	
+
 	redflag = find(world, classname, "item_flag_team1");
 	blueflag = find(world, classname, "item_flag_team2");
 
@@ -354,7 +354,7 @@ void() havocbot_role_ctf_offense =
 	*/
 	if (!self.havocbot_role_timeout)
 		self.havocbot_role_timeout = time + random() * 30 + 60;
-	if (self.ammo_rockets < 15 || time > self.havocbot_role_timeout)
+	if (ItemQuantity(self, "rockets") < 15 || time > self.havocbot_role_timeout)
 	{
 		bprint("changing role to middle\n");
 		self.havocbot_role = havocbot_role_ctf_middle;
@@ -409,7 +409,7 @@ void() havocbot_role_ctf_middle =
 	if (!self.havocbot_role_timeout)
 		self.havocbot_role_timeout = time + random() * 10 + 10;
 	if (time > self.havocbot_role_timeout)
-	if (self.ammo_rockets >= 25)
+	if (ItemQuantity(self, "rockets") >= 25)
 	{
 		if (random() < 0.5)
 		{
@@ -473,7 +473,7 @@ void() havocbot_role_ctf_defense =
 	*/
 	if (!self.havocbot_role_timeout)
 		self.havocbot_role_timeout = time + random() * 20 + 30;
-	if (self.ammo_rockets < 15 || time > self.havocbot_role_timeout)
+	if (ItemQuantity(self, "rockets") < 15 || time > self.havocbot_role_timeout)
 	{
 		bprint("changing role to middle\n");
 		self.havocbot_role = havocbot_role_ctf_middle;

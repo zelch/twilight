@@ -17,11 +17,11 @@ void(float shots) W_NailgunFireCode =
 	local vector v, casingdir, ang;
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
-	while (shots > 0 && self.ammo_nails >= 1)
+	while (shots > 0 && ItemQuantity(self, "nails") >= 1)
 	{
 		shots = shots - 1;
 		self.wfiretime = time;
-		self.currentammo = self.ammo_nails = self.ammo_nails - 1;
+		self.currentammo = ItemAdjustQuantity(self, "nails", -1);
 		self.wframe = self.wframe + 1;
 		if (self.wframe >= 9)
 			self.wframe = 1;
@@ -81,7 +81,7 @@ void() W_NailgunGrenadeFireCode =
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 1);
 	//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80 * damagescale, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
 	LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200 * damagescale, 70, 20 * damagescale, 10 * damagescale, MINE_LASERTRIP, 60, "LASERTRIPMINE", Obituary_NailgunMine);
@@ -99,7 +99,7 @@ void() w_nailgun =
 
 	if (self.button0)
 	{
-		if (self.ammo_nails >= 1)
+		if (ItemQuantity(self, "nails") >= 1)
 		{
 			self.wload = W_ShotsToFire(0.1);
 			if (self.wload)
@@ -109,7 +109,7 @@ void() w_nailgun =
 	else
 	{
 		if (self.button3)
-		if (self.ammo_rockets >= 1)
+		if (ItemQuantity(self, "rockets") >= 1)
 		if (W_ShotsToFire(0.8))
 			W_NailgunGrenadeFireCode();
 	}
@@ -138,6 +138,6 @@ void() w_nailgundrop1 = {wdrop( 9, w_nailgundrop2, 0.1);};
 void() w_nailgundrop2 = {wdropped(10, 0.1);};
 
 float() w_nailgunrating = {return genericweaponrating(0, 1200, 150);};
-void() w_nailgunsetup = {wset(IT_WEAPON4, IT_NAILS, self.ammo_nails, VWEP_NAILGUN, "progs/v_dpnail.mdl");};
-float(float request) setweapon4 = {return weapongeneric(IT_WEAPON4, self.ammo_nails >= 1 || self.ammo_rockets >= 1, request, w_nailgunsetup, w_nailgun, w_nailgunraise1, w_directaim, w_nailgunrating, "Nailgun");};
+void() w_nailgunsetup = {wset(IT_WEAPON4, IT_NAILS, ItemQuantity(self, "nails"), VWEP_NAILGUN, "progs/v_dpnail.mdl");};
+float(float request) setweapon4 = {return weapongeneric(IT_WEAPON4, ItemQuantity(self, "nails") >= 1 || ItemQuantity(self, "rockets") >= 1, request, w_nailgunsetup, w_nailgun, w_nailgunraise1, w_directaim, w_nailgunrating, "Nailgun");};
 

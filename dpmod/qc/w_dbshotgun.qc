@@ -97,11 +97,11 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 */
 	/*
 	if (self.shotgunmode)
-		self.currentammo = self.ammo_xshells = self.ammo_xshells - 1;
+		self.currentammo = ItemAdjustQuantity(self, "xshells", -1);
 	else
 	*/
 /*
-		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+		self.currentammo = ItemAdjustQuantity(self, "shells", -1);
 	self.wfiretime = time;
 	w_muzzleflash(v, 4);
 	if (explosive)
@@ -156,10 +156,10 @@ void(void(entity t, entity a, string m, float dtyp) obitfunc, float spreadboost,
 	}
 	/*
 	if (self.shotgunmode)
-		self.currentammo = self.ammo_xshells = self.ammo_xshells - 1;
+		self.currentammo = ItemAdjustQuantity(self, "xshells", -1);
 	else
 	*/
-		self.currentammo = self.ammo_shells = self.ammo_shells - 1;
+		self.currentammo = ItemAdjustQuantity(self, "shells", -1);
 	self.wfiretime = time;
 	w_muzzleflash(v, 2);
 	if (explosive)
@@ -198,13 +198,13 @@ void() w_dbshotgun =
 	/*
 	if (self.shotgunmode)
 	{
-		swapmode = self.ammo_xshells < 1 && self.ammo_shells >= 1;
-		otherammo = self.ammo_shells >= 1;
+		swapmode = ItemQuantity(self, "xshells") < 1 && ItemQuantity(self, "shells") >= 1;
+		otherammo = ItemQuantity(self, "shells") >= 1;
 	}
 	else
 	{
-		swapmode = self.ammo_shells < 1 && self.ammo_xshells >= 1;
-		otherammo = self.ammo_xshells >= 1;
+		swapmode = ItemQuantity(self, "shells") < 1 && ItemQuantity(self, "xshells") >= 1;
+		otherammo = ItemQuantity(self, "xshells") >= 1;
 	}
 
 	if (otherammo)
@@ -234,7 +234,7 @@ void() w_dbshotgun =
 			self.shotgunshells = 0;
 		}
 		if (self.button0 || self.button3)
-		if (self.ammo_shells > 0)
+		if (ItemQuantity(self, "shells") > 0)
 		if (W_ShotsToFire(0.2))
 			W_DBShotgunGatlingFireCode(self.button3);
 	}
@@ -271,9 +271,9 @@ void() w_dbshotgun =
 				/*
 				if (self.shotgunmode)
 				{
-					if (self.ammo_xshells >= 1)
+					if (ItemQuantity(self, "xshells") >= 1)
 					{
-						self.wload = min(self.ammo_xshells, 2);
+						self.wload = min(ItemQuantity(self, "xshells"), 2);
 						self.attack_finished = time + 0.2;
 						sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 					}
@@ -282,9 +282,9 @@ void() w_dbshotgun =
 				*/
 	/*
 				{
-					if (self.ammo_shells >= 1)
+					if (ItemQuantity(self, "shells") >= 1)
 					{
-						self.wload = min(self.ammo_shells, 2);
+						self.wload = min(ItemQuantity(self, "shells"), 2);
 						self.attack_finished = time + 0.2;
 						sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 					}
@@ -322,12 +322,12 @@ void() w_dbshotgunsetup =
 {
 	/*
 	if (self.shotgunmode)
-		wset(IT_WEAPON3, IT_SHELLS, self.ammo_xshells, VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
+		wset(IT_WEAPON3, IT_SHELLS, ItemQuantity(self, "xshells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
 	else
 	*/
-		wset(IT_WEAPON3, IT_SHELLS, self.ammo_shells, VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
+		wset(IT_WEAPON3, IT_SHELLS, ItemQuantity(self, "shells"), VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl");
 };
-float(float request) setweapon3 = {return weapongeneric(IT_WEAPON3, self.ammo_shells >= 1/* || self.ammo_xshells >= 1*/, request, w_dbshotgunsetup, w_dbshotgun, w_dbshotgunraise1, w_directaim, w_dbshotgunrating, "Double Barrel Shotgun");};
+float(float request) setweapon3 = {return weapongeneric(IT_WEAPON3, ItemQuantity(self, "shells") >= 1/* || ItemQuantity(self, "xshells") >= 1*/, request, w_dbshotgunsetup, w_dbshotgun, w_dbshotgunraise1, w_directaim, w_dbshotgunrating, "Double Barrel Shotgun");};
 
 void() w_dbshotgunraise1 = {self.wload = 0;self.shotgunshells = 0;wraise(9, w_dbshotgunraise2, 0.1);};
 void() w_dbshotgunraise2 = {wraise(8, w_dbshotgun, 0.1);};

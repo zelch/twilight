@@ -112,34 +112,5 @@ float MH_TARBABY   =    50;
 float MH_WIZARD    =    80;float MB_WIZARD    =    70;
 float MH_ZOMBIE    =   200; // explosives do more damage than normal
 
-void(entity e) bound_ammo =
-{
-	if (e.ammo_shells  > AMMOMAX_SHELLS ) e.ammo_shells  = AMMOMAX_SHELLS;
-	if (e.ammo_nails   > AMMOMAX_NAILS  ) e.ammo_nails   = AMMOMAX_NAILS;
-	if (e.ammo_rockets > AMMOMAX_ROCKETS) e.ammo_rockets = AMMOMAX_ROCKETS;
-	if (e.ammo_cells   > AMMOMAX_CELLS  ) e.ammo_cells   = AMMOMAX_CELLS;
-	if (e.ammo_xshells > AMMOMAX_XSHELLS) e.ammo_xshells = AMMOMAX_XSHELLS;
-};
-
-float(entity e, float t, float a) full_ammo =
-{
-	if (t == 1 && (e.ammo_shells  + a) > AMMOMAX_SHELLS ) return (AMMOMAX_SHELLS  - e.ammo_shells );
-	if (t == 2 && (e.ammo_nails   + a) > AMMOMAX_NAILS  ) return (AMMOMAX_NAILS   - e.ammo_nails  );
-	if (t == 3 && (e.ammo_rockets + a) > AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - e.ammo_rockets);
-	if (t == 4 && (e.ammo_cells   + a) > AMMOMAX_CELLS  ) return (AMMOMAX_CELLS   - e.ammo_cells  );
-	if (t == 5 && (e.ammo_xshells + a) > AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - e.ammo_xshells);
-	return a;
-};
-
-void(entity e) updateammodisplay =
-{
-/*
-	e.ammo_shells = e.ammo_shells;
-	e.ammo_nails = e.ammo_rounds;
-	e.ammo_rockets = e.ammo_bombs;
-	e.ammo_cells = e.ammo_plasma;
-*/
-};
-
 void(entity targ, entity inflictor, entity attacker, float damage, float bdamage, string dt, float damgtype, vector damgpoint, vector force, void(entity t, entity a, string m, float dtyp) obitfunc) T_Damage;
 void(entity inflictor, entity attacker, float damage, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage;

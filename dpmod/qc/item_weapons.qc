@@ -22,11 +22,11 @@ void() weapon_touch =
 		return;
 	new = self.weapon;
 	if (other.items & self.weapon == self.weapon) // has it already
-	if ((other.ammo_shells  >= AMMOMAX_SHELLS ) || (self.ammo_shells  < 1))
-	if ((other.ammo_nails   >= AMMOMAX_NAILS  ) || (self.ammo_nails   < 1))
-	if ((other.ammo_rockets >= AMMOMAX_ROCKETS) || (self.ammo_rockets < 1))
-	if ((other.ammo_cells   >= AMMOMAX_CELLS  ) || (self.ammo_cells   < 1))
-	if ((other.ammo_xshells >= AMMOMAX_XSHELLS) || (self.ammo_xshells < 1))
+	if ((ItemQuantity(other, "shells") >= AMMOMAX_SHELLS ) || (ItemQuantity(self, "shells") < 1))
+	if ((ItemQuantity(other, "nails") >= AMMOMAX_NAILS  ) || (ItemQuantity(self, "nails") < 1))
+	if ((ItemQuantity(other, "rockets") >= AMMOMAX_ROCKETS) || (ItemQuantity(self, "rockets") < 1))
+	if ((ItemQuantity(other, "cells") >= AMMOMAX_CELLS  ) || (ItemQuantity(self, "cells") < 1))
+	if ((ItemQuantity(other, "xshells") >= AMMOMAX_XSHELLS) || (ItemQuantity(self, "xshells") < 1))
 		return; // would gain no ammo or weapon
 
 	// if the player was using their best weapon, change up to the new one if better
@@ -38,19 +38,19 @@ void() weapon_touch =
 
 	if (itemrespawn && AMMOWEAPONOVERFLOW)
 	{
-		if (self.ammo_shells ) if (other.ammo_shells  < self.ammo_shells ) other.ammo_shells  = self.ammo_shells ; else other.ammo_shells  = other.ammo_shells  + AMMOWEAPONOVERFLOW_SHELLS ;
-		if (self.ammo_nails  ) if (other.ammo_nails   < self.ammo_nails  ) other.ammo_nails   = self.ammo_nails  ; else other.ammo_nails   = other.ammo_nails   + AMMOWEAPONOVERFLOW_NAILS  ;
-		if (self.ammo_rockets) if (other.ammo_rockets < self.ammo_rockets) other.ammo_rockets = self.ammo_rockets; else other.ammo_rockets = other.ammo_rockets + AMMOWEAPONOVERFLOW_ROCKETS;
-		if (self.ammo_cells  ) if (other.ammo_cells   < self.ammo_cells  ) other.ammo_cells   = self.ammo_cells  ; else other.ammo_cells   = other.ammo_cells   + AMMOWEAPONOVERFLOW_CELLS  ;
-		if (self.ammo_xshells) if (other.ammo_xshells < self.ammo_xshells) other.ammo_xshells = self.ammo_xshells; else other.ammo_xshells = other.ammo_xshells + AMMOWEAPONOVERFLOW_XSHELLS;
+		if (ItemQuantity(self, "shells")) if (ItemQuantity(other, "shells") < ItemQuantity(self, "shells")) ItemSetQuantity(other, "shells", ItemQuantity(self, "shells")); else ItemAdjustQuantity(other, "shells", AMMOWEAPONOVERFLOW_SHELLS);
+		if (ItemQuantity(self, "nails")) if (ItemQuantity(other, "nails") < ItemQuantity(self, "nails")) ItemSetQuantity(other, "nails", ItemQuantity(self, "nails")); else ItemAdjustQuantity(other, "nails", AMMOWEAPONOVERFLOW_NAILS);
+		if (ItemQuantity(self, "rockets")) if (ItemQuantity(other, "rockets") < ItemQuantity(self, "rockets")) ItemSetQuantity(other, "rockets", ItemQuantity(self, "rockets")); else ItemAdjustQuantity(other, "rockets", AMMOWEAPONOVERFLOW_ROCKETS);
+		if (ItemQuantity(self, "cells")) if (ItemQuantity(other, "cells") < ItemQuantity(self, "cells")) ItemSetQuantity(other, "cells", ItemQuantity(self, "cells")); else ItemAdjustQuantity(other, "cells", AMMOWEAPONOVERFLOW_CELLS);
+		if (ItemQuantity(self, "xshells")) if (ItemQuantity(other, "xshells") < ItemQuantity(self, "xshells")) ItemSetQuantity(other, "xshells", ItemQuantity(self, "xshells")); else ItemAdjustQuantity(other, "xshells", AMMOWEAPONOVERFLOW_XSHELLS);
 	}
 	else
 	{
-		other.ammo_shells  = other.ammo_shells  + self.ammo_shells ;
-		other.ammo_nails   = other.ammo_nails   + self.ammo_nails  ;
-		other.ammo_rockets = other.ammo_rockets + self.ammo_rockets;
-		other.ammo_cells   = other.ammo_cells   + self.ammo_cells  ;
-		other.ammo_xshells = other.ammo_xshells + self.ammo_xshells;
+		ItemAdjustQuantity(other, "shells", ItemQuantity(self, "shells"));
+		ItemAdjustQuantity(other, "nails", ItemQuantity(self, "nails"));
+		ItemAdjustQuantity(other, "rockets", ItemQuantity(self, "rockets"));
+		ItemAdjustQuantity(other, "cells", ItemQuantity(self, "cells"));
+		ItemAdjustQuantity(other, "xshells", ItemQuantity(self, "xshells"));
 	}
 
 	if (other.flags & FL_CLIENT)
@@ -61,8 +61,6 @@ void() weapon_touch =
 
 	// weapon touch sound
 	sound (other, CHAN_ITEM, "weapons/pkup.wav", 1, ATTN_NORM);
-
-	bound_ammo (other);
 
 	// change to the weapon
 	old = other.items;
@@ -108,21 +106,21 @@ float(entity player, entity item) item_weapon_pickupeval =
 		if (w & IT_WEAPON9) f = f + 1000;
 		if (w & IT_WEAPON10) f = f + 3000;
 	}
-	if (item.ammo_shells)
-	if (player.ammo_shells < AMMOMAX_SHELLS)
-		f = f + (AMMOMAX_SHELLS - player.ammo_shells) * (AMMOMAX_SHELLS - player.ammo_shells) * 60 * item.ammo_shells / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
-	if (item.ammo_nails)
-	if (player.ammo_nails < AMMOMAX_NAILS)
-		f = f + (AMMOMAX_NAILS - player.ammo_nails) * (AMMOMAX_NAILS - player.ammo_nails) * 15 * item.ammo_nails / (AMMOMAX_NAILS * AMMOMAX_NAILS);
-	if (item.ammo_rockets)
-	if (player.ammo_rockets < AMMOMAX_ROCKETS)
-		f = f + (AMMOMAX_ROCKETS - player.ammo_rockets) * (AMMOMAX_ROCKETS - player.ammo_rockets) * 120 * item.ammo_rockets / (AMMOMAX_ROCKETS * AMMOMAX_ROCKETS);
-	if (item.ammo_cells)
-	if (player.ammo_cells < AMMOMAX_CELLS)
-		f = f + (AMMOMAX_CELLS - player.ammo_cells) * (AMMOMAX_CELLS - player.ammo_cells) * 30 * item.ammo_cells / (AMMOMAX_CELLS * AMMOMAX_CELLS);
-	if (item.ammo_xshells)
-	if (player.ammo_xshells < AMMOMAX_XSHELLS)
-		f = f + (AMMOMAX_XSHELLS - player.ammo_xshells) * (AMMOMAX_XSHELLS - player.ammo_xshells) * 110 * item.ammo_xshells / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
+	if (ItemQuantity(item, "shells"))
+	if (ItemQuantity(player, "shells") < AMMOMAX_SHELLS)
+		f = f + (AMMOMAX_SHELLS - ItemQuantity(player, "shells")) * (AMMOMAX_SHELLS - ItemQuantity(player, "shells")) * 60 * ItemQuantity(item, "shells") / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
+	if (ItemQuantity(item, "nails"))
+	if (ItemQuantity(player, "nails") < AMMOMAX_NAILS)
+		f = f + (AMMOMAX_NAILS - ItemQuantity(player, "nails")) * (AMMOMAX_NAILS - ItemQuantity(player, "nails")) * 15 * ItemQuantity(item, "nails") / (AMMOMAX_NAILS * AMMOMAX_NAILS);
+	if (ItemQuantity(item, "rockets"))
+	if (ItemQuantity(player, "rockets") < AMMOMAX_ROCKETS)
+		f = f + (AMMOMAX_ROCKETS - ItemQuantity(player, "rockets")) * (AMMOMAX_ROCKETS - ItemQuantity(player, "rockets")) * 120 * ItemQuantity(item, "rockets") / (AMMOMAX_ROCKETS * AMMOMAX_ROCKETS);
+	if (ItemQuantity(item, "cells"))
+	if (ItemQuantity(player, "cells") < AMMOMAX_CELLS)
+		f = f + (AMMOMAX_CELLS - ItemQuantity(player, "cells")) * (AMMOMAX_CELLS - ItemQuantity(player, "cells")) * 30 * ItemQuantity(item, "cells") / (AMMOMAX_CELLS * AMMOMAX_CELLS);
+	if (ItemQuantity(item, "xshells"))
+	if (ItemQuantity(player, "xshells") < AMMOMAX_XSHELLS)
+		f = f + (AMMOMAX_XSHELLS - ItemQuantity(player, "xshells")) * (AMMOMAX_XSHELLS - ItemQuantity(player, "xshells")) * 110 * ItemQuantity(item, "xshells") / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
 	return f;
 };
 
@@ -134,28 +132,28 @@ void(string wmdl, float w, float shells, float nails, float rockets, float cells
 	setmodel (self, wmdl);
 	self.netname = name;
 	self.weapon = w;
-	self.ammo_shells  = shells;
-	self.ammo_nails   = nails;
-	self.ammo_rockets = rockets;
-	self.ammo_cells   = cells;
-	self.ammo_xshells = xshells;
-//	self.havocrating = self.havocrating + self.ammo_shells * 60;
-//	self.havocrating = self.havocrating + self.ammo_nails * 15;
-//	self.havocrating = self.havocrating + self.ammo_rockets * 120;
-//	self.havocrating = self.havocrating + self.ammo_cells * 30;
-//	self.havocrating = self.havocrating + self.ammo_xshells * 110;
-	self.touch = weapon_touch;
-	setsize (self, '-16 -16 0', '16 16 32');
 	/*
 	if (deathmatch)
 	{
-		if (shells ) self.ammo_shells  = 999;
-		if (nails  ) self.ammo_nails   = 999;
-		if (rockets) self.ammo_rockets = 999;
-		if (cells  ) self.ammo_cells   = 999;
-		if (xshells) self.ammo_xshells = 999;
+		if (shells) shells = 99999;
+		if (nails) nails = 99999;
+		if (rockets) rockets = 99999;
+		if (cells) cells = 99999;
+		if (xshells) xshells = 99999;
 	}
 	*/
+	ItemSetQuantity(self, "shells", shells);
+	ItemSetQuantity(self, "nails", nails);
+	ItemSetQuantity(self, "rockets", rockets);
+	ItemSetQuantity(self, "cells", cells);
+	ItemSetQuantity(self, "xshells", xshells);
+//	self.havocrating = self.havocrating + ItemQuantity(self, "shells") * 60;
+//	self.havocrating = self.havocrating + ItemQuantity(self, "nails") * 15;
+//	self.havocrating = self.havocrating + ItemQuantity(self, "rockets") * 120;
+//	self.havocrating = self.havocrating + ItemQuantity(self, "cells") * 30;
+//	self.havocrating = self.havocrating + ItemQuantity(self, "xshells") * 110;
+	self.touch = weapon_touch;
+	setsize (self, '-16 -16 0', '16 16 32');
 	StartItem ();
 };
 

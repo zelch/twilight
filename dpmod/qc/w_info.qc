@@ -221,10 +221,10 @@ void() CheatCommand =
 	if (self.health < 1)
 		return;
 
-	self.ammo_shells  = 999;
-	self.ammo_nails   = 999;
-	self.ammo_rockets = 999;
-	self.ammo_cells   = 999;
+	ItemSetQuantity(self, "shells", 99999);
+	ItemSetQuantity(self, "nails", 99999);
+	ItemSetQuantity(self, "rockets", 99999);
+	ItemSetQuantity(self, "cells", 99999);
 	self.items = self.items
 	 | IT_WEAPON1
 	 | IT_WEAPON2
@@ -238,7 +238,6 @@ void() CheatCommand =
 	 | IT_WEAPON10
 	// | IT_KEY1 | IT_KEY2
 	;
-	bound_ammo(self);
 
 	self.impulse = 0;
 };

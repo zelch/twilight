@@ -1,4 +1,7 @@
 
+.float character_nextsave;
+.float character_loaded;
+
 .float seenhelp;
 .float idealzoom;
 
@@ -18,6 +21,8 @@ void() W_WeaponFrame =
 	local string s;
 	//local vector v, realvangle;
 
+	updateammodisplay(self);
+
 	if (time > self.seenhelp)
 	{
 		if (self.seenhelp == 0)
@@ -34,6 +39,16 @@ void() W_WeaponFrame =
 			}
 		}
 	}
+	/*
+	if (time > self.character_nextsave)
+	{
+		self.character_nextsave = time + 15;
+		if (self.character_loaded)
+			Character_Save();
+		else
+			Character_Load();
+	}
+	*/
 
 	if (!self.solid) // observer
 		return;

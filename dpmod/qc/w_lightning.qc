@@ -119,10 +119,10 @@ vector(entity inflictor, entity attacker, vector start, vector end, float hdamag
 
 void(float cells) W_LightningFireCode =
 {
-	if (cells > self.ammo_cells)
-		cells = self.ammo_cells;
+	if (cells > ItemQuantity(self, "cells"))
+		cells = ItemQuantity(self, "cells");
 	self.wfiretime = time;
-	self.currentammo = self.ammo_cells = self.ammo_cells - cells;
+	self.currentammo = ItemAdjustQuantity(self, "cells", 0 - cells);
 	self.wframe = self.wframe + 1;
 	if (self.wframe >= 3)
 		self.wframe = 1;
@@ -144,7 +144,7 @@ void() w_lightning =
 
 	if (self.button0)
 	{
-		if (self.ammo_cells > 0)
+		if (ItemQuantity(self, "cells") > 0)
 		{
 			if (!self.oldbutton0)
 				sound(self, CHAN_AUTO, "weapons/lstart.wav", 1, ATTN_NORM);
@@ -163,7 +163,7 @@ void() w_lightning =
 	else if (self.button3)
 	{
 		//if (self.button3)
-		//if (self.ammo_rockets >= 1)
+		//if (ItemQuantity(self, "rockets") >= 1)
 		//	W_GenericSlowFireCode("weapons/grenade.wav", 0.5, W_SuperNailgunMineFireCode);
 	}
 	*/
@@ -191,5 +191,5 @@ void() w_lightningdrop1 = {wdrop( 5, w_lightningdrop2, 0.1);};
 void() w_lightningdrop2 = {wdropped(6, 0.1);};
 
 float() w_lightningrating = {return genericweaponrating(0, 1000, 300);};
-void() w_lightningsetup = {wset(IT_WEAPON8, IT_CELLS, self.ammo_cells, VWEP_LIGHTNING, "progs/v_dplight.mdl");};
-float(float request) setweapon8 = {return weapongeneric(IT_WEAPON8, self.ammo_cells >= 1, request, w_lightningsetup, w_lightning, w_lightningraise1, w_directaim, w_lightningrating, "Thunderbolt");};
+void() w_lightningsetup = {wset(IT_WEAPON8, IT_CELLS, ItemQuantity(self, "cells"), VWEP_LIGHTNING, "progs/v_dplight.mdl");};
+float(float request) setweapon8 = {return weapongeneric(IT_WEAPON8, ItemQuantity(self, "cells") >= 1, request, w_lightningsetup, w_lightning, w_lightningraise1, w_directaim, w_lightningrating, "Thunderbolt");};

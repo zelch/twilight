@@ -1,6 +1,18 @@
 
 //DarkPlaces supported extension list, draft version 1.03
 
+//DP_QC_BOTCLIENT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//builtin definitions:
+//entity() spawnclient = #; // like spawn but for client slots (also calls relevant connect/spawn functions), returns world if no clients available
+//void(entity e) removeclient = #; // like remove but for client slots (also calls relevant disconnect functions)
+//description:
+//functions to allow bots to use client slots with no hacks, some notes:
+//.netname controls name on scoreboard (so be sure to set it)
+//.frags controls score on scoreboard (this is expected)
+//.clientcolors controls coloring on scoreboard (this determines player colors exactly like the "color" command, except for using )
+
 //unassigned stuff:  (need to write up specs but haven't yet)
 .vector punchvector; // DP_SV_PUNCHVECTOR
 .float  ping; // DP_SV_PING
@@ -17,9 +29,9 @@ float(string s) checkextension = #99;
 //from then on you can check ext_setcolor to know if that extension is available
 
 // LordHavoc: HIGHLY experimental, do not implement this in other engines
+//DP_CGAME
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
-//DP_CGAME
 //SVC definitions:
 float svc_cgame = 50; // [short] length [bytes] data
 //description:
@@ -411,6 +423,18 @@ float SOLID_CORPSE = 5;
 //description:
 //the engine supports .spr32 sprites.
 
+//DP_SV_CLIENTCOLORS
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+.float clientcolors; // colors of the client (format: pants + shirt * 16)
+//description:
+//allows qc to read and modify the client colors associated with a client entity (not particularly useful on other entities), and automatically sends out any appropriate network updates if changed
+
+//DP_SV_CLIENTNAME
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//allows qc to modify the client's .netname, and automatically sends out any appropriate network updates if changed
+
 //DP_SV_DRAWONLYTOCLIENT
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -458,6 +482,7 @@ void(entity ent, float colors) setcolor = #401;
 //description:
 //setcolor sets the color on a client and updates internal color information accordingly (equivilant to stuffing a "color" command but immediate)
 //SV_ChangeTeam is called by the engine whenever a "color" command is recieved, it may decide to do anything it pleases with the color passed by the client, including rejecting it (by doing nothing), or calling setcolor to apply it, preventing team changes is one use for this.
+//the color format is pants + shirt * 16 (0-255 potentially)
 
 //DP_SV_SLOWMO
 //idea: LordHavoc

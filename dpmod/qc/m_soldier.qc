@@ -501,7 +501,7 @@ void() monster_army =
 	{
 		//self.items = IT_WEAPON4;
 		self.th_missile = army_missile_nail;
-		self.ammo_nails = 15;
+		ItemSetQuantity(self, "nails", 15);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was nailed by a grunt";
 	}
@@ -509,7 +509,7 @@ void() monster_army =
 	{
 		//self.items = IT_WEAPON2;
 		self.th_missile = army_missile_shotgun;
-		self.ammo_shells = 5;
+		ItemSetQuantity(self, "shells", 5);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was gunned down by a grunt";
 	}
@@ -517,7 +517,7 @@ void() monster_army =
 	{
 		self.items = 0;
 		self.th_missile = army_missile_pistol;
-		self.ammo_nails = 5;
+		ItemSetQuantity(self, "nails", 5);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " lays down for a grunt";
 	}

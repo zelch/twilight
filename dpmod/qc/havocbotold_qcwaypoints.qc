@@ -1389,28 +1389,10 @@ void() havocbot_chooseenemy =
 
 void() havocbot_chooseweapon =
 {
-	/*
-	local   float   best, bestdamage, shotspeed, dist;
-	dist = vlen(self.enemy.origin - self.origin);
-	best = IT_WEAPON1;bestdamage = DMG_WEAPON1;
-	if (self.items & IT_WEAPON2) if (self.ammo_shells  >= 1) if (dist >= DMG_WEAPON2_MINRANGE) if (dist < DMG_WEAPON2_RANGE) if (DMG_WEAPON2 > bestdamage) {best = IT_WEAPON2;bestdamage = DMG_WEAPON2;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON3) if (self.ammo_shells  >= 1) if (dist >= DMG_WEAPON3_MINRANGE) if (dist < DMG_WEAPON3_RANGE) if (DMG_WEAPON3 > bestdamage) {best = IT_WEAPON3;bestdamage = DMG_WEAPON3;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON4) if (self.ammo_nails   >= 1) if (dist >= DMG_WEAPON4_MINRANGE) if (dist < DMG_WEAPON4_RANGE) if (DMG_WEAPON4 > bestdamage) {best = IT_WEAPON4;bestdamage = DMG_WEAPON4;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON5) if (self.ammo_nails   >= 1) if (dist >= DMG_WEAPON5_MINRANGE) if (dist < DMG_WEAPON5_RANGE) if (DMG_WEAPON5 > bestdamage) {best = IT_WEAPON5;bestdamage = DMG_WEAPON5;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON6) if (self.ammo_rockets >= 1) if (dist >= DMG_WEAPON6_MINRANGE) if (dist < DMG_WEAPON6_RANGE) if (DMG_WEAPON6 > bestdamage) {best = IT_WEAPON6;bestdamage = DMG_WEAPON6;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON7) if (self.ammo_rockets >= 1) if (dist >= DMG_WEAPON7_MINRANGE) if (dist < DMG_WEAPON7_RANGE) if (DMG_WEAPON7 > bestdamage) {best = IT_WEAPON7;bestdamage = DMG_WEAPON7;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON8) if (self.ammo_cells   >= 1) if (dist >= DMG_WEAPON8_MINRANGE) if (dist < DMG_WEAPON8_RANGE) if (DMG_WEAPON8 > bestdamage) {best = IT_WEAPON8;bestdamage = DMG_WEAPON8;shotspeed = DMG_WEAPON2_VELOCITY;}
-	if (self.items & IT_WEAPON9) if (self.ammo_cells   >= 1) if (dist >= DMG_WEAPON9_MINRANGE) if (dist < DMG_WEAPON9_RANGE) if (DMG_WEAPON9 > bestdamage) {best = IT_WEAPON9;bestdamage = DMG_WEAPON9;shotspeed = DMG_WEAPON2_VELOCITY;}
-	self.switcheapon = best;
-	if (shotspeed >= 10000)
-		self.shotlead = 0; // instant weapon
-	else
-		self.shotlead = 1 / shotspeed;
-	*/
 	if (time > self.weaponchangetimeout || !setweapon(self.switchweapon, WR_SELECTABLE))
 	{
 		self.weaponchangetimeout = time + 0.5;
-		self.switchweapon = W_BestWeaponForTarget(self.enemy); //W_BestWeapon(TRUE);
+		self.switchweapon = W_BestWeaponForTarget(self.enemy);
 	}
 };
 

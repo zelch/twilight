@@ -32,11 +32,11 @@ void(float shots, float cellspershot, float damagepercell, float r) W_PlasmaRifl
 	{
 		shots = shots - 1;
 		cells = cellspershot;
-		if (cells > self.ammo_cells)
-			cells = self.ammo_cells;
+		if (cells > ItemQuantity(self, "cells"))
+			cells = ItemQuantity(self, "cells");
 		if (cells <= 0)
 			return;
-		self.currentammo = self.ammo_cells = self.ammo_cells - cells;
+		self.currentammo = ItemAdjustQuantity(self, "cells", 0 - cells);
 		self.wfiretime = time;
 		if (self.plasmabarrel == 0)
 		{
@@ -89,7 +89,7 @@ void() w_plasmarifle =
 			self.woverload = 0;
 		}
 	}
-	else if (self.button0 && self.ammo_cells > 0)
+	else if (self.button0 && ItemQuantity(self, "cells") > 0)
 	{
 		self.wload = W_ShotsToFire(0.05);
 		if (self.wload > 0)
@@ -97,12 +97,12 @@ void() w_plasmarifle =
 	}
 	else if (time >= self.attack_finished)
 	{
-		if (self.button3 && self.ammo_cells > 0)
+		if (self.button3 && ItemQuantity(self, "cells") > 0)
 		{
 			self.woverload = 12;
-			//if (self.woverload > self.ammo_cells)
-			//	self.woverload = self.ammo_cells;
-			//self.currentammo = self.ammo_cells = self.ammo_cells - self.woverload;
+			//if (self.woverload > ItemQuantity(self, "cells"))
+			//	self.woverload = ItemQuantity(self, "cells");
+			//self.currentammo = ItemAdjustQuantity(self, "cells", 0 - self.woverload);
 			self.attack_finished = time + 0.2;
 			// FIXME: need overload charge sound (first overload sound)
 			sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
@@ -134,8 +134,8 @@ void() weapon9_precache =
 };
 
 float() w_plasmariflerating = {return genericweaponrating(0, 1500, 200);};
-void() w_plasmariflesetup = {wset(IT_WEAPON9, IT_CELLS, self.ammo_cells, VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
-float(float request) setweapon9 = {return weapongeneric(IT_WEAPON9, self.ammo_cells >= 1, request, w_plasmariflesetup, w_plasmarifle, w_plasmarifleraise1, w_directaim, w_plasmariflerating, "PlasmaRifle");};
+void() w_plasmariflesetup = {wset(IT_WEAPON9, IT_CELLS, ItemQuantity(self, "cells"), VWEP_SHOTGUN, "progs/v_dpshot.mdl");};
+float(float request) setweapon9 = {return weapongeneric(IT_WEAPON9, ItemQuantity(self, "cells") >= 1, request, w_plasmariflesetup, w_plasmarifle, w_plasmarifleraise1, w_directaim, w_plasmariflerating, "PlasmaRifle");};
 
 void() w_plasmarifleraise1 = {wraise(8, w_plasmarifleraise2, 0.1);};
 void() w_plasmarifleraise2 = {self.wburst = 9;wraise(7, w_plasmarifle, 0.1);};

@@ -98,9 +98,9 @@ void() W_RocketFireSingle =
 	sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 2);
-	LaunchMissile(shotorg, shotdir * 5000, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket);
+	LaunchMissile(shotorg, shotdir * 5000, self, 100 * damagescale, 100, "ROCKET", Obituary_Rocket);
 };
 
 void() W_RocketFireTripleSpiral =
@@ -110,20 +110,20 @@ void() W_RocketFireTripleSpiral =
 	self.wfiretime = time;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.velocity = self.velocity - shotdir * 450;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg, 4);
-	LaunchMissile(shotorg, shotdir * 3000, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket);
+	LaunchMissile(shotorg, shotdir * 3000, self, 100 * damagescale, 100, "ROCKET", Obituary_Rocket);
 	spiralmissile_orbitentity = newmis;
-	if (self.ammo_rockets < 1)
+	if (ItemQuantity(self, "rockets") < 1)
 		return;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg + v_right * 8, 4);
-	LaunchSpiralMissile(shotorg, shotdir, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket, -12);
-	if (self.ammo_rockets < 1)
+	LaunchSpiralMissile(shotorg, shotdir, self, 100 * damagescale, 100, "ROCKET", Obituary_Rocket, -12);
+	if (ItemQuantity(self, "rockets") < 1)
 		return;
-	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+	self.currentammo = ItemAdjustQuantity(self, "rockets", -1);
 	w_muzzleflash(shotorg - v_right * 8, 4);
-	LaunchSpiralMissile(shotorg, shotdir, self, 120 * damagescale, 100, "ROCKET", Obituary_Rocket, 12);
+	LaunchSpiralMissile(shotorg, shotdir, self, 100 * damagescale, 100, "ROCKET", Obituary_Rocket, 12);
 };
 
 void() w_rocketdrop1;
@@ -168,8 +168,8 @@ void() weapon7_precache =
 };
 
 float() w_rocketrating = {return genericweaponrating(200, 1000, 240);};
-void() w_rocketsetup = {wset(IT_WEAPON7, IT_ROCKETS, self.ammo_rockets, VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl");};
-float(float request) setweapon7 = {return weapongeneric(IT_WEAPON7, self.ammo_rockets >= 1, request, w_rocketsetup, w_rocket, w_rocketraise1, w_rocketaim, w_rocketrating, "Rocket Launcher");};
+void() w_rocketsetup = {wset(IT_WEAPON7, IT_ROCKETS, ItemQuantity(self, "rockets"), VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl");};
+float(float request) setweapon7 = {return weapongeneric(IT_WEAPON7, ItemQuantity(self, "rockets") >= 1, request, w_rocketsetup, w_rocket, w_rocketraise1, w_rocketaim, w_rocketrating, "Rocket Launcher");};
 
 void() w_rocketraise1 = {wraise(8, w_rocketraise2, 0.1);};
 void() w_rocketraise2 = {self.wload = 0;wraise(7, w_rocket, 0.1);};

@@ -82,10 +82,10 @@ void() BackpackTouch =
 	self = oself;
 
 	// add the ammo
-	other.ammo_shells  = other.ammo_shells  + self.ammo_shells;
-	other.ammo_nails   = other.ammo_nails   + self.ammo_nails;
-	other.ammo_rockets = other.ammo_rockets + self.ammo_rockets;
-	other.ammo_cells   = other.ammo_cells   + self.ammo_cells;
+	ItemAdjustQuantity(other, "shells", ItemQuantity(self, "shells"));
+	ItemAdjustQuantity(other, "nails", ItemQuantity(self, "nails"));
+	ItemAdjustQuantity(other, "rockets", ItemQuantity(self, "rockets"));
+	ItemAdjustQuantity(other, "cells", ItemQuantity(self, "cells"));
 	if (self.super_damage_finished > time)
 	if (self.super_damage_finished > other.super_damage_finished)
 	{
@@ -112,43 +112,41 @@ void() BackpackTouch =
 	old = other.items;
 	other.items = old | new;
 
-	bound_ammo (other);
-
 	if (other.flags & FL_CLIENT)
 	{
-		if (self.ammo_shells)
+		if (ItemQuantity(self, "shells"))
 		{
 			if (acount)
 				sprint(other, ", ");
 			acount = 1;
-			s = ftos(self.ammo_shells);
+			s = ftos(ItemQuantity(self, "shells"));
 			sprint (other, s);
 			sprint (other, " shells");
 		}
-		if (self.ammo_nails)
+		if (ItemQuantity(self, "nails"))
 		{
 			if (acount)
 				sprint(other, ", ");
 			acount = 1;
-			s = ftos(self.ammo_nails);
+			s = ftos(ItemQuantity(self, "nails"));
 			sprint (other, s);
 			sprint (other, " rounds");
 		}
-		if (self.ammo_rockets)
+		if (ItemQuantity(self, "rockets"))
 		{
 			if (acount)
 				sprint(other, ", ");
 			acount = 1;
-			s = ftos(self.ammo_rockets);
+			s = ftos(ItemQuantity(self, "rockets"));
 			sprint (other, s);
 			sprint (other, " rockets");
 		}
-		if (self.ammo_cells)
+		if (ItemQuantity(self, "cells"))
 		{
 			if (acount)
 				sprint(other, ", ");
 			acount = 1;
-			s = ftos(self.ammo_cells);
+			s = ftos(ItemQuantity(self, "cells"));
 			sprint (other, s);
 			sprint (other, " cells");
 		}
@@ -218,7 +216,7 @@ void() DropBackpack =
 
 	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
 		return;
-	if (!(self.ammo_shells + self.ammo_nails + self.ammo_rockets + self.ammo_cells))
+	if (!(ItemQuantity(self, "shells") + ItemQuantity(self, "nails") + ItemQuantity(self, "rockets") + ItemQuantity(self, "cells")))
 	if (!(self.super_damage_finished || self.invisible_finished || self.invincible_finished))
 	if (!(self.items & (IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10)))
 		return; // nothing in it
@@ -252,14 +250,14 @@ void() DropBackpack =
 	item.items = self.items & (IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10);
 	self.items = self.items - item.items;
 
-	item.ammo_shells = self.ammo_shells;
-	item.ammo_nails = self.ammo_nails;
-	item.ammo_rockets = self.ammo_rockets;
-	item.ammo_cells = self.ammo_cells;
-	self.ammo_shells = 0;
-	self.ammo_nails = 0;
-	self.ammo_rockets = 0;
-	self.ammo_cells = 0;
+	ItemSetQuantity(item, "shells", ItemQuantity(self, "shells"));
+	ItemSetQuantity(item, "nails", ItemQuantity(self, "nails"));
+	ItemSetQuantity(item, "rockets", ItemQuantity(self, "rockets"));
+	ItemSetQuantity(item, "cells", ItemQuantity(self, "cells"));
+	ItemSetQuantity(self, "shells", 0);
+	ItemSetQuantity(self, "nails", 0);
+	ItemSetQuantity(self, "rockets", 0);
+	ItemSetQuantity(self, "cells", 0);
 	item.super_damage_finished = self.super_damage_finished;
 	item.invisible_finished = self.invisible_finished;
 	item.invincible_finished = self.invincible_finished;
@@ -305,10 +303,10 @@ void() DropBackpack =
 	if (item.items & IT_WEAPON8) item.havocrating = item.havocrating + 300;
 	if (item.items & IT_WEAPON9) item.havocrating = item.havocrating + 0;
 	if (item.items & IT_WEAPON10) item.havocrating = item.havocrating + 300;
-	item.havocrating = item.havocrating + item.ammo_shells * 60;
-	item.havocrating = item.havocrating + item.ammo_nails * 15;
-	item.havocrating = item.havocrating + item.ammo_rockets * 120;
-	item.havocrating = item.havocrating + item.ammo_cells * 30;
+	item.havocrating = item.havocrating + ItemQuantity(item, "shells") * 60;
+	item.havocrating = item.havocrating + ItemQuantity(item, "nails") * 15;
+	item.havocrating = item.havocrating + ItemQuantity(item, "rockets") * 120;
+	item.havocrating = item.havocrating + ItemQuantity(item, "cells") * 30;
 	if (item.super_damage_finished > time) item.havocrating = item.havocrating + 10 * (item.super_damage_finished - time);
 	if (item.invisible_finished    > time) item.havocrating = item.havocrating + 10 * (item.invisible_finished - time);
 	if (item.invincible_finished   > time) item.havocrating = item.havocrating + 20 * (item.invincible_finished - time);

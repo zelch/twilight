@@ -16,6 +16,8 @@ damagetype.qc   // deathtype, damagetype, etcetera...
 //localdamage.qc  // head/chest/foot/whatever shots
 damage.qc       // max ammo amounts, how much damage, starting health, etc
 
+inventory.qc
+
 util.qc         // useful functions (trajectory tracing for example)
 
 think.qc        // the extrathink function, which lets you use multiple thinks

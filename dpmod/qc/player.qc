@@ -11,7 +11,7 @@ PLAYER
 
 $cd id1/models/player_4
 $origin 0 -6 24
-$base base		
+$base base
 $skin skin
 
 //
@@ -554,7 +554,7 @@ void() DeathSound =
 		sound (self, CHAN_VOICE, "player/h2odeath.wav", 1, ATTN_NONE);
 		return;
 	}
-	
+
 	rs = random() * 5;
 	if (rs < 1)
 		sound (self, CHAN_VOICE, "player/death1.wav", 1, ATTN_NONE);
@@ -588,7 +588,7 @@ void() GibPlayer =
 		sound (self, CHAN_VOICE, "player/teledth1.wav", 1, ATTN_NONE);
 		return;
 	}
-		
+
 	if (random() < 0.5)
 		sound (self, CHAN_VOICE, "player/gib.wav", 1, ATTN_NONE);
 	else
@@ -646,7 +646,15 @@ void() PlayerDie =
 	//}
 
 	//self.solid = SOLID_NOT;
-	//self.currentammo = self.ammo_shells = self.ammo_nails = self.ammo_rockets = self.ammo_cells = self.items = self.effects = self.armorvalue = self.armortype = 0;
+	//self.currentammo = 0;
+	//ItemSetQuantity(self, "shells", 0);
+	//ItemSetQuantity(self, "nails", 0);
+	//ItemSetQuantity(self, "rockets", 0);
+	//ItemSetQuantity(self, "cells", 0);
+	//self.items = 0;
+	//self.effects = 0;
+	//self.armorvalue = 0;
+	//self.armortype = 0;
 	//self.movetype = MOVETYPE_NONE;
 	//self.velocity = '0 0 0';
 	//self.model = "";
