@@ -210,7 +210,7 @@ void CheckWinding( winding_t *w )
 		p2 = w->points[(i + 1) % w->numpoints];
 
 		for( j = 0; j < 3; j++ ) {
-			if( p1[j] > BOGUS_RANGE || p1[j] < -BOGUS_RANGE )
+			if( p1[j] >= BOGUS_RANGE || p1[j] <= -BOGUS_RANGE )
 				Error( "CheckWinding: BOGUS_RANGE: %f %f %f", p1[0], p1[1], p1[2] );
 		}
 
