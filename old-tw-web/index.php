@@ -1,5 +1,5 @@
 <?php
-	$page = "Home";
+	$page = "News";
 	require ("include/header.php");
 	require ("include/footer.php");
 ?>

@@ -19,8 +19,8 @@
 		echo ("<div class=header>\n<img src=\"" . $display["title_img"] .
 			"\" alt=\"Project Twilight\">\n</div>\n");
 	} else {
-		echo ("<table border=0 width=100% bgcolor=#000440>\n" .
-			"<tr><td><img src=\"" . $display["title_img"] .
+		echo ("<table border=0 width=100% bgcolor=\"" . $display["titlebar"] .
+			"\">\n<tr><td><img src=\"" . $display["title_img"] .
 			"\" alt=\"Project Twilight\"></td></tr>\n</table>");
 	}
 

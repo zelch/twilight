@@ -10,8 +10,11 @@
 	);
 
 	$nav_items = array (
-		Home => "index.php" ,
-		Devel => "devel/index.php"
+		News => "index.php" ,
+		Downloads => "files/index.php" ,
+		Development => "devel/index.php" ,
+		Links => "links.php" ,
+		Contact => "contact.php"
 	);
 
 	if ($browser_css) {
