@@ -1,22 +1,32 @@
-Setgamma by Forest Hale (havoc@gamevisions.com), version 1.0
+Setgamma version 1.2 by Forest Hale and John Fitzgibbons
 
-Setgamma is a commandline utility for setting hardware gamma in Windows, if
-given no parameters it simply sets the gamma to default (intended for use with
-my DarkPlaces engine, if it crashs, it leaves messed up gamma ramps), it can
-be given a gamma value to set to (such as 1.3, 2.0, etc), making it a more
-generally useful utility.
+Setgamma is a commandline utility for setting hardware gamma on the primary
+display device as well as 3DFX addon cards in Windows, if given no parameters
+it simply sets the gamma to default (intended for resetting gamma after a
+game crashs), it can be given a gamma value to set to (such as 1.3, 2.0,
+etc), making it a more generally useful utility, for batch files and any
+other uses one can imagine.
 
 The sourcecode must be provided, according to the GNU General Public License.
 
-Web: http://darkplaces.gamevisions.com
+Web:
+Forest Hale: currently no site
+John Fitzgibbons: http://www.celephais.net
+
+Email:
+Forest Hale: havoc@inside3d.com
+John Fitzgibbons: johnfitz@u.washington.edu
 
 Files that must be in this archive:
 COPYING (GNU General Public License)
-setgamma.exe (an executable built from the sourcecode)
 setgamma.txt (this file)
 setgamma.c (source code)
 setgamma.dsp (Microsoft Visual C++ 6.0 project file)
+setgamma.dsw (Microsoft Visual C++ 6.0 workspace file)
+
+Files that can be in this archive:
+setgamma.exe (an executable built from the sourcecode)
 
 usage: setgamma gamma
-example gamma values: 1.0 (normal), 2.0 (double brightness), 1.35 (35% above normal)
+example gamma values: 1.0 (normal), 2.0 (double brightness), 1.35 (35% above normal), 0.8 (20% below normal)
 
