@@ -100,9 +100,9 @@ Returns FALSE if movement should continue
 */
 float() SoldierCheckAttack =
 {
-	local vector	spot1, spot2;	
-	local entity	targ;
-	local float		chance;
+	local vector spot1, spot2;
+	local entity targ;
+	local float chance;
 
 	if (self.health < 1)
 		return FALSE;
@@ -117,7 +117,8 @@ float() SoldierCheckAttack =
 	if (trace_ent != targ)
 		return FALSE; // don't have a clear shot
 
-	if (trace_inopen && trace_inwater)
+	if (trace_inwater)
+	if (trace_inopen)
 		return FALSE; // sight line crossed contents
 
 	// missile attack
@@ -136,16 +137,15 @@ float() SoldierCheckAttack =
 	else
 		chance = 0;
 
-	if (random () < chance)
-	{
-		if (self.th_missile())
-		{
-			SUB_AttackFinished (1 + random());
-			return TRUE;
-		}
-	}
+	if (chance > 0)
+	if (chance > random())
+		return FALSE;
 
-	return FALSE;
+	if (self.th_missile())
+	{
+		SUB_AttackFinished (1 + random());
+		return TRUE;
+	}
 };
 
 void(vector hit) army_pistol =
