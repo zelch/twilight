@@ -66,7 +66,7 @@ void CreateBrushFaces (void)
 {
 	int				i,j, k, rotate;
 	vec_t			r;
-	face_t			*f;
+	face_t			*f, *next;
 	winding_t		*w;
 	plane_t			*p, plane;
 	mface_t			*mf;
@@ -116,8 +116,6 @@ void CreateBrushFaces (void)
 		if (!w)
 			continue;	// overcontrained plane
 
-		CheckWinding( w );
-
 		// this face is a keeper
 		f = AllocFace ();
 		f->winding = w;
@@ -132,9 +130,29 @@ void CreateBrushFaces (void)
 					w->points[j][k] = r;
 				else
 					w->points[j][k] = point[k];
+
+				// check for incomplete brushes
+				if( w->points[j][k] >= BOGUS_RANGE || w->points[j][k] <= -BOGUS_RANGE )
+					break;
 			}
+
+			// remove this brush
+			if (k < 3)
+			{
+				FreeFace (f);
+				for (f = brush_faces; f; f = next)
+				{
+					next = f->next;
+					FreeFace (f);
+				}
+				brush_faces = NULL;
+				return;
+			}
+					
 			AddPointToBounds( w->points[j], brush_mins, brush_maxs );
 		}
+
+		CheckWinding( w );
 
 		VectorCopy (mf->plane.normal, plane.normal);
 		VectorScale (mf->plane.normal, mf->plane.dist, point);
@@ -452,7 +470,7 @@ LoadBrush
 Converts a mapbrush to a bsp brush
 ===============
 */
-brush_t *LoadBrush (mbrush_t *mb, int hullnum)
+brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 {
 	brush_t		*b;
 	int			contents;
@@ -523,7 +541,7 @@ brush_t *LoadBrush (mbrush_t *mb, int hullnum)
 
 	if (!brush_faces)
 	{
-		printf ("WARNING: couldn't create brush faces\n");
+		printf ("WARNING: couldn't create faces for brush %i in entity %i (incomplete brush?)\n", brushnum, CurrentEntity - entities);
 		return NULL;
 	}
 
@@ -561,7 +579,7 @@ Brush_LoadEntity
 void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum )
 {
 	mbrush_t	*mbr;
-	int			numbrushes;
+	int			brushnum, numbrushes;
 	brush_t		*b, *next, *water, *other;
 
 	numbrushes = 0;
@@ -571,9 +589,9 @@ void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum )
 
 	CurrentEntity = ent;
 
-	for (mbr = ent->brushes ; mbr ; mbr=mbr->next)
+	for (mbr = ent->brushes, brushnum = 0; mbr; mbr=mbr->next, brushnum++)
 	{
-		b = LoadBrush (mbr, hullnum);
+		b = LoadBrush (mbr, brushnum, hullnum);
 		if (!b)
 			continue;
 
