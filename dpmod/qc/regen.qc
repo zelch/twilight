@@ -10,6 +10,7 @@ void() RegenStuff =
 		if (time > self.rotthink)
 		{
 			// rot health
+			/*
 			if (self.items & IT_QUAD) // Fury drains health very quickly
 			{
 				self.rotthink = time + 0.2;
@@ -26,6 +27,7 @@ void() RegenStuff =
 				}
 			}
 			else
+			*/
 			{
 				self.rotthink = time + 1;
 				if (self.health > self.max_health)
@@ -51,7 +53,7 @@ void() RegenStuff =
 				self.regenthink = time + 0.1;
 			else
 				self.regenthink = time + 0.25;
-			if (!(self.items & IT_QUAD)) // no healing with Fury
+			//if (!(self.items & IT_QUAD)) // no healing with Fury
 			{
 				if (self.health < self.max_health)
 				{

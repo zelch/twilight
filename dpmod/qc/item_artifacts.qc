@@ -60,13 +60,13 @@ void() powerup_touch =
 
 	if (self.items & IT_QUAD)
 	{
-		/*
 		other.super_time = 1;
 		other.super_damage_finished = time + 30;
-		*/
+		/*
 		other.rotthink = time + 1;
 		if (other.health < HEALTHMEGAMAX)
 			other.health = min(other.health + 100, HEALTHMEGAMAX);
+		*/
 	}
 
 	activator = other;
@@ -138,8 +138,8 @@ void() item_artifact_super_damage =
 	precache_sound ("items/damage3.wav");
 	self.noise = "items/damage.wav";
 	setmodel (self, "progs/quaddama.mdl");
-	//self.netname = "You got the Quad Damage!\n";
-	self.netname = "You got the Fury!\n";
+	self.netname = "You got the Quad Damage!\n";
+	//self.netname = "You got the Fury!\n";
 	self.items = IT_QUAD;
 	setsize (self, '-16 -16 -24', '16 16 32');
 

@@ -306,6 +306,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		if (targ.flags & FL_GODMODE)
 			return;
 
+		/*
 		if (attacker.items & IT_QUAD) // Fury is vampiric
 		if (attacker.classname == "player")
 		if (targ.iscreature)
@@ -319,6 +320,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 			f = min(f, HEALTHMEGAMAX);
 			attacker.health = max(f, attacker.health);
 		}
+		*/
 
 		// do the damage
 		targ.health = targ.health - htake;

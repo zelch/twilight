@@ -1232,7 +1232,7 @@ void() CheckPowerups =
 	}
 
 	self.effects = self.effects - (self.effects & (EF_BLUE + EF_RED + EF_DIMLIGHT + EF_ADDITIVE/* + EF_REFLECTIVE*/));
-	self.items = self.items - (self.items & (IT_INVISIBILITY + IT_INVULNERABILITY + /*IT_QUAD + */IT_SUIT));
+	self.items = self.items - (self.items & (IT_INVISIBILITY + IT_INVULNERABILITY + IT_QUAD + IT_SUIT));
 
 	// invisibility
 	if (self.invisible_finished)
@@ -1303,10 +1303,7 @@ void() CheckPowerups =
 			self.invincible_finished = 0;
 		}
 	}
-	if (self.invincible_finished > time)
-		self.effects = self.effects | (EF_RED/* + EF_REFLECTIVE*/);
 
-	/*
 	// super damage
 	if (self.super_damage_finished)
 	{
@@ -1338,9 +1335,6 @@ void() CheckPowerups =
 			self.super_time = 0;
 		}
 	}
-	*/
-	if (self.items & IT_QUAD)
-		self.effects = self.effects | (EF_BLUE/* + EF_REFLECTIVE*/);
 
 	// suit
 	if (self.radsuit_finished)
@@ -1380,6 +1374,10 @@ void() CheckPowerups =
 // 'glow' armor
 	if (self.armortype == 1.0)
 		self.effects = self.effects | EF_DIMLIGHT;
+	if (self.items & IT_INVULNERABILITY)
+		self.effects = self.effects | (EF_RED/* + EF_REFLECTIVE*/);
+	if (self.items & IT_QUAD)
+		self.effects = self.effects | (EF_BLUE/* + EF_REFLECTIVE*/);
 };
 
 void() havoc_laywaypoints;

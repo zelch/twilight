@@ -28,10 +28,10 @@ void(vector org, vector vel, entity own, float damg, float blastradius, string d
 	if (own.items & IT_QUAD)
 	{
 		newmis.dmg = newmis.dmg * 4;
-		newmis.effects = EF_RED | EF_BLUE | EF_FULLBRIGHT;
+		newmis.effects = newmis.effects | EF_BLUE;
 	}
 
 	setmodel (newmis, "progs/lavaball.mdl");
-	setsize (newmis, '0 0 0', '0 0 0');    
+	setsize (newmis, '0 0 0', '0 0 0');
 	setorigin (newmis, org);
 };
