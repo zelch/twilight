@@ -489,6 +489,12 @@ float(float minimum, float val, float maximum) bound = #96;
 //max returns the highest of all the supplied numbers.
 //bound clamps the value to the range and returns it.
 
+//DP_QC_MULTIPLETEMPSTRINGS
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//description:
+//this extension makes all builtins returning tempstrings (ftos for example) cycle through a pool of multiple tempstrings (at least 16), allowing multiple ftos results to be gathered before putting them to use, normal quake only had 1 tempstring, causing many headaches.  Note that for longer term storage (or compatibility on engines having FRIK_FILE but not this extension) the FRIK_FILE extension's strzone/strunzone builtins provide similar functionality (slower though).
+
 //DP_QC_RANDOMVEC
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
