@@ -101,12 +101,12 @@ void() W_RocketFire =
 	if (self.wload)
 	{
 		w_muzzleflash(shotorg + v_right * 6, 10);
-		LaunchMissile(shotorg + v_right * 6, shotdir, self, 150, 200, "ROCKET", Obituary_Rocket);
+		LaunchMissile(shotorg + v_right * 6, shotdir, self, 120, 200, "ROCKET", Obituary_Rocket);
 	}
 	else
 	{
 		w_muzzleflash(shotorg - v_right * 6, 10);
-		LaunchMissile(shotorg - v_right * 6, shotdir, self, 150, 200, "ROCKET", Obituary_Rocket);
+		LaunchMissile(shotorg - v_right * 6, shotdir, self, 120, 200, "ROCKET", Obituary_Rocket);
 	}
 	self.wload = !self.wload;
 };
@@ -141,7 +141,15 @@ void() W_RocketFireTriple =
 		return;
 	w_muzzleflash(shotorg - v_right * 8, 10);
 	LaunchMissile(shotorg - v_right * 8, shotdir - v_right * 0.025, self, 150, 200, "ROCKET", Obituary_Rocket);
-	self.wload = !self.wload;
+};
+
+void() W_RocketFireSingle =
+{
+	self.wfiretime = time;
+	self.flags = self.flags - (self.flags & FL_ONGROUND);
+	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
+	w_muzzleflash(shotorg, 10);
+	LaunchMissile(shotorg, shotdir, self, 120, 200, "ROCKET", Obituary_Rocket);
 };
 
 void() W_RocketFireTripleSpiral =
@@ -151,17 +159,16 @@ void() W_RocketFireTripleSpiral =
 	self.velocity = self.velocity - shotdir * 450;
 	self.currentammo = self.ammo_rockets = self.ammo_rockets - 1;
 	w_muzzleflash(shotorg, 10);
-	LaunchMissile(shotorg, shotdir, self, 150, 200, "ROCKET", Obituary_Rocket);
+	LaunchMissile(shotorg, shotdir, self, 120, 200, "ROCKET", Obituary_Rocket);
 	spiralmissile_orbitentity = newmis;
 	if (self.ammo_rockets < 1)
 		return;
 	w_muzzleflash(shotorg + v_right * 8, 10);
-	LaunchSpiralMissile(shotorg, shotdir, self, 150, 200, "ROCKET", Obituary_Rocket, -4);
+	LaunchSpiralMissile(shotorg, shotdir, self, 80, 200, "ROCKET", Obituary_Rocket, -12);
 	if (self.ammo_rockets < 1)
 		return;
 	w_muzzleflash(shotorg - v_right * 8, 10);
-	LaunchSpiralMissile(shotorg, shotdir, self, 150, 200, "ROCKET", Obituary_Rocket, 4);
-	self.wload = !self.wload;
+	LaunchSpiralMissile(shotorg, shotdir, self, 80, 200, "ROCKET", Obituary_Rocket, 12);
 };
 
 void() w_rocketdrop1;
@@ -174,8 +181,8 @@ void() w_rocket =
 		return;
 
 	if (self.button3)
-		W_GenericSlowFireCode("weapons/sgun1.wav", 1.2, W_RocketFireDual);
-	//	W_GenericSlowFireCode("weapons/sgun1.wav", 1.2, W_RocketFireTripleSpiral);
+	//	W_GenericSlowFireCode("weapons/sgun1.wav", 1.2, W_RocketFireDual);
+		W_GenericSlowFireCode("weapons/sgun1.wav", 1.2, W_RocketFireTripleSpiral);
 	/*
 	{
 		if (self.button0)
@@ -190,7 +197,8 @@ void() w_rocket =
 	}
 	*/
 	else if (self.button0)
-		W_GenericSlowFireCode("weapons/sgun1.wav", 0.5, W_RocketFire);
+	//	W_GenericSlowFireCode("weapons/sgun1.wav", 0.5, W_RocketFire);
+		W_GenericSlowFireCode("weapons/sgun1.wav", 0.5, W_RocketFireSingle);
 
 	if (self.wfiretime)
 	{
