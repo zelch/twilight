@@ -6,6 +6,8 @@
 .float  ping; // DP_SV_PING
 
 //checkextension function
+//idea: expected by almost everyone
+//darkplaces implementation: LordHavoc
 float(string s) checkextension = #99;
 //description: check if (cvar("pr_checkextension")) before calling this, this is the only guarenteed extension to be present in the extension system, it allows you to check if an extension is available, by name, to check for an extension use code like this:
 //// (it is recommended this code be placed in worldspawn or a worldspawn called function somewhere)
@@ -15,55 +17,81 @@ float(string s) checkextension = #99;
 //from then on you can check ext_setcolor to know if that extension is available
 
 // LordHavoc: HIGHLY experimental, do not implement this in other engines
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //DP_CGAME
 //SVC definitions:
 float svc_cgame = 50; // [short] length [bytes] data
 //description:
 //contains network messages to client gamecode.
 
+//DP_CL_LOADSKY
+//idea: Nehahra, LordHavoc
+//darkplaces implementation: LordHavoc
+//client console commands:
+//"loadsky" (parameters: "basename", example: "mtnsun_" would load "mtnsun_up.tga" and "mtnsun_rt.tga" and similar names, use "" to revert to quake sky, note: this is the same as Quake2 skybox naming)
+//description:
+//sets global skybox for the map for this client (can be stuffed to a client by QC), does not hurt much to repeatedly execute this command, please don't use this in mods if it can be avoided (only if changing skybox is REALLY needed, otherwise please use DP_GFX_SKYBOX).
+
 //DP_EF_ADDITIVE
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //effects bit:
 float   EF_ADDITIVE     = 32;
 //description:
 //additive blending when this object is rendered
 
 //DP_EF_BLUE
+//idea: id Software
+//darkplaces implementation: LordHavoc
 //effects bit:
 float   EF_BLUE         = 64;
 //description:
 //entity emits blue light (used for quad)
 
 //DP_EF_FLAME
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //effects bit:
 float   EF_FLAME        = 1024;
 //description:
 //entity is on fire
 
 //DP_EF_FULLBRIGHT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //effects bit:
 float   EF_FULLBRIGHT   = 512;
 //description:
 //entity is always brightly lit
 
 //DP_EF_NODRAW
+//idea: id Software
+//darkplaces implementation: LordHavoc
 //effects bit:
 float   EF_NODRAW       = 16;
 //description:
 //prevents server from sending entity to client (forced invisible, even if it would have been a light source or other such things)
 
 //DP_EF_RED
+//idea: id Software
+//darkplaces implementation: LordHavoc
 //effects bit:
 float   EF_RED          = 128;
 //description:
 //entity emits red light (used for invulnerability)
 
 //DP_EF_STARDUST
+//idea: MythWorks Inc
+//darkplaces implementation: LordHavoc
 //effects bit:
 float   EF_STARDUST     = 2048;
 //description:
 //entity emits bouncing sparkles in every direction (it is doubtful anyone would want to use this effect)
 
 //entity attributes used for rendering/networking:
+//idea: Nehahra
+//darkplaces implementation: LordHavoc
 //DP_ENT_ALPHA
 //field definition:
 .float alpha;
@@ -73,6 +101,8 @@ float   EF_STARDUST     = 2048;
 /*
 //NOTE: no longer supported by darkplaces because no one used it
 //DP_ENT_COLORMOD // no longer supported
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definition:
 .vector colormod;
 //description:
@@ -80,12 +110,16 @@ float   EF_STARDUST     = 2048;
 */
 
 //DP_ENT_CUSTOMCOLORMAP
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //description:
 //if .colormap is set to 1024 + pants + shirt * 16, those colors will be used for colormapping the entity, rather than looking up a colormap by player number.
 
 /*
 //NOTE: no longer supported by darkplaces because all entities are delta compressed now
 //DP_ENT_DELTACOMPRESS // no longer supported
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //effects bit:
 float EF_DELTA = 8388608;
 //description:
@@ -93,12 +127,16 @@ float EF_DELTA = 8388608;
 */
 
 //DP_ENT_EXTERIORMODELTOCLIENT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //fields:
 .entity exteriormodeltoclient;
 //description:
 //the entity is visible to all clients with one exception: if the specified client is using first person view (not using chase_active) the entity will not be shown.
 
 //DP_ENT_GLOW
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definitions:
 .float glow_color;
 .float glow_size;
@@ -107,34 +145,54 @@ float EF_DELTA = 8388608;
 //customizable glowing light effect on the entity, glow_color is a paletted (8bit) color in the range 0-255 (note: 0 and 254 are white), glow_size is 0 or higher (up to the engine what limit to cap it to, darkplaces imposes a 1020 limit), if glow_trail is true it will leave a trail of particles of the same color as the light.
 
 //DP_ENT_LOWPRECISION
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //effects bit:
 float EF_LOWPRECISION = 4194304;
 //description:
 //uses low quality origin coordinates, reducing network traffic compared to the default high precision, intended for numerous objects (projectiles/gibs/bullet holes/etc).
 
 //DP_ENT_SCALE
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definitions:
 .float scale;
 //description:
 //controls rendering scale of the object, 0 is forced to be 1, darkplaces uses 1/16th accuracy and a limit of 15.9375, can be used to make an object larger or smaller.
 
 //DP_ENT_VIEWMODEL
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definitions:
 .entity viewmodelforclient;
 //description:
 //this is a very special capability, attachs the entity to the view of the client specified, origin and angles become relative to the view of that client, all effects can be used (multiple skins on a weapon model etc)...  the entity is not visible to any other client.
 
 //DP_GFX_FOG
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //worldspawn fields:
 //"fog" (parameters: "density red green blue", example: "0.1 0.3 0.3 0.3")
 //description:
 //global fog for the map, can not be changed by QC
 
+//DP_GFX_SKYBOX
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//worldspawn fields:
+//"sky" (parameters: "basename", example: "mtnsun_" would load "mtnsun_up.tga" and "mtnsun_rt.tga" and similar names, note: "sky" is also used the same way by Quake2)
+//description:
+//global skybox for the map, can not be changed by QC
+
 //DP_HALFLIFE_MAP
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //description:
 //simply indicates that the engine supports HalfLife maps (BSP version 30, NOT the QER RGBA ones which are also version 30).
 
 //DP_INPUTBUTTONS
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definitions:
 .float button3;
 .float button4;
@@ -146,16 +204,22 @@ float EF_LOWPRECISION = 4194304;
 //set to the state of the +button3, +button4, +button5, +button6, +button7, and +button8 buttons from the client, this does not involve protocol changes (the extra 6 button bits were simply not used).
 
 //DP_MONSTERWALK
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //description:
 //MOVETYPE_WALK is permitted on non-clients, so bots can move smoothly, run off ledges, etc, just like a real player.
 
 //DP_MOVETYPEBOUNCEMISSILE
+//idea: id Software
+//darkplaces implementation: id Software
 //movetype definitions:
 float MOVETYPE_BOUNCEMISSILE = 11;
 //description:
 //MOVETYPE_BOUNCE but without gravity, and with full reflection (no speed loss like grenades have), in other words - bouncing laser bolts.
 
 //DP_MOVETYPEFOLLOW
+//idea: id Software, LordHavoc (redesigned)
+//darkplaces implementation: LordHavoc
 //movetype definitions:
 float MOVETYPE_FOLLOW = 12;
 //description:
@@ -173,6 +237,8 @@ float MOVETYPE_FOLLOW = 12;
 //hole.v_angle = hole.angles - bmodel.angles; // relative angles
 
 //DP_QC_CHANGEPITCH
+//idea: id Software
+//darkplaces implementation: id Software
 //field definitions:
 .float idealpitch;
 .float pitch_speed;
@@ -182,24 +248,32 @@ void(entity ent) changepitch = #63;
 //equivilant to changeyaw, ent is normally self. (this was a Q2 builtin)
 
 //DP_QC_COPYENTITY
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(entity from, entity to) copyentity = #400;
 //description:
 //copies all data in the entity to another entity.
 
 //DP_QC_ETOS
+//idea: id Software
+//darkplaces implementation: id Software
 //builtin definitions:
 string(entity ent) etos = #65;
 //description:
 //lists all of the entity's fields into a string (similar to edict command in console). (this was a Q2 builtin)
 
 //DP_QC_FINDCHAIN
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 entity(.string fld, string match) findchain = #402;
 //description:
 //similar to find() but returns a chain of entities like findradius.
 
 //DP_QC_FINDCHAINFLOAT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 entity(.entity fld, entity match) findchainentity = #403;
 entity(.float fld, float match) findchainfloat = #403;
@@ -207,6 +281,8 @@ entity(.float fld, float match) findchainfloat = #403;
 //similar to findentity()/findfloat() but returns a chain of entities like findradius.
 
 //DP_QC_FINDFLOAT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 entity(entity start, .entity fld, entity match) findentity = #98;
 entity(entity start, .float fld, float match) findfloat = #98;
@@ -214,12 +290,16 @@ entity(entity start, .float fld, float match) findfloat = #98;
 //finds an entity or float field value, similar to find(), but for entity and float fields.
 
 //DP_QC_GETLIGHT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 vector(vector org) getlight = #92;
 //description:
 //returns the lighting at the requested location (in color), 0-255 range (can exceed 255).
 
 //DP_QC_GETSURFACE
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 float(entity e, float s) getsurfacenumpoints = #434;
 vector(entity e, float s, float n) getsurfacepoint = #435;
@@ -231,6 +311,8 @@ vector(entity e, float s, vector p) getsurfaceclippedpoint = #439;
 //functions to query surface information.
 
 //DP_QC_MINMAXBOUND
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 float(float a, float b) min = #94;
 float(float a, float b, float c) min3 = #94;
@@ -253,12 +335,16 @@ float(float minimum, float val, float maximum) bound = #96;
 //bound clamps the value to the range and returns it.
 
 //DP_QC_RANDOMVEC
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 vector() randomvec = #91;
 //description:
 //returns a vector of length < 1, much quicker version of this QC: do {v_x = random();v_y = random();v_z = random();} while(vlen(v) > 1)
 
 //DP_QC_SINCOSSQRTPOW
+//idea: id Software, LordHavoc
+//darkplaces implementation: id Software, LordHavoc
 //builtin definitions:
 float(float val) sin = #60;
 float(float val) cos = #61;
@@ -268,54 +354,74 @@ float(float a, float b) pow = #97;
 //useful math functions, sine of val, cosine of val, square root of val, and raise a to power b, respectively.
 
 //DP_QC_TRACEBOX
+//idea: id Software
+//darkplaces implementation: id Software
 //builtin definitions:
 void(vector v1, vector min, vector max, vector v2, float nomonsters, entity forent) tracebox = #90;
 //description:
 //similar to traceline but much more useful, traces a box of the size specified (technical note: currently the hull size can only be one of the sizes used in the map for bmodel collisions, entity collisions will pay attention to the exact size specified however, this is a collision code limitation in quake itself, and will be fixed eventually).
 
 //DP_QC_TRACETOSS
+//idea: id Software
+//darkplaces implementation: id Software
 //builtin definitions:
 void(entity ent, entity ignore) tracetoss = #64;
 //description:
 //simulates movement of the entity as if it is MOVETYPE_TOSS and starting with it's current state (location, velocity, etc), returns relevant trace_ variables (trace_fraction is always 0, all other values are supported - trace_ent, trace_endpos, trace_plane_normal), does not actually alter the entity.
 
 //DP_QC_VECTORVECTORS
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector dir) vectorvectors = #432;
 //description:
 //creates v_forward, v_right, and v_up vectors given a forward vector, similar to makevectors except it takes a forward direction vector instead of angles.
 
 //DP_QUAKE2_MODEL
+//idea: quake community
+//darkplaces implementation: LordHavoc
 //description:
 //shows that the engine supports Quake2 .md2 files.
 
 //DP_QUAKE3_MODEL
+//idea: quake community
+//darkplaces implementation: LordHavoc
 //description:
 //shows that the engine supports Quake2 .md2 files.
 
 //DP_REGISTERCVAR
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 float(string name, string value) registercvar = #93;
 //description:
 //adds a new console cvar to the server console (in singleplayer this is the player's console), the cvar exists until the mod is unloaded or the game quits.
 
 //DP_SOLIDCORPSE
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //solid definitions:
 float SOLID_CORPSE = 5;
 //description:
 //the entity will not collide with SOLID_CORPSE and SOLID_SLIDEBOX entities (and likewise they will not collide with it), this is useful if you want dead bodies that are shootable but do not obstruct movement by players and monsters, note that if you traceline with a SOLID_SLIDEBOX entity as the ignoreent, it will ignore SOLID_CORPSE entities, this is desirable for visibility and movement traces, but not for bullets, for the traceline to hit SOLID_CORPSE you must temporarily force the player (or whatever) to SOLID_BBOX and then restore to SOLID_SLIDEBOX after the traceline.
 
 //DP_SPRITE32
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //description:
 //the engine supports .spr32 sprites.
 
 //DP_SV_DRAWONLYTOCLIENT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definitions:
 .entity drawonlytoclient;
 //description:
 //the entity is only visible to the specified client.
 
 //DP_SV_EFFECT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org, string modelname, float startframe, float endframe, float framerate) effect = #404;
 //SVC definitions:
@@ -325,12 +431,16 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //clientside playback of simple custom sprite effects (explosion sprites, etc).
 
 //DP_SV_NODRAWTOCLIENT
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definitions:
 .entity nodrawtoclient;
 //description:
 //the entity is not visible to the specified client.
 
 //DP_SV_PLAYERPHYSICS
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definitions:
 .vector movement;
 //engine-called QC prototypes:
@@ -339,6 +449,8 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //.movement vector contains the movement input from the player, allowing QC to do as it wishs with the input, and SV_PlayerPhysics will completely replace the player physics if present (works for all MOVETYPE's), see darkplaces mod source for example of this function (in playermovement.qc, adds HalfLife ladders support, as well as acceleration/deceleration while airborn (rather than the quake sudden-stop while airborn), and simplifies the physics a bit)
 
 //DP_SV_SETCOLOR
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(entity ent, float colors) setcolor = #401;
 //engine called QC functions (optional):
@@ -348,6 +460,8 @@ void(entity ent, float colors) setcolor = #401;
 //SV_ChangeTeam is called by the engine whenever a "color" command is recieved, it may decide to do anything it pleases with the color passed by the client, including rejecting it (by doing nothing), or calling setcolor to apply it, preventing team changes is one use for this.
 
 //DP_SV_SLOWMO
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //cvars:
 //"slowmo" (0+, default 1)
 //description:
@@ -355,6 +469,8 @@ void(entity ent, float colors) setcolor = #401;
 //range is 0 to infinite, recommended values to try are 0.1 (very slow, 10% speed), 1 (normal speed), 5 (500% speed).
 
 //DP_TE_BLOOD
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org, vector velocity, float howmany) te_blood = #405;
 //temp entity definitions:
@@ -369,6 +485,8 @@ float TE_BLOOD = 50;
 //creates a blood effect.
 
 //DP_TE_BLOODSHOWER
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector mincorner, vector maxcorner, float explosionspeed, float howmany) te_bloodshower = #406;
 //temp entity definitions:
@@ -382,6 +500,8 @@ void(vector mincorner, vector maxcorner, float explosionspeed, float howmany) te
 //creates an exploding shower of blood, for making gibbings more convincing.
 
 //DP_TE_CUSTOMFLASH
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org, float radius, float lifetime, vector color) te_customflash = #417;
 //temp entity definitions:
@@ -397,6 +517,8 @@ void(vector org, float radius, float lifetime, vector color) te_customflash = #4
 //creates a customized light flash.
 
 //DP_TE_EXPLOSIONRGB
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org, vector color) te_explosionrgb = #407;
 //temp entity definitions:
@@ -410,6 +532,8 @@ void(vector org, vector color) te_explosionrgb = #407;
 //creates a colored explosion effect.
 
 //DP_TE_FLAMEJET
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //temp entity definitions:
 float TE_FLAMEJET = 74;
 //protocol:
@@ -420,6 +544,8 @@ float TE_FLAMEJET = 74;
 //creates a single puff of flame particles.  (not very useful really)
 
 //DP_TE_PARTICLECUBE
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector mincorner, vector maxcorner, vector vel, float howmany, float color, float gravityflag, float randomveljitter) te_particlecube = #408;
 //temp entity definitions:
@@ -436,6 +562,8 @@ void(vector mincorner, vector maxcorner, vector vel, float howmany, float color,
 //creates a cloud of particles, useful for forcefields but quite customizable.
 
 //DP_TE_PARTICLERAIN
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector mincorner, vector maxcorner, vector vel, float howmany, float color) te_particlerain = #409;
 //temp entity definitions:
@@ -450,6 +578,8 @@ void(vector mincorner, vector maxcorner, vector vel, float howmany, float color)
 //creates a shower of rain, the rain will appear either at the top (if falling down) or bottom (if falling up) of the cube.
 
 //DP_TE_PARTICLESNOW
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector mincorner, vector maxcorner, vector vel, float howmany, float color) te_particlesnow = #410;
 //temp entity definitions:
@@ -464,6 +594,8 @@ void(vector mincorner, vector maxcorner, vector vel, float howmany, float color)
 //creates a shower of snow, the snow will appear either at the top (if falling down) or bottom (if falling up) of the cube, low velocities are advisable for convincing snow.
 
 //DP_TE_QUADEFFECTS1
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org) te_gunshotquad = #412;
 void(vector org) te_spikequad = #413;
@@ -480,6 +612,8 @@ void(vector org) te_explosionquad = #415;
 //all of these just take a location, and are equivilant in function (but not appearance :) to the original TE_GUNSHOT, etc.
 
 //DP_TE_SMALLFLASH
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org) te_smallflash = #416;
 //temp entity definitions:
@@ -490,6 +624,8 @@ void(vector org) te_smallflash = #416;
 //creates a small light flash (radius 200, time 0.2).
 
 //DP_TE_SPARK
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org, vector vel, float howmany) te_spark = #411;
 //temp entity definitions:
@@ -504,6 +640,8 @@ void(vector org, vector vel, float howmany) te_spark = #411;
 //creates a shower of sparks and a smoke puff.
 
 //DP_TE_STANDARDEFFECTBUILTINS
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org) te_gunshot = #418;
 void(vector org) te_spike = #419;
@@ -523,6 +661,8 @@ void(entity own, vector start, vector end) te_beam = #431;
 //to make life easier on mod coders.
 
 //DP_TE_PLASMABURN
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 void(vector org) te_plasmaburn = #433;
 //temp entity definitions:
@@ -533,12 +673,16 @@ void(vector org) te_plasmaburn = #433;
 //creates a small light flash (radius 200, time 0.2) and marks the walls.
 
 //DP_VIEWZOOM
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
 //field definitions:
 .float viewzoom;
 //description:
 //scales fov and sensitivity of player, valid range is 0 to 1 (intended for sniper rifle zooming, and such)
 
 //FRIK_FILE
+//idea: FrikaC
+//darkplaces implementation: LordHavoc
 //builtin definitions:
 float(string s) stof = #81; // get numerical value from a string
 float(string filename, float mode) fopen = #110; // opens a file inside quake/gamedir/data/ (mode is FILE_READ, FILE_APPEND, or FILE_WRITE), returns fhandle >= 0 if successful, or fhandle < 0 if unable to open file for any reason
@@ -560,17 +704,35 @@ float FILE_WRITE = 2;
 //description:
 //provides text file access functions and string manipulation functions, note that you may want to set pr_zone_min_strings in the worldspawn function if 64k is not enough string zone space.
 
+//KRIMZON_SV_PARSECLIENTCOMMAND
+//idea: KrimZon
+//darkplaces implementation: KrimZon, LordHavoc
+//engine-called QC prototypes:
+//void(string s) SV_ParseCommand;
+//builtin definitions:
+void(entity e, string s) clientcommand = #440;
+float(string s) tokenize = #441;
+string(float n) argv = #442;
+//description:
+//provides QC the ability to completely control server interpretation of client commands ("say" and "color" for example, clientcommand is necessary for this and substring (FRIK_FILE) is useful) as well as adding new commands (tokenize, argv, and stof (FRIK_FILE) are useful for this)), whenever a clc_stringcmd is received the QC function is called, and it is up to the QC to decide what (if anything) to do with it
+
 //NEH_RESTOREGAME
+//idea: Nehahra
+//darkplaces implementation: LordHavoc
 //engine-called QC prototypes:
 //void() RestoreGame;
 //description:
 //when a savegame is loaded, this function is called
 
 //NEH_CMD_PLAY2
+//idea: Nehahra
+//darkplaces implementation: LordHavoc
 //description:
 //shows that the engine supports the "play2" console command (plays a sound without spatialization).
 
 //TW_SV_STEPCONTROL
+//idea: Transfusion
+//darkplaces implementation: LordHavoc
 //cvars:
 //sv_jumpstep (0/1, default 1)
 //sv_stepheight (default 18)
