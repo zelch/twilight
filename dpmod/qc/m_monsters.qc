@@ -101,6 +101,8 @@ void() monster_death_use =
 void() monsterinwall =
 {
 	local   entity  e;
+	if (!cvar("developer"))
+		return;
 	// this is handy for level designers,
 	// puts a spikey ball where the error is...
 	e = spawn();
