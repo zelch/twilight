@@ -339,7 +339,6 @@ sub build_header ($@) {
 	push(@text, "Subject: $subject");
 	push(@text, "MIME-Version: 1.0");
 	push(@text, "Content-Type: multipart/mixed; boundary=\"$boundary\"");
-	push(@text, "X-Mailer: cvs/new_log_accum");
 	push(@text, "");
 	push(@text, "This is a multipart message as defined by RFC2049 (MIME)");
 	push(@text, "");
