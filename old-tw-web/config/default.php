@@ -209,7 +209,8 @@ a {
 
 	$nav_items = array (
 		Information => array (
-			"Recent News" => "/index.php"
+			"Recent News" => "/index.php" ,
+			"Older News" => "/info/oldnews.php"
 		) ,
 		Downloads => array (
 			"Releases" => "/files/index.php" ,
