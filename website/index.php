@@ -6,8 +6,8 @@ require "include/main.php";
 startpage ("News");
 
 newsitem ("Wednesday, 9 July 2003",
-		"Mercury has released 0.2.00, and Win32 binaries are up, just in"
-		. "time for QExpo!  Have at 'em everyone, and don't forget to"
+		"Mercury has released 0.2.00, and Win32 binaries are up, just in "
+		. "time for QExpo!  Have at 'em everyone, and don't forget to "
 		. "report bugs..."
 );
 
