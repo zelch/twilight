@@ -4,7 +4,8 @@
 	require ($pageroot . "/include/header.php");
 
 	newsitem ("23 Jul 2001", "Knghtbrd", "The SourceForge guys have " .
-		"imported the twilight CVS branch for us - thanks moorman! " .
+		"imported the twilight CVS branch for us - thanks " .
+		"<a href=\"mailto:moorman@users.sourceforge.net\">moorman</a>!  " .
 		"The -commits list got 29 fresh messages logging all of my changes" .
 		"to the code before having it imported this morning.  The devel " .
 		"stuff for the website is next."

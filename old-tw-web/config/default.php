@@ -12,8 +12,8 @@
 		footerpost => "</font></center>",
 
 		navtable => "width=\"100%\" bgcolor=\"#000fb5\"" ,
-		navpre => "<font face=\"verdana, arial\" size=\"+1\">" ,
-		navpost => "</font>" ,
+		navpre => "<font face=\"verdana, arial\" size=\"+1\"><strong>" ,
+		navpost => "</strong></font>" ,
 
 		plugstable => "width=\"100%\"" ,
 		plugspre => "<center>" ,
@@ -26,7 +26,24 @@
 		newstitletablepost => "</font></div>" ,
 		newscontenttable => "width=\"100%\" bgcolor=\"#000440\"" ,
 		newscontentpre => "<font face=\"verdana, arial\">" ,
-		newscontentpost => "</font>"
+		newscontentpost => "</font>" ,
+
+		titletable => "width=\"100%\"" ,
+		titlepre => "<font face=\"verdana,arial\" size=\"+3\"><strong>" ,
+		titlepost => "</strong></font><img width=\"100%\" height=\"1\" " .
+			"src=\"/images/whitepix.gif\" alt=\"------\">\n<img " .
+			"width=\"100%\" height=\"10\" src=\"/images/clearpix.gif\" " .
+			"alt=\"\">" ,
+
+		paratable => "width=\"100%\" cellspacing=\"10\"" ,
+		parapre => "<font face=\"verdana,arial\">" ,
+		parapost => "</font>" ,
+		
+		subtable => "width=\"100%\" cellspacing=\"10\"" ,
+		subpre => "<img width=\"100%\" height=\"5\" " .
+			"src=\"/images/clearpix.gif\" alt=\"\">" .
+			"<font face=\"verdana,arial\" size=\"+2\"><strong>" ,
+		subpost => "</strong></font>"
 	);
 
 	if ($browser_css) {
@@ -87,6 +104,19 @@ div.newscontent {
 div.plugs {
 	margin: 5px;
 	text-align: center;
+}
+
+div.title {
+	border-bottom: 1px solid #ffffff;
+	font: bolder 200% verdana, sans-serif;
+}
+
+div.para {
+	padding-top: 20px
+}
+
+div.sub {
+	font: bolder 150% verdana, sans-serif;
 }
 
 -->
