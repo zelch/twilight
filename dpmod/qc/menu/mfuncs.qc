@@ -5,13 +5,145 @@
 // AK contains all menu controlling stuff (sub-menus)
 ///////////////////////////////////////////////
 
+// raise function
+/* template
+
+void(entity ent)	raise_x =
+{
+	entity old;
+	if(!ent._x)
+		return;
+
+	old = self;
+	self = ent;
+	self._x();
+	self = old;
+};
+*/
+
+void(entity ent)	raise_reinit =
+{
+	entity old;
+	if(!ent._reinit)
+		return;
+
+	old = self;
+	self = ent;
+	self._reinit();
+	self = old;
+};
+
+void(entity ent)	raise_destroy =
+{
+	entity old;
+	if(!ent._destroy)
+		return;
+
+	old = self;
+	self = ent;
+	self._destroy();
+	self = old;
+};
+
+void(entity ent, float keynr, float ascii)	raise_key =
+{
+	entity old;
+	if(!ent._key)
+		return;
+
+	old = self;
+	self = ent;
+	self._key(keynr, ascii);
+	self = old;
+};
+
+void(entity ent)	raise_draw =
+{
+	entity old;
+	if(!ent._draw)
+		return;
+
+	old = self;
+	self = ent;
+	self._draw();
+	self = old;
+};
+
+void(entity ent)	raise_mouse_enter =
+{
+	entity old;
+	if(!ent._mouse_enter)
+		return;
+
+	old = self;
+	self = ent;
+	self._mouse_enter();
+	self = old;
+};
+
+void(entity ent)	raise_mouse_leave =
+{
+	entity old;
+	if(!ent._mouse_leave)
+		return;
+
+	old = self;
+	self = ent;
+	self._mouse_leave();
+	self = old;
+};
+
+void(entity ent)	raise_action =
+{
+	entity old;
+	if(!ent._action)
+		return;
+
+	old = self;
+	self = ent;
+	self._action();
+	self = old;
+};
+
+void(entity ent)	raise_refresh =
+{
+	entity old;
+	if(!ent._refresh)
+		return;
+
+	old = self;
+	self = ent;
+	self._refresh();
+	self = old;
+};
 
 // safe call control function functions
 // default control functions
+/* template
+
+void(void) ctcall_x	=
+{
+	if(self.x)
+		self.x();
+};
+
+*/
 void(void)	ctcall_init =
 {
 	if(self.init)
 		self.init();
+};
+
+void(void)  ctcall_reinit =
+{
+	if(self.reinit)
+		self.reinit();
+};
+
+void(void) ctcall_destroy =
+{
+	if(self.destroy)
+		self.destroy();
 };
 
 float(float keynr, float ascii)  ctcall_key =
@@ -51,9 +183,24 @@ void(void) ctcall_refresh =
 }
 
 // default control functions
-void(void)	defct_init =
+/* template (expect defct_key)
+
+void(void) defct_x =
 {
-	ctcall_init();
+	ctcall_x();
+};
+
+*/
+// defct_init not needed cause its the same like the classname function
+
+void(void) defct_reinit =
+{
+	ctcall_reinit();
+};
+
+void(void) defct_destroy =
+{
+	ctcall_destroy();
 };
 
 void(float keynr, float ascii)  defct_key =
@@ -119,11 +266,11 @@ void(float keynr, float ascii)	def_keyevent =
 
 		if(menu_selected == self)
 		{
-			if(self.prev)
+			if(self._prev)
 			{
-				menu_selected = self.prev;
+				menu_selected = self._prev;
 				menu_selectdown();
-				if(menu_selected != self.prev)
+				if(menu_selected != self._prev)
 				{
 					return;
 				}
@@ -137,11 +284,11 @@ void(float keynr, float ascii)	def_keyevent =
 
 		if(menu_selected == self)
 		{
-			if(self.next)
+			if(self._next)
 			{
-				menu_selected = self.next;
+				menu_selected = self._next;
 				menu_selectdown();
-				if(menu_selected != self.next)
+				if(menu_selected != self._next)
 				{
 					return;
 				}
@@ -150,6 +297,7 @@ void(float keynr, float ascii)	def_keyevent =
 		}
 	} else if(keynr == K_ENTER || keynr == K_MOUSE1)
 	{
+		eprint(self);
 		print("Action called\n");
 		if(self._action)
 			self._action();
@@ -158,20 +306,20 @@ void(float keynr, float ascii)	def_keyevent =
 	} else if(keynr == K_TAB)
 	{
 		// select next and try to "go" down
-		if(self.next)
+		if(self._next)
 		{
-			menu_selected = self.next;
+			menu_selected = self._next;
 			menu_selectdown();
-			if(menu_selected != self.next)
+			if(menu_selected != self._next)
 			{
 				return;
 			}
 		}
-		if(self.prev)
+		if(self._prev)
 		{
-			menu_selected = self.prev;
+			menu_selected = self._prev;
 			menu_selectdown();
-			if(menu_selected != self.prev)
+			if(menu_selected != self._prev)
 			{
 				return;
 			}
@@ -220,10 +368,12 @@ vector(vector r_pos, vector r_size, vector c_pos, vector c_size) cliprectsize =
 	return v;
 }
 
-void(void(void) initevent, void(float key, float ascii) keyevent, void(void) drawevent, void(void) mouse_enterevent, void(void) mouse_leaveevent, void(void) actionevent, void(void) refreshevent)
+void(void(void) reinitevent, void(void) destroyevent, void(float key, float ascii) keyevent, void(void) drawevent, void(void) mouse_enterevent, void(void) mouse_leaveevent, void(void) actionevent, void(void) refreshevent)
 	item_init =
 {
-	self._init 	= initevent;
+	self._reinit  = reinitevent;
+	self._destroy = destroyevent;
+
 	self._key 	= keyevent;
 	self._draw 	= drawevent;
 	self._mouse_enter = mouse_enterevent;

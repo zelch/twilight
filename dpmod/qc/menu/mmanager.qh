@@ -32,7 +32,7 @@ const string MENU_INGAME_DEFAULT =
 
 // insert the files here
 var string MENU_FILENAME_LIST =
-"test.menu medit.menu"
+"menu/main.menu menu/options.menu"
 
 const float MENU_ALLOWINGAME = FALSE;
 
@@ -59,13 +59,13 @@ vector menu_cursor;
 .entity _parent;
 .string parent;
 
-.entity _history;	// used to set up the history -> selectdown prefers _history over _parent
+//.entity _history;	// used to set up the history -> selectdown prefers _history over _parent
 
 .string name;
 
-.entity next, prev;		// point to the next, respectively, the previous item
+.entity _next, _prev;		// point to the next, respectively, the previous item
 
-.entity child;			// points to the first child
+.entity _child;			// points to the first child
 
 // updating stuff
 .vector click_pos, click_size;
@@ -81,7 +81,9 @@ vector menu_cursor;
 .vector origin;
 
 // function pointers
-.void(void) init;
+.void(void) init; 	// called once at object creation
+.void(void) reinit;
+.void(void)	destroy;
 .void(void) mouse_enter;
 .void(void) mouse_leave;
 .void(void) refresh;
@@ -91,7 +93,8 @@ vector menu_cursor;
 
 // hidden function pointers - actually these are called by the manager
 // and they call the normal ones (used to make controls more generic
-.void(void) _init;
+.void(void) _reinit;	// called in performreinit
+.void(void) _destroy;	// called when the item is removed -> menu_removeitem
 .void(void) _mouse_enter;
 .void(void) _mouse_leave;
 .void(void) _refresh;
@@ -138,10 +141,30 @@ void(void) menu_reselect;
 void(entity menu, float setactive) menu_jumptowindow;
 void(entity menu) menu_drawwindow;
 
-void(entity par) menu_processmouse;
+// when selectalways is true, you can use menu_processmouse to return the last object in the
+// menu list whose click rectangle fits to the cursor pos (although it only returns an item
+// if that item allows events
+void(entity par, float selectalways) menu_processmouse;
 
 float(entity e) menu_hasevents;
 float(entity e) menu_isvisible;
 float(entity e) menu_selectable;
 
 entity(string item_name) menu_getitem;
+
+void(entity ent) menu_removeitem;
+
+// history stuff
+// MMANAGER_HISTORY
+//.entity _prev;	<- points to the previous history element
+//.entity _child; 	<- points to the old/calling selected item
+//.entity _parent; 	<- points to the old active window
+//.entity _next;	<- points to the item which the history is used for
+
+// points to the last element of the history
+entity menu_history;
+
+void(entity ent) menu_pushhistory;
+void(void) menu_pophistory;
+float(entity ent) menu_verifyhistory;
+void(void)	menu_clearhistory;

@@ -1,0 +1,57 @@
+DPMod Menu QC
+===============
+
+ITEM_REFERENCE Usage
+~~~~~~~~~~~~~~~~~~~~~
+
+This item is pretty confusing (for me, too), you can do a lot of things with it but be warned, the menu manager doesnt support it.
+Actually you can do some fancy stuff with it, like making the normal menu containing only 2 ITEM_REFERENCES, one being linked with the quit menu (see dpmod's main.menu) and the other linked with the main menu.
+I first had the idea, to just switch the linked menu of the ITEM_REFERNCE instead of "jumping to the e.g. options window" (via menu_jumptowindow) to just change the child of the ITEM_REFERENCE.
+Although this sounds like a pretty clean way to switch menus, it doesnt work in a clean way with the menu manager. The history function of the menu manager is based on the last active window and the last selected item. Because of this I would have to implement a special key function for every item of the menu system, so it doesnt go up the history but changes the link.
+A better use of ITEM_REFERENCE is to link sub windows you often use, e.g. the background.
+
+A menu or other object that is used with an ITEM_REFERENCE item mustnt have a parent.
+
+Notice :
+~~~~~~~~~
+
+Another problem with ITEM_REFERENCE is the way it is done in the menu manager and in the controls :
+
+The menu manager doesnt know something about ITEM_REFERENCE - it doesnt know generally anything about controls. Thus ITEM_REFERENCE uses a hack (at the moment) :
+It sets its child to the link entity, so the draw function just draws the child and basta.
+But the problem is the menu manager draw through all children...
+
+Usage of the dpmod menu qc for modders :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+I dont think that this menu qc is the best way to do it, but at least it is pretty generic.
+Most default values, etc. can easily be changed in the .qc files, although you will probably want to change a lot more of than only the default colors, I hope I can clean a lot of the current issues before the final release of the menu qc.
+There is no guarantee that different versions of this menu qc will work with the same definition files.
+BTW, there is no design doc of the code, nor something else - it's based mostly on random work and changes of the original design that also only existed in my head.
+
+To make it easier to clean the qc from dpmod-related code the dpmod stuff is placed in mcustom.qc and mcustom.qh, and some more general stuff is in the mmanger.
+
+Even if you want to do everything yourself, take a look into the cursor and graphic files, which are most generic and pretty useful to start with. I'd also recommend menu.qc and menu.qh, cause they are small and pretty easy to modify.
+
+Hard-coded vs 'soft-coded' menu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+I think the coding style I used for this menu qc is pretty slow and not very useful if you want to write a fast engine. But the menu qc doesnt have any performance requirements, thus I decided to make it a bit mode understandable than I'd have done it else.
+Hard-coded menu would have been a choice if I had known what the menu qc must contain, but there were 2 reasons for doing this more difficult way:
+a) LordHavoc and I wanted a more flexible menu (more like twilight)
+b) This would be the first menu qc made, so it would be nice if it was something different than the old quake/dp code.
+
+Dos and donts
+~~~~~~~~~~~~~~
+
+Feel free to use the menu qc in every way you can imagine it'll be fun for the players.
+BUT dont try to use it for ingame stuff like inventory, etc.
+The menu qc isnt made for that and it would be bad the seperation of menu qc and server qc.
+(Use the client qc for that !)
+
+PS: will be continued later
+
+
+
+
+

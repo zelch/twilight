@@ -83,6 +83,8 @@ void(void) cursor_frame =
 	// update cursor position
 	cursor_rel = getmousepos();
 	cursor_rel = gfx_converttogfx(cursor_rel);
+	// cursor speed, etc
+	cursor_rel = cursor_rel * CURSOR_SPEED;
 	cursor = cursor + cursor_rel;
 
 	cursor_x = bound(0, cursor_x, GFX_WIDTH);

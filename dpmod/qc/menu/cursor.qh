@@ -14,6 +14,9 @@ const float CT_GLOW			= 8;
 
 const float	CURSOR_SCALE	= 1;
 
+// cursor speed
+const float CURSOR_SPEED = 0.75;
+
 // cursor animation
 const float CA_PULSE_SPEED = 0.14257142 ; // = 1 / 7 -> 1 secs total time
 
@@ -40,6 +43,8 @@ vector cursor_color;
 float  cursor_transparency;
 float  cursor_type;
 float  cursor_last_frame_time;
+
+vector cursor_speed;
 
 // function prototypes
 

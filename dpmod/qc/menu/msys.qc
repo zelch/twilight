@@ -226,4 +226,12 @@ float ERR_BADSCALE				= -3;
 float ERR_BADSIZE				= ERR_BADSCALE;
 float ERR_NOTCACHED				= -4;
 
+/* not supported at the moment
+///////////////////////////
+// os constants
+
+float OS_WINDOWS	= 0;
+float OS_LINUX		= 1;
+float OS_MAC		= 2;
+*/
 

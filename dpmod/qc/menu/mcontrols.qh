@@ -10,7 +10,7 @@ Items/Controls:
 
 This control is supported/required by the menu manager :
 ITEM_WINDOW
-ITEM_REFERENCE
+(ITEM_REFERENCE)
 
 The rest is not required:
 ITEM_CUSTIOM
@@ -25,7 +25,6 @@ ITEM_TEXTBUTTON
 ITEM_RECTANGLE
 
 ITEM_SLIDER
-ITEM_TEXTSLIDER
 
 ITEM_TEXTSWITCH
 */
@@ -61,7 +60,6 @@ const float	 ITEM_SLIDER_ALPHA	= 1;
 
 // ITEM_SLIDER/ITEM_TEXTSLIDER
 const float	 ITEM_SLIDER_STEP		= 1;
-const float	 ITEM_SLIDER_MAXLEN		= 4;
 
 // used only in non-picture mode
 const vector ITEM_SLIDER_BAR_COLOR_DELTA = '-0.8 -0.8 0';
@@ -84,7 +82,9 @@ const vector	ITEM_TEXT_FONT_SIZE = '8 8 0';
 const float 	TEXT_ALIGN_LEFT		= 0;
 const float		TEXT_ALIGN_CENTER	= 1;
 const float 	TEXT_ALIGN_RIGHT	= 2;
-const float		TEXT_ALIGN_CENTERPOS = 4;
+const float		TEXT_ALIGN_RIGHTPOS 	= 4;	// |text - actually this isnt necessary
+const float		TEXT_ALIGN_CENTERPOS	= 8;	// te|xt
+const float 	TEXT_ALIGN_LEFTPOS 		= 16;	// text|
 
 // ITEM_BUTTON/ITEM_TEXTBUTTON states
 const float		BUTTON_NORMAL	= 0;
@@ -103,7 +103,9 @@ const float _FLAG_MOUSEINAREA 	= 64; 	// used to determine wheter to call mouse_
 const float FLAG_DRAWONLY		= 128; 	// only the draw event will be called
 const float	FLAG_AUTOSETCLICK 	= 256;	// used to make click_pos and click_size always the same as pos and size
 const float FLAG_AUTOSETCLIP	= 512;	// used to make clip_pos/_size always the same like pos and size
-const float FLAG_CHILDDRAWONLY	= 1024;	// used to make the children
+const float FLAG_CHILDDRAWONLY	= 1024;	// used to make the children only drawable
+const float FLAG_DRAWREFRESHONLY= 2048; // only the draw and refresh event get called
+const float FLAG_CHILDDRAWREFRESHONLY = 4096;
 
 // control fields
 // fields used by multiple items
@@ -151,6 +153,7 @@ const float FLAG_CHILDDRAWONLY	= 1024;	// used to make the children
 // ITEM_SLIDER
 //.string 	picture_slider; = picture
 .string		picture_bar;
+.string		sound_changed;
 
 .float		min_value;
 .float		max_value;
@@ -158,41 +161,18 @@ const float FLAG_CHILDDRAWONLY	= 1024;	// used to make the children
 
 .float		step;
 
-.vector		text_pos;
-//.vector	font_size;
-
 .vector		slider_size;
-
-.float		maxlen;
 
 .void(void) slidermove;
 
-// ITEM_TEXTSLIDER
-//.string 	picture_slider; = picture
-//.string		picture_bar;
-
-//.float	min_value;
-//.float	max_value;
-//.float	value;
-
-//.float	step;
-
-//.vector	text_pos;
-//.vector	font_size;
-
-//.vector	slider_size;
-
-//.float	maxlen;
-
-//.void(void) slidermove;
-
-//.string	text;	// will be parsed with tokenize and the specific text will displayed for the specific integer
-					// the text has to have the following "format": "'text1' 'text2' 'text3'..."
-
-// ITEM_TEXTSLIDER (derived from ITEM_TEXT mostly)
+// ITEM_TEXTSWITCH (derived from ITEM_TEXT mostly)
 .string	text;	// like above
 .float	value;	// the current displayed/selected text
 
-.void(void) selectionchanged;
+.void(void) switchchange;
 
+// functions
 
+/*void(void) ctinit_picture;
+void(void) ctinit_button;
+void(void) ctinit_textbutton;*/

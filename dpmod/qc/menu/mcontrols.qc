@@ -14,7 +14,8 @@ void(void) ITEM_WINDOW =
 	self.flag = self.flag | FLAG_NOSELECT | FLAG_DRAWONLY;
 
 	item_init(
-		defct_init,
+		defct_reinit,
+		defct_destroy,
 		defct_key,
 		defct_draw,
 		defct_mouse_enter,
@@ -27,31 +28,34 @@ void(void) ITEM_WINDOW =
 // ITEM_REFERENCE
 ///
 
-void(void) ITEM_REFERENCE_INIT =
+void(void) ITEM_REFERENCE_REINIT =
 {
-	self.child = menu_getitem(self.link);
-	if(self.child == null_entity)
+	self._child = menu_getitem(self.link);
+	if(self._child == null_entity)
 	{
 		print(self.name, " removed, cause link ", self.link, " not found\n");
-		remove(self);
+		remove(self);	// no need to call terminate
 		return;
 	}
 
-	self._init = defct_init;
+	ctcall_init();
+
+	self._reinit = defct_reinit;
 };
 
 void(void) ITEM_REFERENCE =
 {
-	self.flag = self.flag | FLAG_NOSELECT;
+	self.flag = self.flag | FLAG_NOSELECT | FLAG_DRAWONLY;
 
 	if(self.link == "")
 	{
-		remove(self);
+		remove(self);	// no need to call terminate
 		return;
 	}
 
 	item_init(
-		ITEM_REFERENCE_INIT,
+		ITEM_REFERENCE_REINIT,
+		defct_destroy,
 		defct_key,
 		defct_draw,
 		defct_mouse_enter,
@@ -66,7 +70,7 @@ void(void) ITEM_REFERENCE =
 
 void(void) ITEM_CUSTOM =
 {
-	item_init(defct_init, defct_key, defct_draw, defct_mouse_enter, defct_mouse_leave, defct_action, defct_refresh);
+	item_init(defct_reinit,	defct_destroy, defct_key, defct_draw, defct_mouse_enter, defct_mouse_leave, defct_action, defct_refresh);
 };
 
 /////////////////
@@ -85,7 +89,7 @@ void(void) ITEM_PICTURE =
 {
 	if(self.picture == "")
 		// a picture has to have a picture
-		remove(self);
+		remove(self);		// no need to call terminate
 
 	// load the picture if it isnt loaded already
 	gfx_loadpic(self.picture, MENU_ENFORCELOADING);
@@ -100,7 +104,8 @@ void(void) ITEM_PICTURE =
 		self.alpha = ITEM_PICTURE_NORMAL_ALPHA;
 
 	item_init(
-		defct_init,
+		defct_reinit,
+		defct_destroy,
 		defct_key,
 		ITEM_PICTURE_DRAW,
 		defct_mouse_enter,
@@ -140,9 +145,9 @@ void(void) ITEM_TEXT_DRAW =
 		// align to the rect pos - (pos + size)
 		vector alignpos;
 		// now check the alignement
-		if(self.alignment == TEXT_ALIGN_CENTER)
+		if(self.alignment & TEXT_ALIGN_CENTER)
 			alignpos_x = self.pos_x + (self.size_x - strlen(self.text) * self.font_size_x) / 2;
-		else if(self.alignment == TEXT_ALIGN_RIGHT)
+		else if(self.alignment & TEXT_ALIGN_RIGHT)
 			alignpos_x = self.pos_x + self.size_x - strlen(self.text) * self.font_size_x;
 		else
 			alignpos_x = self.pos_x;
@@ -167,10 +172,14 @@ void(void) ITEM_TEXT =
 	if(self.alignment & TEXT_ALIGN_CENTERPOS)
 	{
 		self.pos_x = self.pos_x - self.size_x / 2;
+	} else	if(self.alignment & TEXT_ALIGN_LEFTPOS)
+	{
+		self.pos_x = self.pos_x - self.size_x;
 	}
 
 	item_init(
-		defct_init,
+		defct_reinit,
+		defct_destroy,
 		defct_key,
 		ITEM_TEXT_DRAW,
 		defct_mouse_enter,
@@ -194,7 +203,8 @@ void(void) ITEM_RECTANGLE =
 		self.flag = FLAG_DRAWONLY;
 
 	item_init(
-		defct_init,
+		defct_reinit,
+		defct_destroy,
 		defct_key,
 		ITEM_RECTANGLE_DRAW,
 		defct_mouse_enter,
@@ -221,17 +231,17 @@ void(void) ITEM_BUTTON_DRAW =
 
 void(void) ITEM_BUTTON_REFRESH =
 {
+
+	if((self.hold_pressed + self._press_time < time && self._button_state == BUTTON_PRESSED) || (menu_selected != self && self._button_state == BUTTON_SELECTED))
+	{
+		self._button_state = BUTTON_NORMAL;
+	}
 	if(menu_selected == self && self._button_state == BUTTON_NORMAL)
 	{
 		self._button_state = BUTTON_SELECTED;
 		if(self.sound_selected)
 			snd_play(self.sound_selected);
 	}
-	else if((self.hold_pressed + self._press_time < time && self._button_state == BUTTON_PRESSED) || (menu_selected != self && self._button_state == BUTTON_SELECTED))
-	{
-		self._button_state = BUTTON_NORMAL;
-	}
-
 	def_refresh();
 	ctcall_refresh();
 };
@@ -243,37 +253,45 @@ void(float keynr, float ascii) ITEM_BUTTON_KEY =
 
 	if(keynr == K_ENTER || keynr == K_MOUSE1)
 	{
-		self._press_time = time;
-		self._button_state = BUTTON_PRESSED;
-		if(self.sound_pressed)
-			snd_play(self.sound_pressed);
-
-		ctcall_action();
+		self._action();
 	} else
 		def_keyevent(keynr, ascii);
 };
 
-void(void) ITEM_BUTTON_INIT =
+void(void) ITEM_BUTTON_ACTION =
+{
+	self._press_time = time;
+	self._button_state = BUTTON_PRESSED;
+	if(self.sound_pressed)
+		snd_play(self.sound_pressed);
+
+	ctcall_action();
+};
+void(void) ITEM_BUTTON_REINIT =
 {
 	self._button_state = BUTTON_NORMAL;
 
-	ctcall_init();
+	ctcall_reinit();
 };
 
 void(void) ITEM_BUTTON =
 {
 	if(self.picture == "" || self.picture_selected == "" || self.picture_pressed == "")
 		// a picture has to have a picture
-		remove(self);
+		remove(self);	// no need to call terminate
 
 	// load the picture if it isnt loaded already
 	gfx_loadpic(self.picture, MENU_ENFORCELOADING);
 
-	if(self.sound_selected)
+	if(self.sound_selected != "")
 		snd_loadsound(self.sound_selected, SOUND_ENFORCELOADING);
+	else
+		self.sound_selected = SOUND_SELECT;
 
-	if(self.sound_pressed)
+	if(self.sound_pressed != "")
 		snd_loadsound(self.sound_pressed, SOUND_ENFORCELOADING);
+	else
+		self.sound_pressed = SOUND_ACTION;
 
 	// if flag wasnt set yet, then set it to FLAG_DRAWONLY
 	if(self.flag == 0)
@@ -296,7 +314,8 @@ void(void) ITEM_BUTTON =
 		self.hold_pressed = ITEM_BUTTON_HOLD_PRESSED;
 
 	item_init(
-		ITEM_BUTTON_INIT,
+		ITEM_BUTTON_REINIT,
+		defct_destroy,
 		ITEM_BUTTON_KEY,
 		ITEM_BUTTON_DRAW,
 		defct_mouse_enter,
@@ -348,9 +367,9 @@ void(void) ITEM_TEXTBUTTON_DRAW =
 	// align to the rect pos - (pos + size)
 	vector alignpos;
 	// now check the alignement
-	if(self.alignment == TEXT_ALIGN_CENTER)
+	if(self.alignment & TEXT_ALIGN_CENTER)
 		alignpos_x = self.pos_x + (self.size_x - strlen(self.text) * self.font_size_x) / 2;
-	else if(self.alignment == TEXT_ALIGN_RIGHT)
+	else if(self.alignment & TEXT_ALIGN_RIGHT)
 		alignpos_x = self.pos_x + self.size_x - strlen(self.text) * self.font_size_x;
 	else
 		alignpos_x = self.pos_x;
@@ -441,6 +460,16 @@ void(void) ITEM_TEXTBUTTON_DRAW =
 	ctcall_draw();
 };
 
+void(void) ITEM_TEXTBUTTON_ACTION =
+{
+	self._press_time = time;
+	self._button_state = BUTTON_PRESSED;
+	if(self.sound_pressed)
+		snd_play(self.sound_pressed);
+
+	ctcall_action();
+};
+
 void(float keynr, float ascii) ITEM_TEXTBUTTON_KEY =
 {
 	if(ctcall_key(keynr, ascii))
@@ -448,17 +477,12 @@ void(float keynr, float ascii) ITEM_TEXTBUTTON_KEY =
 
 	if(keynr == K_ENTER || keynr == K_MOUSE1)
 	{
-		self._press_time = time;
-		self._button_state = BUTTON_PRESSED;
-		if(self.sound_pressed)
-			snd_play(self.sound_pressed);
-
-		ctcall_action();
+		self._action();
 	} else
 		def_keyevent(keynr, ascii);
 };
 
-void(void) ITEM_TEXTBUTTON_INIT =
+void(void) ITEM_TEXTBUTTON_REINIT =
 {
 	self._button_state = BUTTON_NORMAL;
 
@@ -486,25 +510,33 @@ void(void) ITEM_TEXTBUTTON =
 	if(self.hold_pressed == 0)
 		self.hold_pressed = ITEM_BUTTON_HOLD_PRESSED;
 
-	if(self.sound_selected)
+	if(self.sound_selected != "")
 		snd_loadsound(self.sound_selected, SOUND_ENFORCELOADING);
+	else
+		self.sound_selected = SOUND_SELECT;
 
-	if(self.sound_pressed)
+	if(self.sound_pressed != "")
 		snd_loadsound(self.sound_pressed, SOUND_ENFORCELOADING);
+	else
+		self.sound_pressed = SOUND_ACTION;
 
 	ITEM_TEXTBUTTON_REFRESH();
 	if(self.alignment & TEXT_ALIGN_CENTERPOS)
 	{
 		self.pos_x = self.pos_x - self.size_x / 2;
+	} else	if(self.alignment & TEXT_ALIGN_LEFTPOS)
+	{
+		self.pos_x = self.pos_x - self.size_x;
 	}
 
 	item_init(
-		ITEM_TEXTBUTTON_INIT,
+		ITEM_TEXTBUTTON_REINIT,
+		defct_destroy,
 		ITEM_TEXTBUTTON_KEY,
 		ITEM_TEXTBUTTON_DRAW,
 		defct_mouse_enter,
 		defct_mouse_leave,
-		defct_action,
+		ITEM_TEXTBUTTON_ACTION,
 		ITEM_TEXTBUTTON_REFRESH);
 };
 
@@ -527,7 +559,7 @@ void(void) ITEM_SLIDER_DRAW =
 
 	// draw the slider
 	slider_pos = self.pos;
-	slider_pos_x = slider_pos_x + ((self.size_x - self.slider_size_x) / (self.max_value - self.min_value)) * self.value;
+	slider_pos_x = slider_pos_x + ((self.size_x - self.slider_size_x) / (self.max_value - self.min_value)) * (self.value - self.min_value);
 	if(self.picture != "")
 	{
 		menu_drawpic(slider_pos, self.picture, self.slider_size, self.color, self.alpha, self.drawflag);
@@ -536,20 +568,13 @@ void(void) ITEM_SLIDER_DRAW =
 	{
 		menu_fillarea(slider_pos, self.slider_size, self.color + ITEM_SLIDER_BAR_COLOR_DELTA, self.alpha, self.drawflag);
 	}
-
-	// draw the text
-	// for ITEM_SLIDER print the value
-	t = ftos(self.value);
-	t = substring(t, 0, rint(self.maxlen));
-	menu_drawstring(self.text_pos, t, self.font_size, self.color, self.alpha, self.drawflag);
 };
 
-void(void) ITEM_SLIDER_REFRESH =
+void(void) ITEM_SLIDER_UPDATESLIDER =
 {
 	self.value = bound(self.min_value, self.value, self.max_value);
-
-	def_refresh();
-	ctcall_refresh();
+	if(self.slidermove)
+		self.slidermove();
 };
 
 void(float keynr, float ascii) ITEM_SLIDER_KEY =
@@ -559,29 +584,29 @@ void(float keynr, float ascii) ITEM_SLIDER_KEY =
 
 	if(keynr == K_LEFTARROW)
 	{
-		self.value = self.value - self.step;
-		if(self.slidermove)
-			self.slidermove();
+		self.value = (rint(self.value / self.step) - 1) * self.step;
+		ITEM_SLIDER_UPDATESLIDER();
 	}
-else if(keynr == K_RIGHTARROW)
+	else if(keynr == K_RIGHTARROW)
 	{
-		self.value = self.value + self.step;
-		if(self.slidermove)
-			self.slidermove();
+		self.value = (rint(self.value / self.step) + 1)* self.step;
+		ITEM_SLIDER_UPDATESLIDER();
 	}
 	else if(keynr == K_MOUSE1)
 	{
 		if(inrect(menu_cursor, self.pos, self.size))
 		{
-			self.value = (menu_cursor_x - self.slider_size_x / 2- self.pos_x) * ((self.max_value - self.min_value) / (self.size_x - self.slider_size_x));
-			if(self.slidermove)
-				self.slidermove();
+			self.value = self.min_value + ((menu_cursor_x - self.slider_size_x / 2) - self.pos_x) * ((self.max_value - self.min_value) / (self.size_x - self.slider_size_x));
 		}
 	}
 	else
 	{
 		def_keyevent(keynr, ascii);
+		return;
 	}
+	// play sound
+	snd_play(self.sound_changed);
+	ITEM_SLIDER_UPDATESLIDER();
 };
 
 void(void) ITEM_SLIDER =
@@ -590,6 +615,8 @@ void(void) ITEM_SLIDER =
 		self.picture = gfx_loadpic(self.picture, MENU_ENFORCELOADING);
 	if(self.picture_bar != "")
 		self.picture_bar = gfx_loadpic(self.picture_bar, MENU_ENFORCELOADING);
+	if(self.sound_changed == "")
+		self.sound_changed = SOUND_CHANGE;
 
 	if(self.color == '0 0 0')
 		self.color = ITEM_SLIDER_COLOR;
@@ -597,10 +624,6 @@ void(void) ITEM_SLIDER =
 		self.alpha = ITEM_SLIDER_ALPHA;
 	if(self.step == 0)
 		self.step = ITEM_SLIDER_STEP;
-	if(self.font_size == '0 0 0')
-		self.font_size = ITEM_TEXT_FONT_SIZE;
-	if(self.maxlen == 0)
-		self.maxlen = ITEM_SLIDER_MAXLEN;
 	if(self.slider_size == '0 0 0')
 	{
 		if(self.picture != "")
@@ -610,128 +633,14 @@ void(void) ITEM_SLIDER =
 	}
 
 	item_init(
-		defct_init,
+		defct_reinit,
+		defct_destroy,
 		ITEM_SLIDER_KEY,
 		ITEM_SLIDER_DRAW,
 		defct_mouse_enter,
 		defct_mouse_leave,
 		defct_action,
-		ITEM_SLIDER_REFRESH);
-};
-
-// ITEM_SLIDER
-
-void(void) ITEM_TEXTSLIDER_DRAW =
-{
-	vector slider_pos;
-	float count;
-
-	// draw the bar
-	if(self.picture_bar != "")
-	{
-		menu_drawpic(self.pos, self.picture_bar, self.size, self.color, self.alpha, self.drawflag);
-	}
-	else
-	{
-		menu_fillarea(self.pos, self.size, self.color, self.alpha, self.drawflag);
-	}
-
-	// draw the slider
-	slider_pos = self.pos;
-	slider_pos_x = slider_pos_x + ((self.size_x - self.slider_size_x) / (self.max_value - self.min_value)) * self.value;
-	if(self.picture != "")
-	{
-		menu_drawpic(slider_pos, self.picture, self.slider_size, self.color, self.alpha, self.drawflag);
-	}
-	else
-	{
-		menu_fillarea(slider_pos, self.slider_size, self.color + ITEM_SLIDER_BAR_COLOR_DELTA, self.alpha, self.drawflag);
-	}
-
-	// draw the text
-	// for ITEM_SLIDER print the value
-	count = getaltstringcount(self.text);
-	if(count != 0)
-	{
-		count = rint(self.value * (count - 1) / (self.max_value - self.min_value));
-		menu_drawstring(self.text_pos, getaltstring(count, self.text), self.font_size, self.color, self.alpha, self.drawflag);
-	}
-};
-
-void(void) ITEM_TEXTSLIDER_REFRESH =
-{
-	self.value = bound(self.min_value, self.value, self.max_value);
-
-	def_refresh();
-	ctcall_refresh();
-};
-
-void(float keynr, float ascii) ITEM_TEXTSLIDER_KEY =
-{
-	if(ctcall_key(keynr, ascii))
-		return;
-
-	if(keynr == K_LEFTARROW)
-	{
-		self.value = self.value - self.step;
-		ITEM_TEXTSLIDER_REFRESH();
-		if(self.slidermove)
-			self.slidermove();
-	}
-	else if(keynr == K_RIGHTARROW)
-	{
-		self.value = self.value + self.step;
-		ITEM_TEXTSLIDER_REFRESH();
-		if(self.slidermove)
-			self.slidermove();
-	}
-	else if(keynr == K_MOUSE1)
-	{
-		if(inrect(menu_cursor, self.pos, self.size))
-		{
-			self.value = (menu_cursor_x - self.slider_size_x / 2- self.pos_x) * ((self.max_value - self.min_value) / (self.size_x - self.slider_size_x));
-			ITEM_TEXTSLIDER_REFRESH();
-			if(self.slidermove)
-				self.slidermove();
-		}
-	}
-	else
-	{
-		def_keyevent(keynr, ascii);
-	}
-};
-
-void(void) ITEM_TEXTSLIDER =
-{
-	if(self.picture != "")
-		self.picture = gfx_loadpic(self.picture, MENU_ENFORCELOADING);
-	if(self.picture_bar != "")
-		self.picture_bar = gfx_loadpic(self.picture_bar, MENU_ENFORCELOADING);
-
-	if(self.color == '0 0 0')
-		self.color = ITEM_SLIDER_COLOR;
-	if(self.alpha == 0)
-		self.alpha = ITEM_SLIDER_ALPHA;
-	if(self.step == 0)
-		self.step = ITEM_SLIDER_STEP;
-	if(self.font_size == '0 0 0')
-		self.font_size = ITEM_TEXT_FONT_SIZE;
-	if(self.slider_size == '0 0 0')
-	{
-		if(self.picture != "")
-			self.slider_size = gfx_getimagesize(self.picture);
-		else
-			self.slider_size = ITEM_SLIDER_SIZE;
-	}
-
-	item_init(
-		defct_init,
-		ITEM_TEXTSLIDER_KEY,
-		ITEM_TEXTSLIDER_DRAW,
-		defct_mouse_enter,
-		defct_mouse_leave,
-		defct_action,
-		ITEM_TEXTSLIDER_REFRESH);
+		defct_refresh);
 };
 
 // ITEM_TEXTSWITCH
@@ -781,14 +690,19 @@ void(float keynr, float ascii)	ITEM_TEXTSWITCH_KEY =
 		def_keyevent(keynr, ascii);
 		return;
 	}
-	ITEM_TEXTSWITCH_REFRESH();
-	if(self.selectionchanged)
-		self.selectionchanged();
+	snd_play(self.sound_changed);
+	if(self.switchchange)
+		self.switchchange();
 };
 
 void(void) ITEM_TEXTSWITCH =
 {
 	string temp;
+
+	if(self.sound_changed != "")
+		snd_loadsound(self.sound_changed, SOUND_ENFORCELOADING);
+	else
+		self.sound_changed = SOUND_CHANGE;
 
 	temp = self.text;
 	self.text = getaltstring(self.value, self.text);
@@ -796,7 +710,8 @@ void(void) ITEM_TEXTSWITCH =
 	self.text = temp;
 
 	item_init(
-		defct_init,
+		defct_reinit,
+		defct_destroy,
 		ITEM_TEXTSWITCH_KEY,
 		ITEM_TEXTSWITCH_DRAW,
 		defct_mouse_enter,
@@ -804,3 +719,114 @@ void(void) ITEM_TEXTSWITCH =
 		defct_action,
 		ITEM_TEXTSWITCH_REFRESH);
 };
+
+/*
+/////////////////////////////////////////////////////////////////////////
+// The "actual" funtions
+
+void(void) ctinit_picture =
+{
+
+};
+
+// draws a text (uses the std. way)
+void(string text, vector pos, vector size, float alignment, float style, float state) ctdrawtext =
+{
+	vector alignpos;
+
+	if(text == "")
+		return;
+
+	// align to the rect pos - (pos + size)
+
+	// now check the alignement
+	if(alignment & TEXT_ALIGN_CENTER)
+		alignpos_x = pos_x + (size_x - strlen(text) * self.font_size_x) / 2;
+	else if(alignment & TEXT_ALIGN_RIGHT)
+		alignpos_x = pos_x + size_x - strlen(text) * self.font_size_x;
+	else
+		alignpos_x = pos_x;
+		alignpos_y = pos_y;
+
+	if(style == TEXTBUTTON_STYLE_OUTLINE && state != BUTTON_NORMAL)
+	{
+		vector p,s;
+		// left
+		p_x = pos_x;
+		p_y = pos_y;
+		s_x = TEXTBUTTON_OUTLINE_WIDTH;
+		s_y = size_y;
+		if(state == BUTTON_PRESSED)
+		{
+			menu_fillarea(p, s, self.color_pressed, self.alpha_pressed, self.drawflag_pressed);
+		}
+		else if(state == BUTTON_SELECTED)
+		{
+			menu_fillarea(p, s, self.color_selected, self.alpha_selected, self.drawflag_selected);
+		}
+		// right
+		p_x = pos_x + size_x - TEXTBUTTON_OUTLINE_WIDTH;
+		p_y = pos_y;
+		s_x = TEXTBUTTON_OUTLINE_WIDTH;
+		s_y = size_y;
+		if(state == BUTTON_PRESSED)
+		{
+			menu_fillarea(p, s, self.color_pressed, self.alpha_pressed, self.drawflag_pressed);
+		}
+		else if(state == BUTTON_SELECTED)
+		{
+			menu_fillarea(p, s, self.color_selected, self.alpha_selected, self.drawflag_selected);
+		}
+		// top
+		p_x = pos_x;
+		p_y = pos_y;
+		s_y = TEXTBUTTON_OUTLINE_WIDTH;
+		s_x = size_x;
+		if(state == BUTTON_PRESSED)
+		{
+			menu_fillarea(p, s, self.color_pressed, self.alpha_pressed, self.drawflag_pressed);
+		}
+		else if(self._button_state == BUTTON_SELECTED)
+		{
+			menu_fillarea(p, s, self.color_selected, self.alpha_selected, self.drawflag_selected);
+		}
+		// bottom
+		p_x = pos_x;
+		p_y = pos_y + size_y - TEXTBUTTON_OUTLINE_WIDTH;
+		s_y = TEXTBUTTON_OUTLINE_WIDTH;
+		s_x = size_x;
+		if(state == BUTTON_PRESSED)
+		{
+			menu_fillarea(p, s, self.color_pressed, self.alpha_pressed, self.drawflag_pressed);
+		}
+		else if(state == BUTTON_SELECTED)
+		{
+			menu_fillarea(p, s, self.color_selected, self.alpha_selected, self.drawflag_selected);
+		}
+	} else	if(style == TEXTBUTTON_STYLE_BOX)
+	{
+		if(state == BUTTON_PRESSED)
+		{
+			menu_fillarea(alignpos, size, self.color_pressed, self.alpha_pressed, self.drawflag_pressed);
+		}
+		else if(self._button_state == BUTTON_SELECTED)
+		{
+			menu_fillarea(alignpos, size, self.color_selected, self.alpha_selected, self.drawflag_selected);
+		}
+	}
+
+	if(state == BUTTON_NORMAL || style == TEXTBUTTON_STYLE_BOX || style == TEXTBUTTON_STYLE_OUTLINE)
+		menu_drawstring(alignpos, text, self.font_size, self.color, self.alpha, self.drawflag);
+
+	if(style == TEXTBUTTON_STYLE_TEXT)
+	{
+		if(state == BUTTON_PRESSED)
+		{
+			menu_drawstring(alignpos, text, self.font_size, self.color_pressed, self.alpha_pressed, self.drawflag_pressed);
+		}
+		else if(state == BUTTON_SELECTED)
+		{
+			menu_drawstring(alignpos, text, self.font_size, self.color_selected, self.alpha_selected, self.drawflag_selected);
+		}
+	}
+};*/

@@ -30,6 +30,7 @@ void	cmd(string command) = #13;
 // cvar cmds
 
 float 	cvar(string name) = #14;
+const string str_cvar(string name) = #71;
 void	cvar_set(string name, string value) = #15;
 
 void	dprint(string text,...) = #16;
@@ -57,6 +58,7 @@ entity	findchainentity(.entity field, entity match) = #27;
 string	precache_file(string file) = #28;
 string	precache_sound(string sample) = #29;
 
+void	crash(void)	= #72;
 void	coredump(void) = #30;
 void	traceon(void) = #31;
 void	traceoff(void) = #32;
