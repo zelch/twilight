@@ -725,7 +725,7 @@ unshift(@text, build_header($modname, "Module $modname: Change committed",
 # sort the files out for our diff
 @files = sort { $a->{name} cmp $b->{name} } @files;
 
-my ($user);
+my ($user, $filename);
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time());
 $user = getpwuid($<);
 
@@ -733,8 +733,8 @@ $filename = sprintf("%s.%04d-%02d-%02d %02d:%02d:%02d.%s.diff", $modname,
 	$year + 1900, $mon, $mday, $hour, $min, $sec, $user);
 
 push(@text, "--$boundary");
-push(@text, "Content-Type: text/plain; name=\"cvs.$user.".diff\"");
-push(@text, "Content-Disposition: attachment; filename=\"cvs.$user." . time() . ".diff\"");
+push(@text, "Content-Type: text/plain; name=\"$filename\"");
+push(@text, "Content-Disposition: attachment; filename=\"$filename\"");
 push(@text, "Content-Transfer-Encoding: 8bit");
 push(@text, "");
 
