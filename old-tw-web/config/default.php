@@ -90,6 +90,17 @@ td.side {
 	color: white;
 }
 
+div.uinfo {
+	border: solid 2px #000fb5;
+	background: #000fb5;
+	margin: 10px;
+}
+
+div.uinfodata {
+	background: #000440;
+	border-left: solid 5px #000440;
+}
+
 div.nav {
 	font: bolder 90% verdana, sans-serif;
 }
@@ -179,7 +190,8 @@ a {
 		) ,
 		"LordHavoc" => array (
 			"Name" => "Forest Hale" ,
-			"Email" => "lordhavoc@users.sourceforge.net"
+			"Email" => "lordhavoc@users.sourceforge.net" ,
+			"Web" => "http://darkplaces.gamevisions.com/"
 		) ,
 		"Knghtbrd" => array (
 			"Name" => "Joseph Carter" ,
