@@ -1008,6 +1008,9 @@ void() startframe_creaturecode =
 	self = oldself;
 };
 
+void() superdomination_startframe;
+void() superdomination_endframe;
+
 void() StartFrame =
 {
 	framecount = framecount + 1;
@@ -1026,6 +1029,8 @@ void() StartFrame =
 	havocbot_serverframe();
 
 	startframe_creaturecode();
+
+	superdomination_startframe();
 };
 
 void() EndFrame =
@@ -1034,5 +1039,7 @@ void() EndFrame =
 		return; // don't waste time on idling dedicated servers
 
 	decorframe(); // removes old decors, etc
+
+	superdomination_endframe();
 };
 

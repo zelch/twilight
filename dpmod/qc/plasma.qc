@@ -4,14 +4,16 @@ void() plasma_touch =
 	local   vector  v;
 	if (other == self.owner)
 		return;
+	if (other.owner == self.owner)
+		return;
 	if (pointcontents(self.origin) == CONTENT_SKY)
 	{
 		remove(self);
 		return;
 	}
 	v = normalize(self.velocity);
-	T_Damage(other, self, self.owner, self.dmg, self.dmg, self.deathtype, DT_PLASMA, self.origin, v * self.dmg, self.obitfunc1);
-	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, other, self.deathtype, DT_PLASMA, self.obitfunc1);
+	T_Damage(other, self, self.realowner, self.dmg, self.dmg, self.deathtype, DT_PLASMA, self.origin, v * self.count2, self.obitfunc1);
+	T_RadiusDamage(self, self.realowner, self.dmg, self.count2, self.dmg2, other, self.deathtype, DT_PLASMA, self.obitfunc1);
 	sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
 	effect(self.origin - v * 16, "progs/plasmashot.spr32", 10, 5, 30);
 	te_plasmaburn(self.origin - v);
@@ -32,7 +34,7 @@ void() plasma_think =
 		remove(self);
 };
 
-void(entity own, vector org, vector vel, float damg, float force, float damg2, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasma =
+void(entity own, entity realown, vector org, vector vel, float damg, float force, float damg2, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasma =
 {
 	local   vector  a;
 
@@ -44,6 +46,7 @@ void(entity own, vector org, vector vel, float damg, float force, float damg2, s
 	newmis = spawn();
 	newmis.classname = "plasma";
 	newmis.owner = own;
+	newmis.realowner = realown;
 	newmis.solid = SOLID_BBOX;
 	newmis.movetype = MOVETYPE_FLY; //TOSS; //FLYMISSILE;
 	setmodel(newmis, "progs/plasmashot.spr32");
@@ -68,6 +71,8 @@ void(entity own, vector org, vector vel, float damg, float force, float damg2, s
 	newmis.touch = plasma_touch;
 	newmis.think = plasma_think;
 	newmis.nextthink = time + 0.1;
+	// FIXME: make a smaller sprite
+	newmis.scale = 0.5;
 };
 
 void() plasmaball_touch =
@@ -83,8 +88,8 @@ void() plasmaball_touch =
 	if (other.solid != SOLID_BSP)
 		return;
 	v = normalize(self.velocity);
-	T_Damage(other, self, self.owner, self.dmg, self.dmg, self.deathtype, DT_PLASMA, self.origin, v * self.dmg * 0.3, self.obitfunc1);
-	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, other, self.deathtype, DT_PLASMA, self.obitfunc1);
+	T_Damage(other, self, self.realowner, self.dmg, self.dmg, self.deathtype, DT_PLASMA, self.origin, v * self.count2, self.obitfunc1);
+	T_RadiusDamage(self, self.realowner, self.dmg, self.count2, self.dmg2, other, self.deathtype, DT_PLASMA, self.obitfunc1);
 	sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 1, ATTN_NORM);
 	effect(self.origin - v * 16, "progs/plasmashot.spr32", 10, 5, 30);
 	te_plasmaburn(self.origin - v);
@@ -124,7 +129,7 @@ void() plasmaball_think =
 			step = step + 1;
 			self.origin = (backup - self.dest) * (step / steps) + self.dest;
 			//plasmaball_burn();
-			T_RadiusDamage(self, self.owner, damage, 0, self.dmg2, self.owner, self.deathtype, DT_PLASMA, self.obitfunc1);
+			T_RadiusDamage(self, self.realowner, damage, 0, self.dmg2, self.owner, self.deathtype, DT_PLASMA, self.obitfunc1);
 		}
 		// the above loop leaves self.origin restored to what it should be
 	}
@@ -132,7 +137,7 @@ void() plasmaball_think =
 		remove(self);
 };
 
-void(entity own, vector org, vector vel, float damg, float force, float damg2, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasmaBall =
+void(entity own, entity realown, vector org, vector vel, float damg, float force, float damg2, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasmaBall =
 {
 	local   vector  a;
 
@@ -144,6 +149,7 @@ void(entity own, vector org, vector vel, float damg, float force, float damg2, s
 	newmis = spawn();
 	newmis.classname = "plasmaball";
 	newmis.owner = own;
+	newmis.realowner = realown;
 	newmis.solid = SOLID_TRIGGER;
 	newmis.movetype = MOVETYPE_FLY;
 	setmodel(newmis, "progs/plasmashot.spr32");

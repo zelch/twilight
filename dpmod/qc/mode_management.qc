@@ -232,9 +232,9 @@ void(float c) SV_ChangeTeam =
 	setplayercolor(self, pants, shirt);
 	if (pants != old && old >= 0 && teamplay && deathmatch)
 	{
-		//T_Damage(self, self, self, 0, 0, " changed teams", DT_TELEFRAG, self.origin, '0 0 0', Obituary_Generic);
-		PutClientInServer ();
+		T_Damage(self, self, self, 0, 0, " changed teams", DT_TELEFRAG, self.origin, '0 0 0', Obituary_Generic);
 		self.frags = 0;
+		PutClientInServer ();
 	}
 };
 
@@ -270,6 +270,7 @@ void() mode_updatecvars =
 	else if (cvar("deathmatch") == 11) setdm("11?Dark Places - Capture The Flag - 3 Team");
 	else if (cvar("deathmatch") == 12) setdm("12?Dark Places - Domination");
 	else if (cvar("deathmatch") == 13) setdm("13?Dark Places - Monster Capture The Flag - 2 Team");
+	else if (cvar("deathmatch") == 14) setdm("14?Dark Places - Super Domination");
 	else if (cvar("deathmatch") == 30) setdm("30?Dark Places - Role Playing Game");
 	else                               setdm("1?Dark Places - Deathmatch");
 
@@ -307,6 +308,7 @@ float itemrespawn;
 float spawnchecktime;
 
 void() precachemonsters;
+void() superdomination_precache;
 void() modesetup =
 {
 	mode_shirtmustmatchpants = deathmatch >= DM_TEAM_MODS_START && deathmatch < DM_TEAM_MODS_END;
@@ -318,6 +320,8 @@ void() modesetup =
 	spawnchecktime = 15;
 	if (deathmatch == 7 || cvar("spawnmonsters") >= 1)
 		precachemonsters();
+
+	superdomination_precache();
 };
 
 float monsterspawn;

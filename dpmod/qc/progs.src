@@ -157,3 +157,6 @@ m_shalrath.qc     // registered
 m_enforcer.qc     // registered
 m_oldone.qc       // registered
 
+domination.qc
+superdomination.qc
+

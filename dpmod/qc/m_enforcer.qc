@@ -75,7 +75,7 @@ void(vector hit) enforcer_plasma =
 	shotdir = normalize(hit - shotorg);
 	w_muzzleflash(shotorg, 2);
 	sound (self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-	FirePlasma(self, shotorg, shotdir * 5000, DMG_ENFORCER_PLASMA_DAMAGE, DMG_ENFORCER_PLASMA_FORCE, DMG_ENFORCER_PLASMA_RADIUS, self.deathtype, Obituary_Generic);
+	FirePlasma(self, self, shotorg, shotdir * 5000, DMG_ENFORCER_PLASMA_DAMAGE, DMG_ENFORCER_PLASMA_FORCE, DMG_ENFORCER_PLASMA_RADIUS, self.deathtype, Obituary_Generic);
 };
 
 void(vector hit) enforcer_rocket =
@@ -99,7 +99,7 @@ void(vector hit) enforcer_rocket =
 	shotdir = normalize(hit - shotorg);
 	sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 	w_muzzleflash(shotorg, 5);
-	LaunchMissile(shotorg, shotdir * 5000, self, DMG_ENFORCER_ROCKET_DAMAGE, DMG_ENFORCER_ROCKET_FORCE, DMG_ENFORCER_ROCKET_RADIUS, self.deathtype, Obituary_Generic);
+	LaunchMissile(shotorg, shotdir * 3000, self, DMG_ENFORCER_ROCKET_DAMAGE, DMG_ENFORCER_ROCKET_FORCE, DMG_ENFORCER_ROCKET_RADIUS, self.deathtype, Obituary_Generic);
 };
 
 void(vector hit) enforcer_flamer =

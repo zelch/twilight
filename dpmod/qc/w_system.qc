@@ -91,9 +91,21 @@ float(vector v, float maxfiredeviation) w_aimdir =
 {
 	local float dist;
 	local vector desiredang, diffang;
+
+	// make sure v_angle is sane first
+	//while (self.v_angle_x < -180) self.v_angle_x = self.v_angle_x + 360;
+	//while (self.v_angle_x >= 180) self.v_angle_x = self.v_angle_x - 360;
+	while (self.v_angle_y < -180) self.v_angle_y = self.v_angle_y + 360;
+	while (self.v_angle_y >= 180) self.v_angle_y = self.v_angle_y - 360;
+	//while (self.v_angle_z < -180) self.v_angle_z = self.v_angle_z + 360;
+	//while (self.v_angle_z >= 180) self.v_angle_z = self.v_angle_z - 360;
+
 	// get the desired angles to aim at
 	desiredang = vectoangles(v);
+	desiredang_x = 0 - desiredang_x;
 	desiredang_z = self.v_angle_z;
+	if (desiredang_x >= 180)
+		desiredang_x = desiredang_x - 360;
 
 	// pain throws off aim
 	if (self.painintensity)
@@ -104,6 +116,8 @@ float(vector v, float maxfiredeviation) w_aimdir =
 
 	// calculate turn angles
 	diffang = desiredang - self.v_angle;
+
+	// wrap yaw turn
 	while (diffang_y < -180)
 		diffang_y = diffang_y + 360;
 	while (diffang_y >  180)
@@ -111,22 +125,27 @@ float(vector v, float maxfiredeviation) w_aimdir =
 
 	// jitter tracking
 	dist = vlen(diffang);
-	diffang = randomvec() * (dist * 0.15 * (3.5 - skill));
+	diffang = diffang + randomvec() * (dist * 0.05 * (3.5 - skill));
 
 	// simulate slight 'stickyness' of mouse on small moves
 	if (vlen(diffang) < 0.1)
 	{
-		if (time < self.mousesticktime)
-			return vlen(diffang) < maxfiredeviation;
-		else if (random() < 0.5)
+		//bprint("c\n");
+		if (time >= self.mousesticktime)
+		if (random() < 0.5)
 		{
+			//bprint("d\n");
 			self.mousesticktime = time + 0.2;
-			return vlen(diffang) < maxfiredeviation;
 		}
+		return vlen(diffang) < maxfiredeviation;
 	}
 
 	// turn
-	self.v_angle = self.v_angle + diffang * (5 * frametime);
+	self.v_angle = self.v_angle + diffang * min(1, (3 + 3 * skill) * frametime);
+	while (self.v_angle_y < -180)
+		self.v_angle_y = self.v_angle_y + 360;
+	while (self.v_angle_y >= 180)
+		self.v_angle_y = self.v_angle_y - 360;
 
 	// calculate turn angles again
 	diffang = desiredang - self.v_angle;
@@ -134,6 +153,8 @@ float(vector v, float maxfiredeviation) w_aimdir =
 		diffang_y = diffang_y + 360;
 	while (diffang_y >  180)
 		diffang_y = diffang_y - 360;
+
+	//bprint("e ");bprintvector(diffang);bprint(" < ");bprintfloat(maxfiredeviation);bprint("\n");
 
 	// decide whether to fire this time
 	return vlen(diffang) < maxfiredeviation;
@@ -146,26 +167,34 @@ vector(vector targorigin, vector targvelocity, float shotspeed, float shotdelay)
 
 float(float shotspeed, float maxshottime) w_directattackaim =
 {
-	local float f;
+	local float f, range;
 	local vector v;
 	v = w_shotlead(self.aimtargorigin, self.aimtargvelocity, shotspeed, self.aimlatency);
-	bprintvector(v);bprint("\n");
-	f = w_aimdir(v - shotorg, 0.1);
-	if (vlen(v - shotorg) < maxshottime * shotspeed)
+	//bprint("AIM: ");bprintvector(v);bprint("\n");
+	range = vlen(v - shotorg);
+	f = w_aimdir(v - shotorg, 720 / range);
+	if (range > maxshottime * shotspeed)
 		return FALSE;
 	traceline(shotorg, v, FALSE, self);
-	if (trace_fraction == 1)
-		return f;
-	if (w_shouldattack(trace_ent))
-		return f;
-	return FALSE;
+	if (trace_fraction < 1)
+	if (!w_shouldattack(trace_ent))
+		return FALSE;
+	//bprint("b\n");
+	return f;
 };
 
 float(float shotspeed, float maxshottime) w_grenadeattackaim =
 {
+	local float f, range;
+	local vector v;
 	if (!findtrajectorywithleading(shotorg, '0 0 0', '0 0 0', self.aimtarg, shotspeed, maxshottime, 0, self))
 		return FALSE;
-	return w_aimdir(findtrajectory_velocity, 0.1);
+	v = w_shotlead(self.aimtargorigin, self.aimtargvelocity, shotspeed, self.aimlatency);
+	range = vlen(v - shotorg);
+	f = w_aimdir(findtrajectory_velocity, 720 / range);
+	if (range > maxshottime * shotspeed)
+		return FALSE;
+	return f;
 };
 
 void() W_SetupShot;
@@ -737,14 +766,14 @@ float GRENADELAUNCHER_DAMAGE = 150;
 float GRENADELAUNCHER_FORCE = 150;
 float GRENADELAUNCHER_RADIUS = 120;
 float GRENADELAUNCHER_REFIRE = 0.8;
-float ROCKETLAUNCHER_DAMAGE = 120;
-float ROCKETLAUNCHER_FORCE = 120;
-float ROCKETLAUNCHER_RADIUS = 150;
-float ROCKETLAUNCHER_REFIRE = 0.6;
+float ROCKETLAUNCHER_DAMAGE = 150;
+float ROCKETLAUNCHER_FORCE = 150;
+float ROCKETLAUNCHER_RADIUS = 200;
+float ROCKETLAUNCHER_REFIRE = 0.8;
 float ROCKETLAUNCHER_LOADTIME = 0.2;
-float ROCKETLAUNCHER_MAXLOAD = 3;
-float ROCKETLAUNCHER_VELOCITY = 5000;
-float ROCKETLAUNCHER_TRIPLE_VELOCITY = 5000;
+float ROCKETLAUNCHER_MAXLOAD = 2;
+float ROCKETLAUNCHER_VELOCITY = 3000;
+float ROCKETLAUNCHER_MULTI_VELOCITY = 3000;
 float THUNDERBOLT_CELL_HEALTH = 60;
 float THUNDERBOLT_CELL_BODY = 15;
 float THUNDERBOLT_CELLSPERSECOND = 5;
@@ -1055,19 +1084,19 @@ float(float request) w_plasmashotgun =
 			w_muzzleflash(shotorg, 2);
 			//FireBullets(self, self, 1, 5, PLASMASHOTGUN_SHELL * 0.1, PLASMASHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
 			//FireBullets(self, self, 0, 5, PLASMASHOTGUN_SHELL * 0.1, PLASMASHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
-			FirePlasma(self, shotorg, shotdir * 10000, PLASMASHOTGUN_SHELL + PLASMASHOTGUN_CELL * PLASMASHOTGUN_CELLS, PLASMASHOTGUN_SHELL + PLASMASHOTGUN_CELL * PLASMASHOTGUN_CELLS, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, shotdir * 10000, PLASMASHOTGUN_SHELL + PLASMASHOTGUN_CELL * PLASMASHOTGUN_CELLS, PLASMASHOTGUN_SHELL + PLASMASHOTGUN_CELL * PLASMASHOTGUN_CELLS, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			/*
 			f = 0.2;
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			*/
 			//FireBullets(self, self, 1, 5, PLASMASHOTGUN_SHELL * 0.1, PLASMASHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
 			//FireBullets(self, self, 0, 5, PLASMASHOTGUN_SHELL * 0.1, PLASMASHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
@@ -1601,7 +1630,7 @@ float(float request) w_rocketlauncher =
 		precache_model("progs/missile.mdl");
 		precache_sound("weapons/sgun1.wav");
 		precache_sound("weapons/lock4.wav");
-		registerweapon(7, "Rocket Launcher", w_rocketlauncher, "rocketlauncher", VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl", IT_ROCKETS, 0, 2000, ROCKETLAUNCHER_DAMAGE / (ROCKETLAUNCHER_REFIRE + ROCKETLAUNCHER_LOADTIME), WANIMTYPE_ROCKET);
+		registerweapon(7, "Rocket Launcher", w_rocketlauncher, "rocketlauncher", VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl", IT_ROCKETS, 0, 2000, ROCKETLAUNCHER_DAMAGE / ROCKETLAUNCHER_REFIRE, WANIMTYPE_ROCKET);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1639,11 +1668,13 @@ float(float request) w_rocketlauncher =
 			if (random() < 0.2)
 				self.altfiretimeout = time + 0.5 + random() * 0.5;
 		}
-		if (time < self.altfiretimeout)
-			self.button3 = w_directattackaim(3000, 1);
-		else
-			self.button0 = w_directattackaim(5000, 1);
+		//if (time < self.altfiretimeout)
+		//	self.button3 = w_directattackaim(ROCKETLAUNCHER_MULTI_VELOCITY, 1);
+		//else
+			self.button0 = w_directattackaim(ROCKETLAUNCHER_VELOCITY, 1);
 	}
+	if (self.button3)
+		self.detonatetimeout = time + 0.1;
 	if (self.wanim_id == WANIM_READY)
 	{
 		if (self.switchweaponclass != self.weaponclass)
@@ -1661,12 +1692,11 @@ float(float request) w_rocketlauncher =
 			wsetanim(WANIM_FIRE1, 0, 0, ROCKETLAUNCHER_LOADTIME);
 			return TRUE;
 		}
-		if (self.button0)
 		*/
 		if (self.button0)
 			self.wburst = 1;
-		if (self.button3)
-			self.wburst = 3;
+		//if (self.button3)
+		//	self.wburst = ROCKETLAUNCHER_MAXLOAD;
 		if (self.wburst >= 1)
 		if (self.wburst > Inventory_Quantity(self, "rockets"))
 			self.wburst = Inventory_Quantity(self, "rockets");
@@ -1689,7 +1719,7 @@ float(float request) w_rocketlauncher =
 				while (self.wburst > 0)
 				{
 					self.wburst = self.wburst - 1;
-					LaunchMissile(shotorg, shotdir * ROCKETLAUNCHER_TRIPLE_VELOCITY, self, ROCKETLAUNCHER_DAMAGE, ROCKETLAUNCHER_FORCE, ROCKETLAUNCHER_RADIUS, "ROCKET", Obituary_Rocket);
+					LaunchMissile(shotorg, shotdir * ROCKETLAUNCHER_MULTI_VELOCITY, self, ROCKETLAUNCHER_DAMAGE, ROCKETLAUNCHER_FORCE, ROCKETLAUNCHER_RADIUS, "ROCKET", Obituary_Rocket);
 					//newmis.angles_z = step * self.wburst;
 					newmis.dest3_z = step * self.wburst;
 					newmis.dest2 = '0 8 0';
@@ -1755,7 +1785,7 @@ float(float request) w_plasmarifle =
 				cells = Inventory_Quantity(self, "cells");
 				if (cells > PLASMARIFLE_NORMAL_CELLS)
 					cells = PLASMARIFLE_NORMAL_CELLS;
-				FirePlasma(self, shotorg, shotdir * PLASMARIFLE_NORMAL_VELOCITY, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
+				FirePlasma(self, self, shotorg, shotdir * PLASMARIFLE_NORMAL_VELOCITY, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
 				//while (cells > 0)
 				//{
@@ -1800,7 +1830,7 @@ float(float request) w_plasmarifle =
 			cells = Inventory_Quantity(self, "cells");
 			if (cells > PLASMARIFLE_SUPER_CELLS)
 				cells = PLASMARIFLE_SUPER_CELLS;
-			FirePlasma(self, shotorg, shotdir * PLASMARIFLE_SUPER_VELOCITY, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
+			FirePlasma(self, self, shotorg, shotdir * PLASMARIFLE_SUPER_VELOCITY, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
 			Inventory_AdjustQuantity(self, "cells", 0 - cells);
 			//while (cells > 0)
 			//{
@@ -2062,7 +2092,7 @@ float(float request) w_plasmawave =
 			{
 				shots = shots - 1;
 				makevectors(ang);
-				FirePlasmaBall(self, shotorg, v_forward * 1000, damage, damage, PLASMAWAVE_WAVE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveOverload);
+				FirePlasmaBall(self, self, shotorg, v_forward * 1000, damage, damage, PLASMAWAVE_WAVE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveOverload);
 				ang = ang + '0 1 0' * PLASMAWAVE_WAVE_SPREADANGLEPERSHOT;
 			}
 			wsetanim(WANIM_FIRE1, 0, 0, PLASMAWAVE_WAVE_REFIRE - PLASMAWAVE_WAVE_CHARGETIME);
@@ -2115,7 +2145,7 @@ float(float request) w_plasmawave =
 			self.wfiretime = time;
 			Inventory_AdjustQuantity(self, "cells", 0 - cells);
 			w_muzzleflash(shotorg, 4);
-			FirePlasmaBall(self, shotorg, shotdir * 1000, cells * PLASMAWAVE_SINGLE_CELL, cells * PLASMAWAVE_SINGLE_CELL, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
+			FirePlasmaBall(self, self, shotorg, shotdir * 1000, cells * PLASMAWAVE_SINGLE_CELL, cells * PLASMAWAVE_SINGLE_CELL, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 			wsetanim(WANIM_FIRE1, 0, 0, PLASMAWAVE_SINGLE_REFIRE);
 			return TRUE;
 		}
@@ -3968,7 +3998,7 @@ float(float request) w_pcrifle =
 				self.flags = self.flags - (self.flags & FL_ONGROUND);
 				self.wfiretime = time;
 				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
+				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				self.wburst = 0;
 				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
@@ -4126,7 +4156,7 @@ float(float request) w_pcrifle =
 				self.flags = self.flags - (self.flags & FL_ONGROUND);
 				self.wfiretime = time;
 				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
+				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				self.wburst = 0;
 				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
@@ -4303,7 +4333,7 @@ float(float request) w_pcrifle =
 			self.flags = self.flags - (self.flags & FL_ONGROUND);
 			self.wfiretime = time;
 			w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH);
-			//FirePlasma(self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE, PCRIFLE_CHARGE_BASEFORCE, PCRIFLE_CHARGE_BASERADIUS, "PCRIFLE", Obituary_PCRifleCharge);
+			//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE, PCRIFLE_CHARGE_BASEFORCE, PCRIFLE_CHARGE_BASERADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 			LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE, PCRIFLE_CHARGE_BASEFORCE, PCRIFLE_CHARGE_BASERADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 			wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
 			return TRUE;
@@ -4371,7 +4401,7 @@ float(float request) w_pcrifle =
 				self.flags = self.flags - (self.flags & FL_ONGROUND);
 				self.wfiretime = time;
 				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
+				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				self.wburst = 0;
 				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
@@ -4479,7 +4509,7 @@ float(float request) w_pcrifle =
 				self.flags = self.flags - (self.flags & FL_ONGROUND);
 				self.wfiretime = time;
 				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
+				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				self.wburst = 0;
 				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
@@ -4502,7 +4532,7 @@ float(float request) w_pcrifle =
 			self.flags = self.flags - (self.flags & FL_ONGROUND);
 			self.wfiretime = time;
 			w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-			//FirePlasma(self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
+			//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 			LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 			self.wburst = 0;
 			wsetanim(WANIM_FIRE4, 0, 0, 0.2);
@@ -4694,7 +4724,7 @@ float(float request) w_pcrifle =
 				self.flags = self.flags - (self.flags & FL_ONGROUND);
 				self.wfiretime = time;
 				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
+				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				//LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, (PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE) * 0.33, (PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE) * 0.33, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				//LaunchPlasmaCharge(shotorg - v_right * 8, shotdir * PCRIFLE_CHARGE_VELOCITY, self, (PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE) * 0.33, (PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE) * 0.33, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
 				//LaunchPlasmaCharge(shotorg + v_right * 8, shotdir * PCRIFLE_CHARGE_VELOCITY, self, (PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE) * 0.33, (PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE) * 0.33, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
@@ -5432,7 +5462,7 @@ void() W_Precache =
 		precache_model("progs/grenade.mdl");
 		grapple_precache();
 		mctf_precache();
-	
+
 		if (cvar("deathmatch") == DM_MCTF_2TEAM)
 		{
 			w_pcrifle(WR_REGISTER);

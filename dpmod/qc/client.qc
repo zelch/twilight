@@ -146,7 +146,7 @@ void() SetChangeParms =
 void() DecodeLevelParms =
 {
 	// reset equipment in some cases
-	if (deathmatch || self.isbot || world.model == "maps/start.bsp")
+	if (deathmatch || /*self.isbot || */world.model == "maps/start.bsp")
 		SetNewParms();
 
 	Inventory_FromParms(self);
@@ -426,7 +426,7 @@ void() respawn =
 		// make a copy of the dead body for appearances sake
 		CopyToBodyQue (self);
 		// get the spawn parms as they were at level start
-		if (self.flags & FL_CLIENT)
+		//if (self.flags & FL_CLIENT) // not needed with DP_SV_BOTCLIENT
 			setspawnparms (self);
 		// respawn
 		PutClientInServer ();
@@ -652,9 +652,10 @@ void() PutClientInServer =
 	// make self completely visible
 	self.alpha = 0;
 
-	if (self.isbot)
-		self.flags = 0;
-	else
+	// not needed with DP_SV_BOTCLIENT
+	//if (self.isbot)
+	//	self.flags = 0;
+	//else
 		self.flags = FL_CLIENT;
 
 	self.th_pain = player_pain;
@@ -960,22 +961,21 @@ void() PlayerDeathThink =
 	if (self.deadflag == DEAD_DEAD)
 	{
 		// wait for all buttons released
-		if (time < self.attack_finished || self.button2 || self.button1 || self.button0)
+		if (self.button2 || self.button0)
 			return;
 		self.deadflag = DEAD_RESPAWNABLE;
-		self.attack_finished = time + 2;
 	}
 	else if (self.deadflag == DEAD_RESPAWNABLE)
 	{
 		// wait for any button down
-		if (!self.button2 && !self.button1 && !self.button0)
+		if (!self.button2 && !self.button0)
 			return;
 		self.deadflag = DEAD_RESPAWNING;
 	}
 	else if (self.deadflag == DEAD_RESPAWNING)
 	{
 		// wait for all buttons released
-		if (self.button2 || self.button1 || self.button0)
+		if (self.button2 || self.button0)
 			return;
 		respawn();
 	}
@@ -1401,8 +1401,12 @@ ClientConnect
 called when a player connects to a server
 ============
 */
+void() havocbot_clientconnect;
 void() ClientConnect =
 {
+	dprint("ClientConnect ");
+	dprint(self.netname);
+	dprint("\n");
 	bprint (self.netname);
 	bprint (" joined the slaughter\n");
 	self.isadmin = FALSE;
@@ -1413,8 +1417,7 @@ void() ClientConnect =
 	// a client connecting during an intermission can cause problems
 	if (intermission_running)
 		ExitIntermission ();
-	if (self.isbot)
-		PutClientInServer();
+	havocbot_clientconnect();
 };
 
 
@@ -1477,7 +1480,6 @@ void(entity e, float f, float tf) ChangeTeamFrags =
 {
 	local   entity  head;
 	local   float   tp, tf1, tf2;
-	local string s;
 	e.frags = e.frags + f; // bonus for this player
 	// now spread out 'tf' frags among his team (including himself)
 	tp = 0;
@@ -1509,6 +1511,41 @@ void(entity e, float f, float tf) ChangeTeamFrags =
 		if (head.team == e.team)
 		{
 			head.frags = head.frags + f + tf;
+			if (teamplay)
+			{
+				bprint(head.netname);
+				bprint(" team now has ");
+				bprintfloat(head.frags);
+				bprint(" frags\n");
+			}
+		}
+		head = head.chain;
+	}
+	//onevsallupdateteams();
+};
+
+void(float teamnum, float tf) ChangeTeamFrags2 =
+{
+	local   entity  head;
+	local   float   tt;
+	tt = 0;
+	head = findchain(classname, "player");
+	while (head != world)
+	{
+		if (head.team == teamnum)
+		{
+			head.frags = head.frags + tf;
+			tt = tt + tf;
+		}
+		head = head.chain;
+	}
+	// now update the info on the team
+	head = findchain(classname, "teamscore");
+	while (head != world)
+	{
+		if (head.team == teamnum)
+		{
+			head.frags = head.frags + tt;
 			if (teamplay)
 			{
 				bprint(head.netname);
@@ -1618,48 +1655,32 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 {
 	statkill(targ, attacker, dmsg); // count it in the stats
 
+	// make turrets and such credit their owner
+	if (attacker.classname != "player" && attacker.realowner.classname == "player")
+		attacker = attacker.realowner;
+
 	if (targ == attacker)
-	{
-		ChangeFrags(targ, -1);
 		dtype = DTYPE_SUICIDE;
-	}
 	else if (teamplay && targ.team && targ.team == attacker.team)
-	{
-		ChangeFrags(attacker, -2);
 		dtype = DTYPE_TEAMKILL;
-	}
 	else if (attacker == world)
-	{
-		ChangeFrags(targ, -1);
 		dtype = DTYPE_WORLD;
-	}
-	else if ((targ.flags & FL_MONSTER) && attacker.classname == "player")
-	{
-		ChangeFrags(attacker, 1);
+	else if (attacker.classname == "player" && ((targ.flags & FL_MONSTER) || (targ.classname == "player")))
 		dtype = DTYPE_PLAYER;
-	}
-	else if (targ.classname == "player" && attacker.classname == "player")
-	{
-		ChangeFrags(attacker, 1);
-		dtype = DTYPE_PLAYER;
-
-		if (attacker.combo_time >= time)
-		{
-			attacker.combo_amount = attacker.combo_amount + 1;
-			killcombomsg(attacker, attacker.combo_amount);
-		}
-		else
-			attacker.combo_amount = 1;
-	
-		attacker.combo_time = time + 2;
-		attacker.spree_count = attacker.spree_count + 1;
-		attacker.spree_amount = attacker.spree_amount + 1;
-
-		if (attacker.spree_count >= 10)
-			spreemessage(attacker, attacker.spree_amount);
-	}
 	else
 		dtype = DTYPE_OTHER;
+
+	if (deathmatch != DM_DOMINATION && deathmatch != DM_SUPERDOMINATION)
+	{
+		if (dtype == DTYPE_SUICIDE)
+			ChangeFrags(targ, -1);
+		else if (dtype == DTYPE_TEAMKILL)
+			ChangeFrags(attacker, -2);
+		else if (dtype == DTYPE_WORLD)
+			ChangeFrags(targ, -1);
+		else if (dtype == DTYPE_PLAYER)
+			ChangeFrags(attacker, 1);
+	}
 
 	if (dtype == DTYPE_PLAYER && deathmatch)
 	{
@@ -1670,9 +1691,11 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 		}
 		else
 			attacker.combo_amount = 1;
-	
-		attacker.combo_time = time + 1.5;
-		attacker.spree_count = attacker.spree_count + 1;	
+		if (targ.classname == "player")
+			attacker.combo_time = time + 3;
+		else // monster
+			attacker.combo_time = time + 1.5;
+		attacker.spree_count = attacker.spree_count + 1;
 		attacker.spree_amount = attacker.spree_amount + 1;
 
 		if (attacker.spree_count >= 10)

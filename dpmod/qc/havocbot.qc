@@ -164,17 +164,6 @@ float havocbots;
 entity havocbot_list;
 .entity nextbot;
 
-void() havocbot_relinkbotlist =
-{
-	local entity e;
-	havocbot_list = e = findchainfloat(isbot, TRUE);
-	while (e)
-	{
-		e.nextbot = e.chain;
-		e = e.chain;
-	}
-};
-
 string() havocbot_name =
 {
 	local string name;
@@ -223,48 +212,82 @@ void(float t, float f1, float f2, entity e1, vector v1, vector v2, vector v3, ve
 
 .void() havocbot_role;
 void() havocbot_chooserole;
+
+void() havocbot_relinkbotlist =
+{
+	local entity e;
+	havoccurrentbots = 0;
+	havocbot_list = e = findchainfloat(isbot, TRUE);
+	while (e)
+	{
+		havoccurrentbots = havoccurrentbots + 1;
+		e.nextbot = e.chain;
+		e = e.chain;
+	}
+};
+
+void() havocbot_clientconnect =
+{
+	if (clienttype(self) != CLIENTTYPE_BOT)
+		return;
+	self.lag_func = havocbot_lagfunc;
+	self.isbot = TRUE;
+	//self.think = ClientConnect;
+	//self.nextthink = time + random() * 0.5 + 0.2;
+	self.createdtime = self.nextthink;
+	self.havocbot_role = SUB_Null;
+	//if (self.isbot)
+	//	PutClientInServer();
+	havocbot_relinkbotlist();
+};
+
 void() havocbot_new =
 {
+	local entity oldself;
 	// only 32 names available
 	if (havoccurrentbots >= 32)
 		return;
+	oldself = self;
+	self = spawnclient();
+	if (!self)
+	{
+		havocbots = havoccurrentbots;
+		cvar_set("bots", ftos(havocbots));
+		bprint("Can not add bot, server full.\n");
+		self = oldself;
+		return;
+	}
 	havoccurrentbots = havoccurrentbots + 1;
-	newmis = spawn();
-	newmis.lag_func = havocbot_lagfunc;
-	newmis.isbot = TRUE;
-	newmis.think = ClientConnect;
-	newmis.nextthink = time + random() * 0.5 + 0.2;
-	newmis.createdtime = newmis.nextthink;
-	newmis.netname = havocbot_name();
-	newmis.c_pants = -1;
-	newmis.c_shirt = -1;
-	newmis.havocbot_role = SUB_Null;
+	self.netname = havocbot_name();
+	self.c_pants = random() * 16;
+	self.c_shirt = random() * 16;
+	self.clientcolors = self.c_shirt * 16 + self.c_pants;
+	ClientConnect();
+	PutClientInServer();
 	havocbot_relinkbotlist();
+	self = oldself;
 };
 
 void() havocbot_removenewest =
 {
 	local   float   besttime;
-	local   entity  best, head, saveself;
-	head = findchainfloat(isbot, TRUE);
+	local   entity  best, head;
+	head = havocbot_list;
 	if (!head)
 		return;
 	best = head;
 	besttime = head.createdtime;
 	while (head)
 	{
-		if (head.createdtime > besttime)
+		if (besttime < head.createdtime)
 		{
-			best = head;
 			besttime = head.createdtime;
+			best = head;
 		}
-		head = head.chain;
+		head = head.nextbot;
 	}
 	havoccurrentbots = havoccurrentbots - 1;
-	saveself = self;
-	self = best;
-	ClientDisconnect();
-	self = saveself;
+	dropclient(best);
 	havocbot_relinkbotlist();
 };
 
@@ -278,6 +301,13 @@ void() havocbot_serverframe =
 	if (intermission_running)
 		return;
 
+	havocbots = cvar("bots");
+	havocbots = bound(0, havocbots, 32);
+	while (havoccurrentbots < havocbots)
+		havocbot_new();
+	while (havoccurrentbots > havocbots)
+		havocbot_removenewest();
+
 	if (havocbot_list)
 	{
 		maxspeed = cvar("sv_maxspeed"); // player movement speed
@@ -285,23 +315,21 @@ void() havocbot_serverframe =
 		havocbot_findentsandspawnwaysurfaces();
 
 		havocbot_updatedangerousobjects();
+		/*
+		// no longer needed with DP_SV_BOTCLIENT extension
 		saveself = self;
 		head = havocbot_list;
 		while (head)
 		{
 			self = head;
-			havocbot_think();
+			SV_PlayerPhysics();
 			PlayerPreThink();
 			PlayerPostThink();
 			head = head.nextbot;
 		}
 		self = saveself;
+		*/
 	}
-	havocbots = cvar("bots");
-	if (havoccurrentbots < havocbots)
-		havocbot_new();
-	else if (havoccurrentbots > havocbots)
-		havocbot_removenewest();
 };
 
 //float   WP_JUMP = 1;
@@ -312,7 +340,7 @@ void() havocbot_serverframe =
 //.float  wpflags;
 
 .entity wp0, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12, wp13, wp14, wp15, wp16, wp17, wp18, wp19, wp20, wp21, wp22, wp23, wp24, wp25, wp26, wp27, wp28, wp29, wp30, wp31;
-.float wpcost0, wpcost1, wpcost2, wpcost3, wpcost4, wpcost5, wpcost6, wpcost7, wpcost8, wpcost9, wpcost10, wpcost11, wpcost12, wpcost13, wpcost14, wpcost15, wpcost16, wpcost17, wpcost18, wpcost19, wpcost20, wpcost21, wpcost22, wpcost23, wpcost24, wpcost25, wpcost26, wpcost27, wpcost28, wpcost29, wpcost30, wpcost31;
+//.float wpcost0, wpcost1, wpcost2, wpcost3, wpcost4, wpcost5, wpcost6, wpcost7, wpcost8, wpcost9, wpcost10, wpcost11, wpcost12, wpcost13, wpcost14, wpcost15, wpcost16, wpcost17, wpcost18, wpcost19, wpcost20, wpcost21, wpcost22, wpcost23, wpcost24, wpcost25, wpcost26, wpcost27, wpcost28, wpcost29, wpcost30, wpcost31;
 
 float(entity from, entity to) waysurface_addlink =
 {
@@ -590,7 +618,6 @@ entity(entity e) findnearestwaysurface =
 	return e.nearestwaysurface;
 };
 
-float timediff;
 .float wpfire, wpcost;
 
 void(entity head, entity w) havocbot_checkwaysurface =
@@ -698,8 +725,6 @@ void() markroutes =
 void(entity e, float f) routerating =
 {
 	local entity w;
-	local float c;
-	local string s;
 	w = findnearestwaysurface(e);
 	if (w)
 	{
@@ -800,7 +825,7 @@ void() havocbot_popgoals =
 	}
 }
 
-.float havocbotignoretime;
+//.float havocbotignoretime;
 void(vector dodge) havocbot_movetogoal =
 {
 	local vector destorg, diff, dir, vel, flatdir, move, end, m1, m2, m3, m4, org, evadeobstacle, evadelava;
@@ -1101,7 +1126,6 @@ void() havocbot_chooseweapon =
 void() havocbot_aim =
 {
 	local vector selfvel, enemyvel;
-	local string s;
 	if (time < self.nextaim)
 		return;
 	self.nextaim = time + 0.1;
@@ -1285,24 +1309,52 @@ void() havocbot_doaim =
 };
 */
 
-.float  respawntime;
-.float nextgoalcheck;
+//.float nextgoalcheck;
 .float oldhealth;
 void() havocbot_think =
 {
 	local vector dodge;
+	if (!self.havocbot_role)
+	{
+		objerror("no havocbot_role\n");
+		// FIXME: how is this happening??
+		//ClientConnect();
+		//PutClientInServer();
+	}
+
+	if (self.painintensity > 0)
+		self.painintensity = self.painintensity - (skill * 40 + 40) * frametime;
+
+	if (self.health < self.oldhealth)
+		self.painintensity = self.painintensity + self.oldhealth - self.health;
+	else if (self.health > self.oldhealth)
+		self.painintensity = 0;
+	self.oldhealth = self.health;
+
+	if (self.fixangle)
+	{
+		self.v_angle = self.angles;
+		self.fixangle = FALSE;
+	}
+
 	self.button0 = 0;
 	self.button1 = 0;
 	self.button2 = 0;
+	self.button3 = 0;
+	self.button4 = 0;
+	self.button5 = 0;
+	self.button6 = 0;
+	self.button7 = 0;
+	self.button8 = 0;
+
 	if (self.deadflag)
 	{
-		if (time > self.respawntime)
 		if (self.deadflag == DEAD_RESPAWNABLE)
 			self.button0 = 1;
+		PlayerPreThink();
+		PlayerPostThink();
 		return;
 	}
-	else
-		self.respawntime = time + 1;
 //	if (self.flags & FL_ONGROUND)
 //		self.velocity = '0 0 0';
 	self.havocbot_role();
@@ -1315,19 +1367,13 @@ void() havocbot_think =
 	lag_update();
 	//havocbot_doaim();
 	if (!self.aimtarg)
+	{
+		self.button0 = FALSE;
+		self.button3 = FALSE;
 		w_aimdir(self.goalcurrent.origin - self.origin, 0);
+	}
 	dodge = havocbot_dodge();
 	havocbot_movetogoal(dodge);
-	SV_PlayerPhysics();
-
-	if (self.painintensity > 0)
-		self.painintensity = self.painintensity - (skill * 40 + 40) * frametime;
-
-	if (self.health < self.oldhealth)
-		self.painintensity = self.painintensity + self.oldhealth - self.health;
-	else if (self.health > self.oldhealth)
-		self.painintensity = 0;
-	self.oldhealth = self.health;
 };
 
 void(entity e) waypointspawnforitem =
@@ -1381,7 +1427,7 @@ void() havoc_laywaypoints =
 		return;
 	if (self.fixangle || self.teleport_time > time || self.pausetime > time)
 		self.lastwaysurface = world;
-	if (!(self.flags & FL_CLIENT))
+	if (self.isbot)
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;

@@ -128,7 +128,7 @@ void() GrenadeTouch =
 		return;
 	}
 	if (self.weapon & GRENADE_DETONATEONCREATURE)
-	if ((other.flags & FL_MONSTER) || other.classname == "player")
+	if ((other.flags & FL_MONSTER) || other.classname == "player" || other.classname == "turretbase")
 	if (other.team == 0 || other.team != self.owner.team)
 	{
 		self.th_die();

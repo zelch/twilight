@@ -420,9 +420,10 @@ entity havocbot_list;
 entity() checkplayer =
 {
 	local entity check;
+	local float worldcount;
 	// we can just fallback on checkclient if there are no bots
-	if (!havocbot_list)
-		return checkclient();
+	//if (!havocbot_list)
+	//	return checkclient();
 	if (time < checkplayertime)
 	{
 		traceline(self.origin + self.view_ofs, lastcheckplayer.origin + lastcheckplayer.view_ofs, TRUE, self);
@@ -433,13 +434,22 @@ entity() checkplayer =
 	}
 	checkplayertime = time + 0.1;
 	check = lastcheckplayer;
+	worldcount = 0;
 	do
 	{
-		check = find(check, classname, "player");
-		if (check != world)
+		check = findfloat(check, havocattack, TRUE);
+		if (check.classname == "player" || check.classname == "turretbase")
 		{
-			traceline(self.origin + self.view_ofs, check.origin + check.view_ofs, TRUE, self);
-			if (trace_fraction == 1 || trace_ent == lastcheckplayer)
+			//traceline(self.origin + self.view_ofs, check.origin + check.view_ofs, TRUE, self);
+			//if (trace_fraction == 1)
+			//	return lastcheckplayer = check;
+			//if (trace_ent == check)
+				return lastcheckplayer = check;
+		}
+		else if (check == world)
+		{
+			worldcount = worldcount + 1;
+			if (worldcount >= 2)
 				return lastcheckplayer = check;
 		}
 	}
@@ -534,10 +544,10 @@ float() FindTarget =
 	if (client.model == "")
 		return FALSE;
 	self.enemy = client;
-	if (self.enemy.classname != "player")
+	if (self.enemy.classname != "player" && self.enemy.classname != "turretbase")
 	{
 		self.enemy = self.enemy.enemy;
-		if (self.enemy.classname != "player")
+		if (self.enemy.classname != "player" && self.enemy.classname != "turretbase")
 		{
 			self.enemy = world;
 			return FALSE;

@@ -4,7 +4,7 @@
 .float  ammo_rockets;
 .float  ammo_cells;
 
-float   AMMOMAX_SHELLS          =  300;
+float   AMMOMAX_SHELLS          =  100;
 float   AMMOMAX_NAILS           =  500;
 float   AMMOMAX_ROCKETS         =  100;
 float   AMMOMAX_CELLS           =  300;

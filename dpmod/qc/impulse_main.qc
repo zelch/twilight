@@ -182,6 +182,8 @@ void() GibClone =
 };
 
 
+void() superdomination_impulses;
+
 /*
 ============
 ImpulseCommands
@@ -599,6 +601,7 @@ void() ImpulseCommands =
 	if ((self.impulse >= 1 && self.impulse <= 9) || (self.impulse >= 201 && self.impulse <= 220)) W_ChangeWeapon();
 	else if (self.impulse == 10) CycleWeaponCommand ();
 	else if (self.impulse == 12) CycleWeaponReverseCommand ();
+	superdomination_impulses();
 
 	self.impulse = 0;
 };
