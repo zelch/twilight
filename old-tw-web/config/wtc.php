@@ -6,9 +6,9 @@
 				"alink=\"#0080ff\" vlink=\"#0080ff\" link=\"#0080ff\"",
 		basefont => "face=\"verdana, arial\"" ,
 
-		header => "width=\"100%\" bgcolor=\"#000430\"" ,
+		header => "width=\"100%\" bgcolor=\"#181818\"" ,
 
-		footer => "width=\"100%\" bgcolor=\"#000430\"" ,
+		footer => "width=\"100%\" bgcolor=\"#181818\"" ,
 		footerpre => "<center><font face=\"verdana, arial\" size=\"-2\">" ,
 		footerpost => "</font></center>",
 
@@ -16,11 +16,11 @@
 		uinfonicktr => "valign=\"top\"" ,
 		uinfodata => "width=\"100%\" bgcolor=\"#202020\"" ,
 
-		nav => "bgcolor=\"#000430\" width=\"100%\"" ,
+		nav => "bgcolor=\"#181818\" width=\"100%\"" ,
 		navpre => "",
 		navpost => "",
 
-		side => "bgcolor=\"#000430\" width=\"1%\"",
+		side => "bgcolor=\"#181818\" width=\"1%\"",
 
 		tnav => "width=\"100%\" bgcolor=\"#4f4f4f\"" ,
 		tnavpre => "<font face=\"verdana, arial\"><strong>" ,
