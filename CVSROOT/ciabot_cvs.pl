@@ -180,6 +180,7 @@ exit unless $dirfiles[0];
 my $sum; # _VERY_ simple hash of the log message. It is really weak, but I'm
          # lazy and it's really sorta exceptional to even get more commits
          # running simultanously anyway.
+$sum = 0;	# initialize so that it actually _exists_ even with an empty string.
 map { $sum += ord $_ } split(//, $logmsg);
 
 my $syncfile; # Name of the file used for syncing
