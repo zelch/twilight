@@ -8,8 +8,9 @@ startpage ("Download");
 
 echo ("Here is the current release of Project: Twilight\n");
 
-foreach (basename(glob("$webspace/release/*.zip")) as $filename)
+foreach (glob("$webspace/release/*.zip") as $filename)
 {
+	$filename = basename($filename);
 	echo ("<br>$filename\n");
 }
 
