@@ -2175,6 +2175,8 @@ void() W_Precache =
 	w_shotgun(WR_REGISTER);
 	w_plasmashotgun(WR_REGISTER);
 	w_dbshotgun(WR_REGISTER);
+	if (cvar("registered"))
+		w_laserrifle(WR_REGISTER);
 	w_nailgun(WR_REGISTER);
 	w_supernailgun(WR_REGISTER);
 	w_grenadelauncher(WR_REGISTER);
@@ -2182,7 +2184,5 @@ void() W_Precache =
 	w_thunderbolt(WR_REGISTER);
 	w_plasmarifle(WR_REGISTER);
 	w_plasmawave(WR_REGISTER);
-	if (cvar("registered"))
-		w_laserrifle(WR_REGISTER);
 };
 
