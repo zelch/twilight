@@ -1,6 +1,6 @@
 <?php
-	require ("config/default.php");
 	require ("include/browser-detect.php");
+//	$browser_css = 0;
 
 	if ($browser_css) {
 		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"" .
@@ -10,12 +10,10 @@
 			"Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
 	}
 	echo ("<html>\n<head>\n<title>Project Twilight: " . $page . "</title>\n");
-	if ($browser_css) {
-		require ("config/default.css");
-	}
+	require ("config/default.php");
 
 	echo ("</head>\n<body bgcolor=". $display["background"] . " text=" .
-			$display["text"] . ">");
+			$display["text"] . ">\n");
 
 	if ($browser_css) {
 		echo ("<div class=header>\n<img src=\"" . $display["title_img"] .
@@ -25,20 +23,35 @@
 			"<tr><td><img src=\"" . $display["title_img"] .
 			"\" alt=\"Project Twilight\"></td></tr>\n</table>");
 	}
-	$nav_ref = 0
-?>
-<div class=nav>
-<?php
+
+	$nav_ref = 0;
+	if ($browser_css) {
+		echo ("<div class=nav>\n");
+	} else {
+		echo ("<table bgcolor=\"" . $display["nav"] . "\" width=\"100%\">\n" .
+			"<tr><td><font face=\"Verdana\">\n");
+	}
 	while (list ($title, $url) = each ($nav_items)) {
 		if ($nav_ref) {
 			echo (" | ");
 		}
 		$nav_ref++;
 		if ($title == $page) {
-			echo ($title);
+			echo ($title . "\n");
 		} else {
-			echo ("<a class=\"nav\" href=\"" . $url . "\">" . $title . "</a>");
+			if ($browser_css && 0) {
+				echo ("<a class=\"nav\" href=\"" . $url . "\">" . $title .
+					"</a>\n");
+			} else {
+				echo ("<a href=\"" . $url . "\"><font color=\"" .
+					$display["nav_link"] . "\">" . $title . "</a></font>\n");
+			}
 		}
 	}
+	if ($browser_css) {
+		echo ("</div>\n");
+	} else {
+		echo ("</font></td></tr>\n</table>\n");
+	}
+
 ?>
-</div>
