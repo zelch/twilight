@@ -72,6 +72,7 @@ div.header {
 div.footer {
    width: 100%;
    background: #000440;
+   margin-top: 10px;
    border-top: 5px solid #000440;
    border-bottom: 5px solid #000440;
    text-align: center;
@@ -108,14 +109,16 @@ div.plugs {
 
 div.title {
 	border-bottom: 1px solid #ffffff;
+	padding-top: 10px;
 	font: bolder 200% verdana, sans-serif;
 }
 
 div.para {
-	padding-top: 20px
+	padding: 10px 0px;
 }
 
 div.sub {
+	padding-top: 30px;
 	font: bolder 150% verdana, sans-serif;
 }
 

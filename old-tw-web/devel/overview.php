@@ -66,16 +66,15 @@
 		"renderer, simply because it is 8-bit and half of it is Pentium\n" .
 		"optimized assembly.  The projects which have kept the old code\n" .
 		"have left it virtually untouched.  A software renderer would be\n" .
-		"nice, but not if it's going to hold everything else back."
+		"nice, but not if it's going to hold everything else back.\n"
 	);
 
-	box ("para", "<a href=\"mailto:lordhavoc@users.sourceforge.net>\n" .
+	box ("para", "<a href=\"mailto:lordhavoc@users.sourceforge.net\">\n" .
 		"LordHavoc</a> modified the old software renderer such that the\n" .
 		"8 bit color limit is gone.  It'd be nice to see this renderer in\n" .
 		"our engine at some point, but at this stage nobody has made it\n" .
-		"their priority."
+		"their priority.\n"
 	);
-
 
 	box ("sub", "Long term plans");
 
