@@ -30,8 +30,7 @@ use MD5;
 
 # Set this to the full path of a mailer that takes a list
 # of email addresses as arguments...
-#$MAILER = "/usr/sbin/sendmail -oi -oeq";
-$MAILER = "/usr/bin/mail";
+$MAILER = "/usr/sbin/sendmail -oi -oeq";
 
 # Set this to the path of the CVS binary responsible for this tree...
 $CVS = "/usr/bin/cvs";
@@ -335,7 +334,7 @@ sub build_header ($@) {
 	# Build the mail header
 	push(@text, "From: testing $gecos <$user>");
 	push(@text, "To: " . join(' ', @mailto));
-	push(@text, "Subject: [commit] $subject");
+	push(@text, "Subject: $subject");
 	push(@text, "MIME-Version: 1.0");
 	push(@text, "Content-Type: multipart/alternative; boundary=\"$boundary\"");
 	push(@text, "X-Mailer: cvs/new_log_accum");
@@ -368,7 +367,7 @@ sub send_mail {
     @text = @{$text};
 
     open(MAIL, "|$MAILER " . join(' ', @mailto));
-    push(@mailto, $boundary);
+    push(@text, $boundary);
     print MAIL join("\n", @text), "\n";
     close(MAIL);
 }
@@ -743,9 +742,6 @@ foreach my $file (@files) {
     }
     close(DIFF);
 }
-
-foreach my $item (@mailto) { print "main/mailto: $item\n"; }
-foreach my $item (@text) { print "main/text: $item\n"; }
 
 # send the mail...
 send_mail(\@mailto, \@text);
