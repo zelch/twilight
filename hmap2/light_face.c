@@ -39,6 +39,7 @@ typedef struct
 {
 	vec_t			facedist;
 	vec3_t			facenormal;
+	vec3_t			facemid;
 
 	int				numpoints;
 	int				numsamples;
@@ -58,9 +59,8 @@ typedef struct
 	dface_t			*face;
 } lightinfo_t;
 
-//===============================================================================
-
-static qboolean ranout = false;
+#define BUGGY_TEST
+static qboolean ranout = false; // FIXME: do this some other way?
 
 /*
 ================
@@ -140,12 +140,14 @@ static void CalcFaceExtents( lightinfo_t *l )
 	mins[0] = mins[1] = BOGUS_RANGE;
 	maxs[0] = maxs[1] = -BOGUS_RANGE;
 
+	l->facemid[0] = l->facemid[1] = l->facemid[2] = 0;
 	for( i = 0; i < s->numedges; i++ ) {
 		e = dsurfedges[s->firstedge + i];
 		if( e >= 0 )
 			v = dvertexes + dedges[e].v[0];
 		else
 			v = dvertexes + dedges[-e].v[1];
+		VectorAdd(l->facemid, v->point, l->facemid);
 
 		for( j = 0; j < 2; j++ ) {
 			val = DotProduct( v->point, tex->vecs[j] ) + tex->vecs[j][3];
@@ -155,6 +157,7 @@ static void CalcFaceExtents( lightinfo_t *l )
 				maxs[j] = val;
 		}
 	}
+	VectorScale(l->facemid, (1.0 / s->numedges), l->facemid);
 
 	for( i = 0; i < 2; i++ ) {
 		l->exactmins[i] = mins[i];
@@ -230,10 +233,9 @@ static void CalcPoints( lightinfo_t *l )
 	mids = (l->exactmaxs[0] + l->exactmins[0]) * 0.5;
 	midt = (l->exactmaxs[1] + l->exactmins[1]) * 0.5;
 
-	VectorAdd( l->texorg, l->facenormal, base );
-
-	for( j = 0; j < 3; j++ )
-		facemid[j] = base[j] + l->textoworld[0][j] * mids + l->textoworld[1][j] * midt;
+	// put the base and facemid a little above the surface
+	VectorMA( l->texorg, (1.0 / 32.0), l->facenormal, base );
+	VectorMA( l->facemid, (1.0 / 32.0), l->facenormal, facemid );
 
 	realw = l->texsize[0];
 	realh = l->texsize[1];
@@ -264,6 +266,7 @@ static void CalcPoints( lightinfo_t *l )
 			for( j = 0; j < 3; j++ )
 				point->v[j] = base[j] + l->textoworld[0][j] * us + l->textoworld[1][j] * ut;
 
+			/*
 			// nudge around the sample point
 			for( i = 0; i < numNudgeFractions; i++ ) {
 				// calculate texture point
@@ -276,16 +279,18 @@ static void CalcPoints( lightinfo_t *l )
 				}
 			}
 
-			if( i == numNudgeFractions ) {	// ok, give it one last chance
+			if( i == numNudgeFractions ) */ {
+				// ok, give it one last chance
 				// note: at this point we already know that
 				// the starting sample point is in solid
-				Light_TraceLine( &tr, facemid, point->v );
+				//VectorSubtract(point->v, facemid, v);
+				//VectorNormalize(v);
+				//VectorMA(point->v, (0.0 / 32.0), v, v);
+				Light_TraceLine( &tr, facemid, point->v, false );
 
-				// adjust to nearest position
+				// adjust to impact position
+				// (which is nudged out of the impact surface by 1/32 already)
 				VectorCopy( tr.impact, point->v );
-				VectorSubtract( facemid, point->v, v );
-				VectorNormalize( v );
-				VectorMA( point->v, 0.5, v, point->v );
 
 				if( Light_PointContents( point->v ) == CONTENTS_SOLID ) {
 					c_occluded++;
@@ -340,7 +345,7 @@ static void SingleLightFace_Sun( const directlight_t *light, lightinfo_t *l )
 {
 	int				i, mapnum;
 	vec_t			shade;
-	vec3_t			startpos, endpos, c;
+	vec3_t			endpos, c;
 	lightpoint_t	*point;
 	lightsample_t	*sample;
 	lightTrace_t	tr;
@@ -361,11 +366,11 @@ static void SingleLightFace_Sun( const directlight_t *light, lightinfo_t *l )
 
 		// LordHavoc: changed to be more realistic (entirely different lighting model)
 		// LordHavoc: FIXME: use subbrightness on all lights, simply to have some distance culling
-		VectorMA( point->v, -(1 / 32.0), light->spotdir, startpos );
 		VectorMA( point->v, -131072, light->spotdir, endpos );
 
 		// if trace hits solid don't cast sun
-		if( Light_PointContents( startpos ) == CONTENTS_SOLID || (!Light_TraceLine( &tr, startpos, endpos ) && tr.endcontents == CONTENTS_SOLID) )
+		Light_TraceLine( &tr, point->v, endpos, true );
+		if( tr.fraction < 1 && tr.endcontents == CONTENTS_SOLID )
 			continue;
 
 		c[0] = shade * light->color[0] * tr.filter[0];
@@ -452,12 +457,16 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 				break;
 		}
 
-		if( add <= 0 || !Light_TraceLine(&tr, point->v, light->origin) || tr.startcontents == CONTENTS_SOLID)
+		if( add <= 0 )
 			continue;
-
+		
 		// LordHavoc: FIXME: decide this 0.5 bias based on shader properties (some are dull, some are shiny)
 		add = add * (DotProduct( incoming, l->facenormal ) * 0.5 + 0.5);
 		if( add <= 0 )
+			continue;
+
+		Light_TraceLine( &tr, point->v, light->origin, false );
+		if( tr.startcontents == CONTENTS_SOLID || tr.fraction < 1 )
 			continue;
 
 		c[0] = add * light->color[0] * tr.filter[0];
@@ -503,8 +512,12 @@ void LightFace( dface_t *f, const lightchain_t *lightchain, const directlight_t 
 			f->styles[i] = l.lightstyles[i] = 255;
 		f->lightofs = -1;
 
+		// return if it's not a lightmapped surface 
 		if( texinfo[f->texinfo].flags & TEX_SPECIAL )
-			return;		// non-lit texture
+			return;
+		// return if we've run out of lightmap data space
+		if (ranout)
+			return;
 	}
 
 	// rotate plane

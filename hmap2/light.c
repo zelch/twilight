@@ -306,8 +306,8 @@ void WriteLights( void )
 lightchain_t *surfacelightchain[MAX_MAP_FACES];
 lightchain_t lightchainbuf[LIGHTCHAINS];
 byte surfacehit[MAX_MAP_FACES];
-directlight_t *novislight[MAX_MAP_ENTITIES];
-directlight_t *alllight[MAX_MAP_ENTITIES];
+const directlight_t *novislight[MAX_MAP_ENTITIES];
+const directlight_t *alllight[MAX_MAP_ENTITIES];
 int novislights, alllights;
 int lightchainbufindex;
 
@@ -631,8 +631,6 @@ int Light_Main( int argc, char **argv )
 	printf( "%i entities read\n", num_entities );
 
 	ParseLightEntities ();
-
-	MakeTnodes ();
 
 	LightWorld ();
 

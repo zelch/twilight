@@ -56,9 +56,12 @@ typedef struct
 	int			startcontents;
 	int			endcontents;
 	vec_t		fraction;
+	vec3_t		start;
+	vec3_t		end;
 	vec3_t		impact;
 	vec3_t		filter;
 	plane_t		plane;
+	qboolean	hitsky;
 } lightTrace_t;
 
 //===============================================================================
@@ -82,7 +85,6 @@ extern	int			ambientlight;
 void LightFace( dface_t *f, const lightchain_t *lightchain, const directlight_t **novislight, int novislights, const vec3_t faceorg );
 
 // light_trace.c
-void MakeTnodes( void );
 dleaf_t *Light_PointInLeaf( const vec3_t point );
 int Light_PointContents( const vec3_t p );
-qboolean Light_TraceLine( lightTrace_t *trace, const vec3_t start, const vec3_t end );
+void Light_TraceLine( lightTrace_t *trace, const vec3_t start, const vec3_t end, qboolean hitsky );
