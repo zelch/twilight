@@ -39,6 +39,20 @@ void FreeWinding( winding_t *w )
 
 /*
 ==================
+PrintWinding
+==================
+*/
+void PrintWinding(winding_t *w)
+{
+	int i;
+	printf("%i", w->numpoints);
+	for (i = 0;i < w->numpoints;i++)
+		printf(", %f %f %f", w->points[i][0], w->points[i][1], w->points[i][2]);
+	printf("\n");
+}
+
+/*
+==================
 CopyWinding
 ==================
 */
@@ -165,8 +179,10 @@ winding_t *BaseWindingForPlane( plane_t *p )
 
 	VectorSubtract( org, vright, w->points[3] );
 	VectorSubtract( w->points[3], vup, w->points[3] );
-
+	
 	w->numpoints = 4;
+
+	//PrintWinding(w);
 
 	return w;
 }

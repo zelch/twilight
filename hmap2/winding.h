@@ -11,6 +11,7 @@ typedef struct
 
 winding_t	*AllocWinding (int points);
 void		FreeWinding (winding_t *w);
+void		PrintWinding(winding_t *w);
 winding_t	*CopyWinding (winding_t *w);
 winding_t	*CopyWindingExt( int numpoints, vec3_t *points );
 winding_t	*ReverseWinding( winding_t *w );
