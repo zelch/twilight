@@ -5,11 +5,17 @@ require "include/main.php";
 
 startpage ("News");
 
-newsitem ("Friday, 31 December 2003",
+newsitem ("Wednesday, 9 July 2003",
+		"Mercury has released 0.2.00, and Win32 binaries are up, just in"
+		. "time for QExpo!  Have at 'em everyone, and don't forget to"
+		. "report bugs..."
+);
+
+newsitem ("Friday, 31 December 2002",
 		"We now have win32 binaries!"
 );	
 
-newsitem ("Thursday, 30 December 2003",
+newsitem ("Thursday, 30 December 2002",
 		"Ok! Twilight 0.2.0-RC2 has been released!  " .
 		"Please pound on it and report ANY bugs that are found, thanks."
 );	
