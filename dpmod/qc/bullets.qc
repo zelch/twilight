@@ -22,7 +22,10 @@ void() bullet_touch =
 	}
 	setorigin(self, self.origin - dir * 8);
 	if (self.count2)
-		BecomeExplosion(self, self.dmg2, self.dmg2, self.count2, world, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
+	{
+		T_RadiusDamage(self, self.owner, self.dmg2, self.dmg2, self.count2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+		BecomeExplosion(self, '-1 0 0', self.effects & EF_BLUE);
+	}
 	else
 		remove(self);
 };

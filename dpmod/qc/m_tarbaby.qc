@@ -194,7 +194,8 @@ void()  tbaby_die2      =[      $exp,           tbaby_die2      ]
 	MonsterGibs("", 0, "progs/tar_gib.mdl", 4, "", 0);
 	self.skin = 0;
 	self.owner = self;
-	BecomeExplosion(self, DMG_TARBABY_DAMAGE, DMG_TARBABY_FORCE, DMG_TARBABY_RADIUS, world, self.deathtype, '-2 0 0', FALSE, Obituary_Generic);
+	T_RadiusDamage(self, self.owner, DMG_TARBABY_DAMAGE, DMG_TARBABY_FORCE, DMG_TARBABY_RADIUS, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+	BecomeExplosion(self, '-2 0 0', FALSE);
 };
 
 void() tarbaby_sightsound =

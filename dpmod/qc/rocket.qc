@@ -77,13 +77,15 @@ void() MissileExplodeFireballs =
 		LaunchSmallFireball(self.origin, vel, self.owner, 120, 0, 450, self.deathtype, self.obitfunc1);
 		newmis.movetype = MOVETYPE_TOSS;
 	}
-	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
+	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+	BecomeExplosion(self, '-1 0 0', self.effects & EF_BLUE);
 };
 
 void() MissileExplode =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
-	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+	BecomeExplosion(self, '0 0 0', self.effects & EF_BLUE);
 };
 
 void() MissileDet =

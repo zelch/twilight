@@ -57,7 +57,7 @@ void() explosionanimate =
 		remove(self);
 };
 
-void(entity e, float damg, float force, float radius, entity ignore, string dt, vector explosioncolor, float quad, void(entity t, entity a, string m, float dtyp) obitfunc) BecomeExplosion =
+void(entity e, vector explosioncolor, float quad) BecomeExplosion =
 {
 	local vector org, v, v2;
 	if (e.solid == SOLID_BSP)
@@ -87,7 +87,6 @@ void(entity e, float damg, float force, float radius, entity ignore, string dt, 
 	else
 		te_explosionrgb(e.origin, explosioncolor);
 
-	T_RadiusDamage(e, e.owner, damg, force, radius, world, dt, DT_EXPLOSION, obitfunc);
 	//remove(e);
 
 	v = findbetterlocation3(org); // move animation away from walls

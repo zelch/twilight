@@ -128,7 +128,8 @@ ShalMissile
 
 void() ShalMissileDie =
 {
-	BecomeExplosion(self, DMG_SHALRATH_MISSILE_DAMAGE, DMG_SHALRATH_MISSILE_FORCE, DMG_SHALRATH_MISSILE_RADIUS, world, self.deathtype, '0.8 0.5 1', FALSE, Obituary_Generic);
+	T_RadiusDamage(self, self.owner, DMG_SHALRATH_MISSILE_DAMAGE, DMG_SHALRATH_MISSILE_FORCE, DMG_SHALRATH_MISSILE_RADIUS, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+	BecomeExplosion(self, '0.8 0.5 1', FALSE);
 };
 
 void() ShalHome =

@@ -205,7 +205,8 @@ void() boss_missiletouch =
 		remove(self);
 		return;
 	}
-	BecomeExplosion(self, DMG_CHTHON_LAVABALL_DAMAGE, DMG_CHTHON_LAVABALL_FORCE, DMG_CHTHON_LAVABALL_RADIUS, world, self.deathtype, '0 0 0', FALSE, Obituary_Generic);
+	T_RadiusDamage(self, self.owner, DMG_CHTHON_LAVABALL_DAMAGE, DMG_CHTHON_LAVABALL_FORCE, DMG_CHTHON_LAVABALL_RADIUS, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+	BecomeExplosion(self, '0 0 0', FALSE);
 };
 
 

@@ -1881,7 +1881,7 @@ vector(entity inflictor, entity attacker, vector start, vector end, float hdamag
 	while (c < 50)
 	{
 		c = c + 1;
-		// pass world instead of attacker so it can hit corpses (could also just set self to SOLID_BBOX) and hit owned objects like plasmacharges 
+		// pass world instead of attacker so it can hit corpses (could also just set self to SOLID_BBOX) and hit owned objects like plasmacharges
 		traceline(start, end, MOVE_MISSILE, world);
 		if (trace_fraction == 1)
 			break;
@@ -3652,13 +3652,15 @@ float(float request) w_railgun =
 void() PlasmaChargeExplodeCombo =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
-	BecomeExplosion(self, self.dmg * 2, self.count2 * 4, self.dmg2 * 3, world, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
+	T_RadiusDamage(self, self.owner, self.dmg * 2, self.count2 * 4, self.dmg2 * 3, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+	BecomeExplosion(self, '-1 0 0', self.effects & EF_BLUE);
 };
 
 void() PlasmaChargeExplode =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
-	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
+	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+	BecomeExplosion(self, '-1 0 0', self.effects & EF_BLUE);
 };
 
 void() PlasmaChargeDet =
@@ -3761,7 +3763,7 @@ void(vector start, vector end, entity own, float damg, float force, float blastr
 	newmis = spawn();
 	newmis.owner = own;
 	setorigin(newmis, end);
-	BecomeExplosion(newmis, 0, 0, 0, world, dethtype, '-1 0 0', self.effects & EF_BLUE, obitfunc);
+	BecomeExplosion(newmis, '-1 0 0', self.effects & EF_BLUE);
 
 	/*
 	end = W_BeamDamage(own, own, start, end, damg, damg, dethtype, DT_PLASMA, obitfunc);
@@ -3769,7 +3771,7 @@ void(vector start, vector end, entity own, float damg, float force, float blastr
 	newmis = spawn();
 	newmis.owner = own;
 	setorigin(newmis, end);
-	BecomeExplosion(newmis, 0, 0, 0, world, dethtype, '-1 0 0', self.effects & EF_BLUE, obitfunc);
+	BecomeExplosion(newmis, '-1 0 0', self.effects & EF_BLUE);
 	*/
 	/*
 	local vector forcevec;
@@ -3782,8 +3784,8 @@ void(vector start, vector end, entity own, float damg, float force, float blastr
 	//newmis = spawn();
 	//newmis.owner = own;
 	//setorigin(newmis, end);
-	//BecomeExplosion(newmis, 0, 0, 0, world, dethtype, '-1 0 0', self.effects & EF_BLUE, obitfunc);
-	//BecomeExplosion(newmis, damg, force, blastradius, world, dethtype, '-1 0 0', self.effects & EF_BLUE, obitfunc);
+	////T_RadiusDamage(newmis, newmis.owner, damg, force, blastradius, world, dethtype, DT_PLASMA, obitfunc);
+	//BecomeExplosion(newmis, '-1 0 0', self.effects & EF_BLUE);
 	*/
 };
 
@@ -5244,22 +5246,22 @@ void() w_frame_grapple =
 						vend = self.grappletarget.origin + self.grappledest;
 						vdir = normalize(vend - vstart);
 						vend = vend + vdir; // go just a little bit past
-	
+
 						te_lightning2(self, vstart, vend);
-	
+
 						self.velocity = vdir * 1000;
 						//self.velocity = self.velocity + vdir * 10 * self.forcescale;
 						self.flags = self.flags - (self.flags & FL_ONGROUND);
-	
+
 						W_BeamDamage(self, self, vstart, vend, 5, 5, "LIGHTNINGGRAPPLE", DT_LIGHTNING, Obituary_LightningGrapple);
-	
+
 						/*
 						weapontraceline(vstart, vend, FALSE, self);
-	
+
 						if (trace_fraction < 1)
 						if (trace_ent != self.grappletarget)
 							T_Damage(trace_ent, self, self, 5, 5, "LIGHTNINGGRAPPLE", DT_LIGHTNING, trace_endpos, vdir * -10, Obituary_LightningGrapple);
-	
+
 						T_Damage(self.grappletarget, self, self, 5, 5, "LIGHTNINGGRAPPLE", DT_LIGHTNING, vend, vdir * -10, Obituary_LightningGrapple);
 						*/
 					}

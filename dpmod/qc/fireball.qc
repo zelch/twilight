@@ -1,7 +1,8 @@
 
 void() FireballExplode =
 {
-	BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '0 0 0', FALSE, self.obitfunc1);
+	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+	BecomeExplosion(self, '0 0 0', FALSE);
 	T_BurnRadius(self, self.owner, self.count3, self.dmg2, self.count1, world, self.deathtype);
 };
 

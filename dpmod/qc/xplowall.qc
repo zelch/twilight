@@ -15,7 +15,7 @@ void() xwall_respawn =
 {
 	self.solid = SOLID_BSP;
 	self.movetype = MOVETYPE_PUSH;
-	setorigin (self, self.origin);	
+	setorigin (self, self.origin);
 	setmodel (self, self.mdl);
 
 	self.use = xwall_break;
@@ -63,7 +63,8 @@ void() xwall_breakthink =
 		newmis = spawn();
 		newmis.owner = self.owner;
 		setorigin(newmis, v);
-		BecomeExplosion(newmis, self.owner.dmg, self.owner.dmg, self.owner.dmg, world, self.owner.deathtype, '0 0 0', FALSE, Obituary_Generic);
+		T_RadiusDamage(newmis, newmis.owner, newmis.owner.dmg, newmis.owner.dmg, newmis.owner.dmg, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+		BecomeExplosion(newmis, '0 0 0', FALSE);
 	}
 	t2 = floor(self.cnt);
 	self.cnt = self.cnt + self.count;
@@ -212,7 +213,7 @@ void() xwall_keytouch =
 			{
 				if (other.flags & FL_CLIENT)
 					centerprint (other, "You need the gold runekey");
-				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);			
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 			}
 			else if (world.worldtype == 0)
 			{
@@ -230,7 +231,7 @@ void() xwall_keytouch =
 			{
 				if (other.flags & FL_CLIENT)
 					centerprint (other, "You need the gold runekey");
-				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);			
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
 			}
 			else if (world.worldtype == 3)
 			{
@@ -403,7 +404,7 @@ void() func_xplowall =
 		else
 			dprint ("no worldtype set!\n");
 	}
-	
+
 	xwall_respawn();
 };
 
@@ -456,6 +457,6 @@ void() func_wallchunk =
 	self.health = 150;
 	func_xplowall();
 };
-        
+
 
 

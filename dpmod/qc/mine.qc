@@ -48,15 +48,16 @@ void() MineExplode =
 		makevectors(v);
 		shotorg = self.origin;
 		FireBullets(self.owner, self, -1, 4, self.dmg / 4, self.dmg / 4, 0, 0, v_forward * 10000, 0.05, "LASERTRIPMINEDIRECT", DT_NAIL, self.obitfunc1);
-		BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, "LASERTRIPMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
 	}
 	else if (self.lefty == 3)
 	{
+		T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, self.enemy, self.deathtype, DT_EXPLOSION, self.obitfunc1);
 		T_Damage(self.enemy, self, self.owner, self.dmg, self.dmg, "TAGMINEDIRECT", DT_EXPLOSION, self.origin, '0 0 0.5' * self.dmg, self.obitfunc1);
-		BecomeExplosion(self, self.dmg, self.count2, self.dmg2, self.enemy, "TAGMINEBLAST", '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	}
 	else
-		BecomeExplosion(self, self.dmg, self.count2, self.dmg2, world, self.deathtype, '0 0 0', self.effects & EF_BLUE, self.obitfunc1);
+		T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+	BecomeExplosion(self, '0 0 0', self.effects & EF_BLUE);
 };
 
 void() MineDet =

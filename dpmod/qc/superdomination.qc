@@ -221,7 +221,8 @@ void() superdomination_turretbase_die =
 	self.takedamage = DAMAGE_NO;
 	self.solid = SOLID_NOT;
 	setorigin(self, self.origin);
-	BecomeExplosion(self, 150, 200, 200, world, "PLASMATURRETEXPLODE", '0 0 0', FALSE, Obituary_PlasmaTurretExplode);
+	T_RadiusDamage(self, self.owner, 150, 200, 200, world, "PLASMATURRETEXPLODE", DT_EXPLOSION, Obituary_PlasmaTurretExplode);
+	BecomeExplosion(self, '0 0 0', FALSE);
 };
 
 void() superdomination_turretbase_think =

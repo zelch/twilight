@@ -491,7 +491,8 @@ void() barrel_explode =
 	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble3.mdl", 5);
 	SUB_UseTargets();
 	setorigin(self, (self.absmin + self.absmax) * 0.5);
-	BecomeExplosion(self, self.dmg, self.dmg, self.dmg * 0.5, world, self.deathtype, '0 0 0', FALSE, Obituary_Generic);
+	T_RadiusDamage(self, self.owner, self.dmg, self.dmg, self.dmg * 0.5, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+	BecomeExplosion(self, '0 0 0', FALSE);
 };
 
 void() barrel_det =
@@ -661,7 +662,7 @@ void() spikeshooter_use =
 		newmis.think = trapsuperspike_shootthink;
 	if (self.spawnflags & TRAP_LASER)
 		newmis.think = traplaser_shootthink;
-	if (self.spawnflags & TRAP_LIGHTNING) 
+	if (self.spawnflags & TRAP_LIGHTNING)
 		newmis.think = traplightning_shootthink;
 };
 
@@ -824,7 +825,7 @@ Keys:
 void() trap_shooter =
 {
 	trap_spikeshooter ();
-	
+
 	if (self.wait == 0)
 		self.wait = 1;
 	self.nextthink = self.nextthink + self.wait + self.ltime;
