@@ -316,7 +316,7 @@ sub write_log ($@) {
 # Build the header of the commit message: CVSROOT, module name, any
 # branch tags, and the commit time
 sub build_header ($@) {
-	my ($module, $subject, @branch_tags, $mailto) = @_;
+	my ($module, $subject, @branch_tags, @mailto) = @_;
 	my (@text);
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time());
 	my ($user, $dummy, $gecos);
@@ -334,7 +334,7 @@ sub build_header ($@) {
 	# Build the mail header
 	push(@text, "X-Mailer: cvs/new_log_accum");
 	push(@text, "From: $gecos <$user>");
-	push(@text, "To: " . join(' ', @{$mailto}));
+	push(@text, "To: " . join(' ', @mailto));
 	push(@text, "Subject: $subject");
 	push(@text, "MIME-Version: 1.0");
 	push(@text, "Content-Type: multipart/alternative; boundary=\"$boundary\"");
