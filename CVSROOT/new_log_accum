@@ -319,10 +319,10 @@ sub build_header ($@) {
 	my ($module, $subject, $mailto, @branch_tags) = @_;
 	my (@text, @mailto);
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime(time());
-	my ($user, $dummy, $gecos);
+	my ($user, $dummy);
 	my ($digest);
 
-	($user, $dummy, $dummy, $dummy, $dummy, $dummy, $gecos, $dummy, $dummy, $dummy) = getpwuid($<);
+	($user, $dummy, $dummy, $dummy, $dummy, $dummy, $dummy) = getpwuid($<);
 
 	@mailto = @{$mailto};
 
@@ -334,7 +334,7 @@ sub build_header ($@) {
 	$boundary = "----=MIME." . unpack("H*", $digest->digest());
 	
 	# Build the mail header
-	push(@text, "From: \"$gecos\" <$user>");
+	push(@text, "From: $user");
 	push(@text, "To: " . join(' ', @mailto));
 	push(@text, "Subject: $subject");
 	push(@text, "MIME-Version: 1.0");
