@@ -664,13 +664,13 @@ int main (int argc, char **argv)
 
 	fastvis = false;
 	verbose = false;
-	rvis = false;
+	rvis = true;
 	for (i=1 ; i<argc ; i++)
 	{
-		if (!strcmp(argv[i], "-rvis"))
+		if (!strcmp(argv[i], "-norvis"))
 		{
-			rvis = true;
-			printf ("rvis optimization enabled\n");
+			rvis = false;
+			printf ("rvis optimization disabled\n");
 		}
 		else if (!strcmp(argv[i],"-threads"))
 		{
