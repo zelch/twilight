@@ -50,6 +50,8 @@ void() MissileTouch =
 		remove(self);
 		return;
 	}
+	v = normalize(self.velocity);
+	setorigin(self, self.origin - v * 16);
 	MissileExplode();
 };
 

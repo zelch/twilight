@@ -19,6 +19,7 @@ void() bullet_touch =
 		else if (self.lefty == 1) // shotgun pellet
 			bulletpuff(self.origin - dir * 4, self.effects & EF_BLUE);
 	}
+	setorigin(self, self.origin - dir * 8);
 	if (self.count2)
 		BecomeExplosion(self, self.dmg2, self.count2, self.deathtype, '-1 0 0', self.effects & EF_BLUE, self.obitfunc1);
 	else

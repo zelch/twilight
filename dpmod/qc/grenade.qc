@@ -108,6 +108,7 @@ void() GrenadeThink =
 
 void() GrenadeTouch =
 {
+	local vector v;
 	if (other == self.owner)
 		return; // don't hit owner
 	if (vlen(self.velocity))
@@ -115,6 +116,8 @@ void() GrenadeTouch =
 		self.avelocity = randomvec() * 400;
 	if (self.weapon & GRENADE_IMPACT)
 	{
+		v = normalize(self.velocity);
+		setorigin(self, self.origin - v * 16);
 		GrenadeExplode();
 		return;
 	}
