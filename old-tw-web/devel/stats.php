@@ -19,7 +19,7 @@
 
 		echo ("<table>");
 		readfile ($pageroot . "/../cvs-snap/loc");
-		echo ("</table");
+		echo ("</table>");
 
 	}
 
