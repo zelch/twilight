@@ -13,14 +13,16 @@
 		footerpost => "</font></center>",
 
 		uinfo => "width=\"100%\" bgcolor=\"#000fb5\" cellspacing=\"1\"" ,
-		uinfonick => "valign=\"top\"" ,
+		uinfonicktr => "valign=\"top\"" ,
 		uinfodata => "width=\"100%\" bgcolor=\"#000440\"" ,
 
-		nav => "bgcolor=\"#000430\" width=\"100%\" valign=\"top\"" ,
-		navpre => "<font size=\"-1\">" ,
-		navpost => "</font>" ,
+		nav => "bgcolor=\"#000430\" width=\"100%\"" ,
+		navpre => "",
+		navpost => "",
 
-		tnav => "valign=\"top\" width=\"100%\" bgcolor=\"#00087f\"" ,
+		side => "bgcolor=\"#000430\" width=\"1%\"",
+
+		tnav => "width=\"100%\" bgcolor=\"#00087f\"" ,
 		tnavpre => "<font face=\"verdana, arial\"><strong>" ,
 		tnavpost => "</strong></font>" ,
 
@@ -32,7 +34,7 @@
 		newstitle => "width=\"100%\" bgcolor=\"#000fb5\"" ,
 		newstitlepre => "<div align=right><font face=\"verdana,arial\" " .
 				"size=\"-1\">" ,
-		newstitletablepost => "</font></div>" ,
+		newstitlepost => "</font></div>" ,
 		newscontent => "width=\"100%\" bgcolor=\"#000440\"" ,
 		newscontentpre => "<font face=\"verdana, arial\">" ,
 		newscontentpost => "</font>" ,
@@ -41,10 +43,8 @@
 			"cellspacing=\"1\"" ,
 		subscrtitle => "width=\"100%\" bgcolor=\"#000fb5\"" ,
 		subscrtitlepre => "<font face=\"verdana,arial\" size=\"-1\">" ,
-		subscrtitletablepost => "</font>" ,
+		subscrtitlepost => "</font>" ,
 		subscrcontent => "width=\"100%\" bgcolor=\"#000440\"" ,
-		subscrcontentpre => "<font face=\"verdana, arial\">" ,
-		subscrcontentpost => "</font>" ,
 
 		title => "width=\"100%\"" ,
 		titlepre => "<font face=\"verdana,arial\" size=\"+3\"><strong>" ,
@@ -109,19 +109,19 @@ td.side {
 }
 
 div.uinfo {
-	border: solid 2px #000fb5;
+	padding: 2px;
 	background: #000fb5;
 	margin: 10px;
 }
 
 div.uinfonick {
-	border-left: solid 3px #000fb5;
+	padding-left: 3px;
 	vertical-align: top;
 }
 
 div.uinfodata {
 	background: #000440;
-	border-left: solid 5px #000440;
+	padding-left: 5px;
 }
 
 div.nav {
@@ -186,6 +186,10 @@ div.sub {
 	font: bolder 150% verdana, sans-serif;
 }
 
+img.noborder {
+	border: none;
+}
+
 -->
 </style>
 		<?php
@@ -228,43 +232,43 @@ a {
 	);
 
 	$userinfo = array (
-		"|Rain|" => array (
-			"Name" => "Ben Winslow" ,
-			"Email" => "rain@bluecherry.net"
+		"Knghtbrd" => array (
+			"Name" => "Joseph Carter" ,
+			"Email" => "knghtbrd@debian.org"
 		) ,
 		"LordHavoc" => array (
 			"Name" => "Forest Hale" ,
 			"Email" => "lordhavoc@users.sourceforge.net" ,
 			"Web" => "http://darkplaces.gamevisions.com/"
 		) ,
-		"Knghtbrd" => array (
-			"Name" => "Joseph Carter" ,
-			"Email" => "knghtbrd@debian.org"
+		"Mercury" => array (
+			"Name" => "Zephaniah E. Hull" ,
+			"Email" => "warp@whitestar.soark.net"
 		) ,
 		"digiman" => array (
 			"Name" => "Victor Luchits" ,
 			"Email" => "digiman@users.sourceforge.net"
 		) ,
-		"Mercury" => array (
-			"Name" => "Zephaniah E. Hull" ,
-			"Email" => "warp@whitestar.soark.net"
-		) ,
-		"zinx" => array (
-			"Name" => "Zinx Verituse" ,
-			"Email" => "zinx@magenet.net"
-		) ,
-		"Coderjoe" => array (
-			"Name" => "Thad Ward" ,
-			"Email" => "coderjoe@grnet.com"
-		) ,
 		"Elric" => array (
 			"Name" => "Mathieu Olivier" ,
 			"Email" => "molivier@users.sourceforge.net"
 		),
+		"zinx" => array (
+			"Name" => "Zinx Verituse" ,
+			"Email" => "zinx@magenet.net"
+		) ,
 		"EvilTypeGuy" => array (
 			"Name" => "Shawn Walker" ,
 			"Email" => "eviltypeguy@users.sourceforge.net"
 		),
+		"Coderjoe" => array (
+			"Name" => "Thad Ward" ,
+			"Email" => "coderjoe@grnet.com"
+		) ,
+		"|Rain|" => array (
+			"Name" => "Ben Winslow" ,
+			"Email" => "rain+twweb@bluecherry.net"
+		) ,
 	);
 
 	// Add yourself above!

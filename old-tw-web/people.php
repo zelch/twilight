@@ -16,11 +16,11 @@
 
 	while (list ($nick, $person) = each ($userinfo)) {
 		if (!$browser_css) {
-			echo ("<p>");
+			echo ("<br>");
 		}
 		boxstart ("uinfo");
 		echo ("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n" .
-			"<tr><td width=\"20%\" valign=\"top\">\n");
+			"<tr><td " . ($browser_css ? "style=\"width: 20%\"" : "width=\"20%\"") . " valign=\"top\">\n");
 		box ("uinfonick", $nick);
 		echo ("</td><td>\n");
 		
@@ -28,7 +28,7 @@
 			boxstart ("uinfodata");
 			switch ($item) {
 				case "Email":
-					echo ("<a href=\"mailto:" . $val . "\">" . $val .
+					echo ("<a href=\"mailto:" . spamarmor($val) . "\">" . spamarmor($val) .
 						"</a>\n");
 					break;
 				case "Web":
@@ -41,9 +41,6 @@
 		}
 		echo ("</td></tr></table>\n");
 		boxend ("uinfo");
-		if (!$browser_css) {
-			echo ("</p>");
-		}
 	}
 
 	require ($pageroot . "/include/footer.php");

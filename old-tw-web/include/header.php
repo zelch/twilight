@@ -2,7 +2,7 @@
 	require ($pageroot . "/include/browser-detect.php");
 
 	if ($browser_css) {
-		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"" .
+		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" " .
 			"\"http://www.w3.org/TR/html4/strict.dtd\">");
 	} else {
 		echo ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 " .
@@ -30,9 +30,9 @@
 	echo ("<img width=\"403\" height=\"82\" src=\"" . $display["logo"] .
 		"\" alt=\"Project Twilight\">\n</td></tr>\n");
 	if ($browser_css) {
-		echo ("<tr><td width=\"1%\" class=\"side\">\n");
+		echo ("<tr><td class=\"side\">\n");
 	} else {
-		echo ("<tr><td width=\"1%\" " . $display["nav"] . ">\n");
+		echo ("<tr valign=\"top\"><td " . $display["side"] . ">\n");
 	}
 	boxstart ("nav");
 
@@ -52,11 +52,13 @@
 		"<a href=\"http://sourceforge.net\">" .
 		"<img width=\"88\" height=\"31\" " .
 		"src=\"http://sourceforge.net/sflogo.php?group_id=31385\" " .
-		"border=\"0\" alt=\"SourceForge\"></a><br>\n" .
+		($browser_css ? "class=\"noborder\"" : "border=\"0\"") . 
+		" alt=\"SourceForge\"></a><br>\n" .
 		
 		"<a href=\"http://www.opengl.org\">" .
 		"<img width=\"88\" height=\"39\" " .
-		"src=\"/images/opengl.gif\" alt=\"OpenGL\" border=\"0\"></a><br>\n"
+		($browser_css ? "class=\"noborder\"" : "border=\"0\"") . 
+		"src=\"/images/opengl.gif\" alt=\"OpenGL\"></a><br>\n"
 		
 	);
 

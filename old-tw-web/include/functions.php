@@ -3,8 +3,24 @@
 	{
 		global $userinfo;
 
-		return "<a href=\"mailto:" . $userinfo[$person]["Email"] . "\">" .
+		return "<a href=\"mailto:" . spamarmor($userinfo[$person]["Email"]) . "\">" .
 			$person . "</a>";
+	}
+
+	function spamarmor ($address) {
+		srand ((double) microtime() * 1000000);
+		switch (rand(0, 4)) {
+			case 0:
+				return ereg_replace("@", "[at]", $address);
+			case 1:
+				return ereg_replace("@", "SPAM@SPAM", $address);
+			case 2:
+				return strrev($address);
+			case 3:
+				return ereg_replace("@", ".nospam@nospam.", $address);
+			case 4:
+				return ereg_replace("@", " at ", $address);
+		}
 	}
 
 	function boxstart ($style)
@@ -15,7 +31,9 @@
 		if ($browser_css) {
 			echo ("<div class=\"" . $style . "\">\n");
 		} else {
-			echo ("<table " . $display[$style] . ">\n<tr><td>\n");
+			echo ("<table " . $display[$style] . ">\n<tr " .
+				$display[$style . "tr"] . "><td " .
+				$display[$style . "td"] . ">\n");
 			if ($display[$style . "pre"]) {
 				echo ($display[$style . "pre"] . "\n");
 			}
@@ -48,15 +66,12 @@
 		global $browser_css;
 
 		if (!$browser_css) {
-			echo ("<p>\n");
+			echo ("<br>\n");
 		}
 		boxstart ($style);
 		box ($style . "title", $title);
 		box ($style . "content", $content);
 		boxend ($style);
-		if (!$browser_css) {
-			echo ("</p>\n");
-		}
 	}
 	function newsitem ($date, $submitter, $content)
 	{
