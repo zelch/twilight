@@ -1,5 +1,4 @@
 
-.entity teament;
 float teamsinuse;
 float mode_shirtmustmatchpants;
 
@@ -120,31 +119,14 @@ entity(float color) teamentityforcolor =
 	return world;
 };
 
-void() updateteams =
+void() checkinvalidteam =
 {
-	local entity head, e;
-	head = findchain(classname, "teamentity");
-	while(head)
+	local entity e;
+	if (teamentityforcolor(self.team - 1) == world)
 	{
-		head.count = 0;
-		head = head.chain;
-	}
-	teamsinuse = 0;
-	head = findchain(classname, "player");
-	while(head)
-	{
-		e = teamentityforcolor(head.team - 1);
-		if (e == world)
-		{
-			// team not allowed, reassign team
-			e = weakestteam();
-			setplayercolor(head, e.team - 1, e.team - 1);
-		}
-		if (e.count == 0)
-			teamsinuse = teamsinuse + 1;
-		e.count = e.count + 1;
-		head.teament = e;
-		head = head.chain;
+		// team not allowed, reassign team
+		e = weakestteam();
+		setplayercolor(self, e.team - 1, e.team - 1);
 	}
 };
 
@@ -158,7 +140,6 @@ void() resetteams =
 		head.dmg = 0;
 		head = head.chain;
 	}
-	updateteams();
 };
 
 float(float t) countteammembers =
@@ -308,7 +289,6 @@ void() modeupdate =
 	}
 	if (deathmatch == 7)
 		deathmatch7update();
-	updateteams();
 };
 
 // true if items should respawn
