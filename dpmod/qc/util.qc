@@ -18,7 +18,7 @@ float(float n) lhfp_code1toscale =
 	r = (1 / 65536);
 	f = 1;
 	n = n - 126;
-	// mose of these cases are just optimizations to process faster
+	// most of these cases are just optimizations to process faster
 	while (n <= -16)
 	{
 		n = n + 16;
@@ -48,7 +48,7 @@ float(float f) lhfp_scaletocode1 =
 	local float r;
 	r = (1 / 65536);
 	n = 126;
-	// mose of these cases are just optimizations to process faster
+	// most of these cases are just optimizations to process faster
 	// the < n and > checks are to prevent runaway loops
 	while (f >= 65536 && n <= 254)
 	{
