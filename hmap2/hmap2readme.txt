@@ -21,7 +21,11 @@ Would recompile the vis data in e1m1, note that bsp2prt automatically makes wate
 
 Relighting a map:
 hmap2 -light -extra8x8 e1m1
+Would make a normal looking version of e1m1 with higher quality shadows.
+hmap2 -light -extra8x8 -intensity 0.5 -radiusscale 2 e1m1
 Would make a version of e1m1 with much softer lighting, and higher quality shadows.
+
+Note: hmap2 lighting options do not affect darkplaces rtlights. 
 
 See the usage information later in this readme for information on each utility.
 (Also available by running the utilities without specifying a map)
