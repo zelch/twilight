@@ -143,13 +143,6 @@ void() ItemClass_RegisterDefaultClasses =
 	item.count1 = AMMOMAX_CELLS;
 	//item.bulkbase = 0;
 	//item.bulkpercount = 0.1;
-
-	item = ItemClass_Register("xshells");
-	setmodel(item, "progs/backpack.mdl");
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = AMMOMAX_XSHELLS;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
 };
 
 entity(string name) ItemClass_FindByName =
@@ -719,20 +712,6 @@ float(entity character, string name, float n) Inventory_AdjustQuantityAllByName 
 		}
 	}
 	return Inventory_Quantity(character, name);
-*/
-	/*
-	if (name == "shells")
-		return (character.ammo_shells = bound(0, character.ammo_shells + n, AMMOMAX_SHELLS));
-	if (name == "nails")
-		return (character.ammo_nails = bound(0, character.ammo_nails + n, AMMOMAX_NAILS));
-	if (name == "rockets")
-		return (character.ammo_rockets = bound(0, character.ammo_rockets + n, AMMOMAX_ROCKETS));
-	if (name == "cells")
-		return (character.ammo_cells = bound(0, character.ammo_cells + n, AMMOMAX_CELLS));
-	if (name == "xshells")
-		return (character.ammo_xshells = bound(0, character.ammo_xshells + n, AMMOMAX_XSHELLS));
-	*/
-/*
 };
 */
 
@@ -740,20 +719,6 @@ float(entity character, string name, float n) Inventory_AdjustQuantityAllByName 
 float(entity character, string name, float n) Inventory_SetQuantity =
 {
 	return Inventory_AdjustQuantityAllByName(character, name, n - Inventory_QuantityAllByName(character, name));
-*/
-	/*
-	if (name == "shells")
-		return (character.ammo_shells = bound(0, n, AMMOMAX_SHELLS));
-	if (name == "nails")
-		return (character.ammo_nails = bound(0, n, AMMOMAX_NAILS));
-	if (name == "rockets")
-		return (character.ammo_rockets = bound(0, n, AMMOMAX_ROCKETS));
-	if (name == "cells")
-		return (character.ammo_cells = bound(0, n, AMMOMAX_CELLS));
-	if (name == "xshells")
-		return (character.ammo_xshells = bound(0, n, AMMOMAX_XSHELLS));
-	*/
-/*
 };
 */
 

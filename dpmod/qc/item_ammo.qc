@@ -77,12 +77,10 @@ float(entity player, entity item) item_shells_pickupeval = {if (Inventory_Quanti
 float(entity player, entity item) item_nails_pickupeval = {if (Inventory_Quantity(player, "nails") < AMMOMAX_NAILS) return (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * item.dmg;else return 0;};
 float(entity player, entity item) item_rockets_pickupeval = {if (Inventory_Quantity(player, "rockets") < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * item.dmg;else return 0;};
 float(entity player, entity item) item_cells_pickupeval = {if (Inventory_Quantity(player, "cells") < AMMOMAX_CELLS) return (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * item.dmg;else return 0;};
-//float(entity player, entity item) item_xshells_pickupeval = {if (Inventory_Quantity(player, "xshells") < AMMOMAX_XSHELLS) return (AMMOMAX_XSHELLS - Inventory_Quantity(player, "xshells")) * (AMMOMAX_XSHELLS - Inventory_Quantity(player, "xshells")) * item.dmg;else return 0;};
 
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32)
 */
 
-//float spawnxshells;
 void() item_shells =
 {
 	self.touch = ammo_touch;
@@ -111,18 +109,6 @@ void() item_shells =
 	self.havocpickup = TRUE;
 	self.dmg = 60 * self.aflag / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
 	self.pickupevalfunc = item_shells_pickupeval;
-
-	/*
-	spawnxshells = spawnxshells + 1;
-	if (spawnxshells & 1)
-	{
-		self.ammo_typestring = "xshells";
-		self.weapon = 5;
-		self.netname = "You got some shotgun explosive slugs\n";
-		self.dmg = 110 * self.aflag / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
-		self.pickupevalfunc = item_xshells_pickupeval;
-	}
-	*/
 
 	StartItem ();
 };

@@ -145,7 +145,6 @@ void() SetNewParms =
 	parm7 = STARTSP_AMMO_CELLS;
 	parm8 = STARTSP_WEAPON; // selected weapon
 	parm9 = 0; // armortype * 100
-	parm10 = STARTSP_AMMO_XSHELLS;
 };
 
 void() SetChangeParms =
@@ -168,7 +167,6 @@ void() SetChangeParms =
 	parm7 = Inventory_Quantity(self, "cells");
 	parm8 = self.weapon;
 	parm9 = self.armortype * 100;
-	parm10 = Inventory_Quantity(self, "xshells");
 };
 
 void() DecodeLevelParms =

@@ -26,7 +26,6 @@ void() weapon_touch =
 	if ((Inventory_Quantity(other, "nails") >= AMMOMAX_NAILS  ) || (Inventory_Quantity(self, "nails") < 1))
 	if ((Inventory_Quantity(other, "rockets") >= AMMOMAX_ROCKETS) || (Inventory_Quantity(self, "rockets") < 1))
 	if ((Inventory_Quantity(other, "cells") >= AMMOMAX_CELLS  ) || (Inventory_Quantity(self, "cells") < 1))
-	if ((Inventory_Quantity(other, "xshells") >= AMMOMAX_XSHELLS) || (Inventory_Quantity(self, "xshells") < 1))
 		return; // would gain no ammo or weapon
 
 	// if the player was using their best weapon, change up to the new one if better
@@ -42,7 +41,6 @@ void() weapon_touch =
 		if (Inventory_Quantity(self, "nails")) if (Inventory_Quantity(other, "nails") < Inventory_Quantity(self, "nails")) Inventory_SetQuantity(other, "nails", Inventory_Quantity(self, "nails")); else Inventory_AdjustQuantity(other, "nails", AMMOWEAPONOVERFLOW_NAILS);
 		if (Inventory_Quantity(self, "rockets")) if (Inventory_Quantity(other, "rockets") < Inventory_Quantity(self, "rockets")) Inventory_SetQuantity(other, "rockets", Inventory_Quantity(self, "rockets")); else Inventory_AdjustQuantity(other, "rockets", AMMOWEAPONOVERFLOW_ROCKETS);
 		if (Inventory_Quantity(self, "cells")) if (Inventory_Quantity(other, "cells") < Inventory_Quantity(self, "cells")) Inventory_SetQuantity(other, "cells", Inventory_Quantity(self, "cells")); else Inventory_AdjustQuantity(other, "cells", AMMOWEAPONOVERFLOW_CELLS);
-		if (Inventory_Quantity(self, "xshells")) if (Inventory_Quantity(other, "xshells") < Inventory_Quantity(self, "xshells")) Inventory_SetQuantity(other, "xshells", Inventory_Quantity(self, "xshells")); else Inventory_AdjustQuantity(other, "xshells", AMMOWEAPONOVERFLOW_XSHELLS);
 	}
 	else
 	{
@@ -50,7 +48,6 @@ void() weapon_touch =
 		Inventory_AdjustQuantity(other, "nails", Inventory_Quantity(self, "nails"));
 		Inventory_AdjustQuantity(other, "rockets", Inventory_Quantity(self, "rockets"));
 		Inventory_AdjustQuantity(other, "cells", Inventory_Quantity(self, "cells"));
-		Inventory_AdjustQuantity(other, "xshells", Inventory_Quantity(self, "xshells"));
 	}
 
 	if (other.flags & FL_CLIENT)
@@ -121,13 +118,10 @@ float(entity player, entity item) item_weapon_pickupeval =
 	if (Inventory_Quantity(item, "cells"))
 	if (Inventory_Quantity(player, "cells") < AMMOMAX_CELLS)
 		f = f + (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * 30 * Inventory_Quantity(item, "cells") / (AMMOMAX_CELLS * AMMOMAX_CELLS);
-	if (Inventory_Quantity(item, "xshells"))
-	if (Inventory_Quantity(player, "xshells") < AMMOMAX_XSHELLS)
-		f = f + (AMMOMAX_XSHELLS - Inventory_Quantity(player, "xshells")) * (AMMOMAX_XSHELLS - Inventory_Quantity(player, "xshells")) * 110 * Inventory_Quantity(item, "xshells") / (AMMOMAX_XSHELLS * AMMOMAX_XSHELLS);
 	return f;
 };
 
-void(string wmdl, float w, float shells, float nails, float rockets, float cells, float xshells, string name) weapon_spawnhandler =
+void(string wmdl, float w, float shells, float nails, float rockets, float cells, string name) weapon_spawnhandler =
 {
 	self.havocpickup = TRUE;
 	self.pickupevalfunc = item_weapon_pickupeval;
@@ -142,19 +136,16 @@ void(string wmdl, float w, float shells, float nails, float rockets, float cells
 		if (nails) nails = 99999;
 		if (rockets) rockets = 99999;
 		if (cells) cells = 99999;
-		if (xshells) xshells = 99999;
 	}
 	*/
 	Inventory_SetQuantity(self, "shells", shells);
 	Inventory_SetQuantity(self, "nails", nails);
 	Inventory_SetQuantity(self, "rockets", rockets);
 	Inventory_SetQuantity(self, "cells", cells);
-	Inventory_SetQuantity(self, "xshells", xshells);
 //	self.havocrating = self.havocrating + Inventory_Quantity(self, "shells") * 60;
 //	self.havocrating = self.havocrating + Inventory_Quantity(self, "nails") * 15;
 //	self.havocrating = self.havocrating + Inventory_Quantity(self, "rockets") * 120;
 //	self.havocrating = self.havocrating + Inventory_Quantity(self, "cells") * 30;
-//	self.havocrating = self.havocrating + Inventory_Quantity(self, "xshells") * 110;
 	self.touch = weapon_touch;
 	setsize (self, '-16 -16 0', '16 16 32');
 	StartItem ();
@@ -162,26 +153,26 @@ void(string wmdl, float w, float shells, float nails, float rockets, float cells
 
 /*QUAKED weapon_supershotgun (0 .5 .8) (-16 -16 0) (16 16 32)
 */
-void() weapon_supershotgun    = {weapon_spawnhandler("progs/g_shot.mdl" , IT_WEAPON3,  30,   0,   0,   0,   0, "You got the Super Shotgun!\n");};
+void() weapon_supershotgun    = {weapon_spawnhandler("progs/g_shot.mdl" , IT_WEAPON3,  30,   0,   0,   0, "You got the Super Shotgun!\n");};
 
 /*QUAKED weapon_nailgun (0 .5 .8) (-16 -16 0) (16 16 32)
 */
-void() weapon_nailgun         = {weapon_spawnhandler("progs/g_nail.mdl" , IT_WEAPON4,   0,  50,   0,   0,   0, "You got the Nailgun!\n");};
+void() weapon_nailgun         = {weapon_spawnhandler("progs/g_nail.mdl" , IT_WEAPON4,   0,  50,   0,   0, "You got the Nailgun!\n");};
 
 /*QUAKED weapon_supernailgun (0 .5 .8) (-16 -16 0) (16 16 32)
 */
-void() weapon_supernailgun    = {weapon_spawnhandler("progs/g_nail2.mdl", IT_WEAPON5,   0,  50,   0,   0,   0, "You got the Super Nailgun!\n");};
+void() weapon_supernailgun    = {weapon_spawnhandler("progs/g_nail2.mdl", IT_WEAPON5,   0,  50,   0,   0, "You got the Super Nailgun!\n");};
 
 /*QUAKED weapon_grenadelauncher (0 .5 .8) (-16 -16 0) (16 16 32)
 */
-void() weapon_grenadelauncher = {weapon_spawnhandler("progs/g_rock.mdl" , IT_WEAPON6,   0,   0,  10,   0,   0, "You got the Proximity Grenade Launcher!\n");};
+void() weapon_grenadelauncher = {weapon_spawnhandler("progs/g_rock.mdl" , IT_WEAPON6,   0,   0,  10,   0, "You got the Proximity Grenade Launcher!\n");};
 
 /*QUAKED weapon_rocketlauncher (0 .5 .8) (-16 -16 0) (16 16 32)
 */
-void() weapon_rocketlauncher  = {weapon_spawnhandler("progs/g_rock2.mdl", IT_WEAPON7,   0,   0,  10,   0,   0, "You got the Rocket Launcher!\n");};
+void() weapon_rocketlauncher  = {weapon_spawnhandler("progs/g_rock2.mdl", IT_WEAPON7,   0,   0,  10,   0, "You got the Rocket Launcher!\n");};
 
 /*QUAKED weapon_lightning (0 .5 .8) (-16 -16 0) (16 16 32)
 */
-void() weapon_lightning       = {weapon_spawnhandler("progs/g_light.mdl" , IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10,   0,   0,   0,  20,   0, "You got the Plasma Gun!\n");};
-//void() weapon_lightning       = {weapon_spawnhandler("progs/g_light.mdl" , IT_WEAPON8 | IT_WEAPON9,   0,   0,   0,  50,   0, "You got the Plasma Gun!\n");};
+void() weapon_lightning       = {weapon_spawnhandler("progs/g_light.mdl" , IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10,   0,   0,   0,  20, "You got the Plasma Gun!\n");};
+//void() weapon_lightning       = {weapon_spawnhandler("progs/g_light.mdl" , IT_WEAPON8 | IT_WEAPON9,   0,   0,   0,  50, "You got the Plasma Gun!\n");};
 

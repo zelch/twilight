@@ -12,24 +12,17 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Shotgun =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-float SHOTGUNBUCKSHOT = 50;
-float SHOTGUNEXPLOSIVESLUG = 50;
+float SHOTGUN = 50;
 
-.float shotgunmode;
-void(float fireexplosive) W_SingleShotgunFireCode =
+void() W_SingleShotgunFireCode =
 {
 	W_Hostile();
 	sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 	self.wfiretime = time;
 	Inventory_AdjustQuantity(self, "shells", -1);
 	w_muzzleflash(shotorg, 2);
-	if (fireexplosive)
-		FireBullets(self, self, 1, 1, SHOTGUNEXPLOSIVESLUG * 0.2, SHOTGUNEXPLOSIVESLUG * 0.2, SHOTGUNEXPLOSIVESLUG * 0.8, 80, shotdir * 5000, 0, "SHOTGUNEXPLOSIVESLUG", DT_SHOTGUN, Obituary_Shotgun);
-	else
-	{
-		FireBullets(self, self, 1, 5, SHOTGUNBUCKSHOT * 0.1, SHOTGUNBUCKSHOT * 0.1, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-		FireBullets(self, self, 0, 5, SHOTGUNBUCKSHOT * 0.1, SHOTGUNBUCKSHOT * 0.1, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
-	}
+	FireBullets(self, self, 1, 5, SHOTGUN * 0.1, SHOTGUN * 0.1, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+	FireBullets(self, self, 0, 5, SHOTGUN * 0.1, SHOTGUN * 0.1, 0, 0, shotdir * 6000, 0.05, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 	self.wload = -1;
 };
 
@@ -43,28 +36,14 @@ void() w_shotgun =
 	if (widle(w_shotgundrop1))
 		return;
 
-	/*
-	if (self.button5)
-	if (time > self.attack_finished)
-	{
-		self.shotgunmode = !self.shotgunmode;
-		sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
-		self.attack_finished = time + 1;
-		if (self.shotgunmode)
-			sprint(self, "Ammo: Explosive slugs\n");
-		else
-			sprint(self, "Ammo: Buckshot\n");
-	}
-	*/
-
 	if (self.wload > Inventory_Quantity(self, "shells"))
 		self.wload = Inventory_Quantity(self, "shells");
 
-	if (self.button0 || self.button3)
+	if (self.button0)
 	{
 		if (self.wload >= 1) // is it loaded?
 		if (W_ShotsToFire(0.3))
-			W_SingleShotgunFireCode(self.button3);
+			W_SingleShotgunFireCode();
 	}
 
 	if (self.wload < 1 && time > self.attack_finished)
