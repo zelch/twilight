@@ -106,6 +106,14 @@ float   EF_FULLBRIGHT   = 512;
 //description:
 //entity is always brightly lit
 
+//DP_EF_NODEPTHTEST
+//idea: Supa
+//darkplaces implementation: LordHavoc
+//effects bit:
+float   EF_NODEPTHTEST       = 8192;
+//description:
+//makes entity show up to client even through walls, useful with EF_ADDITIVE for special indicators like where team bases are in a map, so that people don't get lost
+
 //DP_EF_NODRAW
 //idea: id Software
 //darkplaces implementation: LordHavoc
