@@ -19,8 +19,6 @@
 #
 # Script to store the last visited directory for newlogaccum.pl.
 #
-# Some modifications by Ben Winslow and Joseph Carter
-#
 # $Id$
 
 use strict;

@@ -20,8 +20,6 @@
 # Script to accumulate log messages for an entire tree and send them along
 # with the diffs; deals correctly with all manner of branching (I hope)
 #
-# Some modifications by Ben Winslow and Joseph Carter
-#
 # $Id$
 #
 
@@ -35,7 +33,7 @@ use MD5;
 $MAILER = "/usr/sbin/sendmail -oi -oeq";
 
 # Set this to the path of the CVS binary responsible for this tree...
-$CVS = "/usr/bin/cvs";
+$CVS = "/usr/local/bin/cvs";
 
 # Don't touch this; use the -d command line option
 $debug = 0;
