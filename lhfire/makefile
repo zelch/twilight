@@ -1,41 +1,51 @@
+##### Win32 variables #####
+
+WIN32_EXE=lhfire.exe
+WIN32_LDFLAGS=
+
+##### Unix variables #####
+
+UNIX_EXE=lhfire
+UNIX_LDFLAGS=-lm
+
+##### Common variables #####
+
 OBJECTS= frame.o framebuffer.o main.o math.o particle.o render.o script.o
 
-#K6/athlon optimizations
-CPUOPTIMIZATIONS=-march=k6
-#686 optimizations
-#CPUOPTIMIZATIONS=-march=i686
+CC=gcc
+CFLAGS=-Wall -O2 -Icommon
 
-#use this line for profiling
-#PROFILEOPTION=-pg -g
-#NOPROFILEOPTIMIZATIONS=
-#use this line for no profiling
-PROFILEOPTION=
-NOPROFILEOPTIMIZATIONS=-fomit-frame-pointer
+ifdef windir
+CMD_RM=del
+else
+CMD_RM=rm -f
+endif
 
-#note:
-#the -Werror can be removed to compile even if there are warnings,
-#this is used to ensure that all released versions are free of warnings.
+##### Commands #####
 
-#normal compile
-OPTIMIZATIONS= -O6 -funroll-loops $(NOPROFILEOPTIMIZATIONS) -fexpensive-optimizations $(CPUOPTIMIZATIONS)
-CFLAGS= -MD -Wall -Werror $(OPTIMIZATIONS) $(PROFILEOPTION)
-#debug compile
-#OPTIMIZATIONS= -O -g
-#CFLAGS= -MD -Wall -Werror -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION)
+.PHONY: all mingw clean
 
-LDFLAGS= -lm $(PROFILEOPTION)
+all:
+ifdef windir
+	$(MAKE) EXE=$(WIN32_EXE) LDFLAGS="$(WIN32_LDFLAGS)" $(WIN32_EXE)
+else
+	$(MAKE) EXE=$(UNIX_EXE) LDFLAGS="$(UNIX_LDFLAGS)" $(UNIX_EXE)
+endif
 
-all: lhfire
+mingw:
+	$(MAKE) EXE=$(WIN32_EXE) LDFLAGS="$(WIN32_LDFLAGS)" $(WIN32_EXE)
 
 .c.o:
-	gcc $(CFLAGS) -c $*.c
+	$(CC) $(CFLAGS) -c $*.c -o $*.o
 
-lhfire: $(OBJECTS)
-	gcc -o $@ $^ $(LDFLAGS)
-
+$(EXE): $(OBJECTS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	-rm -f lhfire $(OBJECTS) *.d
+	-$(CMD_RM) $(WIN32_EXE)
+	-$(CMD_RM) $(UNIX_EXE)
+	-$(CMD_RM) *.o
+	-$(CMD_RM) *.d
 
 .PHONY: clean
 
