@@ -5,18 +5,17 @@
 //
 // command line flags
 //
-qboolean drawflag;
 qboolean nofill;
 qboolean notjunc;
 qboolean noclip;
 qboolean onlyents;
-qboolean verbose = true;
+qboolean verbose;
 qboolean allverbose;
 qboolean usehulls;
 qboolean transwater;
 qboolean forcevis;
 
-int		subdivide_size = 240;
+int		subdivide_size;
 
 brushset_t	*brushset;
 
@@ -829,14 +828,12 @@ void CreateHulls (void)
     {
       hullnum = 1;
       verbose = false;
-      drawflag = false;
       sprintf (argv0, "HUL%i", hullnum);
     }
   else if (!fork ())
     {
       hullnum = 2;
       verbose = false;
-      drawflag = false;
       sprintf (argv0, "HUL%i", hullnum);
     }
   CreateSingleHull ();
@@ -953,15 +950,24 @@ int main (int argc, char **argv)
 	//
 	// check command line flags
 	//
+
+	nofill = false;
+	notjunc = false;
+	noclip = false;
+	onlyents = false;
+	verbose = true;
+	allverbose = false;
+	usehulls = false;
 	transwater = true;
+	forcevis = true;
+	subdivide_size = 240;
+
 	for (i=1 ; i<argc ; i++)
 	{
 		if (argv[i][0] != '-')
 			break;
 		else if (!strcmp (argv[i],"-nowater"))
 			transwater = false;
-		else if (!strcmp (argv[i],"-draw"))
-			drawflag = true;
 		else if (!strcmp (argv[i],"-notjunc"))
 			notjunc = true;
 		else if (!strcmp (argv[i],"-nofill"))
@@ -989,32 +995,24 @@ int main (int argc, char **argv)
 			// produce 256x256 texel lightmaps
 			subdivide_size = 4080;
 		}
-		else if (!strcmp (argv[i],"-forcevis"))
-			forcevis = true;
+		else if (!strcmp (argv[i],"-noforcevis"))
+			forcevis = false;
 		else
 			Error ("qbsp: Unknown option '%s'", argv[i]);
 	}
 
 	if (i != argc - 2 && i != argc - 1)
 		Error (
-"LordHavoc's improved qbsp\n"
-"current features:\n"
-"insane limits\n"
-"transparent water/slime/lava\n"
-"-darkplaces (can reduce r_speeds, needs an engine which supports it)\n"
-"email havoc@halflife.org with feature requests/suggestions.\n"
-"\n"
 "usage: hqbsp [options] sourcefile [destfile]\n"
-"options: -nowater -notjunc -nofill -onlyents -verbose -forcevis\n"
-"explanations:\n"
+"options:\n"
 "-nowater    disable watervis; r_wateralpha in glquake will not work right\n"
 "-notjunc    disable tjunction fixing; glquake will have holes between polygons\n"
 "-nofill     disable sealing of map and vis, used for ammoboxes\n"
 "-onlyents   patchs entities in existing .bsp, for relighting\n"
 "-verbose    show more messages\n"
 "-darkplaces allow really big polygons\n"
-"-forcevis   make map vis-able even if it leaks\n"
-	);
+"-noforcevis don't make a .prt if the map leaks\n"
+		);
 
 	//  SetQdirFromPath (argv[i]);
 

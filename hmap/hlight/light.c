@@ -290,9 +290,7 @@ int main (int argc, char **argv)
 // LordHavoc
 	if (i != argc - 1)
 		Error (
-"usage: hlight [-threads num] [-extra] [-nolightvis] bspfile\n"
-"LordHavoc's hlight util based on id Software's quake light utility source code\n"
-"(different light falloff calculation, for more interesting lighting, now also has colored lighting!)\n"
+"usage: hlight [options] bspfile\n"
 "Quick usage notes for entities: (place these in key/value pairs)\n"
 "wait - falloff rate (1.0 default, 0.5 = bigger radius, 2 = smaller, affects area the light covers)\n"
 "_color - 3 values (red green blue), specifies color of light, the scale of the numbers does not matter (\"1 3 2.5\" is identical to \"1000 3000 2500\")\n"

@@ -258,7 +258,6 @@ qboolean FillOutside (node_t *node);
 
 //=============================================================================
 
-extern	qboolean	drawflag;
 extern	qboolean nofill;
 extern	qboolean notjunc;
 extern	qboolean noclip;

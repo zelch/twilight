@@ -721,14 +721,18 @@ int main (int argc, char **argv)
 
 	if (i != argc - 1)
 	{
-		Error ("\
-LordHavoc's enhanced quake vis v1.00\n\
-usage: hvis [-threads #] [-level 0-4] [-fast] [-v] [-noambient] [-noambientwater] [-noambientsky] [-noambientlava] bspfile\
-What the options mean:\n\
--level 0-4 - quality, use 4 (default) for release, (default in original vis was 2)\n\
--fast - lowest quality vis\n\
--v - verbose\n\
--noambient* - disable ambient sounds (water bubbling, wind, etc)");
+		Error (
+"usage: hvis [options] bspfile"
+"options:\n"
+"-level 0-4      quality, default 4\n"
+"-fast           fast but bad quality vis\n"
+"-v              verbose\n"
+"-norvis         disable rvis optimization, 0.001% better quality and 30% slower\n"
+"-noambient      disable ambient sounds (water bubbling, wind, etc)\n"
+"-noambientwater disable ambient water sounds (water)\n"
+"-noambientsky   disable ambient sky sounds (wind)\n"
+"-noambientlava  disable ambient lava sounds (unused by quake)\n"
+		);
 	}
 
 	start = I_DoubleTime ();
