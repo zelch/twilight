@@ -95,7 +95,7 @@ void AddAnimatingTextures (void)
 	{
 		if (miptex[i][0] != '+')
 			continue;
-		strncpy (miptex[i], name, sizeof(name) - 1);
+		strncpy (name, miptex[i], sizeof(name) - 1);
 		name[sizeof(name)-1] = 0;
 
 		for (j = 0;j < 20;j++)
@@ -290,7 +290,7 @@ void WriteMiptex (void)
 		}
 	}
 
-	AddAnimatingTextures();
+	AddAnimatingTextures ();
 
 	miptex_lumps = (dmiptexlump_t *)dtexdata;
 	miptex_data = (byte *)&miptex_lumps->dataofs[nummiptex];
