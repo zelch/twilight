@@ -159,8 +159,21 @@ float(entity e, vector start, vector end) tracewalk =
 
 .float isbot;
 
-float   havoccurrentbots;
-float   havocbots;
+float havoccurrentbots;
+float havocbots;
+entity havocbot_list;
+.entity nextbot;
+
+void() havocbot_relinkbotlist =
+{
+	local entity e;
+	havocbot_list = e = findchainfloat(isbot, TRUE);
+	while (e)
+	{
+		e.nextbot = e.chain;
+		e = e.chain;
+	}
+};
 
 string() havocbot_name =
 {
@@ -226,6 +239,7 @@ void() havocbot_new =
 	newmis.c_pants = -1;
 	newmis.c_shirt = -1;
 	newmis.havocbot_role = SUB_Null;
+	havocbot_relinkbotlist();
 };
 
 void() havocbot_removenewest =
@@ -251,6 +265,7 @@ void() havocbot_removenewest =
 	self = best;
 	ClientDisconnect();
 	self = saveself;
+	havocbot_relinkbotlist();
 };
 
 void() havocbot_think;
@@ -259,12 +274,11 @@ void() havocbot_findentsandspawnwaysurfaces;
 
 void() havocbot_serverframe =
 {
-	local   entity  head, saveself;
+	local entity head, saveself;
 	if (intermission_running)
 		return;
 
-	head = findfloat(world, isbot, TRUE);
-	if (head != world)
+	if (havocbot_list)
 	{
 		maxspeed = cvar("sv_maxspeed"); // player movement speed
 		sv_accelerate = cvar("sv_accelerate"); // 10 normally
@@ -272,13 +286,14 @@ void() havocbot_serverframe =
 
 		havocbot_updatedangerousobjects();
 		saveself = self;
+		head = havocbot_list;
 		while (head)
 		{
 			self = head;
 			havocbot_think();
 			PlayerPreThink();
 			PlayerPostThink();
-			head = findfloat(head, isbot, TRUE);
+			head = head.nextbot;
 		}
 		self = saveself;
 	}
