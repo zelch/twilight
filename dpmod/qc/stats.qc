@@ -91,12 +91,12 @@ void(entity targ, entity attacker, string dethtype) statkill =
 
 float(float kills, float deaths) statkd =
 {
-        local   float   total;
-        total = kills + deaths;
-        if (total >= 1)
-                return (kills / total);
-        else
-                return 0;
+	local float total;
+	total = kills + deaths;
+	if (total >= 1)
+		return (kills / total);
+	else
+		return 0;
 };
 
 void(float kills, float deaths, float suicides, string title) statprint =
