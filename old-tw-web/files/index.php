@@ -1,9 +1,11 @@
 <?php
-	$title = "Downloads";
+	$title = "Releases";
 	$pageroot = "..";
 	require ($pageroot . "/include/header.php");
 
-	echo ("<p>This page has not been written yet.</p>");
+	box ("title", "Releases");
+
+	box ("para", "We haven't had any public releases yet.\n");
 
 	require ($pageroot . "/include/footer.php");
 ?>

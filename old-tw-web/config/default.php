@@ -57,6 +57,10 @@
 		parapre => "<font face=\"verdana,arial\">" ,
 		parapost => "</font>" ,
 		
+		line => "width=\"100%\" cellspacing=\"0\"" ,
+		linepre => "<font face=\"verdana,arial\">&nbsp; &nbsp; " ,
+		linepost => "</font>" ,
+
 		sub => "width=\"100%\" cellspacing=\"10\"" ,
 		subpre => "<img width=\"100%\" height=\"5\" " .
 			"src=\"/images/clearpix.gif\" alt=\"\">" .
@@ -173,6 +177,10 @@ div.para {
 	padding: 10px 0px;
 }
 
+div.line {
+	padding-left: 2em;
+}
+
 div.sub {
 	padding-top: 30px;
 	font: bolder 150% verdana, sans-serif;
@@ -200,7 +208,9 @@ a {
 			"Recent News" => "/index.php"
 		) ,
 		Downloads => array (
-			"Downloads" => "/files/index.php"
+			"Releases" => "/files/index.php" ,
+			"Other Files" => "/files/other.php" ,
+			"CVS Snapshots" => "/cvs/index.php"
 		) ,
 		Development => array (
 			"Bug Tracking" => "/devel/index.php" ,
@@ -212,6 +222,7 @@ a {
 		) ,
 		Contact => array (
 			"Mailing Lists" => "/lists.php" ,
+			"IRC Channel" => "/irc.php" ,
 			"Developers" => "/people.php"
 		)
 	);
