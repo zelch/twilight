@@ -228,7 +228,10 @@ void(vector hit) army_shotgun =
 	w_muzzleflash (shotorg, 2);
 	ejectcasing (shotorg, '0 0 0', 50, ang, '0 0 0', 150, 1);
 	FireBullets (self, self, 1, DMG_SOLDIER_SHOTGUN_PELLETS, DMG_SOLDIER_SHOTGUN_DAMAGE, DMG_SOLDIER_SHOTGUN_BDAMAGE, 0, 0, shotdir * 4000, 0.1, self.deathtype, DT_SHOTGUN, Obituary_Generic);
+	self.currentammo = self.currentammo - 1;
 };
+
+void() army_shotload1;
 
 void() army_shotgun1   =[$shoot1, army_shotgun2  ] {ai_face();self.dest = monster_shotleadbullet(0.4);};
 void() army_shotgun2   =[$shoot2, army_shotgun3  ] {ai_face();};
@@ -238,7 +241,7 @@ void() army_shotgun5   =[$shoot5, army_shotgun6  ] {ai_face();army_shotgun(self.
 void() army_shotgun6   =[$shoot6, army_shotgun7  ] {ai_face();};
 void() army_shotgun7   =[$shoot7, army_shotgun8  ] {ai_face();SUB_CheckRefire (army_shotgun1);};
 void() army_shotgun8   =[$shoot8, army_shotgun9  ] {ai_face();};
-void() army_shotgun9   =[$shoot9, army_shotload1 ] {ai_face();};
+void() army_shotgun9   =[$shoot9, army_run1      ] {ai_face();if (self.currentammo < 1){self.think = army_shotload1;}};
 void() army_shotload1  =[$load1 , army_shotload2 ] {ai_face();};
 void() army_shotload2  =[$load2 , army_shotload3 ] {ai_face();};
 void() army_shotload3  =[$load3 , army_shotload4 ] {ai_face();};
@@ -247,9 +250,9 @@ void() army_shotload5  =[$load5 , army_shotload6 ] {ai_face();};
 void() army_shotload6  =[$load6 , army_shotload7 ] {ai_face();};
 void() army_shotload7  =[$load7 , army_shotload8 ] {ai_face();};
 void() army_shotload8  =[$load8 , army_shotload9 ] {ai_face();};
-void() army_shotload9  =[$load9 , army_shotload10] {ai_face();};
+void() army_shotload9  =[$load9 , army_shotload10] {ai_face();sound (self, CHAN_WEAPON, "weapons/bsgload.wav", 1, ATTN_NORM);};
 void() army_shotload10 =[$load10, army_shotload11] {ai_face();};
-void() army_shotload11 =[$load11, army_run1      ] {ai_face();};
+void() army_shotload11 =[$load11, army_run1      ] {ai_face();self.currentammo = 10;};
 
 float() army_missile_shotgun =
 {
@@ -432,6 +435,8 @@ void() precachemonster_army =
 	precache_sound ("weapons/sgun1.wav");
 
 	precache_sound ("player/udeath.wav");		// gib death
+
+	precache_sound ("weapons/bsgload.wav");
 };
 
 /*QUAKED monster_army (1 0 0) (-16 -16 -24) (16 16 32) ambush x x x x x x appear
@@ -493,6 +498,7 @@ void() monster_army =
 	self.health = self.health;
 	self.bodyhealth = self.health + MB_GRUNT;
 	self.bleedratio = 0.75; // hardwired zombie, bleeding means less
+	self.currentammo = 10;
 
 	r = random();
 	if (r < 0.30)
