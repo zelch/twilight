@@ -114,6 +114,97 @@ float(entity targ, float damage, float damgtype) T_MaxBodyDamage =
 };
 */
 
+.float frozen;
+.float thawtime;
+.float thawedeffects;
+.void() thawedtouch;
+.float thawedmovetype;
+.void() thawedthink;
+.float thawedthinkdelay;
+
+void() frozenthink =
+{
+	if (self.deadflag == DEAD_DYING)
+		self.deadflag = DEAD_DEAD;
+	if (time < self.thawtime)
+	{
+		self.frozen = TRUE;
+		self.nextthink = time;
+		// FIXME: this really doesn't look much like ice...
+		self.effects = self.thawedeffects | (EF_FULLBRIGHT | EF_BLUE);
+		if (time > self.thawtime - 1)
+		if (((self.thawtime - time) * 10) & 1)
+			self.effects = self.thawedeffects;
+	}
+	else
+	{
+		// FIXME: play a thaw sound
+		bprint("thaw ");bprint(self.classname);bprint("\n");
+		self.frozen = FALSE;
+		self.effects = self.thawedeffects;
+		self.think = self.thawedthink;
+		self.nextthink = time + self.thawedthinkdelay;
+		self.touch = self.thawedtouch;
+		self.movetype = self.thawedmovetype;
+	}
+};
+
+void(entity ent) freezeentity =
+{
+	local float freezetime;
+	freezetime = 10;
+	if (ent.classname == "player")
+		freezetime = 2;
+	if (ent.radsuit_finished > time)
+		freezetime = freezetime * 0.2;
+	if (ent.resist_ice)
+		freezetime = freezetime * ent.resist_ice;
+	if (freezetime < 0.1)
+		return;
+	if (!ent.frozen)
+	{
+		// FIXME: play a freeze sound
+		bprint("freeze ");bprint(ent.classname);bprint("\n");
+		ent.frozen = TRUE;
+		ent.thawedeffects = ent.effects;
+		ent.thawedthink = ent.think;
+		ent.thawedthinkdelay = ent.nextthink - time;
+		ent.thawedtouch = ent.touch;
+		ent.thawedmovetype = ent.movetype;
+		ent.touch = SUB_Null;
+		ent.movetype = MOVETYPE_NONE;
+	}
+	ent.think = frozenthink;
+	ent.nextthink = time;
+	ent.thawtime = time + freezetime;
+};
+
+void(entity ent) restorefrozenentity =
+{
+	if (!ent.frozen)
+		return;
+	ent.frozen = FALSE;
+	ent.effects = ent.thawedeffects;
+	ent.think = ent.thawedthink;
+	ent.nextthink = time + ent.thawedthinkdelay;
+	ent.touch = ent.thawedtouch;
+	ent.movetype = ent.thawedmovetype;
+};
+
+void(entity ent) refreezefrozenentity =
+{
+	if (ent.frozen)
+		return;
+	ent.frozen = TRUE;
+	ent.thawedeffects = ent.effects;
+	ent.thawedthink = ent.think;
+	ent.thawedthinkdelay = ent.nextthink - time;
+	ent.think = frozenthink;
+	ent.nextthink = time;
+	ent.touch = SUB_Null;
+	ent.movetype = MOVETYPE_NONE;
+};
+
 /*
 ============
 T_Damage
@@ -127,6 +218,18 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 {
 	local entity oldself;
 	local float save, htake, take, ratio;
+
+	if (damgtype & DTF_FREEZE)
+	if (targ.takedamage)
+	{
+		if (targ.frozen)
+			freezeentity(targ);
+		else
+		{
+			freezeentity(targ);
+			return;
+		}
+	}
 
 	oldself = self;
 
@@ -161,7 +264,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	if (!targ.takedamage)
 		return;
 
-	if (damgtype == DTF_TELEFRAG)
+	if (damgtype & DTF_TELEFRAG)
 	{
 		// used by buttons and triggers to set activator for target firing
 		damage_attacker = attacker;
@@ -354,6 +457,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	}
 
 	if (self.th_pain)
+	if (!self.frozen)
 	{
 		self.th_pain (attacker, htake);
 		// nightmare mode monsters don't go into pain frames often

@@ -402,7 +402,8 @@ void() army_gib =
 void() army_die =
 {
 	mctf_spawnpickup(self.origin, 1, 0.3, 0.1, 0.05);
-	DropBackpack();
+	if (!metroidmode)
+		DropBackpack();
 	sound (self, CHAN_VOICE, "soldier/death1.wav", 1, ATTN_NORM);
 	if (random() < 0.5)
 		MonsterCorpse(self, army_die1);
@@ -526,6 +527,7 @@ void() monster_army =
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " lays down for a grunt";
 	}
+	/*
 	r = random();
 	if (r < 0.20)
 	{
@@ -542,6 +544,7 @@ void() monster_army =
 		self.armorvalue = 25;
 		self.armortype = 0.6;
 	}
+	*/
 
 	self.th_stand = army_stand1;
 	self.th_walk = army_walk1;

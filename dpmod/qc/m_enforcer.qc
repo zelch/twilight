@@ -380,7 +380,8 @@ void() enf_gib =
 void() enf_die =
 {
 	mctf_spawnpickup(self.origin, 2, 0.3, 0.2, 0.15);
-	DropBackpack();
+	if (!metroidmode)
+		DropBackpack();
 	sound (self, CHAN_VOICE, "enforcer/death1.wav", 1, ATTN_NORM);
 	if (random() > 0.5)
 		MonsterCorpse(self, enf_die1);
@@ -500,6 +501,7 @@ void() monster_enforcer =
 			self.deathtype = " was blasted by an enforcer";
 	}
 
+	/*
 	r = random();
 	if (r < 0.20)
 	{
@@ -516,7 +518,7 @@ void() monster_enforcer =
 		self.armorvalue = 30;
 		self.armortype = 0.3;
 	}
-
+	*/
 
 	self.th_stand = enf_stand1;
 	self.th_walk = enf_walk1;

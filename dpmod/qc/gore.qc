@@ -216,6 +216,9 @@ void(vector bmins, vector bmaxs) body_nonsolid =
 
 void() bodyfirstthink =
 {
+	local float wasfrozen;
+	wasfrozen = self.frozen;
+	restorefrozenentity(self);
 	self.movetype = MOVETYPE_TOSS;
 	setorigin(self, self.oldorigin); // relink
 	self.flags = 0; // clear FL_ONGROUND etc
@@ -224,7 +227,10 @@ void() bodyfirstthink =
 	else
 	{
 		self.think = self.think1;
-		self.think();
+		if (self.think)
+			self.think();
+		if (wasfrozen)
+			refreezefrozenentity(self);
 	}
 };
 
@@ -302,6 +308,7 @@ void(entity t) CopyToBodyQue =
 	c.th_die = t.th_die;
 	c.th_gib = t.th_gib;
 	c.takedamage = t.takedamage;
+	c.frozen = t.frozen;
 
 	c.flags = 0;
 	setorigin (c, t.origin);

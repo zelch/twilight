@@ -130,9 +130,10 @@ void(string wmdl, float rating, string name) weapon_spawnhandler =
 */
 void() weapon_supershotgun =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
-		remove(self);
+		weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Muli Cannon upgrade!\n");
+		Inventory_SetQuantity(self, "mmulticannon", 1);
 		return;
 	}
 	weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Super Shotgun!\n");
@@ -144,9 +145,10 @@ void() weapon_supershotgun =
 */
 void() weapon_nailgun =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
-		remove(self);
+		weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Charge Cannon upgrade!\n");
+		Inventory_SetQuantity(self, "mchargecannon", 1);
 		return;
 	}
 	weapon_spawnhandler("progs/g_nail.mdl", 2000, "You got the Nailgun!\n");
@@ -158,9 +160,10 @@ void() weapon_nailgun =
 */
 void() weapon_supernailgun =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
-		remove(self);
+		weapon_spawnhandler("progs/g_nail2.mdl", 2000, "You got the Grapple upgrade!\n");
+		Inventory_SetQuantity(self, "mgrapple", 1);
 		return;
 	}
 	weapon_spawnhandler("progs/g_nail2.mdl", 2000, "You got the Super Nailgun!\n");
@@ -172,9 +175,10 @@ void() weapon_supernailgun =
 */
 void() weapon_grenadelauncher =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
-		remove(self);
+		weapon_spawnhandler("progs/g_rock.mdl", 2000, "You got the Bomb upgrade!\n");
+		Inventory_SetQuantity(self, "mbomblauncher", 1);
 		return;
 	}
 	weapon_spawnhandler("progs/g_rock.mdl", 2000, "You got the Proximity Grenade Launcher!\n");
@@ -186,9 +190,11 @@ void() weapon_grenadelauncher =
 */
 void() weapon_rocketlauncher =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
+		//weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Charge Cannon upgrade!\n");
+		//Inventory_SetQuantity(self, "mchargecannon", 1);
 		return;
 	}
 	weapon_spawnhandler("progs/g_rock2.mdl", 2000, "You got the Rocket Launcher!\n");
@@ -200,9 +206,10 @@ void() weapon_rocketlauncher =
 */
 void() weapon_lightning =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
-		remove(self);
+		weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Plasma Beam!\n");
+		Inventory_SetQuantity(self, "mplasmabeam", 1);
 		return;
 	}
 	weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Thunderbolt!\n");

@@ -18,9 +18,9 @@ damage.qc       // max ammo amounts, how much damage, starting health, etc
 
 w_defs.qc
 
-inventory.qc
-
 util.qc         // useful functions (trajectory tracing for example)
+
+inventory.qc
 
 think.qc        // the extrathink function, which lets you use multiple thinks
 

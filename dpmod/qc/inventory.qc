@@ -3,7 +3,7 @@ void() Item_Touch;
 float(entity item, entity character) Item_GenericCanPickup;
 float(entity item, entity additem) Item_GenericAbsorbItem;
 
-entity(string name) ItemClass_Register;
+entity(string name, string pickupmodel, float carrylimit, float itemnum) ItemClass_Register;
 void() ItemClass_RegisterDefaultClasses;
 entity(string name) ItemClass_FindByName;
 
@@ -90,16 +90,16 @@ float(entity item, entity additem) Item_GenericAbsorbItem =
 	return c;
 };
 
-entity(string name) ItemClass_Register =
+entity(string name, string pickupmodel, float carrylimit, float itemnum) ItemClass_Register =
 {
 	local entity item;
 	item = spawn();
 	item.classname = "playeritemclass";
 	item.itemclass = item;
 	item.netname = name;
-	item.count = 1;
-	item.count1 = 1;
-	item.count2 = 1;
+	item.count = 0; // current amount in stack (not used in itemclass)
+	item.count1 = carrylimit; // maximum amount in one stack
+	item.count2 = 1; // per-player limit on number of stacks
 	item.bulkbase = 0;
 	item.bulkpercount = 0;
 	item.touch = Item_Touch;
@@ -107,372 +107,63 @@ entity(string name) ItemClass_Register =
 	item.it_absorbitem = Item_GenericAbsorbItem;
 	item.noise1 = "weapons/lock4.wav";
 	item.noise2 = "weapons/lock4.wav";
+	setmodel(item, pickupmodel);
+	item.mdl = item.model;
+	item.model = "";
+	setsize(item, '-16 -16 -24', '16 16 8');
+	item.items = itemnum;
 	return item;
 };
 
 void() ItemClass_RegisterDefaultClasses =
 {
-	local entity item;
+	ItemClass_Register("axe", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("shotgun", "progs/backpack.mdl", 1, IT_WEAPON2);
+	ItemClass_Register("supershotgun", "progs/backpack.mdl", 1, IT_WEAPON3);
+	ItemClass_Register("nailgun", "progs/backpack.mdl", 1, IT_WEAPON4);
+	ItemClass_Register("supernailgun", "progs/backpack.mdl", 1, IT_WEAPON5);
+	ItemClass_Register("grenadelauncher", "progs/backpack.mdl", 1, IT_WEAPON6);
+	ItemClass_Register("rocketlauncher", "progs/backpack.mdl", 1, IT_WEAPON7);
+	ItemClass_Register("thunderbolt", "progs/backpack.mdl", 1, IT_WEAPON8);
+	ItemClass_Register("plasmarifle", "progs/backpack.mdl", 1, IT_WEAPON8);
+	ItemClass_Register("plasmawave", "progs/backpack.mdl", 1, IT_WEAPON8);
+	ItemClass_Register("laserrifle", "progs/backpack.mdl", 1, IT_WEAPON3);
+	ItemClass_Register("flamer", "progs/backpack.mdl", 1, IT_WEAPON8);
 
-	item = ItemClass_Register("shells");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = AMMOMAX_SHELLS;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
+	ItemClass_Register("pistol", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("chainsaw", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("handgrenade", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("hopper", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("prickler", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("scattergun", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("rifle", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("machinegun", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("vulcan", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("executioner", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("jackhammer", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("grenadelauncher2", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("backpackmortar", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("incinerator", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("railgun", "progs/backpack.mdl", 1, IT_WEAPON1);
 
-	item = ItemClass_Register("nails");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = AMMOMAX_NAILS;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.05;
+	ItemClass_Register("mplasmacannon", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("mchargecannon", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("micecannon", "progs/backpack.mdl", 1, IT_WEAPON4);
+	ItemClass_Register("mbomblauncher", "progs/backpack.mdl", 1, IT_WEAPON6);
+	ItemClass_Register("mmissilelauncher", "progs/backpack.mdl", 1, IT_WEAPON7);
+	ItemClass_Register("mgrapple", "progs/backpack.mdl", 1, IT_WEAPON1);
+	ItemClass_Register("mmulticannon", "progs/backpack.mdl", 1, IT_WEAPON1);
 
-	item = ItemClass_Register("rockets");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = AMMOMAX_ROCKETS;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.5;
-
-	item = ItemClass_Register("cells");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = AMMOMAX_CELLS;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-
-	item = ItemClass_Register("pistol");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("shotgun");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON2;
-
-	item = ItemClass_Register("supershotgun");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON3;
-
-	item = ItemClass_Register("nailgun");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON4;
-
-	item = ItemClass_Register("supernailgun");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON5;
-
-	item = ItemClass_Register("grenadelauncher");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON6;
-
-	item = ItemClass_Register("rocketlauncher");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON7;
-
-	item = ItemClass_Register("thunderbolt");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON8;
-
-	item = ItemClass_Register("plasmarifle");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON8;
-
-	item = ItemClass_Register("plasmawave");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON8;
-
-	item = ItemClass_Register("laserrifle");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON3;
-
-	item = ItemClass_Register("flamer");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON8;
-
-	item = ItemClass_Register("axe");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("chainsaw");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("handgrenade");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("hopper");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("prickler");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("scattergun");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("rifle");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("machinegun");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("vulcan");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("executioner");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("jackhammer");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("grenadelauncher2");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("backpackmortar");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("incinerator");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("railgun");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 1;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-	item.items = IT_WEAPON1;
-
-	item = ItemClass_Register("sliverammo");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 100;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-
-	item = ItemClass_Register("rifleammo");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 50;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-
-	item = ItemClass_Register("machinegunammo");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 250;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-
-	item = ItemClass_Register("executionerammo");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 100;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-
-	item = ItemClass_Register("incineratorammo");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 250;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
-
-	item = ItemClass_Register("railgunammo");
-	setmodel(item, "progs/backpack.mdl");
-	item.mdl = item.model;
-	item.model = "";
-	setsize(item, '-16 -16 -24', '16 16 8');
-	item.count1 = 50;
-	//item.bulkbase = 0;
-	//item.bulkpercount = 0.1;
+	ItemClass_Register("shells", "progs/backpack.mdl", AMMOMAX_SHELLS, IT_SHELLS);
+	ItemClass_Register("nails", "progs/backpack.mdl", AMMOMAX_NAILS, IT_NAILS);
+	ItemClass_Register("rockets", "progs/backpack.mdl", AMMOMAX_ROCKETS, IT_ROCKETS);
+	ItemClass_Register("cells", "progs/backpack.mdl", AMMOMAX_CELLS, IT_CELLS);
+	ItemClass_Register("sliverammo", "progs/backpack.mdl", 100, IT_NAILS);
+	ItemClass_Register("rifleammo", "progs/backpack.mdl", 50, IT_SHELLS);
+	ItemClass_Register("machinegunammo", "progs/backpack.mdl", 250, IT_NAILS);
+	ItemClass_Register("executionerammo", "progs/backpack.mdl", 100, IT_ROCKETS);
+	ItemClass_Register("incineratorammo", "progs/backpack.mdl", 250, IT_CELLS);
+	ItemClass_Register("railgunammo", "progs/backpack.mdl", 50, IT_SHELLS);
 };
 
 entity(string name) ItemClass_FindByName =
@@ -871,6 +562,7 @@ float(entity character, string name, float adjust) Inventory_AdjustQuantity =
 {
 	local entity item, aitemclass;
 	local float c, d, total;
+	//dprint("Inventory_AdjustQuantity(");dprint(character.netname);dprint(", ");dprint(name);dprint(", ");dprint(ftos(adjust));dprint(") changes ");c = Inventory_Quantity(character, name);dprint(ftos(c));dprint(" to ");dprint(ftos(c + adjust));dprint("\n");
 	c = 0;
 	total = adjust;
 	item = Inventory_GetNextItem(character, world);
@@ -923,164 +615,6 @@ float(entity character, string name, float n) Inventory_SetQuantity =
 	return Inventory_AdjustQuantity(character, name, n);
 }
 
-/*
-entity(entity character, string name, float chooseempty) Inventory_ItemWithMostCapacity =
-{
-	local entity item, best;
-	local float capacity, bestcapacity;
-	item = character.inventory_next;
-	if (item == world)
-		item = character.inventory_next = character.inventory_prev = character;
-	best = world;
-	bestcapacity = 0;
-	while (item != character)
-	{
-		if (item.netname == name)
-		{
-			capacity = item.count1 - item.count;
-			if (capacity < item.count1 || chooseempty)
-			if (bestcapacity < capacity)
-			{
-				bestcapacity = capacity;
-				best = item;
-			}
-		}
-		item = item.inventory_next;
-	}
-	return best;
-};
-
-entity(entity character, string name, float choosefull) Inventory_ItemWithLeastCapacity =
-{
-	local entity item, best;
-	local float capacity, bestcapacity;
-	item = character.inventory_next;
-	if (item == world)
-		item = character.inventory_next = character.inventory_prev = character;
-	best = world;
-	bestcapacity = 1000000000;
-	while (item != character)
-	{
-		if (item.netname == name)
-		{
-			capacity = item.count1 - item.count;
-			if (capacity > 0 || choosefull)
-			if (bestcapacity > capacity)
-			{
-				bestcapacity = capacity;
-				best = item;
-			}
-		}
-		item = item.inventory_next;
-	}
-	return best;
-};
-
-entity(entity character, string name, float choosefull) Inventory_ItemWithMostQuantity =
-{
-	local entity item, best;
-	local float quantity, bestquantity;
-	item = character.inventory_next;
-	if (item == world)
-		item = character.inventory_next = character.inventory_prev = character;
-	best = world;
-	bestquantity = 0;
-	while (item != character)
-	{
-		if (item.netname == name)
-		{
-			quantity = item.count;
-			if (quantity < item.count1 || choosefull)
-			if (bestquantity < quantity)
-			{
-				bestquantity = quantity;
-				best = item;
-			}
-		}
-		item = item.inventory_next;
-	}
-	return best;
-};
-
-entity(entity character, string name, float chooseempty) Inventory_ItemWithLeastQuantity =
-{
-	local entity item, best;
-	local float quantity, bestquantity;
-	item = character.inventory_next;
-	if (item == world)
-		item = character.inventory_next = character.inventory_prev = character;
-	best = world;
-	bestquantity = 0;
-	while (item != character)
-	{
-		if (item.netname == name)
-		{
-			quantity = item.count;
-			if (quantity > 0 || chooseempty)
-			if (bestquantity < quantity)
-			{
-				bestquantity = quantity;
-				best = item;
-			}
-		}
-		item = item.inventory_next;
-	}
-	return best;
-};
-*/
-
-/*
-float(entity character, string name, float n) Inventory_AdjustQuantityAllByName =
-{
-	local float c;
-	local entity item;
-	while (n > 0)
-	{
-		item = ItemWithLeastCapacity(character, name, FALSE);
-		if (item == world)
-		{
-			item = ItemCreate(GetItemClassByName(name));
-			if (item == world)
-				return 0;
-			ItemAttach(item, e);
-		}
-		c = item.count1 - item.count;
-		if (c > n)
-			c = n;
-		item.count = item.count + c;
-		n = n - c;
-	}
-	item = ItemWithLeastQuantity(character, name, FALSE);
-	while (item != world && n < 0)
-	{
-		c = 0 - item.count;
-		if (c < n)
-			c = n;
-		item.count = item.count + c;
-		n = n - c;
-		if (n)
-			item = ItemWithLeastQuantity(character, name, FALSE);
-	}
-	//if (!keepempty)
-	{
-		item = ItemWithLeastQuantity(character, name, TRUE);
-		while (item != world && item.count <= 0)
-		{
-			ItemDestroy(item);
-			item = ItemWithLeastQuantity(character, name, TRUE);
-		}
-	}
-	return Inventory_Quantity(character, name);
-};
-*/
-
-/*
-float(entity character, string name, float n) Inventory_SetQuantity =
-{
-	return Inventory_AdjustQuantityAllByName(character, name, n - Inventory_QuantityAllByName(character, name));
-};
-*/
-
 void(entity character) Inventory_ConvertFromQuakeInventory =
 {
 	if (character.ammo_shells > 0)
@@ -1096,7 +630,7 @@ void(entity character) Inventory_ConvertFromQuakeInventory =
 		Inventory_AdjustQuantity(character, "cells", character.ammo_cells);
 	character.ammo_cells = 0;
 	if (character.items & IT_WEAPON1)
-		Inventory_AdjustQuantity(character, "pistol", 1);
+		Inventory_AdjustQuantity(character, "axe", 1);
 	if (character.items & IT_WEAPON2)
 		Inventory_AdjustQuantity(character, "shotgun", 1);
 	if (character.items & IT_WEAPON3)
@@ -1111,99 +645,151 @@ void(entity character) Inventory_ConvertFromQuakeInventory =
 		Inventory_AdjustQuantity(character, "rocketlauncher", 1);
 	if (character.items & IT_WEAPON8)
 		Inventory_AdjustQuantity(character, "thunderbolt", 1);
-	if (character.items & IT_WEAPON9)
-		Inventory_AdjustQuantity(character, "plasmarifle", 1);
-	if (character.items & IT_WEAPON10)
-		Inventory_AdjustQuantity(character, "plasmawave", 1);
 	// TODO: convert other items? (powerups)
 	character.items = character.items - (character.items & (IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10));
 	// TODO: convert .armorvalue/.armortype?
 };
 
-/*
-float(string s) WeaponToNumber =
-{
-	if (s == "pistol") return 1;
-	if (s == "shotgun") return 2;
-	if (s == "supershotgun") return 4;
-	if (s == "nailgun") return 8;
-	if (s == "supernailgun") return 16;
-	if (s == "grenadelauncher") return 32;
-	if (s == "rocketlauncher") return 64;
-	if (s == "thunderbolt") return 128;
-	if (s == "plasmarifle") return 256;
-	if (s == "plasmawave") return 512;
-	return 0;
-};
-
-string(float bit) NumberToWeapon =
-{
-	if (bit == 1) return "pistol";
-	if (bit == 2) return "shotgun";
-	if (bit == 4) return "supershotgun";
-	if (bit == 8) return "nailgun";
-	if (bit == 16) return "supernailgun";
-	if (bit == 32) return "grenadelauncher";
-	if (bit == 64) return "rocketlauncher";
-	if (bit == 128) return "thunderbolt";
-	if (bit == 256) return "plasmarifle";
-	if (bit == 512) return "plasmawave";
-	return "";
-};
-*/
-
 void(entity player) Inventory_ToParms =
 {
-	local float bit;
-	local entity wclass;
-	parm1 = player.items;
-	parm2 = player.health;
-	parm3 = player.armorvalue;
-	parm4 = Inventory_Quantity(player, "shells");
-	parm5 = Inventory_Quantity(player, "nails");
-	parm6 = Inventory_Quantity(player, "rockets");
-	parm7 = Inventory_Quantity(player, "cells");
-	parm8 = WeaponClassToNumber(player.weaponclass);
-	parm9 = player.armortype * 100;
-	parm10 = player.max_health;
-	parm11 = 0;
-	bit = 1;
-	wclass = w_chain;
-	do
+	local entity aitemclass;
+	local float c;
+	//eprint(player);
+	lhbitparms_encode_begin(0, 16);
+	lhbitparms_encodebits(player.items, 16777216);
+	lhbitparms_encodebits(bound(1, player.max_health, 1023), 1024);
+	lhbitparms_encodebits(bound(1, player.health, 1023), 1024);
+	lhbitparms_encodebits(bound(0, player.armorvalue, 1023), 1024);
+	lhbitparms_encodebits(bound(0, player.armortype * 10, 10), 11);
+	lhbitparms_encodebits(WeaponClassToNumber(player.weaponclass), 32);
+	aitemclass = findchain(classname, "playeritemclass");
+	if (aitemclass == world)
 	{
-		if (Inventory_Quantity(player, wclass.w_item))
-			parm11 = parm11 | bit;
-		bit = bit * 2;
-		wclass = wclass.w_next;
+		ItemClass_RegisterDefaultClasses();
+		aitemclass = findchain(classname, "playeritemclass");
 	}
-	while (wclass != w_chain);
+	while (aitemclass)
+	{
+		c = Inventory_Quantity(player, aitemclass.netname);
+		lhbitparms_encodebits(c, aitemclass.count1 + 1);
+		aitemclass = aitemclass.chain;
+	}
+	lhbitparms_encode_finish();
 };
 
+void(entity wclass, float instantswitch) wsetweapon;
+float metroidmode;
 void(entity player) Inventory_FromParms =
 {
-	local float bit;
-	local entity wclass;
-	Inventory_DestroyByName(player, "", 9999);
-	player.items = parm1;
-	player.health = parm2;
-	player.armorvalue = parm3;
-	Inventory_SetQuantity(player, "shells", parm4);
-	Inventory_SetQuantity(player, "nails", parm5);
-	Inventory_SetQuantity(player, "rockets", parm6);
-	Inventory_SetQuantity(player, "cells", parm7);
-	player.weaponclass = NumberToWeaponClass(parm8);
-	player.armortype = parm9 / 100;
-	player.max_health = parm10;
-	bit = 1;
-	wclass = w_chain;
-	do
+	local entity aitemclass, wclass, oldself;
+	local float c, valid;
+	oldself = self;
+	self = player;
+	valid = lhfp_decode(parm1);
+	//dprint("valid is ");dprint(ftos(valid));dprint("\n");
+	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
 	{
-		if (parm11 & bit)
-			Inventory_SetQuantity(player, wclass.w_item, 1);
-		bit = bit * 2;
-		wclass = wclass.w_next;
+		//dprint("deathmatch full pack\n");
+		self.items = 0;
+		self.health = STARTPARMSELIM_HEALTH;
+		self.max_health = STARTPARMSELIM_MAXHEALTH;
+		self.armorvalue = STARTPARMSELIM_ARMORVALUE;
+		self.armortype = STARTPARMSELIM_ARMORTYPE;
+		Inventory_SetQuantity(self, "shells", STARTPARMSELIM_AMMO_SHELLS);
+		Inventory_SetQuantity(self, "nails", STARTPARMSELIM_AMMO_NAILS);
+		Inventory_SetQuantity(self, "rockets", STARTPARMSELIM_AMMO_ROCKETS);
+		Inventory_SetQuantity(self, "cells", STARTPARMSELIM_AMMO_CELLS);
+		Inventory_SetQuantity(self, "axe", 1);
+		Inventory_SetQuantity(self, "shotgun", 1);
+		Inventory_SetQuantity(self, "supershotgun", 1);
+		Inventory_SetQuantity(self, "nailgun", 1);
+		Inventory_SetQuantity(self, "supernailgun", 1);
+		Inventory_SetQuantity(self, "grenadelauncher", 1);
+		Inventory_SetQuantity(self, "rocketlauncher", 1);
+		Inventory_SetQuantity(self, "thunderbolt", 1);
+		Inventory_SetQuantity(self, "plasmarifle", 1);
+		self.weaponclass = W_BestWeaponClass(TRUE);
 	}
-	while (wclass != w_chain);
+	else if (deathmatch)
+	{
+		//dprint("deathmatch\n");
+		self.items = 0;
+		self.health = STARTPARMSDM_HEALTH;
+		self.max_health = STARTPARMSDM_MAXHEALTH;
+		self.armorvalue = STARTPARMSDM_ARMORVALUE;
+		self.armortype = STARTPARMSDM_ARMORTYPE;
+		Inventory_SetQuantity(self, "shells", STARTPARMSDM_AMMO_SHELLS);
+		Inventory_SetQuantity(self, "nails", STARTPARMSDM_AMMO_NAILS);
+		Inventory_SetQuantity(self, "rockets", STARTPARMSDM_AMMO_ROCKETS);
+		Inventory_SetQuantity(self, "cells", STARTPARMSDM_AMMO_CELLS);
+		Inventory_SetQuantity(self, "axe", 1);
+		Inventory_SetQuantity(self, "shotgun", 1);
+		self.weaponclass = W_BestWeaponClass(TRUE);
+	}
+	else if (valid)
+	{
+		//eprint(self);
+		//dprint("valid parms\n");
+		lhbitparms_decode_begin(0, 16);
+		self.items = lhbitparms_decodebits(16777216);
+		self.max_health = lhbitparms_decodebits(1024);
+		self.health = lhbitparms_decodebits(1024);
+		self.armorvalue = lhbitparms_decodebits(1024);
+		self.armortype = lhbitparms_decodebits(11) / 10;
+		self.weaponclass = NumberToWeaponClass(lhbitparms_decodebits(32));
+		aitemclass = findchain(classname, "playeritemclass");
+		if (aitemclass == world)
+		{
+			ItemClass_RegisterDefaultClasses();
+			aitemclass = findchain(classname, "playeritemclass");
+		}
+		while (aitemclass)
+		{
+			c = lhbitparms_decodebits(aitemclass.count1 + 1);
+			Inventory_SetQuantity(self, aitemclass.netname, c);
+			aitemclass = aitemclass.chain;
+		}
+		//eprint(self);
+	}
+	else if (metroidmode)
+	{
+		//dprint("metroidmode\n");
+		self.items = 0;
+		self.health = STARTPARMSMCTF_HEALTH;
+		self.max_health = STARTPARMSMCTF_MAXHEALTH;
+		self.armorvalue = STARTPARMSMCTF_ARMORVALUE;
+		self.armortype = STARTPARMSMCTF_ARMORTYPE;
+		Inventory_SetQuantity(self, "shells", STARTPARMSMCTF_AMMO_SHELLS);
+		Inventory_SetQuantity(self, "nails", STARTPARMSMCTF_AMMO_NAILS);
+		Inventory_SetQuantity(self, "rockets", STARTPARMSMCTF_AMMO_ROCKETS);
+		Inventory_SetQuantity(self, "cells", STARTPARMSMCTF_AMMO_CELLS);
+		Inventory_SetQuantity(self, "mplasmacannon", 1);
+		self.weaponclass = W_BestWeaponClass(TRUE);
+	}
+	else
+	{
+		//dprint("singleplayer\n");
+		self.items = 0;
+		self.health = STARTPARMSSP_HEALTH;
+		self.max_health = STARTPARMSSP_MAXHEALTH;
+		self.armorvalue = STARTPARMSSP_ARMORVALUE;
+		self.armortype = STARTPARMSSP_ARMORTYPE;
+		Inventory_SetQuantity(self, "shells", STARTPARMSSP_AMMO_SHELLS);
+		Inventory_SetQuantity(self, "nails", STARTPARMSSP_AMMO_NAILS);
+		Inventory_SetQuantity(self, "rockets", STARTPARMSSP_AMMO_ROCKETS);
+		Inventory_SetQuantity(self, "cells", STARTPARMSSP_AMMO_CELLS);
+		Inventory_SetQuantity(self, "axe", 1);
+		Inventory_SetQuantity(self, "shotgun", 1);
+		self.weaponclass = W_BestWeaponClass(TRUE);
+	}
+	wsetweapon(self.weaponclass, TRUE);
+	// safety checks
+	if (self.health < 1)
+		self.health = 1;
+	if (self.max_health < 1)
+		self.max_health = 100;
+	self.bodyhealth = self.health + 100;
+	self = oldself;
 };
 
 void(entity character) updateammodisplay =

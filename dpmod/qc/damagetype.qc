@@ -1,6 +1,6 @@
 
 // resistances to 4 kinds of damage:
-.float resist_bullet, resist_explosive, resist_energy, resist_fire;
+.float resist_bullet, resist_explosive, resist_energy, resist_fire, resist_ice;
 // every monster can have resistances
 // note: -1 means immune, as 0.0 can't be used
 
@@ -10,6 +10,7 @@ float	DTF_RESIST_BULLET = 2; // bullet like projectile
 float	DTF_RESIST_EXPLOSIVE = 4; // explosive damage
 float	DTF_RESIST_ENERGY = 8; // energy damage
 float	DTF_RESIST_FIRE = 16; // fire damage
+float	DTF_RESIST_ICE = 2048; // ice damage
 float   DTF_BLOOD       = 32; // this kind of damage causes blood splatters
 float   DTF_INDIRECT    = 64; // not a direct hit
 // no recursive shield damage
@@ -18,6 +19,7 @@ float   DTF_SHIELD      = 128;
 float   DTF_TELEFRAG    = 33554432; // ignores god mode, team, and always gibs (can not be combined with other flags)
 float   DTF_SHOCK       = 512; // change radius damage behavior in water/slime
 float   DTF_NOPROTECT   = 1024; // god mode etc have no effect
+float	DTF_FREEZE		= 4096;
 
 // unfortunately I had to use decimal bitmasks here instead of |'ing or +'ing
 // the flags together.  QCC needs more number formats, like binary and hex...
@@ -47,6 +49,8 @@ float   DT_LAVADROWN    = 0; // ignore armor
 
 float   DT_KICKBACK     = 0;
 
+float	DT_ICE			= 6144;
+
 .string deathtype; // kill message
 .string deathmsg;  // copied from .deathtype for the attacker
                    // a map entity can gain alot of meaning by
@@ -59,3 +63,6 @@ float   DT_KICKBACK     = 0;
                    // so you could have some hell knights that
                    // say ' was slain by one of the palace guards'
                    // and many other ways to add meaning to a map
+
+.float frozen;
+

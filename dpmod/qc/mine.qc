@@ -52,7 +52,7 @@ void() MineExplode =
 	}
 	else if (self.lefty == 3)
 	{
-		T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, self.enemy, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+		T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, self.enemy, "TAGMINEBLAST", DT_EXPLOSION, self.obitfunc1);
 		T_Damage(self.enemy, self, self.owner, self.dmg, self.dmg, "TAGMINEDIRECT", DT_EXPLOSION, self.origin, '0 0 0.5' * self.dmg, self.obitfunc1);
 	}
 	else

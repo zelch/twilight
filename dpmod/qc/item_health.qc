@@ -17,11 +17,6 @@ float(entity player, entity item) item_megahealth_pickupeval = {if (player.healt
 
 void() item_health =
 {	
-	if (deathmatch == DM_MCTF_2TEAM)
-	{
-		remove(self);
-		return;
-	}
 	self.touch = health_touch;
 
 	if (game == GAME_NEXUIZ)
@@ -120,6 +115,16 @@ float (entity e, float amount, float ignore) T_Heal =
 	// don't heal a corpse
 	if (e.health < 1)
 		return 0;
+
+	if (metroidmode)
+	{
+		if (ignore)
+		{
+			e.max_health = min(e.max_health + amount, 1000);
+			e.health = e.max_health;
+			return 1;
+		}
+	}
 
 	// which maxhealth to use
 	m = e.max_health;

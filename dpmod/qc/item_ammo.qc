@@ -84,7 +84,7 @@ float(entity player, entity item) item_cells_pickupeval = {if (Inventory_Quantit
 
 void() item_shells =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
 		return;
@@ -140,7 +140,7 @@ void() item_shells =
 
 void() item_spikes =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
 		return;
@@ -196,7 +196,7 @@ void() item_spikes =
 
 void() item_rockets =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
 		return;
@@ -252,7 +252,7 @@ void() item_rockets =
 
 void() item_cells =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
 		return;

@@ -71,62 +71,9 @@ void() info_intermission =
 
 void() SetNewParms =
 {
-	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
-	{
-		parm1 = 0;//IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10; //STARTPARMSELIM_ITEMS;
-		parm2 = STARTPARMSELIM_HEALTH;
-		parm3 = STARTPARMSELIM_ARMORVALUE;
-		parm4 = STARTPARMSELIM_AMMO_SHELLS;
-		parm5 = STARTPARMSELIM_AMMO_NAILS;
-		parm6 = STARTPARMSELIM_AMMO_ROCKETS;
-		parm7 = STARTPARMSELIM_AMMO_CELLS;
-		parm8 = 0; // weapon
-		parm9 = STARTPARMSELIM_ARMORTYPE * 100;
-		parm10 = STARTPARMSELIM_MAXHEALTH;
-		parm11 = 16777215; // everything
-	}
-	else if (deathmatch == DM_MCTF_2TEAM)
-	{
-		parm1 = 0;//IT_WEAPON1 | IT_WEAPON2; //STARTPARMSMCTF_ITEMS;
-		parm2 = STARTPARMSMCTF_HEALTH;
-		parm3 = STARTPARMSMCTF_ARMORVALUE;
-		parm4 = STARTPARMSMCTF_AMMO_SHELLS;
-		parm5 = STARTPARMSMCTF_AMMO_NAILS;
-		parm6 = STARTPARMSMCTF_AMMO_ROCKETS;
-		parm7 = STARTPARMSMCTF_AMMO_CELLS;
-		parm8 = 0; // weapon
-		parm9 = STARTPARMSMCTF_ARMORTYPE * 100;
-		parm10 = STARTPARMSMCTF_MAXHEALTH;
-		parm11 = 1 | 2 | 4; // axe, pistol, shotgun
-	}
-	else if (deathmatch)
-	{
-		parm1 = 0;//IT_WEAPON1 | IT_WEAPON2; //STARTPARMSDM_ITEMS;
-		parm2 = STARTPARMSDM_HEALTH;
-		parm3 = STARTPARMSDM_ARMORVALUE;
-		parm4 = STARTPARMSDM_AMMO_SHELLS;
-		parm5 = STARTPARMSDM_AMMO_NAILS;
-		parm6 = STARTPARMSDM_AMMO_ROCKETS;
-		parm7 = STARTPARMSDM_AMMO_CELLS;
-		parm8 = 0; // weapon
-		parm9 = STARTPARMSDM_ARMORTYPE * 100;
-		parm10 = STARTPARMSDM_MAXHEALTH;
-		parm11 = 1 | 2 | 4; // axe, pistol, shotgun
-	}
-	else
-	{
-		parm1 = 0;//IT_WEAPON1 | IT_WEAPON2; //STARTPARMSSP_ITEMS;
-		parm2 = STARTPARMSSP_HEALTH;
-		parm3 = STARTPARMSSP_ARMORVALUE;
-		parm4 = STARTPARMSSP_AMMO_SHELLS;
-		parm5 = STARTPARMSSP_AMMO_NAILS;
-		parm6 = STARTPARMSSP_AMMO_ROCKETS;
-		parm7 = STARTPARMSSP_AMMO_CELLS;
-		parm8 = 0; // weapon
-		parm9 = STARTPARMSSP_ARMORTYPE * 100;
-		parm10 = STARTPARMSSP_MAXHEALTH;
-		parm11 = 1 | 2 | 4; // axe, pistol, shotgun
-	}
+	// this marks the parms as invalid as far as Inventory_FromParms is
+	// concerned, it will take care of the reset on decode
+	parm1 = 0;
 };
 
 void() SetChangeParms =
@@ -150,15 +97,6 @@ void() DecodeLevelParms =
 		SetNewParms();
 
 	Inventory_FromParms(self);
-
-	// safety checks
-	if (self.health < 1)
-		self.health = 1;
-	if (self.max_health < 1)
-		self.max_health = 100;
-	self.bodyhealth = self.health + 100;
-
-	wsetweapon(W_BestWeaponClass(TRUE), TRUE);
 };
 
 /*
@@ -695,6 +633,7 @@ void() PutClientInServer =
 	self.jump_flag = 0; // clear jump velocity to prevent falling damage
 	self.avelocity = '0 0 0';
 	self.punchangle = '0 0 0';
+	self.frozen = FALSE;
 
 	// set up health and equipment
 	DecodeLevelParms();
@@ -718,7 +657,7 @@ void() PutClientInServer =
 	self.pausetime = 0;
 
 	// make sure team is validated by game mode
-	SV_ChangeTeam(self.c_pants + self.c_shirt * 16);
+	//SV_ChangeTeam(self.c_pants + self.c_shirt * 16);
 
 	spot = SelectSpawnPoint ();
 
@@ -1033,7 +972,7 @@ void() PlayerJump =
 		if (game != GAME_NEXUIZ)
 			sound (self, CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
 	}
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 		self.velocity_z = self.velocity_z + 350;
 	else
 		self.velocity_z = self.velocity_z + 270;
@@ -1378,6 +1317,7 @@ void() PlayerPostThink =
 		ImpulseCommands();
 
 	if (self.solid)
+	if (!self.frozen)
 	{
 		RegenStuff();
 

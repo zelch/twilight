@@ -69,7 +69,7 @@ float(entity player, entity item) item_armor_pickupeval =
 */
 void() item_armor_green =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
 		return;
@@ -108,7 +108,7 @@ void() item_armor_green =
 */
 void() item_armor_yellow =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
 		return;
@@ -147,7 +147,7 @@ void() item_armor_yellow =
 */
 void() item_armor_red =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
 		return;
@@ -185,7 +185,7 @@ void() item_armor_red =
 */
 void() item_armor_glow =
 {
-	if (deathmatch == DM_MCTF_2TEAM)
+	if (metroidmode)
 	{
 		remove(self);
 		return;

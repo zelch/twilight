@@ -344,12 +344,16 @@ Keys:
 */
 //=======================
 .string music;
+float metroidmode;
 void() worldspawn =
 {
 	local float c;
 	local entity head;
 
 	game = GAME_QUAKE;
+	metroidmode = cvar("metroidmode");
+	if (cvar("deathmatch") == DM_MCTF_2TEAM)
+		metroidmode = TRUE;
 
 	c = 0;
 	head = nextent(world);

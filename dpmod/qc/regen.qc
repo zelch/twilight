@@ -1,4 +1,3 @@
-.float  regenhealththink;
 .float  regenthink;
 .float  rotthink; // rot down megahealth
 
@@ -54,6 +53,7 @@ void() RegenStuff =
 			else
 				self.regenthink = time + 0.25;
 			//if (!(self.items & IT_QUAD)) // no healing with Fury
+			if (!metroidmode) // no healing in metroidmode
 			{
 				if (self.health < self.max_health)
 				{
@@ -70,8 +70,8 @@ void() RegenStuff =
 			}
 		}
 	}
-	if (self.health > 999)
-		self.health = 999;
+	if (self.health > self.max_health + 1000)
+		self.health = self.max_health + 1000;
 	if (self.health > self.max_health)
 		self.items = self.items | IT_SUPERHEALTH;
 	else

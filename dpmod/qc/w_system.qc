@@ -1,4 +1,6 @@
 
+float metroidmode;
+
 .float wload;
 
 void(vector muzzleorg, float kickback) w_muzzleflash =
@@ -741,10 +743,8 @@ void() W_WeaponFrame =
 	}
 };
 
-float PISTOL_NAIL = 30;
-float PISTOL_NAILS = 1;
-float PISTOL_EMPTY = 15; // damage pistol does when empty (0 = disable)
-float PISTOL_REFIRE = 0.7;
+float AXE_DAMAGE = 20;
+float AXE_REFIRE = 0.5;
 float SHOTGUN_SHELL = 160;
 float SHOTGUN_SHELLS = 1;
 float SHOTGUN_REFIRE = 0.9;
@@ -836,12 +836,12 @@ float FLAMER_DROP_FORCE = 120;
 float FLAMER_DROP_RADIUS = 200;
 float FLAMER_DROP_REFIRE = 0.8;
 
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Pistol =
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Axe =
 {
 	if (dtype == DTYPE_PLAYER)
 	{
 		deathstring1 = targ.netname;
-		deathstring2 = " was gunned down by ";
+		deathstring2 = " was ax-murdered by ";
 		deathstring3 = attacker.netname;
 		deathstring4 = "";
 	}
@@ -849,20 +849,21 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Pistol =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-float(float request) w_pistol =
+float(float request) w_axe =
 {
+	local float f;
+	local vector v;
 	if (request == WR_REGISTER)
 	{
-		precache_model("progs/v_dpshot.mdl");
-		precache_sound("weapons/rocket1i.wav");
-		registerweapon(1, "Pistol", w_pistol, "pistol", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_NAILS, 0, 4000, PISTOL_NAIL / PISTOL_REFIRE, WANIMTYPE_SHOTGUN);
+		precache_model("progs/v_axe.mdl");
+		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
-		return PISTOL_EMPTY > 0 || Inventory_Quantity(self, "nails") > 0;
+		return TRUE;
 	if (request == WR_SETUP)
 	{
-		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		wsetanim(WANIM_RAISE, 0, 0, 0);
 		return TRUE;
 	}
 	if (request == WR_INSTANTSETUP)
@@ -881,31 +882,44 @@ float(float request) w_pistol =
 	if (request != WR_FRAME)
 		return FALSE;
 	wanimate();
-	self.currentammo = Inventory_Quantity(self, "nails");
+	self.currentammo = 0;
 	if (self.aimtarg) // bot target
 		self.button0 = w_directattackaim(10000, 1);
 	if (self.wanim_id == WANIM_READY)
 	{
 		if (self.switchweaponclass != self.weaponclass)
 		{
-			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			wsetanim(WANIM_LOWER, 0, 0, 0);
 			return TRUE;
 		}
 		if (self.button0)
-		if (Inventory_Quantity(self, "nails") > 0 || PISTOL_EMPTY > 0)
 		{
 			W_Hostile();
-			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
-			w_muzzleflash(shotorg, 2);
-			if (Inventory_Quantity(self, "nails") >= 1)
-			{
-				Inventory_AdjustQuantity(self, "nails", -1);
-				FireBullets(self, self, 1, 1, PISTOL_NAIL, PISTOL_NAIL, 0, 0, shotdir * 10000, 0.025, "PISTOL", DT_NAIL, Obituary_Pistol);
-				//ejectcasing(shotorg + v_forward * -5, v_right * 150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
-			}
+			// FIXME: this needs to animate the player model too
+			f = random() * 4;
+			if (f < 1)
+				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE); // player_axe
+			else if (f < 2)
+				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE); // player_axeb
+			else if (f < 3)
+				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE); // player_axec
 			else
-				FireBullets(self, self, 1, 1, PISTOL_EMPTY, PISTOL_EMPTY, 0, 0, shotdir * 10000, 0.025, "PISTOL", DT_NAIL, Obituary_Pistol);
-			wsetanim(WANIM_FIRE1, 1, 6, PISTOL_REFIRE);
+				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE); // player_axed
+			// FIXME: damage code should be on third animation frame
+			// change solid type so the traceline hits SOLID_CORPSE
+			f = self.solid;
+			self.solid = SOLID_BBOX;
+			traceline (shotorg, shotorg + shotdir * 64, FALSE, self);
+			self.solid = f;
+			if (trace_fraction < 1)
+			{
+				if (trace_ent.solid == SOLID_BSP)
+				{
+					sound (self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
+					te_gunshot(trace_endpos - shotdir * 4);
+				}
+				T_Damage (trace_ent, self, self, AXE_DAMAGE, AXE_DAMAGE, "AXE", DT_CUT, trace_endpos - shotdir * 4, '0 0 0', Obituary_Axe);
+			}
 		}
 		return TRUE;
 	}
@@ -2359,8 +2373,86 @@ float(float request) w_flamer =
 	return TRUE;
 };
 
-float AXE_DAMAGE = 20;
-float AXE_REFIRE = 0.5;
+float PISTOL_NAIL = 30;
+float PISTOL_NAILS = 1;
+float PISTOL_EMPTY = 15; // damage pistol does when empty (0 = disable)
+float PISTOL_REFIRE = 0.7;
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Pistol =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was gunned down by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_pistol =
+{
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(1, "Pistol", w_pistol, "pistol", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_NAILS, 0, 4000, PISTOL_NAIL / PISTOL_REFIRE, WANIMTYPE_SHOTGUN);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return TRUE;//PISTOL_EMPTY > 0 || Inventory_Quantity(self, "nails") > 0;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 8, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request == WR_ANIMATIONFINISH)
+	{
+		if (self.wanim_id == WANIM_LOWER)
+			wswitch();
+		else
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = Inventory_Quantity(self, "nails");
+	if (self.aimtarg) // bot target
+		self.button0 = w_directattackaim(10000, 1);
+	if (self.wanim_id == WANIM_READY)
+	{
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 7, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		//if (Inventory_Quantity(self, "nails") > 0 || PISTOL_EMPTY > 0)
+		{
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
+			w_muzzleflash(shotorg, 2);
+			if (Inventory_Quantity(self, "nails") >= 1)
+			{
+				Inventory_AdjustQuantity(self, "nails", -1);
+				FireBullets(self, self, 1, 1, PISTOL_NAIL, PISTOL_NAIL, 0, 0, shotdir * 10000, 0.025, "PISTOL", DT_NAIL, Obituary_Pistol);
+				//ejectcasing(shotorg + v_forward * -5, v_right * 150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+			}
+			else
+				FireBullets(self, self, 1, 1, PISTOL_EMPTY, PISTOL_EMPTY, 0, 0, shotdir * 10000, 0.025, "PISTOL", DT_NAIL, Obituary_Pistol);
+			wsetanim(WANIM_FIRE1, 1, 6, PISTOL_REFIRE);
+		}
+		return TRUE;
+	}
+	return TRUE;
+};
 
 float CHAINSAW_DAMAGE = 15;
 float CHAINSAW_REFIRE = 0.1;
@@ -2421,96 +2513,7 @@ float INCINERATOR_REFIRE = 0.05;
 float RAILGUN_DAMAGE = 90;
 float RAILGUN_REFIRE = 0.9;
 
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Axe =
-{
-	if (dtype == DTYPE_PLAYER)
-	{
-		deathstring1 = targ.netname;
-		deathstring2 = " was axeed by ";
-		deathstring3 = attacker.netname;
-		deathstring4 = "";
-	}
-	else
-		Obituary_Fallback(targ, attacker, dmsg, dtype);
-};
-
-float(float request) w_axe =
-{
-	local float f;
-	local vector v;
-	if (request == WR_REGISTER)
-	{
-		precache_model("progs/v_axe.mdl");
-		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
-		return TRUE;
-	}
-	if (request == WR_HASAMMO)
-		return TRUE;
-	if (request == WR_SETUP)
-	{
-		wsetanim(WANIM_RAISE, 0, 0, 0);
-		return TRUE;
-	}
-	if (request == WR_INSTANTSETUP)
-	{
-		wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request == WR_ANIMATIONFINISH)
-	{
-		if (self.wanim_id == WANIM_LOWER)
-			wswitch();
-		else
-			wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request != WR_FRAME)
-		return FALSE;
-	wanimate();
-	self.currentammo = 0;
-	if (self.aimtarg) // bot target
-		self.button0 = w_directattackaim(10000, 1);
-	if (self.wanim_id == WANIM_READY)
-	{
-		if (self.switchweaponclass != self.weaponclass)
-		{
-			wsetanim(WANIM_LOWER, 0, 0, 0);
-			return TRUE;
-		}
-		if (self.button0)
-		{
-			W_Hostile();
-			// FIXME: this needs to animate the player model too
-			f = random() * 4;
-			if (f < 1)
-				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE); // player_axe
-			else if (f < 2)
-				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE); // player_axeb
-			else if (f < 3)
-				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE); // player_axec
-			else
-				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE); // player_axed
-			// FIXME: damage code should be on third animation frame
-			// change solid type so the traceline hits SOLID_CORPSE
-			f = self.solid;
-			self.solid = SOLID_BBOX;
-			traceline (shotorg, shotorg + shotdir * 64, FALSE, self);
-			self.solid = f;
-			if (trace_fraction < 1)
-			{
-				if (trace_ent.solid == SOLID_BSP)
-				{
-					sound (self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
-					te_gunshot(trace_endpos - shotdir * 4);
-				}
-				T_Damage (trace_ent, self, self, AXE_DAMAGE, AXE_DAMAGE, "AXE", DT_CUT, trace_endpos - shotdir * 4, '0 0 0', Obituary_Axe);
-			}
-		}
-		return TRUE;
-	}
-	return TRUE;
-};
-
+/*
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Chainsaw =
 {
 	if (dtype == DTYPE_PLAYER)
@@ -3424,7 +3427,7 @@ float(float request) w_backpackmortar =
 		precache_model("progs/grenade.mdl");
 		precache_sound("weapons/grenade.wav");
 		precache_sound("weapons/bounce.wav");
-		registerweapon(6, "Backpack Mortar", w_backpackmortar, "backpackmortar", VWEP_GRENADE_LAUNCHER, "" /*progs/v_dprock.mdl"*/, IT_ROCKETS, 0, 2000, BACKPACKMORTAR_DAMAGE / BACKPACKMORTAR_REFIRE, WANIMTYPE_ROCKET);
+		registerweapon(6, "Backpack Mortar", w_backpackmortar, "backpackmortar", VWEP_GRENADE_LAUNCHER, "", IT_ROCKETS, 0, 2000, BACKPACKMORTAR_DAMAGE / BACKPACKMORTAR_REFIRE, WANIMTYPE_ROCKET);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -3648,32 +3651,25 @@ float(float request) w_railgun =
 	}
 	return TRUE;
 };
-
-void() PlasmaChargeExplodeCombo =
-{
-	fightdone = time + 1; // delay stuff until fighting is over
-	T_RadiusDamage(self, self.owner, self.dmg * 2, self.count2 * 4, self.dmg2 * 3, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
-	BecomeExplosion(self, '-1 0 0', self.effects & EF_BLUE);
-};
+*/
 
 void() PlasmaChargeExplode =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
-	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+	// FIXME: normal explosion does not look right for ice shots
+	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, self.count3, self.obitfunc1);
 	BecomeExplosion(self, '-1 0 0', self.effects & EF_BLUE);
 };
 
 void() PlasmaChargeDet =
 {
 	self.think = PlasmaChargeExplode;
-	if (self.deathmsg == "PCRIFLEBEAM")
-		self.think = PlasmaChargeExplodeCombo;
 	self.nextthink = time;
 }
 
 void() PlasmaChargeTouch =
 {
-	local   vector  v;
+	//local vector v;
 	fightdone = time + 1; // delay stuff until fighting is over
 	if (other == self.owner)
 		return; // ignore owner
@@ -3682,15 +3678,14 @@ void() PlasmaChargeTouch =
 		remove(self);
 		return;
 	}
-	v = normalize(self.velocity);
-	setorigin(self, self.origin - v * 16);
+	//v = normalize(self.velocity);
+	//setorigin(self, self.origin - v * 1);
 	PlasmaChargeDet();
 };
 
 void() PlasmaChargeThink =
 {
 	local float p;
-	local vector v;
 	self.nextthink = time;
 	fightdone = time + 1; // delay stuff until fighting is over
 	p = pointcontents(self.origin);
@@ -3703,7 +3698,7 @@ void() PlasmaChargeThink =
 		remove(self);
 };
 
-void(vector org, vector vel, entity own, float damg, float force, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchPlasmaCharge =
+void(vector org, vector vel, entity own, float damg, float force, float blastradius, float dmgtype, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchPlasmaCharge =
 {
 	fightdone = time + 1; // delay stuff until fighting is over
 	newmis = spawn ();
@@ -3723,11 +3718,12 @@ void(vector org, vector vel, entity own, float damg, float force, float blastrad
 	newmis.nextthink = time;
 	newmis.th_die = PlasmaChargeDet;
 	newmis.th_gib = PlasmaChargeDet;
-	newmis.takedamage = DAMAGE_YES;
+	//newmis.takedamage = DAMAGE_YES;
 	newmis.health = 5;     // can be detonated inflight
 	newmis.cnt = time + 15; // 15 seconds max flight time
 	newmis.dmg = damg;
 	newmis.count2 = force;
+	newmis.count3 = dmgtype;
 	newmis.dmg2 = blastradius;
 	newmis.wait = time;
 	newmis.effects = EF_LOWPRECISION;
@@ -3739,27 +3735,29 @@ void(vector org, vector vel, entity own, float damg, float force, float blastrad
 		newmis.count2 = newmis.count2 * 4;
 	}
 
-	newmis.flags = FL_MONSTER; // make it larger to missile attacks (beam)
+	//newmis.flags = FL_MONSTER; // make it larger to missile attacks (beam)
+	// FIXME: different model for ice shots?
 	setmodel (newmis, "progs/plasmashot.spr32");
 	//setsize (newmis, '-16 -16 -16', '16 16 16');
-	setsize (newmis, '-1.45 -1.45 -1.45', '1.45 1.45 1.45');
+	//setsize (newmis, '-1.45 -1.45 -1.45', '1.45 1.45 1.45');
+	setsize (newmis, '0 0 0', '0 0 0');
 	setorigin (newmis, org);
 	newmis.scale = damg / 200;
 	if (newmis.scale < 0.25)
 		newmis.scale = 0.25;
 };
 
-void(vector start, vector end, entity own, float damg, float force, float blastradius, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchPlasmaBeam =
+void(vector start, vector end, entity own, float damg, float force, float blastradius, float dmgtype, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchPlasmaBeam =
 {
 	local vector forcevec;
-	end = W_BeamDamage(own, own, start, end, 10, 10, dethtype, DT_PLASMA, obitfunc);
+	end = W_BeamDamage(own, own, start, end, 10, 10, dethtype, dmgtype, obitfunc);
 	te_lightning2(world, start, end);
 
 	forcevec = normalize(end - start) * force;
 	traceline(start, end, MOVE_NORMAL, own);
 	te_gunshotquad(trace_endpos);
 	if (damg > 10)
-		T_Damage(trace_ent, own, own, damg - 10, damg - 10, dethtype, DT_PLASMA, trace_endpos, forcevec, obitfunc);
+		T_Damage(trace_ent, own, own, damg - 10, damg - 10, dethtype, dmgtype, trace_endpos, forcevec, obitfunc);
 	newmis = spawn();
 	newmis.owner = own;
 	setorigin(newmis, end);
@@ -3789,7 +3787,43 @@ void(vector start, vector end, entity own, float damg, float force, float blastr
 	*/
 };
 
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PCRifleCharge =
+float PLASMACANNON_MISSILE_SINGLE_DAMAGE = 90;
+float PLASMACANNON_MISSILE_SINGLE_FORCE = 90;
+float PLASMACANNON_MISSILE_SINGLE_MUZZLEFLASH = 0;
+float PLASMACANNON_MISSILE_SINGLE_RADIUS = 50;
+float PLASMACANNON_MISSILE_SINGLE_REFIRE = 0.3;
+float PLASMACANNON_MISSILE_SINGLE_VELOCITY = 3000;
+float PLASMACANNON_MISSILE_SINGLE_SHAKE = 0;
+float PLASMACANNON_MISSILE_SUPER_FULL = 5;
+float PLASMACANNON_MISSILE_SUPER_MINIMUM = 1;
+float PLASMACANNON_MISSILE_SUPER_DAMAGE = 450;
+float PLASMACANNON_MISSILE_SUPER_FORCE = 450;
+float PLASMACANNON_MISSILE_SUPER_MUZZLEFLASH = 0;
+float PLASMACANNON_MISSILE_SUPER_RADIUS = 150;
+float PLASMACANNON_MISSILE_SUPER_REFIRE = 0.3;
+float PLASMACANNON_MISSILE_SUPER_VELOCITY = 3000;
+float PLASMACANNON_MISSILE_SUPER_SHAKE = 0;
+float PLASMACANNON_MISSILE_SUPER_TIME = 0.1;
+float PLASMACANNON_PLASMA_SINGLE_DAMAGE = 30;
+float PLASMACANNON_PLASMA_SINGLE_FORCE = 0;
+float PLASMACANNON_PLASMA_SINGLE_MUZZLEFLASH = 0;
+float PLASMACANNON_PLASMA_SINGLE_RADIUS = 0;
+float PLASMACANNON_PLASMA_SINGLE_REFIRE = 0.3;
+float PLASMACANNON_PLASMA_SINGLE_SHAKE = 0;
+float PLASMACANNON_PLASMA_SINGLE_VELOCITY = 5000;
+float PLASMACANNON_PLASMA_SUPER_DAMAGE = 140;
+float PLASMACANNON_PLASMA_SUPER_FORCE = 50;
+float PLASMACANNON_PLASMA_SUPER_FULL = 20;
+float PLASMACANNON_PLASMA_SUPER_MINIMUM = 1;
+float PLASMACANNON_PLASMA_SUPER_MUZZLEFLASH = 0;
+float PLASMACANNON_PLASMA_SUPER_RADIUS = 100;
+float PLASMACANNON_PLASMA_SUPER_REFIRE = 0.3;
+float PLASMACANNON_PLASMA_SUPER_SHAKE = 1;
+float PLASMACANNON_PLASMA_SUPER_TIME = 0.05;
+float PLASMACANNON_PLASMA_SUPER_VELOCITY = 5000;
+//float PLASMACANNON_PLASMA_QUICK_REFIRE = 0.1;
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaCannon =
 {
 	if (dtype == DTYPE_PLAYER)
 	{
@@ -3811,7 +3845,838 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PCRifleCha
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PCRifleBeam =
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaCannonMissile =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was blasted by a missile from ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+		if (targ.bodyhealth < 1)
+			deathstring2 = " was torn asunder by ";
+	}
+	else if (dtype == DTYPE_SUICIDE)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " didn't know where to point the gun";
+		deathstring3 = "";
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float m1, float m2, float c, float c1, float c2) lerp =
+{
+	return m1 + (m2 - m1) * (c - c1) / (c2 - c1);
+};
+
+/*
+.float missilemode;
+float(float request) w_mplasmacannon =
+{
+	//local float cells, shots, damage;
+	//local vector ang;
+	local vector shotvelocity;
+	local float shotdamage;
+	local float shotforce;
+	local float shotradius;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/plasmashot.spr32");
+		precache_sound("plasma/plasma.wav");
+		precache_sound("plasma/plasexpl.wav");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		precache_sound("player/axhit2.wav");
+		registerweapon(1, "Plasma Cannon", w_mplasmacannon, "mplasmacannon", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return TRUE;
+	if (request == WR_SETUP)
+	{
+		self.missilemode = FALSE;
+		wsetanim(WANIM_RAISE, 6, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		self.missilemode = FALSE;
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request == WR_ANIMATIONFRAME)
+	{
+		if (self.wanim_id == WANIM_FIRE2)
+		{
+			if (self.missilemode)
+			{
+				if (self.wburst < PLASMACANNON_MISSILE_SUPER_FULL)
+				if (self.wburst < Inventory_Quantity(self, "rockets"))
+					self.wburst = self.wburst + 1;
+				self.punchangle = (randomvec() + '-1 0 0') * lerp(PLASMACANNON_MISSILE_SINGLE_SHAKE, PLASMACANNON_MISSILE_SUPER_SHAKE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				self.punchangle_z = 0; // don't want roll
+			}
+			else
+			{
+				if (self.wburst < PLASMACANNON_PLASMA_SUPER_FULL)
+					self.wburst = self.wburst + 1;
+				self.punchangle = (randomvec() + '-1 0 0') * lerp(PLASMACANNON_PLASMA_SINGLE_SHAKE, PLASMACANNON_PLASMA_SUPER_SHAKE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				self.punchangle_z = 0; // don't want roll
+			}
+			return TRUE;
+		}
+	}
+	if (request == WR_ANIMATIONFINISH)
+	{
+		if (self.wanim_id == WANIM_LOWER)
+			wswitch();
+		if (self.wanim_id == WANIM_FIRE1)
+		{
+			// user held button the entire time, begin charging
+			// (but only if user has the charge upgrade)
+			if (Inventory_Quantity(self, "mchargecannon"))
+			{
+				// user has the charge upgrade, begin charging anim
+				if (self.missilemode)
+				{
+					sound(self, CHAN_WEAPON, "weapons/lstart.wav", 1, ATTN_NORM);
+					self.wburst = 1;
+					wsetanim(WANIM_FIRE2, 1, 4, 4 * PLASMACANNON_MISSILE_SUPER_TIME);
+				}
+				else
+				{
+					sound(self, CHAN_WEAPON, "weapons/lstart.wav", 1, ATTN_NORM);
+					self.wburst = 1;
+					wsetanim(WANIM_FIRE2, 1, 4, 4 * PLASMACANNON_PLASMA_SUPER_TIME);
+				}
+				return TRUE;
+			}
+			// user does not have the charge upgrade,
+			// do nothing to wait for button release
+			// (WR_ANIMATIONFINISH repeats until wsetanim)
+			// uncomment this to refire immediately
+			//wsetanim(WANIM_READY, 0, 0, 0);
+		}
+		else if (self.wanim_id == WANIM_FIRE2)
+		{
+			if (self.missilemode)
+				wsetanim(WANIM_FIRE2, 1, 4, 4 * PLASMACANNON_MISSILE_SUPER_TIME);
+			else
+				wsetanim(WANIM_FIRE2, 1, 4, 4 * PLASMACANNON_PLASMA_SUPER_TIME);
+		}
+		else
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = self.wburst;
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (time < self.altfiretimeout)
+			self.button0 = w_directattackaim(5000, 1);
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		self.wburst = 0;
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 5, 2, 0.2);
+			return TRUE;
+		}
+		if (time < self.attack_finished)
+			return TRUE;
+		if (self.missilemode)
+		{
+			if (!self.button3)
+			{
+				self.missilemode = FALSE;
+				//sound(self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
+				self.attack_finished = time + 0.1;
+				return TRUE;
+			}
+			if (self.button0)
+			if (Inventory_Quantity(self, "rockets") >= 1)
+			{
+				// fire a low power shot
+				self.wburst = 1;
+				W_Hostile();
+				self.wfiretime = time;
+				sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
+				Inventory_AdjustQuantity(self, "rockets", 0 - self.wburst);
+				w_muzzleflash(shotorg, lerp(PLASMACANNON_MISSILE_SINGLE_MUZZLEFLASH, PLASMACANNON_MISSILE_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL));
+				shotvelocity = shotdir * lerp(PLASMACANNON_MISSILE_SINGLE_VELOCITY, PLASMACANNON_MISSILE_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				shotdamage = lerp(PLASMACANNON_MISSILE_SINGLE_DAMAGE, PLASMACANNON_MISSILE_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				shotforce = lerp(PLASMACANNON_MISSILE_SINGLE_FORCE, PLASMACANNON_MISSILE_SUPER_FORCE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				shotradius = lerp(PLASMACANNON_MISSILE_SINGLE_RADIUS, PLASMACANNON_MISSILE_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				LaunchMissile(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, "PLASMACANNONMISSILE", Obituary_PlasmaCannonMissile);
+				wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_MISSILE_SINGLE_REFIRE, PLASMACANNON_MISSILE_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL));
+				self.wburst = 0;
+				return TRUE;
+			}
+		}
+		else
+		{
+			if (self.button3)
+			{
+				self.missilemode = TRUE;
+				//sound(self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
+				self.attack_finished = time + 0.1;
+				return TRUE;
+			}
+			if (self.button0)
+			{
+				// fire a low power shot
+				self.wburst = 1;
+				W_Hostile();
+				self.wfiretime = time;
+				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+				w_muzzleflash(shotorg, lerp(PLASMACANNON_PLASMA_SINGLE_MUZZLEFLASH, PLASMACANNON_PLASMA_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+				shotvelocity = shotdir * lerp(PLASMACANNON_PLASMA_SINGLE_VELOCITY, PLASMACANNON_PLASMA_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotdamage = lerp(PLASMACANNON_PLASMA_SINGLE_DAMAGE, PLASMACANNON_PLASMA_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotforce = lerp(PLASMACANNON_PLASMA_SINGLE_FORCE, PLASMACANNON_PLASMA_SUPER_FORCE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotradius = lerp(PLASMACANNON_PLASMA_SINGLE_RADIUS, PLASMACANNON_PLASMA_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				LaunchPlasmaCharge(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, DT_PLASMA, "PLASMACANNON", Obituary_PlasmaCannon);
+				wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_PLASMA_SINGLE_REFIRE, PLASMACANNON_PLASMA_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+				self.wburst = 0;
+				return TRUE;
+			}
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		// if button is released during refire delay, switch to a more rapid
+		// fire mode (allows repeated pressing to fire more quickly)
+		if (!self.button0)
+			self.wanim_id = WANIM_FIRE4;
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE2)
+	{
+		if (!self.button0)
+		{
+			if (self.missilemode)
+			{
+				if (self.wburst >= PLASMACANNON_MISSILE_SUPER_MINIMUM)
+				{
+					W_Hostile();
+					self.wfiretime = time;
+					sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
+					Inventory_AdjustQuantity(self, "rockets", 0 - self.wburst);
+					w_muzzleflash(shotorg, lerp(PLASMACANNON_MISSILE_SINGLE_MUZZLEFLASH, PLASMACANNON_MISSILE_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL));
+					shotvelocity = shotdir * lerp(PLASMACANNON_MISSILE_SINGLE_VELOCITY, PLASMACANNON_MISSILE_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+					shotdamage = lerp(PLASMACANNON_MISSILE_SINGLE_DAMAGE, PLASMACANNON_MISSILE_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+					shotforce = lerp(PLASMACANNON_MISSILE_SINGLE_FORCE, PLASMACANNON_MISSILE_SUPER_FORCE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+					shotradius = lerp(PLASMACANNON_MISSILE_SINGLE_RADIUS, PLASMACANNON_MISSILE_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+					LaunchMissile(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, "PLASMACANNONMISSILE", Obituary_PlasmaCannonMissile);
+					wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_MISSILE_SINGLE_REFIRE, PLASMACANNON_MISSILE_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL));
+					self.wburst = 0;
+					return TRUE;
+				}
+			}
+			else
+			{
+				if (self.wburst >= PLASMACANNON_PLASMA_SUPER_MINIMUM)
+				{
+					W_Hostile();
+					self.wfiretime = time;
+					sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+					w_muzzleflash(shotorg, lerp(PLASMACANNON_PLASMA_SINGLE_MUZZLEFLASH, PLASMACANNON_PLASMA_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+					shotvelocity = shotdir * lerp(PLASMACANNON_PLASMA_SINGLE_VELOCITY, PLASMACANNON_PLASMA_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+					shotdamage = lerp(PLASMACANNON_PLASMA_SINGLE_DAMAGE, PLASMACANNON_PLASMA_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+					shotforce = lerp(PLASMACANNON_PLASMA_SINGLE_FORCE, PLASMACANNON_PLASMA_SUPER_FORCE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+					shotradius = lerp(PLASMACANNON_PLASMA_SINGLE_RADIUS, PLASMACANNON_PLASMA_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+					LaunchPlasmaCharge(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, DT_PLASMA, "PLASMACANNON", Obituary_PlasmaCannon);
+					wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_PLASMA_SINGLE_REFIRE, PLASMACANNON_PLASMA_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+					self.wburst = 0;
+					return TRUE;
+				}
+			}
+			wsetanim(WANIM_READY, 0, 0, 0);
+		}
+		return TRUE;
+	}
+	return TRUE;
+};
+*/
+
+/*
+float(float request) w_mplasmacannon =
+{
+	//local float cells, shots, damage;
+	//local vector ang;
+	local vector shotvelocity;
+	local float shotdamage;
+	local float shotforce;
+	local float shotradius;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/plasmashot.spr32");
+		precache_sound("plasma/plasma.wav");
+		precache_sound("plasma/plasexpl.wav");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		precache_sound("player/axhit2.wav");
+		registerweapon(1, "Plasma Cannon", w_mplasmacannon, "mplasmacannon", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return TRUE;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 6, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request == WR_ANIMATIONFRAME)
+	{
+		if (self.wanim_id == WANIM_FIRE2)
+		{
+			if (self.wburst < PLASMACANNON_PLASMA_SUPER_FULL)
+				self.wburst = self.wburst + 1;
+			self.punchangle = (randomvec() + '-1 0 0') * lerp(PLASMACANNON_PLASMA_SINGLE_SHAKE, PLASMACANNON_PLASMA_SUPER_SHAKE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+			self.punchangle_z = 0; // don't want roll
+			return TRUE;
+		}
+	}
+	if (request == WR_ANIMATIONFINISH)
+	{
+		if (self.wanim_id == WANIM_LOWER)
+			wswitch();
+		if (self.wanim_id == WANIM_FIRE1)
+		{
+			// wait for button0 release
+			wsetanim(WANIM_READY, 0, 0, 0);
+		}
+		else if (self.wanim_id == WANIM_FIRE2)
+			wsetanim(WANIM_FIRE2, 1, 4, 4 * PLASMACANNON_PLASMA_SUPER_TIME);
+		else
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = self.wburst;
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (time < self.altfiretimeout)
+			self.button0 = w_directattackaim(5000, 1);
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		self.wburst = 0;
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 5, 2, 0.2);
+			return TRUE;
+		}
+		if (time < self.attack_finished)
+			return TRUE;
+		if (self.button3)
+		if (Inventory_Quantity(self, "mchargecannon"))
+		{
+			// user has the charge upgrade, begin charging anim
+			sound(self, CHAN_WEAPON, "weapons/lstart.wav", 1, ATTN_NORM);
+			self.wburst = 1;
+			wsetanim(WANIM_FIRE2, 1, 4, 4 * PLASMACANNON_MISSILE_SUPER_TIME);
+			return TRUE;
+		}
+		if (self.button0)
+		{
+			// fire a low power shot
+			self.wburst = 1;
+			W_Hostile();
+			self.wfiretime = time;
+			sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+			w_muzzleflash(shotorg, lerp(PLASMACANNON_PLASMA_SINGLE_MUZZLEFLASH, PLASMACANNON_PLASMA_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+			shotvelocity = shotdir * lerp(PLASMACANNON_PLASMA_SINGLE_VELOCITY, PLASMACANNON_PLASMA_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+			shotdamage = lerp(PLASMACANNON_PLASMA_SINGLE_DAMAGE, PLASMACANNON_PLASMA_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+			shotforce = lerp(PLASMACANNON_PLASMA_SINGLE_FORCE, PLASMACANNON_PLASMA_SUPER_FORCE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+			shotradius = lerp(PLASMACANNON_PLASMA_SINGLE_RADIUS, PLASMACANNON_PLASMA_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+			if (Inventory_Quantity(self, "mmulticannon"))
+			{
+				shotdamage = shotdamage * 2;
+				shotforce = shotforce * 2;
+			}
+			LaunchPlasmaCharge(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, DT_PLASMA, "PLASMACANNON", Obituary_PlasmaCannon);
+			wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_PLASMA_SINGLE_REFIRE, PLASMACANNON_PLASMA_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+			self.wburst = 0;
+			return TRUE;
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		// if button is released during refire delay, switch to a more rapid
+		// fire mode (allows repeated pressing to fire more quickly)
+		if (!self.button0)
+		//	wsetanim(WANIM_FIRE1, 0, 0, PLASMACANNON_PLASMA_QUICK_REFIRE);
+			self.wanim_id = WANIM_FIRE4;
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE2)
+	{
+		if (!self.button3)
+		{
+			if (self.wburst >= PLASMACANNON_PLASMA_SUPER_MINIMUM)
+			{
+				W_Hostile();
+				self.wfiretime = time;
+				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+				w_muzzleflash(shotorg, lerp(PLASMACANNON_PLASMA_SINGLE_MUZZLEFLASH, PLASMACANNON_PLASMA_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+				shotvelocity = shotdir * lerp(PLASMACANNON_PLASMA_SINGLE_VELOCITY, PLASMACANNON_PLASMA_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotdamage = lerp(PLASMACANNON_PLASMA_SINGLE_DAMAGE, PLASMACANNON_PLASMA_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotforce = lerp(PLASMACANNON_PLASMA_SINGLE_FORCE, PLASMACANNON_PLASMA_SUPER_FORCE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotradius = lerp(PLASMACANNON_PLASMA_SINGLE_RADIUS, PLASMACANNON_PLASMA_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				if (Inventory_Quantity(self, "mmulticannon"))
+				{
+					shotdamage = shotdamage * 2;
+					shotforce = shotforce * 2;
+				}
+				LaunchPlasmaCharge(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, DT_PLASMA, "PLASMACANNON", Obituary_PlasmaCannon);
+				wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_PLASMA_SINGLE_REFIRE, PLASMACANNON_PLASMA_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+				self.wburst = 0;
+				return TRUE;
+			}
+			wsetanim(WANIM_READY, 0, 0, 0);
+		}
+		return TRUE;
+	}
+	return TRUE;
+};
+*/
+
+float(float request) w_mplasmacannon =
+{
+	//local float cells, shots, damage;
+	//local vector ang;
+	local vector shotvelocity;
+	local float shotdamage;
+	local float shotforce;
+	local float shotradius;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dpshot.mdl");
+		precache_model("progs/plasmashot.spr32");
+		precache_sound("plasma/plasma.wav");
+		precache_sound("plasma/plasexpl.wav");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		precache_sound("player/axhit2.wav");
+		registerweapon(1, "Plasma Cannon", w_mplasmacannon, "mplasmacannon", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return TRUE;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 6, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request == WR_ANIMATIONFRAME)
+	{
+		if (self.wanim_id == WANIM_FIRE2)
+		{
+			if (self.wburst < PLASMACANNON_PLASMA_SUPER_FULL)
+				self.wburst = self.wburst + 1;
+			self.punchangle = (randomvec() + '-1 0 0') * lerp(PLASMACANNON_PLASMA_SINGLE_SHAKE, PLASMACANNON_PLASMA_SUPER_SHAKE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+			self.punchangle_z = 0; // don't want roll
+			return TRUE;
+		}
+		if (self.wanim_id == WANIM_FIRE3)
+		{
+			if (self.wburst < Inventory_Quantity(self, "rockets"))
+			if (self.wburst < PLASMACANNON_MISSILE_SUPER_FULL)
+				self.wburst = self.wburst + 1;
+			self.punchangle = (randomvec() + '-1 0 0') * lerp(PLASMACANNON_MISSILE_SINGLE_SHAKE, PLASMACANNON_MISSILE_SUPER_SHAKE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+			self.punchangle_z = 0; // don't want roll
+			return TRUE;
+		}
+	}
+	if (request == WR_ANIMATIONFINISH)
+	{
+		if (self.wanim_id == WANIM_LOWER)
+			wswitch();
+		if (self.wanim_id == WANIM_FIRE1)
+		{
+			if (self.button0)
+			{
+				if (Inventory_Quantity(self, "mchargecannon"))
+				{
+					// user has the charge upgrade, begin charging anim
+					sound(self, CHAN_WEAPON, "weapons/lstart.wav", 1, ATTN_NORM);
+					self.wburst = 1;
+					if (self.button3)
+						wsetanim(WANIM_FIRE3, 1, 4, 4 * PLASMACANNON_MISSILE_SUPER_TIME);
+					else
+						wsetanim(WANIM_FIRE2, 1, 4, 4 * PLASMACANNON_PLASMA_SUPER_TIME);
+				}
+				else
+				{
+					// fire again
+					wsetanim(WANIM_READY, 0, 0, 0);
+				}
+			}
+			else
+			{
+				// go to idle mode
+				wsetanim(WANIM_READY, 0, 0, 0);
+			}
+		}
+		else if (self.wanim_id == WANIM_FIRE2)
+			wsetanim(WANIM_FIRE2, 1, 4, 4 * PLASMACANNON_PLASMA_SUPER_TIME);
+		else if (self.wanim_id == WANIM_FIRE3)
+			wsetanim(WANIM_FIRE3, 1, 4, 4 * PLASMACANNON_MISSILE_SUPER_TIME);
+		else
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = self.wburst;
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (time < self.altfiretimeout)
+			self.button0 = w_directattackaim(5000, 1);
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		self.wburst = 0;
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 5, 2, 0.2);
+			return TRUE;
+		}
+		if (time < self.attack_finished)
+			return TRUE;
+		if (self.button0)
+		{
+			if (self.button3)
+			{
+				if (Inventory_Quantity(self, "rockets") > 0)
+				{
+					// fire a low power shot
+					self.wburst = 1;
+					W_Hostile();
+					self.wfiretime = time;
+					w_muzzleflash(shotorg, lerp(PLASMACANNON_MISSILE_SINGLE_MUZZLEFLASH, PLASMACANNON_MISSILE_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL));
+					shotvelocity = shotdir * lerp(PLASMACANNON_MISSILE_SINGLE_VELOCITY, PLASMACANNON_MISSILE_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+					shotdamage = lerp(PLASMACANNON_MISSILE_SINGLE_DAMAGE, PLASMACANNON_MISSILE_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+					shotforce = lerp(PLASMACANNON_MISSILE_SINGLE_FORCE, PLASMACANNON_MISSILE_SUPER_FORCE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+					shotradius = lerp(PLASMACANNON_MISSILE_SINGLE_RADIUS, PLASMACANNON_MISSILE_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+					sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
+					Inventory_AdjustQuantity(self, "rockets", 0 - self.wburst);
+					LaunchMissile(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, "MISSILE", Obituary_PlasmaCannonMissile);
+					wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_MISSILE_SINGLE_REFIRE, PLASMACANNON_MISSILE_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL));
+					self.wburst = 0;
+					return TRUE;
+				}
+			}
+			else
+			{
+				// fire a low power shot
+				self.wburst = 1;
+				W_Hostile();
+				self.wfiretime = time;
+				w_muzzleflash(shotorg, lerp(PLASMACANNON_PLASMA_SINGLE_MUZZLEFLASH, PLASMACANNON_PLASMA_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+				shotvelocity = shotdir * lerp(PLASMACANNON_PLASMA_SINGLE_VELOCITY, PLASMACANNON_PLASMA_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotdamage = lerp(PLASMACANNON_PLASMA_SINGLE_DAMAGE, PLASMACANNON_PLASMA_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotforce = lerp(PLASMACANNON_PLASMA_SINGLE_FORCE, PLASMACANNON_PLASMA_SUPER_FORCE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotradius = lerp(PLASMACANNON_PLASMA_SINGLE_RADIUS, PLASMACANNON_PLASMA_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				if (Inventory_Quantity(self, "mmulticannon"))
+				{
+					shotdamage = shotdamage * 2;
+					shotforce = shotforce * 2;
+				}
+				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+				LaunchPlasmaCharge(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, DT_PLASMA, "PLASMACANNON", Obituary_PlasmaCannon);
+				wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_PLASMA_SINGLE_REFIRE, PLASMACANNON_PLASMA_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+				self.wburst = 0;
+				return TRUE;
+			}
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		// if button is released during refire delay, switch to a more rapid
+		// fire mode (allows repeated pressing to fire more quickly)
+		//if (!self.button0)
+		//	wsetanim(WANIM_FIRE1, 0, 0, PLASMACANNON_PLASMA_QUICK_REFIRE);
+		//	self.wanim_id = WANIM_FIRE4;
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE2)
+	{
+		if (!self.button0)
+		{
+			if (self.wburst >= PLASMACANNON_PLASMA_SUPER_MINIMUM)
+			{
+				W_Hostile();
+				self.wfiretime = time;
+				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+				w_muzzleflash(shotorg, lerp(PLASMACANNON_PLASMA_SINGLE_MUZZLEFLASH, PLASMACANNON_PLASMA_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+				shotvelocity = shotdir * lerp(PLASMACANNON_PLASMA_SINGLE_VELOCITY, PLASMACANNON_PLASMA_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotdamage = lerp(PLASMACANNON_PLASMA_SINGLE_DAMAGE, PLASMACANNON_PLASMA_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotforce = lerp(PLASMACANNON_PLASMA_SINGLE_FORCE, PLASMACANNON_PLASMA_SUPER_FORCE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				shotradius = lerp(PLASMACANNON_PLASMA_SINGLE_RADIUS, PLASMACANNON_PLASMA_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL);
+				if (Inventory_Quantity(self, "mmulticannon"))
+				{
+					shotdamage = shotdamage * 2;
+					shotforce = shotforce * 2;
+				}
+				LaunchPlasmaCharge(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, DT_PLASMA, "PLASMACANNON", Obituary_PlasmaCannon);
+				wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_PLASMA_SINGLE_REFIRE, PLASMACANNON_PLASMA_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_PLASMA_SUPER_FULL));
+				self.wburst = 0;
+				return TRUE;
+			}
+			wsetanim(WANIM_READY, 0, 0, 0);
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE3)
+	{
+		if (!self.button0)
+		{
+			if (self.wburst >= PLASMACANNON_MISSILE_SUPER_MINIMUM)
+			{
+				W_Hostile();
+				self.wfiretime = time;
+				w_muzzleflash(shotorg, lerp(PLASMACANNON_MISSILE_SINGLE_MUZZLEFLASH, PLASMACANNON_MISSILE_SUPER_MUZZLEFLASH, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL));
+				shotvelocity = shotdir * lerp(PLASMACANNON_MISSILE_SINGLE_VELOCITY, PLASMACANNON_MISSILE_SUPER_VELOCITY, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				shotdamage = lerp(PLASMACANNON_MISSILE_SINGLE_DAMAGE, PLASMACANNON_MISSILE_SUPER_DAMAGE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				shotforce = lerp(PLASMACANNON_MISSILE_SINGLE_FORCE, PLASMACANNON_MISSILE_SUPER_FORCE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				shotradius = lerp(PLASMACANNON_MISSILE_SINGLE_RADIUS, PLASMACANNON_MISSILE_SUPER_RADIUS, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL);
+				sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
+				Inventory_AdjustQuantity(self, "rockets", 0 - self.wburst);
+				LaunchMissile(shotorg, shotvelocity, self, shotdamage, shotforce, shotradius, "MISSILE", Obituary_PlasmaCannonMissile);
+				wsetanim(WANIM_FIRE1, 0, 0, lerp(PLASMACANNON_MISSILE_SINGLE_REFIRE, PLASMACANNON_MISSILE_SUPER_REFIRE, self.wburst, 1, PLASMACANNON_MISSILE_SUPER_FULL));
+				self.wburst = 0;
+				return TRUE;
+			}
+			wsetanim(WANIM_READY, 0, 0, 0);
+		}
+		return TRUE;
+	}
+	return TRUE;
+};
+
+float ICECANNON_STARTFREECELLS = 0;
+float ICECANNON_FREECELLS = 0;
+float ICECANNON_CELLS = 10;
+float ICECANNON_CELLTIME = 0.1;
+
+float ICECANNON_BASEDAMAGE = 50;
+float ICECANNON_CELLDAMAGE = 20;
+float ICECANNON_BASEFORCE = 50;
+float ICECANNON_CELLFORCE = 20;
+float ICECANNON_BASERADIUS = 50;
+float ICECANNON_CELLRADIUS = 0;
+float ICECANNON_REFIRE = 0.2;
+float ICECANNON_BASEKICKBACK = 0;
+float ICECANNON_CELLKICKBACK = 0;
+float ICECANNON_BASEMUZZLEFLASH = 0;
+float ICECANNON_CELLMUZZLEFLASH = 0;
+float ICECANNON_VELOCITY = 1000;
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_IceCannon =
+{
+	if (dtype == DTYPE_PLAYER)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " was frozen by ";
+		deathstring3 = attacker.netname;
+		deathstring4 = "";
+		if (targ.bodyhealth < 1)
+			deathstring2 = " was shattered by ";
+	}
+	else if (dtype == DTYPE_SUICIDE)
+	{
+		deathstring1 = targ.netname;
+		deathstring2 = " didn't know where to point the gun";
+		deathstring3 = "";
+		deathstring4 = "";
+	}
+	else
+		Obituary_Fallback(targ, attacker, dmsg, dtype);
+};
+
+float(float request) w_micecannon =
+{
+	local float cells, shots, damage;
+	local vector ang;
+	if (request == WR_REGISTER)
+	{
+		precache_model("progs/v_dplight.mdl");
+		precache_model("progs/plasmashot.spr32");
+		precache_sound("plasma/plasma.wav");
+		precache_sound("plasma/plasexpl.wav");
+		precache_model("progs/spike.mdl");
+		precache_sound("weapons/rocket1i.wav");
+		registerweapon(4, "Ice Cannon", w_micecannon, "micecannon", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_CELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
+		return TRUE;
+	}
+	if (request == WR_HASAMMO)
+		return TRUE;
+	if (request == WR_SETUP)
+	{
+		wsetanim(WANIM_RAISE, 6, -2, 0.2);
+		return TRUE;
+	}
+	if (request == WR_INSTANTSETUP)
+	{
+		wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request == WR_ANIMATIONFRAME)
+	{
+		if (self.wanim_id == WANIM_FIRE1)
+		{
+			cells = ICECANNON_CELLS;
+			if (!Inventory_Quantity(self, "supershotgun"))
+				cells = 1;
+			if (self.wburst < cells)
+			{
+				self.wburst = self.wburst + 1;
+				sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 0.5, ATTN_STATIC);
+				return TRUE;
+			}
+			return TRUE;
+		}
+	}
+	if (request == WR_ANIMATIONFINISH)
+	{
+		if (self.wanim_id == WANIM_LOWER)
+			wswitch();
+		else if (self.wanim_id == WANIM_FIRE1)
+			wsetanim(WANIM_FIRE1, 1, 4, 4 * ICECANNON_CELLTIME);
+		else
+			wsetanim(WANIM_READY, 0, 0, 0);
+		return TRUE;
+	}
+	if (request != WR_FRAME)
+		return FALSE;
+	wanimate();
+	self.currentammo = self.wburst;
+	if (self.aimtarg) // bot target
+	{
+		if (time > self.altfirechecktimeout)
+		{
+			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
+			if (time > self.altfiretimeout)
+			if (random() < 0.2)
+				self.altfiretimeout = time + 0.5 + random() * 0.5;
+		}
+		if (time < self.altfiretimeout)
+			self.button3 = w_directattackaim(3000, 1);
+		else
+			self.button0 = w_directattackaim(5000, 1);
+	}
+	if (self.wanim_id == WANIM_READY)
+	{
+		self.wburst = 0;
+		if (self.switchweaponclass != self.weaponclass)
+		{
+			wsetanim(WANIM_LOWER, 5, 2, 0.2);
+			return TRUE;
+		}
+		if (self.button0)
+		{
+			// first an initial shot
+			self.wburst = 1;
+			LaunchPlasmaCharge(shotorg, shotdir * ICECANNON_VELOCITY, self, ICECANNON_BASEDAMAGE + self.wburst * ICECANNON_CELLDAMAGE, ICECANNON_BASEFORCE + self.wburst * ICECANNON_CELLFORCE, ICECANNON_BASERADIUS + self.wburst * ICECANNON_CELLRADIUS, DT_ICE, "ICECANNON", Obituary_IceCannon);
+			self.attack_finished = time + 0.2;
+			// begin charging (but only if you have the charge cannon)
+			if (Inventory_Quantity(self, "supershotgun"))
+			{
+				self.wburst = ICECANNON_STARTFREECELLS;
+				wsetanim(WANIM_FIRE1, 1, 4, 4 * ICECANNON_CELLTIME);
+			}
+			self.wburst = ICECANNON_STARTFREECELLS;
+			wsetanim(WANIM_FIRE1, 1, 4, 4 * ICECANNON_CELLTIME);
+			return TRUE;
+		}
+		return TRUE;
+	}
+	if (self.wanim_id == WANIM_FIRE1)
+	{
+		if (!self.button0)
+		{
+			if (self.wburst >= 1)
+			{
+				W_Hostile();
+				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+				self.velocity = self.velocity - shotdir * (ICECANNON_BASEKICKBACK + self.wburst * ICECANNON_CELLKICKBACK);
+				self.flags = self.flags - (self.flags & FL_ONGROUND);
+				self.wfiretime = time;
+				w_muzzleflash(shotorg, ICECANNON_BASEMUZZLEFLASH + self.wburst * ICECANNON_CELLMUZZLEFLASH);
+				LaunchPlasmaCharge(shotorg, shotdir * ICECANNON_VELOCITY, self, ICECANNON_BASEDAMAGE + self.wburst * ICECANNON_CELLDAMAGE, ICECANNON_BASEFORCE + self.wburst * ICECANNON_CELLFORCE, ICECANNON_BASERADIUS + self.wburst * ICECANNON_CELLRADIUS, DT_ICE, "ICECANNON", Obituary_IceCannon);
+				self.wburst = 0;
+			}
+			wsetanim(WANIM_FIRE4, 0, 0, ICECANNON_REFIRE);
+		}
+		return TRUE;
+	}
+	return TRUE;
+};
+
+float PLASMABEAM_STARTFREECELLS = 0;
+float PLASMABEAM_FREECELLS = 0;
+float PLASMABEAM_CELLS = 10;
+float PLASMABEAM_CELLTIME = 0.1;
+
+float PLASMABEAM_BASEDAMAGE = 40;
+float PLASMABEAM_CELLDAMAGE = 15;
+float PLASMABEAM_BASEFORCE = 40;
+float PLASMABEAM_CELLFORCE = 15;
+float PLASMABEAM_BASERADIUS = 0;
+float PLASMABEAM_CELLRADIUS = 0;
+float PLASMABEAM_REFIRE = 0.8;
+float PLASMABEAM_BASEKICKBACK = 0;
+float PLASMABEAM_CELLKICKBACK = 0;
+float PLASMABEAM_BASEMUZZLEFLASH = 0;
+float PLASMABEAM_CELLMUZZLEFLASH = 0;
+
+void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaBeam =
 {
 	if (dtype == DTYPE_PLAYER)
 	{
@@ -3833,115 +4698,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PCRifleBea
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PCRifleMissile =
-{
-	if (dtype == DTYPE_PLAYER)
-	{
-		deathstring1 = targ.netname;
-		deathstring2 = " was blasted by ";
-		deathstring3 = attacker.netname;
-		deathstring4 = "";
-		if (targ.bodyhealth < 1)
-			deathstring2 = " was obliterated by ";
-	}
-	else if (dtype == DTYPE_SUICIDE)
-	{
-		deathstring1 = targ.netname;
-		deathstring2 = " didn't know where to point the gun";
-		deathstring3 = "";
-		deathstring4 = "";
-	}
-	else
-		Obituary_Fallback(targ, attacker, dmsg, dtype);
-};
-
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PCRifleShred =
-{
-	if (dtype == DTYPE_PLAYER)
-	{
-		deathstring1 = targ.netname;
-		deathstring2 = " was shredded by ";
-		deathstring3 = attacker.netname;
-		deathstring4 = "";
-		if (targ.bodyhealth < 1)
-			deathstring2 = " was obliterated by ";
-	}
-	else if (dtype == DTYPE_SUICIDE)
-	{
-		deathstring1 = targ.netname;
-		deathstring2 = " didn't know where to point the gun";
-		deathstring3 = "";
-		deathstring4 = "";
-	}
-	else
-		Obituary_Fallback(targ, attacker, dmsg, dtype);
-};
-
-/*
-float PCRIFLE_CHARGE_STARTFREECELLS = 0;
-float PCRIFLE_CHARGE_FREECELLS = 0;
-float PCRIFLE_CHARGE_CELLS = 30;
-float PCRIFLE_CHARGE_BASEDAMAGE = 20;
-float PCRIFLE_CHARGE_CELLDAMAGE = 13;
-float PCRIFLE_CHARGE_BASEFORCE = 0;
-float PCRIFLE_CHARGE_CELLFORCE = 20;
-float PCRIFLE_CHARGE_BASERADIUS = 150;
-float PCRIFLE_CHARGE_CELLRADIUS = 0;
-float PCRIFLE_CHARGE_REFIRE = 0.2;
-float PCRIFLE_CHARGE_BASEKICKBACK = 0;
-float PCRIFLE_CHARGE_CELLKICKBACK = 0;
-float PCRIFLE_CHARGE_CELLTIME = 0.1;
-float PCRIFLE_CHARGE_BASEMUZZLEFLASH = 0;
-float PCRIFLE_CHARGE_CELLMUZZLEFLASH = 0;
-float PCRIFLE_CHARGE_VELOCITY = 5000;
-*/
-float PCRIFLE_CHARGE_STARTFREECELLS = 0;
-float PCRIFLE_CHARGE_FREECELLS = 0;
-float PCRIFLE_CHARGE_CELLS = 10;
-float PCRIFLE_CHARGE_CELLTIME = 0.1;
-
-float PCRIFLE_CHARGE_BASEDAMAGE = 50;
-float PCRIFLE_CHARGE_CELLDAMAGE = 20;
-float PCRIFLE_CHARGE_BASEFORCE = 50;
-float PCRIFLE_CHARGE_CELLFORCE = 20;
-float PCRIFLE_CHARGE_BASERADIUS = 50;
-float PCRIFLE_CHARGE_CELLRADIUS = 0;
-float PCRIFLE_CHARGE_REFIRE = 0.2;
-float PCRIFLE_CHARGE_BASEKICKBACK = 0;
-float PCRIFLE_CHARGE_CELLKICKBACK = 0;
-float PCRIFLE_CHARGE_BASEMUZZLEFLASH = 0;
-float PCRIFLE_CHARGE_CELLMUZZLEFLASH = 0;
-float PCRIFLE_CHARGE_VELOCITY = 1000;
-
-float PCRIFLE_BEAM_BASEDAMAGE = 40;
-float PCRIFLE_BEAM_CELLDAMAGE = 15;
-float PCRIFLE_BEAM_BASEFORCE = 40;
-float PCRIFLE_BEAM_CELLFORCE = 15;
-float PCRIFLE_BEAM_BASERADIUS = 0;
-float PCRIFLE_BEAM_CELLRADIUS = 0;
-float PCRIFLE_BEAM_REFIRE = 0.8;
-float PCRIFLE_BEAM_BASEKICKBACK = 0;
-float PCRIFLE_BEAM_CELLKICKBACK = 0;
-float PCRIFLE_BEAM_BASEMUZZLEFLASH = 0;
-float PCRIFLE_BEAM_CELLMUZZLEFLASH = 0;
-float PCRIFLE_BEAM_COMBODELAY = 0.05;
-
-float PCRIFLE_SHRED_DAMAGE = 9;
-float PCRIFLE_SHRED_SUPERDAMAGE = 30;
-float PCRIFLE_SHRED_KICKBACK = 0;
-float PCRIFLE_SHRED_SUPERKICKBACK = 0;
-float PCRIFLE_SHRED_REFIRE = 0.1;
-float PCRIFLE_SHRED_MUZZLEFLASH = 2;
-float PCRIFLE_SHRED_VELOCITY = 10000;
-
-float PCRIFLE_MISSILE_DAMAGE = 300;
-float PCRIFLE_MISSILE_FORCE = 150;
-float PCRIFLE_MISSILE_RADIUS = 200;
-float PCRIFLE_MISSILE_REFIRE = 1;
-float PCRIFLE_MISSILE_VELOCITY = 1000;
-
-/*
-float(float request) w_pcrifle =
+float(float request) w_mplasmabeam =
 {
 	local float cells, shots, damage;
 	local vector ang;
@@ -3953,7 +4710,7 @@ float(float request) w_pcrifle =
 		precache_sound("plasma/plasexpl.wav");
 		precache_model("progs/spike.mdl");
 		precache_sound("weapons/rocket1i.wav");
-		registerweapon(1, "PCRifle", w_pcrifle, "pistol", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
+		registerweapon(8, "Plasma Beam", w_mplasmabeam, "mplasmabeam", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_CELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -3972,662 +4729,8 @@ float(float request) w_pcrifle =
 	{
 		if (self.wanim_id == WANIM_FIRE1)
 		{
-			//if (self.button3)
-			////if (Inventory_Quantity(self, "nails") >= 1)
-			//{
-			//	// note that wburst is > 0 at this point, so the shred shots will wburst cells to supercharge
-			//	wsetanim(WANIM_FIRE2, 1, 4, 4 * PCRIFLE_SHRED_REFIRE);
-			//	return TRUE;
-			//}
-			if (self.button0)
+			if (self.wburst < PLASMABEAM_CELLS)
 			{
-				if (self.wburst < PCRIFLE_CHARGE_CELLS)
-				//if (self.wburst < PCRIFLE_CHARGE_FREECELLS || Inventory_Quantity(self, "shells") >= 1)
-				{
-					//if (self.wburst >= PCRIFLE_CHARGE_FREECELLS)
-					//	Inventory_AdjustQuantity(self, "shells", -1);
-					self.wburst = self.wburst + 1;
-					sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 0.5, ATTN_STATIC);
-					return TRUE;
-				}
-				return TRUE;
-			}
-			else
-			{
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-				self.velocity = self.velocity - shotdir * (PCRIFLE_CHARGE_BASEKICKBACK + self.wburst * PCRIFLE_CHARGE_CELLKICKBACK);
-				self.flags = self.flags - (self.flags & FL_ONGROUND);
-				self.wfiretime = time;
-				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				self.wburst = 0;
-				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
-				return TRUE;
-			}
-		}
-		if (self.wanim_id == WANIM_FIRE2)
-		{
-			if (self.button3)
-			//if (Inventory_Quantity(self, "nails"))
-			{
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
-				W_SetupShot();
-				w_muzzleflash(shotorg, PCRIFLE_SHRED_MUZZLEFLASH);
-				//Inventory_AdjustQuantity(self, "nails", -1);
-				if (self.wburst > 0)
-				{
-					self.wburst = self.wburst - 1;
-					self.velocity = self.velocity - shotdir * PCRIFLE_SHRED_KICKBACK;
-					self.flags = self.flags - (self.flags & FL_ONGROUND);
-					FireBullets(self, self, 1, 1, PCRIFLE_SHRED_SUPERDAMAGE, PCRIFLE_SHRED_SUPERDAMAGE, 0, 0, shotdir * PCRIFLE_SHRED_VELOCITY, 0, "PCRIFLE", DT_NAIL, Obituary_PCRifleShred);
-				}
-				else
-				{
-					self.velocity = self.velocity - shotdir * PCRIFLE_SHRED_SUPERKICKBACK;
-					self.flags = self.flags - (self.flags & FL_ONGROUND);
-					FireBullets(self, self, 1, 1, PCRIFLE_SHRED_DAMAGE, PCRIFLE_SHRED_DAMAGE, 0, 0, shotdir * PCRIFLE_SHRED_VELOCITY, 0, "PCRIFLE", DT_NAIL, Obituary_PCRifleShred);
-				}
-				return TRUE;
-			}
-			//if (self.button0)
-			//{
-			//	wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-			//	return TRUE;
-			//}
-			wsetanim(WANIM_READY, 0, 0, 0);
-			return TRUE;
-		}
-	}
-	if (request == WR_ANIMATIONFINISH)
-	{
-		if (self.wanim_id == WANIM_LOWER)
-			wswitch();
-		else if (self.wanim_id == WANIM_FIRE1)
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-		else if (self.wanim_id == WANIM_FIRE2)
-			wsetanim(WANIM_FIRE2, 1, 4, 4 * PCRIFLE_SHRED_REFIRE);
-		else
-			wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request != WR_FRAME)
-		return FALSE;
-	wanimate();
-	//if (self.wburst)
-		self.currentammo = self.wburst;
-	//else if (self.wanim_id == WANIM_FIRE2)
-	//	self.currentammo = Inventory_Quantity(self, "nails");
-	//else
-	//	self.currentammo = Inventory_Quantity(self, "shells");
-	if (self.aimtarg) // bot target
-	{
-		if (time > self.altfirechecktimeout)
-		{
-			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
-			if (time > self.altfiretimeout)
-			if (random() < 0.2)
-				self.altfiretimeout = time + 0.5 + random() * 0.5;
-		}
-		if (time < self.altfiretimeout)
-			self.button3 = w_directattackaim(3000, 1);
-		else
-			self.button0 = w_directattackaim(5000, 1);
-	}
-	if (self.wanim_id == WANIM_READY)
-	{
-		self.wburst = 0;
-		if (self.switchweaponclass != self.weaponclass)
-		{
-			wsetanim(WANIM_LOWER, 5, 2, 0.2);
-			return TRUE;
-		}
-		if (self.button0)
-		{
-			self.wburst = PCRIFLE_CHARGE_STARTFREECELLS - 1; // immediate +1 from the animation
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-			return TRUE;
-		}
-		if (self.button3)
-		//if (Inventory_Quantity(self, "nails") >= 1)
-		{
-			wsetanim(WANIM_FIRE2, 1, 4, 4 * PCRIFLE_SHRED_REFIRE);
-			return TRUE;
-		}
-		return TRUE;
-	}
-	return TRUE;
-};
-*/
-/*
-float(float request) w_pcrifle =
-{
-	local float cells, shots, damage;
-	local vector ang;
-	if (request == WR_REGISTER)
-	{
-		precache_model("progs/v_dplight.mdl");
-		precache_model("progs/plasmashot.spr32");
-		precache_sound("plasma/plasma.wav");
-		precache_sound("plasma/plasexpl.wav");
-		precache_model("progs/spike.mdl");
-		precache_sound("weapons/rocket1i.wav");
-		registerweapon(1, "PCRifle", w_pcrifle, "pistol", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
-		return TRUE;
-	}
-	if (request == WR_HASAMMO)
-		return TRUE;
-	if (request == WR_SETUP)
-	{
-		wsetanim(WANIM_RAISE, 6, -2, 0.2);
-		return TRUE;
-	}
-	if (request == WR_INSTANTSETUP)
-	{
-		self.wburst = PCRIFLE_CHARGE_FREECELLS - 1; // immediate +1 from the animation code
-		wsetanim(WANIM_READY, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-		return TRUE;
-	}
-	if (request == WR_ANIMATIONFRAME)
-	{
-		if (self.wanim_id == WANIM_READY)
-		{
-			if (self.wburst < PCRIFLE_CHARGE_CELLS)
-			//if (self.wburst < PCRIFLE_CHARGE_FREECELLS || Inventory_Quantity(self, "shells") >= 1)
-			{
-				//if (self.wburst >= PCRIFLE_CHARGE_FREECELLS)
-				//	Inventory_AdjustQuantity(self, "shells", -1);
-				self.wburst = self.wburst + 1;
-				sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 0.5, ATTN_STATIC);
-			}
-			if (self.button3)
-			//if (Inventory_Quantity(self, "nails") >= 1)
-			{
-				// note that wburst is > 0 at this point, so the shred shots will wburst cells to supercharge
-				self.wburst = 0;
-				wsetanim(WANIM_FIRE2, 1, 4, 4 * PCRIFLE_SHRED_REFIRE);
-				return TRUE;
-			}
-			if (self.button0)
-			{
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-				self.velocity = self.velocity - shotdir * (PCRIFLE_CHARGE_BASEKICKBACK + self.wburst * PCRIFLE_CHARGE_CELLKICKBACK);
-				self.flags = self.flags - (self.flags & FL_ONGROUND);
-				self.wfiretime = time;
-				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				self.wburst = 0;
-				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
-				return TRUE;
-			}
-			if (self.switchweaponclass != self.weaponclass)
-			{
-				wsetanim(WANIM_LOWER, 5, 2, 0.2);
-				return TRUE;
-			}
-			return TRUE;
-		}
-		else if (self.wanim_id == WANIM_FIRE2)
-		{
-			if (self.button3)
-			//if (Inventory_Quantity(self, "nails"))
-			{
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
-				W_SetupShot();
-				w_muzzleflash(shotorg, PCRIFLE_SHRED_MUZZLEFLASH);
-				//Inventory_AdjustQuantity(self, "nails", -1);
-				if (self.wburst > 0)
-				{
-					self.wburst = self.wburst - 1;
-					self.velocity = self.velocity - shotdir * PCRIFLE_SHRED_KICKBACK;
-					self.flags = self.flags - (self.flags & FL_ONGROUND);
-					FireBullets(self, self, 1, 1, PCRIFLE_SHRED_SUPERDAMAGE, PCRIFLE_SHRED_SUPERDAMAGE, 0, 0, shotdir * PCRIFLE_SHRED_VELOCITY, 0, "PCRIFLE", DT_NAIL, Obituary_PCRifleShred);
-				}
-				else
-				{
-					self.velocity = self.velocity - shotdir * PCRIFLE_SHRED_SUPERKICKBACK;
-					self.flags = self.flags - (self.flags & FL_ONGROUND);
-					FireBullets(self, self, 1, 1, PCRIFLE_SHRED_DAMAGE, PCRIFLE_SHRED_DAMAGE, 0, 0, shotdir * PCRIFLE_SHRED_VELOCITY, 0, "PCRIFLE", DT_NAIL, Obituary_PCRifleShred);
-				}
-				return TRUE;
-			}
-			wsetanim(WANIM_READY, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-			return TRUE;
-		}
-		return TRUE;
-	}
-	if (request == WR_ANIMATIONFINISH)
-	{
-		if (self.wanim_id == WANIM_LOWER)
-			wswitch();
-		else if (self.wanim_id == WANIM_FIRE2)
-			wsetanim(WANIM_FIRE2, 1, 4, 4 * PCRIFLE_SHRED_REFIRE);
-		else
-			wsetanim(WANIM_READY, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-		return TRUE;
-	}
-	if (request != WR_FRAME)
-		return FALSE;
-	wanimate();
-	//if (self.wburst)
-		self.currentammo = self.wburst;
-	//else if (self.wanim_id == WANIM_FIRE2)
-	//	self.currentammo = Inventory_Quantity(self, "nails");
-	//else
-	//	self.currentammo = Inventory_Quantity(self, "shells");
-	if (self.aimtarg) // bot target
-	{
-		if (time > self.altfirechecktimeout)
-		{
-			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
-			if (time > self.altfiretimeout)
-			if (random() < 0.2)
-				self.altfiretimeout = time + 0.5 + random() * 0.5;
-		}
-		if (time < self.altfiretimeout)
-			self.button3 = w_directattackaim(3000, 1);
-		else
-			self.button0 = w_directattackaim(5000, 1);
-	}
-	return TRUE;
-};
-*/
-/*
-float(float request) w_pcrifle =
-{
-	local float cells, shots, damage;
-	local vector ang;
-	if (request == WR_REGISTER)
-	{
-		precache_model("progs/v_dplight.mdl");
-		precache_model("progs/plasmashot.spr32");
-		precache_sound("plasma/plasma.wav");
-		precache_sound("plasma/plasexpl.wav");
-		precache_model("progs/spike.mdl");
-		precache_sound("weapons/rocket1i.wav");
-		registerweapon(1, "PCRifle", w_pcrifle, "pistol", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
-		return TRUE;
-	}
-	if (request == WR_HASAMMO)
-		return TRUE;
-	if (request == WR_SETUP)
-	{
-		wsetanim(WANIM_RAISE, 6, -2, 0.2);
-		return TRUE;
-	}
-	if (request == WR_INSTANTSETUP)
-	{
-		wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request == WR_ANIMATIONFRAME)
-	{
-		if (self.wanim_id == WANIM_FIRE2)
-		{
-			if (self.button3)
-			//if (Inventory_Quantity(self, "nails"))
-			{
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
-				W_SetupShot();
-				w_muzzleflash(shotorg, PCRIFLE_SHRED_MUZZLEFLASH);
-				//Inventory_AdjustQuantity(self, "nails", -1);
-				self.velocity = self.velocity - shotdir * PCRIFLE_SHRED_SUPERKICKBACK;
-				self.flags = self.flags - (self.flags & FL_ONGROUND);
-				FireBullets(self, self, 1, 1, PCRIFLE_SHRED_DAMAGE, PCRIFLE_SHRED_DAMAGE, 0, 0, shotdir * PCRIFLE_SHRED_VELOCITY, 0, "PCRIFLE", DT_NAIL, Obituary_PCRifleShred);
-				return TRUE;
-			}
-			wsetanim(WANIM_READY, 0, 0, 0);
-			return TRUE;
-		}
-		return TRUE;
-	}
-	if (request == WR_ANIMATIONFINISH)
-	{
-		if (self.wanim_id == WANIM_LOWER)
-			wswitch();
-		else if (self.wanim_id == WANIM_FIRE2)
-			wsetanim(WANIM_FIRE2, 1, 4, 4 * PCRIFLE_SHRED_REFIRE);
-		else
-			wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request != WR_FRAME)
-		return FALSE;
-	wanimate();
-	self.currentammo = 0;
-	//if (self.wanim_id == WANIM_FIRE2)
-	//	self.currentammo = Inventory_Quantity(self, "nails");
-	//else
-	//	self.currentammo = Inventory_Quantity(self, "shells");
-	if (self.aimtarg) // bot target
-	{
-		if (time > self.altfirechecktimeout)
-		{
-			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
-			if (time > self.altfiretimeout)
-			if (random() < 0.2)
-				self.altfiretimeout = time + 0.5 + random() * 0.5;
-		}
-		if (time < self.altfiretimeout)
-			self.button3 = w_directattackaim(3000, 1);
-		else
-			self.button0 = w_directattackaim(5000, 1);
-	}
-	if (self.wanim_id == WANIM_READY)
-	{
-		if (self.button3)
-		//if (Inventory_Quantity(self, "nails") >= 1)
-		{
-			wsetanim(WANIM_FIRE2, 1, 4, 4 * PCRIFLE_SHRED_REFIRE);
-			return TRUE;
-		}
-		if (self.button0)
-		{
-			W_Hostile();
-			sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-			self.velocity = self.velocity - shotdir * (PCRIFLE_CHARGE_BASEKICKBACK + self.wburst * PCRIFLE_CHARGE_CELLKICKBACK);
-			self.flags = self.flags - (self.flags & FL_ONGROUND);
-			self.wfiretime = time;
-			w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH);
-			//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE, PCRIFLE_CHARGE_BASEFORCE, PCRIFLE_CHARGE_BASERADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-			LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE, PCRIFLE_CHARGE_BASEFORCE, PCRIFLE_CHARGE_BASERADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-			wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
-			return TRUE;
-		}
-		if (self.switchweaponclass != self.weaponclass)
-		{
-			wsetanim(WANIM_LOWER, 5, 2, 0.2);
-			return TRUE;
-		}
-		return TRUE;
-	}
-	return TRUE;
-};
-*/
-/*
-float(float request) w_pcrifle =
-{
-	local float cells, shots, damage;
-	local vector ang;
-	if (request == WR_REGISTER)
-	{
-		precache_model("progs/v_dplight.mdl");
-		precache_model("progs/plasmashot.spr32");
-		precache_sound("plasma/plasma.wav");
-		precache_sound("plasma/plasexpl.wav");
-		precache_model("progs/spike.mdl");
-		precache_sound("weapons/rocket1i.wav");
-		registerweapon(1, "PCRifle", w_pcrifle, "pistol", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
-		return TRUE;
-	}
-	if (request == WR_HASAMMO)
-		return TRUE;
-	if (request == WR_SETUP)
-	{
-		wsetanim(WANIM_RAISE, 6, -2, 0.2);
-		return TRUE;
-	}
-	if (request == WR_INSTANTSETUP)
-	{
-		wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request == WR_ANIMATIONFRAME)
-	{
-		if (self.wanim_id == WANIM_FIRE1)
-		{
-			if (self.button3)
-			{
-				if (self.wburst < PCRIFLE_CHARGE_CELLS)
-				//if (self.wburst < PCRIFLE_CHARGE_FREECELLS || Inventory_Quantity(self, "shells") >= 1)
-				{
-					//if (self.wburst >= PCRIFLE_CHARGE_FREECELLS)
-					//	Inventory_AdjustQuantity(self, "shells", -1);
-					self.wburst = self.wburst + 1;
-					sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 0.5, ATTN_STATIC);
-					return TRUE;
-				}
-				return TRUE;
-			}
-			else
-			{
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-				self.velocity = self.velocity - shotdir * (PCRIFLE_CHARGE_BASEKICKBACK + self.wburst * PCRIFLE_CHARGE_CELLKICKBACK);
-				self.flags = self.flags - (self.flags & FL_ONGROUND);
-				self.wfiretime = time;
-				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				self.wburst = 0;
-				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
-				return TRUE;
-			}
-		}
-	}
-	if (request == WR_ANIMATIONFINISH)
-	{
-		if (self.wanim_id == WANIM_LOWER)
-			wswitch();
-		else if (self.wanim_id == WANIM_FIRE1)
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-		else
-			wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request != WR_FRAME)
-		return FALSE;
-	wanimate();
-	self.currentammo = self.wburst;
-	if (self.aimtarg) // bot target
-	{
-		if (time > self.altfirechecktimeout)
-		{
-			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
-			if (time > self.altfiretimeout)
-			if (random() < 0.2)
-				self.altfiretimeout = time + 0.5 + random() * 0.5;
-		}
-		if (time < self.altfiretimeout)
-			self.button3 = w_directattackaim(3000, 1);
-		else
-			self.button0 = w_directattackaim(5000, 1);
-	}
-	if (self.wanim_id == WANIM_READY)
-	{
-		self.wburst = 0;
-		if (self.switchweaponclass != self.weaponclass)
-		{
-			wsetanim(WANIM_LOWER, 5, 2, 0.2);
-			return TRUE;
-		}
-		if (self.button0 || self.button3)
-		{
-			self.wburst = PCRIFLE_CHARGE_STARTFREECELLS - 1; // immediate +1 from the animation
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-			return TRUE;
-		}
-		return TRUE;
-	}
-	return TRUE;
-};
-*/
-/*
-float(float request) w_pcrifle =
-{
-	local float cells, shots, damage;
-	local vector ang;
-	if (request == WR_REGISTER)
-	{
-		precache_model("progs/v_dplight.mdl");
-		precache_model("progs/plasmashot.spr32");
-		precache_sound("plasma/plasma.wav");
-		precache_sound("plasma/plasexpl.wav");
-		precache_model("progs/spike.mdl");
-		precache_sound("weapons/rocket1i.wav");
-		registerweapon(1, "PCRifle", w_pcrifle, "pistol", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
-		return TRUE;
-	}
-	if (request == WR_HASAMMO)
-		return TRUE;
-	if (request == WR_SETUP)
-	{
-		wsetanim(WANIM_RAISE, 6, -2, 0.2);
-		return TRUE;
-	}
-	if (request == WR_INSTANTSETUP)
-	{
-		wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request == WR_ANIMATIONFRAME)
-	{
-		if (self.wanim_id == WANIM_FIRE1)
-		{
-			if (self.button3)
-			{
-				if (self.wburst < PCRIFLE_CHARGE_CELLS)
-				//if (self.wburst < PCRIFLE_CHARGE_FREECELLS || Inventory_Quantity(self, "shells") >= 1)
-				{
-					//if (self.wburst >= PCRIFLE_CHARGE_FREECELLS)
-					//	Inventory_AdjustQuantity(self, "shells", -1);
-					self.wburst = self.wburst + 1;
-					sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 0.5, ATTN_STATIC);
-					return TRUE;
-				}
-				return TRUE;
-			}
-			else
-			{
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-				self.velocity = self.velocity - shotdir * (PCRIFLE_CHARGE_BASEKICKBACK + self.wburst * PCRIFLE_CHARGE_CELLKICKBACK);
-				self.flags = self.flags - (self.flags & FL_ONGROUND);
-				self.wfiretime = time;
-				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				self.wburst = 0;
-				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
-				return TRUE;
-			}
-		}
-	}
-	if (request == WR_ANIMATIONFINISH)
-	{
-		if (self.wanim_id == WANIM_LOWER)
-			wswitch();
-		else if (self.wanim_id == WANIM_FIRE1)
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-		else if (self.wanim_id == WANIM_FIRE2)
-		{
-			self.wburst = PCRIFLE_CHARGE_STARTFREECELLS;
-			W_Hostile();
-			sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-			self.velocity = self.velocity - shotdir * (PCRIFLE_CHARGE_BASEKICKBACK + self.wburst * PCRIFLE_CHARGE_CELLKICKBACK);
-			self.flags = self.flags - (self.flags & FL_ONGROUND);
-			self.wfiretime = time;
-			w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-			//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-			LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-			self.wburst = 0;
-			wsetanim(WANIM_FIRE4, 0, 0, 0.2);
-		}
-		else if (self.wanim_id == WANIM_FIRE4)
-		{
-			self.wburst = PCRIFLE_CHARGE_STARTFREECELLS - 1; // immediate +1 from the animation
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-		}
-		else
-			wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request != WR_FRAME)
-		return FALSE;
-	wanimate();
-	self.currentammo = self.wburst;
-	if (self.aimtarg) // bot target
-	{
-		if (time > self.altfirechecktimeout)
-		{
-			self.altfirechecktimeout = time + 0.1 + random() * 0.2;
-			if (time > self.altfiretimeout)
-			if (random() < 0.2)
-				self.altfiretimeout = time + 0.5 + random() * 0.5;
-		}
-		if (time < self.altfiretimeout)
-			self.button3 = w_directattackaim(3000, 1);
-		else
-			self.button0 = w_directattackaim(5000, 1);
-	}
-	if (self.wanim_id == WANIM_READY)
-	{
-		self.wburst = 0;
-		if (self.switchweaponclass != self.weaponclass)
-		{
-			wsetanim(WANIM_LOWER, 5, 2, 0.2);
-			return TRUE;
-		}
-		if (self.button3)
-		{
-			self.wburst = PCRIFLE_CHARGE_STARTFREECELLS - 1; // immediate +1 from the animation
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-			return TRUE;
-		}
-		if (self.button0)
-		{
-			//self.wburst = PCRIFLE_CHARGE_STARTFREECELLS - 1; // immediate +1 from the animation
-			self.wburst = PCRIFLE_CHARGE_STARTFREECELLS;
-			wsetanim(WANIM_FIRE2, 1, 4, PCRIFLE_CHARGE_CELLTIME);
-			return TRUE;
-		}
-		return TRUE;
-	}
-	return TRUE;
-};
-*/
-float(float request) w_pcrifle =
-{
-	local float cells, shots, damage;
-	local vector ang;
-	if (request == WR_REGISTER)
-	{
-		precache_model("progs/v_dplight.mdl");
-		precache_model("progs/plasmashot.spr32");
-		precache_sound("plasma/plasma.wav");
-		precache_sound("plasma/plasexpl.wav");
-		precache_model("progs/spike.mdl");
-		precache_sound("weapons/rocket1i.wav");
-		registerweapon(1, "PCRifle", w_pcrifle, "pistol", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_SHELLS, 0, 500, 9999, WANIMTYPE_LIGHTNING);
-		return TRUE;
-	}
-	if (request == WR_HASAMMO)
-		return TRUE;
-	if (request == WR_SETUP)
-	{
-		wsetanim(WANIM_RAISE, 6, -2, 0.2);
-		return TRUE;
-	}
-	if (request == WR_INSTANTSETUP)
-	{
-		wsetanim(WANIM_READY, 0, 0, 0);
-		return TRUE;
-	}
-	if (request == WR_ANIMATIONFRAME)
-	{
-		if (self.wanim_id == WANIM_FIRE1 || self.wanim_id == WANIM_FIRE5)
-		{
-			if (self.wburst < PCRIFLE_CHARGE_CELLS)
-			//if (self.wburst < PCRIFLE_CHARGE_FREECELLS || Inventory_Quantity(self, "shells") >= 1)
-			{
-				//if (self.wburst >= PCRIFLE_CHARGE_FREECELLS)
-				//	Inventory_AdjustQuantity(self, "shells", -1);
 				self.wburst = self.wburst + 1;
 				sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 0.5, ATTN_STATIC);
 				return TRUE;
@@ -4640,9 +4743,7 @@ float(float request) w_pcrifle =
 		if (self.wanim_id == WANIM_LOWER)
 			wswitch();
 		else if (self.wanim_id == WANIM_FIRE1)
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-		else if (self.wanim_id == WANIM_FIRE5)
-			wsetanim(WANIM_FIRE5, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
+			wsetanim(WANIM_FIRE1, 1, 4, 4 * PLASMABEAM_CELLTIME);
 		else
 			wsetanim(WANIM_READY, 0, 0, 0);
 		return TRUE;
@@ -4661,8 +4762,6 @@ float(float request) w_pcrifle =
 				self.altfiretimeout = time + 0.5 + random() * 0.5;
 		}
 		if (time < self.altfiretimeout)
-			self.button3 = w_directattackaim(3000, 1);
-		else
 			self.button0 = w_directattackaim(5000, 1);
 	}
 	if (self.wanim_id == WANIM_READY)
@@ -4675,75 +4774,37 @@ float(float request) w_pcrifle =
 		}
 		if (self.button0)
 		{
-			self.wburst = PCRIFLE_CHARGE_STARTFREECELLS;
-			wsetanim(WANIM_FIRE1, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-			return TRUE;
-		}
-		if (self.button3)
-		{
-			self.wburst = PCRIFLE_CHARGE_STARTFREECELLS;
-			wsetanim(WANIM_FIRE5, 1, 4, 4 * PCRIFLE_CHARGE_CELLTIME);
-			return TRUE;
-		}
-		if (self.button6)
-		if (Inventory_Quantity(self, "rockets") > 0)
-		{
-			W_Hostile();
-			sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
-			Inventory_AdjustQuantity(self, "rockets", -1);
-			w_muzzleflash(shotorg, 0);
-			LaunchMissile(shotorg, shotdir * PCRIFLE_MISSILE_VELOCITY, self, PCRIFLE_MISSILE_DAMAGE, PCRIFLE_MISSILE_FORCE, PCRIFLE_MISSILE_RADIUS, "PCRIFLEMISSILE", Obituary_PCRifleMissile);
-			wsetanim(WANIM_FIRE6, 0, 0, PCRIFLE_MISSILE_REFIRE);
+			// first an initial shot
+			self.wburst = 1;
+			LaunchPlasmaBeam(shotorg, shotorg + shotdir * 100000, self, PLASMABEAM_BASEDAMAGE + self.wburst * PLASMABEAM_CELLDAMAGE, (PLASMABEAM_BASEFORCE + self.wburst * PLASMABEAM_CELLFORCE) * 0.5, 50, DT_PLASMA, "PLASMABEAM", Obituary_PlasmaBeam);
+			self.attack_finished = time + 0.2;
+			// begin charging (but only if you have the charge cannon)
+			if (Inventory_Quantity(self, "supershotgun"))
+			{
+				self.wburst = PLASMABEAM_STARTFREECELLS;
+				wsetanim(WANIM_FIRE1, 1, 4, 4 * PLASMABEAM_CELLTIME);
+			}
 			return TRUE;
 		}
 		return TRUE;
 	}
-	if (self.wanim_id == WANIM_FIRE1 || self.wanim_id == WANIM_FIRE5)
+	if (self.wanim_id == WANIM_FIRE1)
 	{
-		if (self.button0)
-			self.wanim_id = WANIM_FIRE1;
-		else if (self.button3)
-			self.wanim_id = WANIM_FIRE5;
-		else
+		if (!self.button0)
 		{
-			if (self.wanim_id == WANIM_FIRE5)
+			if (self.wburst >= 1)
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-				self.velocity = self.velocity - shotdir * (PCRIFLE_BEAM_BASEKICKBACK + self.wburst * PCRIFLE_BEAM_CELLKICKBACK);
+				self.velocity = self.velocity - shotdir * (PLASMABEAM_BASEKICKBACK + self.wburst * PLASMABEAM_CELLKICKBACK);
 				self.flags = self.flags - (self.flags & FL_ONGROUND);
 				self.wfiretime = time;
-				w_muzzleflash(shotorg, PCRIFLE_BEAM_BASEMUZZLEFLASH + self.wburst * PCRIFLE_BEAM_CELLMUZZLEFLASH);
-				LaunchPlasmaBeam(shotorg, shotorg + shotdir * 100000, self, PCRIFLE_BEAM_BASEDAMAGE + self.wburst * PCRIFLE_BEAM_CELLDAMAGE, (PCRIFLE_BEAM_BASEFORCE + self.wburst * PCRIFLE_BEAM_CELLFORCE) * 0.5, 50, "PCRIFLEBEAM", Obituary_PCRifleBeam);
+				w_muzzleflash(shotorg, PLASMABEAM_BASEMUZZLEFLASH + self.wburst * PLASMABEAM_CELLMUZZLEFLASH);
+				LaunchPlasmaBeam(shotorg, shotorg + shotdir * 100000, self, PLASMABEAM_BASEDAMAGE + self.wburst * PLASMABEAM_CELLDAMAGE, (PLASMABEAM_BASEFORCE + self.wburst * PLASMABEAM_CELLFORCE) * 0.5, 50, DT_PLASMA, "PLASMABEAM", Obituary_PlasmaBeam);
 				self.wburst = 0;
-				wsetanim(WANIM_FIRE4, 0, 0, PCRIFLE_BEAM_REFIRE);
 			}
-			else
-			{
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-				self.velocity = self.velocity - shotdir * (PCRIFLE_CHARGE_BASEKICKBACK + self.wburst * PCRIFLE_CHARGE_CELLKICKBACK);
-				self.flags = self.flags - (self.flags & FL_ONGROUND);
-				self.wfiretime = time;
-				w_muzzleflash(shotorg, PCRIFLE_CHARGE_BASEMUZZLEFLASH + self.wburst * PCRIFLE_CHARGE_CELLMUZZLEFLASH);
-				//FirePlasma(self, self, shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				//LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, (PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE) * 0.33, (PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE) * 0.33, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				//LaunchPlasmaCharge(shotorg - v_right * 8, shotdir * PCRIFLE_CHARGE_VELOCITY, self, (PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE) * 0.33, (PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE) * 0.33, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				//LaunchPlasmaCharge(shotorg + v_right * 8, shotdir * PCRIFLE_CHARGE_VELOCITY, self, (PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE) * 0.33, (PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE) * 0.33, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				LaunchPlasmaCharge(shotorg, shotdir * PCRIFLE_CHARGE_VELOCITY, self, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEFORCE + self.wburst * PCRIFLE_CHARGE_CELLFORCE, PCRIFLE_CHARGE_BASERADIUS + self.wburst * PCRIFLE_CHARGE_CELLRADIUS, "PCRIFLE", Obituary_PCRifleCharge);
-				//FireBullets(self, self, 1, 1, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE, 0, 0, shotdir * PCRIFLE_CHARGE_VELOCITY, 0, "PCRIFLE", DT_PLASMA, Obituary_PCRifleCharge);
-				//FireBullets(self, self, 1, (PCRIFLE_CHARGE_BASEDAMAGE + self.wburst * PCRIFLE_CHARGE_CELLDAMAGE) / 50, 50, 50, 0, 0, shotdir * PCRIFLE_CHARGE_VELOCITY, 0.08, "PCRIFLE", DT_PLASMA, Obituary_PCRifleCharge);
-				self.wburst = 0;
-				wsetanim(WANIM_FIRE3, 0, 0, PCRIFLE_CHARGE_REFIRE);
-			}
+			wsetanim(WANIM_FIRE4, 0, 0, PLASMABEAM_REFIRE);
 		}
-		return TRUE;
-	}
-	if (self.wanim_id == WANIM_FIRE3)
-	{
-		if (self.button3)
-		if (time >= self.wfiretime + PCRIFLE_BEAM_COMBODELAY)
-			wsetanim(WANIM_READY, 0, 0, 0);
 		return TRUE;
 	}
 	return TRUE;
@@ -4773,14 +4834,14 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Missile =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-float(float request) w_missilelauncher =
+float(float request) w_mmissilelauncher =
 {
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_dprock2.mdl");
 		precache_model("progs/missile.mdl");
 		precache_sound("weapons/sgun1.wav");
-		registerweapon(2, "Missile Launcher", w_missilelauncher, "pistol", VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl", IT_ROCKETS, 0, 2000, 9998, WANIMTYPE_ROCKET);
+		registerweapon(7, "Missile Launcher", w_mmissilelauncher, "mmissilelauncher", VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl", IT_ROCKETS, 0, 2000, 9998, WANIMTYPE_ROCKET);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -4828,6 +4889,7 @@ float(float request) w_missilelauncher =
 			wsetanim(WANIM_LOWER, 7, 2, 0.2);
 			return TRUE;
 		}
+		/*
 		if (self.button3)
 		if (Inventory_Quantity(self, "rockets") > 0)
 		{
@@ -4840,6 +4902,7 @@ float(float request) w_missilelauncher =
 			wsetanim(WANIM_FIRE1, 1, 6, MISSILELAUNCHER_SHOCKWAVE_REFIRE);
 			return TRUE;
 		}
+		*/
 		if (self.button0)
 		if (Inventory_Quantity(self, "rockets") > 0)
 		{
@@ -4861,6 +4924,8 @@ float BOMBLAUNCHER_SINGLE_DAMAGE = 90;
 float BOMBLAUNCHER_SINGLE_FORCE = 90;
 float BOMBLAUNCHER_SINGLE_RADIUS = 150;
 float BOMBLAUNCHER_SINGLE_REFIRE = 0.8;
+float BOMBLAUNCHER_AMMO = 3;
+float BOMBLAUNCHER_AMMOREGEN = 1;
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Bomb =
 {
@@ -4877,7 +4942,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Bomb =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
-float(float request) w_bomblauncher =
+float(float request) w_mbomblauncher =
 {
 	if (request == WR_REGISTER)
 	{
@@ -4885,7 +4950,7 @@ float(float request) w_bomblauncher =
 		precache_model("progs/grenade.mdl");
 		precache_sound("weapons/grenade.wav");
 		precache_sound("weapons/bounce.wav");
-		registerweapon(3, "Bomb Launcher", w_bomblauncher, "pistol", VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl", IT_ROCKETS, 0, 2000, 9998, WANIMTYPE_ROCKET);
+		registerweapon(6, "Bomb Launcher", w_mbomblauncher, "mbomblauncher", VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl", IT_ROCKETS, 0, 2000, 9998, WANIMTYPE_ROCKET);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -4911,7 +4976,7 @@ float(float request) w_bomblauncher =
 	if (request != WR_FRAME)
 		return FALSE;
 	wanimate();
-	self.currentammo = 0;//Inventory_Quantity(self, "rockets");
+	self.currentammo = bound(0, self.currentammo + BOMBLAUNCHER_AMMOREGEN * frametime, BOMBLAUNCHER_AMMO);//Inventory_Quantity(self, "rockets");
 	if (self.aimtarg) // bot target
 	{
 		if (time > self.altfirechecktimeout)
@@ -4936,11 +5001,13 @@ float(float request) w_bomblauncher =
 		if (self.button3)
 			self.detonatetimeout = time + 0.1;
 		if (self.button0)
+		if (self.currentammo >= 1)
 		//if (Inventory_Quantity(self, "rockets") > 0)
 		{
 			W_Hostile();
 			sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 			//Inventory_AdjustQuantity(self, "rockets", -1);
+			self.currentammo = self.currentammo - 1;
 			w_muzzleflash(shotorg, 0);
 			LaunchMine(shotorg, shotdir * 600 + v_up * 200, self, BOMBLAUNCHER_SINGLE_DAMAGE, BOMBLAUNCHER_SINGLE_FORCE, BOMBLAUNCHER_SINGLE_RADIUS, 1, 1, /*MINE_PROXIMITY | */MINE_DETONATABLE, 5, 0, "BOMB", Obituary_Bomb);
 			newmis.radiusdamage_ownerdamagescale = 0.1;
@@ -5214,9 +5281,10 @@ void() w_frame_grapple =
 	local vector vstart, vend, vdir;
 	if (self.button5) // fire
 	{
-		if (deathmatch == DM_MCTF_2TEAM)
+		if (metroidmode)
 		{
 			if (!self.grappleactive)
+			if (Inventory_Quantity(self, "mgrapple"))
 			{
 				W_SetupShot();
 				weapontraceline(shotorg, shotorg + shotdir * 2000, FALSE, self);
@@ -5226,6 +5294,7 @@ void() w_frame_grapple =
 					self.grappleactive = TRUE;
 					self.grappletarget = trace_ent;
 					self.grappledest = trace_endpos - trace_ent.origin;
+					sound(self, CHAN_AUTO, "weapons/lstart.wav", 1, ATTN_STATIC);
 					sound(self, CHAN_AUTO, "player/axhit2.wav", 1, ATTN_STATIC);
 				}
 			}
@@ -5461,50 +5530,49 @@ void() W_Precache =
 		precache_model("progs/muzzleflash.spr32");
 		precache_model("progs/missile.mdl");
 		precache_model("progs/grenade.mdl");
+		precache_model("progs/flame2.mdl");
+		precache_sound("fire/burn.wav");
 		grapple_precache();
 		mctf_precache();
 
-		if (cvar("deathmatch") == DM_MCTF_2TEAM)
-		{
-			w_pcrifle(WR_REGISTER);
-			w_missilelauncher(WR_REGISTER);
-			w_bomblauncher(WR_REGISTER);
-		}
-		else
-		{
-			w_axe(WR_REGISTER);
-			//w_chainsaw(WR_REGISTER);
-			//w_pistol(WR_REGISTER);
-			w_shotgun(WR_REGISTER);
-			//w_plasmashotgun(WR_REGISTER);
-			//w_prickler(WR_REGISTER);
-			w_dbshotgun(WR_REGISTER);
-			//w_scattergun(WR_REGISTER);
-			if (cvar("registered"))
-				w_laserrifle(WR_REGISTER);
-			w_nailgun(WR_REGISTER);
-			w_supernailgun(WR_REGISTER);
-			w_grenadelauncher(WR_REGISTER);
-			//w_backpackmortar(WR_REGISTER);
-			w_rocketlauncher(WR_REGISTER);
-			//w_jackhammer(WR_REGISTER);
-			w_thunderbolt(WR_REGISTER);
-			w_plasmarifle(WR_REGISTER);
-			w_plasmawave(WR_REGISTER);
-			w_flamer(WR_REGISTER);
+		w_axe(WR_REGISTER);
+		//w_chainsaw(WR_REGISTER);
+		//w_pistol(WR_REGISTER);
+		w_shotgun(WR_REGISTER);
+		//w_plasmashotgun(WR_REGISTER);
+		//w_prickler(WR_REGISTER);
+		w_dbshotgun(WR_REGISTER);
+		//w_scattergun(WR_REGISTER);
+		if (cvar("registered"))
+			w_laserrifle(WR_REGISTER);
+		w_nailgun(WR_REGISTER);
+		w_supernailgun(WR_REGISTER);
+		w_grenadelauncher(WR_REGISTER);
+		//w_backpackmortar(WR_REGISTER);
+		w_rocketlauncher(WR_REGISTER);
+		//w_jackhammer(WR_REGISTER);
+		w_thunderbolt(WR_REGISTER);
+		w_plasmarifle(WR_REGISTER);
+		w_plasmawave(WR_REGISTER);
+		w_flamer(WR_REGISTER);
 
-			//w_handgrenade(WR_REGISTER);
-			//w_hopper(WR_REGISTER);
-			//w_rifle(WR_REGISTER);
-			//w_machinegun(WR_REGISTER);
-			//w_vulcan(WR_REGISTER);
-			//w_executioner(WR_REGISTER);
-			//w_jackhammer(WR_REGISTER);
-			//w_grenadelauncher2(WR_REGISTER);
-			//w_backpackmortar(WR_REGISTER);
-			//w_incinerator(WR_REGISTER);
-			//w_railgun(WR_REGISTER);
-		}
+		//w_handgrenade(WR_REGISTER);
+		//w_hopper(WR_REGISTER);
+		//w_rifle(WR_REGISTER);
+		//w_machinegun(WR_REGISTER);
+		//w_vulcan(WR_REGISTER);
+		//w_executioner(WR_REGISTER);
+		//w_jackhammer(WR_REGISTER);
+		//w_grenadelauncher2(WR_REGISTER);
+		//w_backpackmortar(WR_REGISTER);
+		//w_incinerator(WR_REGISTER);
+		//w_railgun(WR_REGISTER);
+
+		w_mplasmacannon(WR_REGISTER);
+		w_micecannon(WR_REGISTER);
+		w_mplasmabeam(WR_REGISTER);
+		w_mbomblauncher(WR_REGISTER);
+		w_mmissilelauncher(WR_REGISTER);
 	}
 };
 

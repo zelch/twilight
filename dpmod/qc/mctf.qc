@@ -103,7 +103,7 @@ void() mctf_pickup_missile_touch =
 		if (other.flags & FL_CLIENT)
 			stuffcmd(other, "bf\n");
 		sound(other, CHAN_AUTO, "weapons/lock4.wav", 1, ATTN_STATIC);
-		Inventory_AdjustQuantity(other, "rockets", 1);
+		Inventory_AdjustQuantity(other, "rockets", 3);
 		// FIXME: play disappear animation
 		remove(self);
 	}
@@ -146,7 +146,7 @@ void(vector org) mctf_pickup_missile_spawn =
 void(vector org, float howmany, float smallhealthchance, float largehealthchance, float missilechance) mctf_spawnpickup =
 {
 	local vector v;
-	if (deathmatch != DM_MCTF_2TEAM)
+	if (!metroidmode)
 		return;
 	v = org;
 	while (howmany > 0)
