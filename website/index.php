@@ -5,6 +5,8 @@ require "include/main.php";
 
 startpage ("News");
 
+# FIXME: Dynamic news
+
 newsitem ("Sunday, 7 July 2002",
 		"The website is now in CVS properly, with webpulse script.  " .
 		"Knghtbrd apologizes for the delay in getting the new site up and " .
