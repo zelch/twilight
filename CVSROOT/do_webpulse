@@ -1,5 +1,12 @@
 #! /bin/sh
 
-# Disabled pending rewrite for icculus
-#curl http://twilight.sourceforge.net/update-the-f00king-website.php
+WEBSPACE=/webspace/projects/twilight/beta
+CVS=/usr/local/bin/cvs
+CVSROOT=/cvs/cvsroot/twilight
+
+set -e
+
+cd $WEBSPACE
+$CVS -q -z3 -d$CVSROOT update -dP
+echo "Website pulsed."
 
