@@ -16,13 +16,25 @@
 
 	function print_author ($item, $key)
 	{
-		global $endofheader;
 		if (ereg ("^  .*$", $item)) {
 			box ("line", htmlify_line ($item));
 		}
 	}
 
 	array_walk ($authors, 'print_author');
+
+	$thanks = file ($pageroot . "/../cvs-snap/twilight/THANKS");
+
+	function print_quakeguys ($item, $key)
+	{
+		if (ereg ("^      .*$", $item)) {
+			echo (ereg_replace ("^      (.*)  +(.*)$",
+				"<tr><td>\\1</td><td>\\2</td></tr>\n")
+			);
+		}
+	}
+
+	array_walk ($thanks, 'print_quakeguys');
 
 	require ($pageroot . "/include/footer.php");
 ?>
