@@ -6,7 +6,7 @@ int			numbrushplanes;
 plane_t		planes[MAX_MAP_PLANES];
 
 int			numbrushfaces;
-mface_t		faces[128];		// beveled clipping hull can generate many extra
+mface_t		faces[MAX_FACES];		// beveled clipping hull can generate many extra
 
 entity_t *CurrentEntity;
 
@@ -671,7 +671,7 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 
 	for (i=0 ; i<num_hull_edges ; i++)
 		if ((hull_edges[i][0] == pt1 && hull_edges[i][1] == pt2) || (hull_edges[i][0] == pt2 && hull_edges[i][1] == pt1))
-			return;	// allread added
+			return;	// already added
 
 	if (num_hull_edges == MAX_HULL_EDGES)
 		Error ("AddHullEdge: MAX_HULL_EDGES");
@@ -700,7 +700,7 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 				CrossProduct (planevec, edgevec, plane.normal);
 				l = VectorLength (plane.normal);
 				if (l < 1-ANGLEEPSILON || l > 1+ANGLEEPSILON)
-				continue;
+					continue;
 				plane.dist = DotProduct (planeorg, plane.normal);
 				TestAddPlane (&plane);
 			}

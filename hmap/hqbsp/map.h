@@ -1,7 +1,7 @@
 
 
-//#define	MAX_FACES		16
-#define	MAX_FACES		32
+// LordHavoc: raised MAX_FACES From 32 to 256
+#define	MAX_FACES		256
 typedef struct mface_s
 {
 	struct mface_s	*next;
