@@ -85,15 +85,11 @@ a {
 
 
 td.header {
-	background: #000430
-		url(/images/border.jpg)
-		repeat-y;
+	background: #181818;
 }
 
 td.footer {
-	background: #000430
-		url(/images/border.jpg)
-		repeat-y;
+	background: #181818;
 	margin-top: 10px;
 	text-align: center;
 	font-size: 80%;
@@ -101,9 +97,7 @@ td.footer {
 
 td.side {
 	width: 15%;
-	background: #000430
-		url(/images/border.jpg)
-		repeat-y;
+	background: #181818;
 	vertical-align: top;
 	color: white;
 }
