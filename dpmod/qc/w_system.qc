@@ -1648,7 +1648,7 @@ float(float request) w_plasmarifle =
 		precache_model("progs/plasmashot.spr32");
 		precache_sound("plasma/plasma.wav");
 		precache_sound("plasma/plasexpl.wav");
-		registerweapon(9, "Plasma Rifle", w_plasmarifle, "thunderbolt", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_CELLS, 0, 1500, PLASMARIFLE_NORMAL_CELL * PLASMARIFLE_NORMAL_CELLS / PLASMARIFLE_REFIRE, WANIMTYPE_NAILGUN);
+		registerweapon(9, "Plasma Rifle", w_plasmarifle, "plasmarifle", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_CELLS, 0, 1500, PLASMARIFLE_NORMAL_CELL * PLASMARIFLE_NORMAL_CELLS / PLASMARIFLE_REFIRE, WANIMTYPE_NAILGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1932,7 +1932,7 @@ float(float request) w_plasmawave =
 		precache_model("progs/plasmashot.spr32");
 		precache_sound("plasma/plasma.wav");
 		precache_sound("plasma/plasexpl.wav");
-		registerweapon(10, "Plasma Wave", w_plasmawave, "thunderbolt", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_CELLS, 0, 1500, 200, WANIMTYPE_ROCKET);
+		registerweapon(10, "Plasma Wave", w_plasmawave, "plasmawave", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_CELLS, 0, 1500, 200, WANIMTYPE_ROCKET);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -2200,8 +2200,7 @@ float(float request) w_axe =
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_axe.mdl");
-		//registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
-		registerweapon(1, "Axe", w_axe, "pistol", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -2296,8 +2295,7 @@ float(float request) w_chainsaw =
 		precache_sound("weapons/sawridle.wav");
 		precache_sound("weapons/sawatck.wav");
 		precache_sound("weapons/sawguts.wav");
-		//registerweapon(1, "Chainsaw", w_chainsaw, "chainsaw", VWEP_AXE, "progs/v_saw.mdl", 0, 0, 2000, CHAINSAW_DAMAGE / CHAINSAW_REFIRE, WANIMTYPE_SHOTGUN);
-		registerweapon(1, "Chainsaw", w_chainsaw, "pistol", VWEP_AXE, "progs/v_saw.mdl", 0, 0, 2000, CHAINSAW_DAMAGE / CHAINSAW_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(1, "Chainsaw", w_chainsaw, "chainsaw", VWEP_AXE, "progs/v_saw.mdl", 0, 0, 2000, CHAINSAW_DAMAGE / CHAINSAW_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -2564,8 +2562,7 @@ float(float request) w_prickler =
 		precache_model("progs/v_dpshot.mdl");
 		precache_model("progs/spike.mdl");
 		precache_sound("weapons/rocket1i.wav");
-		//registerweapon(2, "Prickler", w_prickler, "prickler", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, PRICKLER_DAMAGE / PRICKLER_REFIRE, WANIMTYPE_SHOTGUN);
-		registerweapon(2, "Prickler", w_prickler, "shotgun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, PRICKLER_DAMAGE / PRICKLER_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(2, "Prickler", w_prickler, "prickler", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, PRICKLER_DAMAGE / PRICKLER_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -2638,8 +2635,7 @@ float(float request) w_scattergun =
 		precache_model("progs/v_dpshot.mdl");
 		precache_model("progs/spike.mdl");
 		precache_sound("weapons/shotgn2.wav");
-		//registerweapon(2, "Scattergun", w_scattergun, "scattergun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, SCATTERGUN_RAPIDDAMAGE * SCATTERGUN_RAPIDAMMO / SCATTERGUN_RAPIDREFIRE, WANIMTYPE_SHOTGUN);
-		registerweapon(3, "Scattergun", w_scattergun, "supershotgun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, SCATTERGUN_RAPIDDAMAGE * SCATTERGUN_RAPIDAMMO / SCATTERGUN_RAPIDREFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(2, "Scattergun", w_scattergun, "scattergun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", 0, 0, 2000, SCATTERGUN_RAPIDDAMAGE * SCATTERGUN_RAPIDAMMO / SCATTERGUN_RAPIDREFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -3187,7 +3183,7 @@ float(float request) w_backpackmortar =
 		precache_model("progs/grenade.mdl");
 		precache_sound("weapons/grenade.wav");
 		precache_sound("weapons/bounce.wav");
-		registerweapon(6, "Backpack Mortar", w_backpackmortar, "grenadelauncher", VWEP_GRENADE_LAUNCHER, "" /*progs/v_dprock.mdl"*/, IT_ROCKETS, 0, 2000, BACKPACKMORTAR_DAMAGE / BACKPACKMORTAR_REFIRE, WANIMTYPE_ROCKET);
+		registerweapon(6, "Backpack Mortar", w_backpackmortar, "backpackmortar", VWEP_GRENADE_LAUNCHER, "" /*progs/v_dprock.mdl"*/, IT_ROCKETS, 0, 2000, BACKPACKMORTAR_DAMAGE / BACKPACKMORTAR_REFIRE, WANIMTYPE_ROCKET);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)

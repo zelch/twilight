@@ -430,6 +430,28 @@ void() ImpulseCommands =
 			loadme();
 		if (self.impulse == 42)
 			listfile();
+		if (self.impulse == 43)
+			lhfp_test();
+		/*
+		if (self.impulse == 44)
+			lhradix_test();
+		if (self.impulse == 45)
+			lhradix3_test();
+		if (self.impulse == 46)
+			lhradixarrayparms_test();
+		if (self.impulse == 47)
+			lhfp2_test();
+		if (self.impulse == 48)
+			lhradixarrayparms2_test();
+		if (self.impulse == 49)
+			lhradixarrayparms3_test();
+		if (self.impulse == 50)
+			lhradixarrayparms4_test();
+		if (self.impulse == 51)
+			lhbitarrayparms_test();
+		*/
+		if (self.impulse == 52)
+			lhbitparms_test();
 		if (self.impulse >= 30 && self.impulse <= 39)
 		{
 			n = 0;

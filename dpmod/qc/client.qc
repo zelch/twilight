@@ -90,7 +90,7 @@ void() SetNewParms =
 		parm8 = 0; // weapon
 		parm9 = STARTPARMSMCTF_ARMORTYPE * 100;
 		parm10 = STARTPARMSMCTF_MAXHEALTH;
-		parm11 = 1 | 2; // pistol, shotgun
+		parm11 = 1 | 2 | 4; // axe, pistol, shotgun
 	}
 	else if (deathmatch)
 	{
@@ -104,7 +104,7 @@ void() SetNewParms =
 		parm8 = 0; // weapon
 		parm9 = STARTPARMSDM_ARMORTYPE * 100;
 		parm10 = STARTPARMSDM_MAXHEALTH;
-		parm11 = 1 | 2; // pistol, shotgun
+		parm11 = 1 | 2 | 4; // axe, pistol, shotgun
 	}
 	else
 	{
@@ -118,7 +118,7 @@ void() SetNewParms =
 		parm8 = 0; // weapon
 		parm9 = STARTPARMSSP_ARMORTYPE * 100;
 		parm10 = STARTPARMSSP_MAXHEALTH;
-		parm11 = 1 | 2; // pistol, shotgun
+		parm11 = 1 | 2 | 4; // axe, pistol, shotgun
 	}
 };
 
@@ -606,6 +606,8 @@ entity() SelectSpawnPoint =
 	}
 
 	spot = find(world, classname, "info_player_start");
+	if (!spot)
+		spot = find(world, classname, "info_player_deathmatch");
 	if (!spot)
 		error ("PutClientInServer: no info_player_start on level");
 

@@ -207,8 +207,8 @@ void() weapon_lightning =
 	}
 	weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Thunderbolt!\n");
 	Inventory_SetQuantity(self, "thunderbolt", 1);
-	//Inventory_SetQuantity(self, "plasmarifle", 1);
-	//Inventory_SetQuantity(self, "plasmawav", 1);
+	Inventory_SetQuantity(self, "plasmarifle", 1);
+	Inventory_SetQuantity(self, "plasmawave", 1);
 	Inventory_SetQuantity(self, "cells", 20);
 };
 
