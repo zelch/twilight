@@ -84,8 +84,6 @@ void() item_artifact_envirosuit =
 	setmodel (self, "progs/suit.mdl");
 	self.netname = "You got the Biosuit\n";
 	self.items = IT_SUIT;
-	self.glow_color = 15;
-	self.glow_size = 100;
 	setsize (self, '-16 -16 -24', '16 16 32');
 
 	StartItem ();
@@ -112,8 +110,6 @@ void() item_artifact_invisibility =
 	setmodel (self, "progs/invisibl.mdl");
 	self.netname = "You got the Ring of Shadows!\n";
 	self.items = IT_INVISIBILITY;
-	self.glow_color = 110;
-	self.glow_size = 200;
 	setsize (self, '-16 -16 -24', '16 16 32');
 
 	self.havocpickup = TRUE;
@@ -139,7 +135,6 @@ void() item_artifact_super_damage =
 	setmodel (self, "progs/quaddama.mdl");
 	self.netname = "You got the Quad Damage!\n";
 	self.items = IT_QUAD;
-	self.effects = EF_BLUE;
 	setsize (self, '-16 -16 -24', '16 16 32');
 
 	self.havocpickup = TRUE;
@@ -164,7 +159,6 @@ void() item_artifact_invulnerability =
 	setmodel (self, "progs/invulner.mdl");
 	self.netname = "You got the Pentagram of Protection!\n";
 	self.items = IT_INVULNERABILITY;
-	self.effects = EF_RED;
 	setsize (self, '-16 -16 -24', '16 16 32');
 
 	self.havocpickup = TRUE;
