@@ -222,10 +222,8 @@ void CheckWinding( winding_t *w )
 			p2 = w->points[(i + 1) % w->numpoints];
 
 			for( j = 0; j < 3; j++ )
-			{
 				if( p1[j] >= BOGUS_RANGE || p1[j] <= -BOGUS_RANGE )
 					Error( "CheckWinding: BOGUS_RANGE: %f %f %f\n", p1[0], p1[1], p1[2] );
-			}
 
 			// check the point is on the face plane
 			d = DotProduct( p1, facenormal.normal ) - facenormal.dist;
@@ -251,13 +249,12 @@ void CheckWinding( winding_t *w )
 			CrossProduct( facenormal.normal, dir, edgenormal );
 			VectorNormalize( edgenormal );
 			edgedist = DotProduct( p1, edgenormal );
-			edgedist += WINDING_EPSILON;
 
 			// all other points must be on front side
 			for( j = 0; j < w->numpoints; j++ )
 			{
 				d = DotProduct( w->points[j], edgenormal );
-				if( d > edgedist )
+				if( d > edgedist + WINDING_EPSILON )
 				{
 					printf( "CheckWinding: non-convex polygon at %f %f %f, attempting to heal\n", w->points[j][0], w->points[j][1], w->points[j][2] );
 					VectorMA(w->points[j], -d, edgenormal, w->points[j]);
