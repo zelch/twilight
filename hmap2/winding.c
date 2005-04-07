@@ -205,41 +205,70 @@ void CheckWinding( winding_t *w )
 
 	PlaneFromWinding ( w, &facenormal );
 
-	for( i = 0; i < w->numpoints; i++ ) {
-		p1 = w->points[i];
-		p2 = w->points[(i + 1) % w->numpoints];
+	if (w->numpoints < 3)
+	{
+		printf( "CheckWinding: too few points to form a triangle at %f %f %f\n", w->points[0][0], w->points[0][1], w->points[0][2] );
+		w->numpoints = 0;
+		return;
+	}
 
-		for( j = 0; j < 3; j++ ) {
-			if( p1[j] >= BOGUS_RANGE || p1[j] <= -BOGUS_RANGE )
-				Error( "CheckWinding: BOGUS_RANGE: %f %f %f", p1[0], p1[1], p1[2] );
-		}
+	// try repeatedly if an error is corrected
+	// (fixing one may expose another)
+	do
+	{
+		for( i = 0; i < w->numpoints; i++ )
+		{
+			p1 = w->points[i];
+			p2 = w->points[(i + 1) % w->numpoints];
 
-		// check the point is on the face plane
-		d = DotProduct( p1, facenormal.normal ) - facenormal.dist;
-		if( d < -WINDING_EPSILON || d > WINDING_EPSILON )
-			printf( "CheckWinding: point off plane at %f %f %f, correcting", p1[0], p1[1], p1[2] );
+			for( j = 0; j < 3; j++ )
+			{
+				if( p1[j] >= BOGUS_RANGE || p1[j] <= -BOGUS_RANGE )
+					Error( "CheckWinding: BOGUS_RANGE: %f %f %f\n", p1[0], p1[1], p1[2] );
+			}
 
-		// check the edge isn't degenerate
-		VectorSubtract( p2, p1, dir );
+			// check the point is on the face plane
+			d = DotProduct( p1, facenormal.normal ) - facenormal.dist;
+			if( d < -WINDING_EPSILON || d > WINDING_EPSILON )
+			{
+				printf( "CheckWinding: point off plane at %f %f %f, attempting to fix\n", p1[0], p1[1], p1[2] );
+				VectorMA(p1, -d, facenormal.normal, p1);
+				break;
+			}
 
-		if( VectorLength( dir ) < WINDING_EPSILON )
-			Error( "CheckWinding: degenerate edge at %f %f %f", p2[0], p2[1], p2[2] );
+			// check the edge isn't degenerate
+			VectorSubtract( p2, p1, dir );
+			if( VectorLength( dir ) < WINDING_EPSILON )
+			{
+				printf( "CheckWinding: healing degenerate edge at %f %f %f\n", p2[0], p2[1], p2[2] );
+				for (j = i + 1;j < w->numpoints;j++)
+					VectorCopy(w->points[j - 1], w->points[j]);
+				w->numpoints--;
+				break;
+			}
 
-		CrossProduct( facenormal.normal, dir, edgenormal );
-		VectorNormalize( edgenormal );
-		edgedist = DotProduct( p1, edgenormal );
-		edgedist += WINDING_EPSILON;
+			// calculate edge plane to check for concavity
+			CrossProduct( facenormal.normal, dir, edgenormal );
+			VectorNormalize( edgenormal );
+			edgedist = DotProduct( p1, edgenormal );
+			edgedist += WINDING_EPSILON;
 
-		// all other points must be on front side
-		for( j = 0; j < w->numpoints; j++ ) {
-			if( j == i )
-				continue;
-
-			d = DotProduct( w->points[j], edgenormal );
-			if( d > edgedist )
-				Error( "CheckWinding: non-convex at %f %f %f", w->points[j][0], w->points[j][1], w->points[j][2] );
+			// all other points must be on front side
+			for( j = 0; j < w->numpoints; j++ )
+			{
+				d = DotProduct( w->points[j], edgenormal );
+				if( d > edgedist )
+				{
+					printf( "CheckWinding: non-convex polygon at %f %f %f, attempting to heal\n", w->points[j][0], w->points[j][1], w->points[j][2] );
+					VectorMA(w->points[j], -d, edgenormal, w->points[j]);
+					break;
+				}
+			}
+			if (j < w->numpoints)
+				break;
 		}
 	}
+	while (i < w->numpoints);
 }
 
 /*
