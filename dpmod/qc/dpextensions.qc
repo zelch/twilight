@@ -351,6 +351,12 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 //description:
 //engine sets this cvar when loading a map to indicate if it is halflife format or not.
 
+//DP_HALFLIFE_SPRITE
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//description:
+//simply indicates that the engine supports HalfLife sprites.
+
 //DP_INPUTBUTTONS
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
