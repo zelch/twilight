@@ -1,7 +1,7 @@
 
 /*
 Domination as a plugin for netquake mods
-by LordHavoc (havoc@telefragged.com)
+by LordHavoc (lordhavoc@ghdigital.com)
 
 How to add domination points to a mod:
 1. Add this line to progs.src above world.qc:
