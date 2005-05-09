@@ -145,10 +145,30 @@ entity() FindIntermission =
 string nextmap;
 void() GotoNextMap =
 {
+	local float c, nummaps;
+	local string s;
 	if (cvar("samelevel"))	// if samelevel is set, stay on same level
 		changelevel (mapname);
 	else
+	{
+		s = cvar_string("sv_maplist");
+		nummaps = tokenize(s);
+		if (nummaps >= 1)
+		{
+			c = 0;
+			while (c < nummaps)
+			{
+				if (argv(c) == mapname)
+					break;
+				c = c + 1;
+			}
+			c = c + 1;
+			if (c >= nummaps)
+				c = 0;
+			nextmap = argv(c);
+		}
 		changelevel (nextmap);
+	}
 };
 
 
