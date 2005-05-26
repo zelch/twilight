@@ -35,7 +35,7 @@
 
 char output_name[MAX_FILEPATH];
 
-float modelorigin[3], modelscale;
+float modelorigin[3] = {0, 0, 0}, modelrotate = 0, modelscale = 1;
 
 // this makes it keep all bones, not removing unused ones (as they might be used for attachments)
 int keepallbones = 1;
@@ -404,17 +404,6 @@ int setbonepose(int frame, int num, float x, float y, float z, float a, float b,
 		printf("error: bone %i not defined\n", num);
 		return 0;
 	}
-	// root bones need to be offset
-	if (bone[num].parent < 0)
-	{
-		x = x - modelorigin[0];
-		y = y - modelorigin[1];
-		z = z - modelorigin[2];
-	}
-	// and all bones need to be scaled
-	x *= modelscale;
-	y *= modelscale;
-	z *= modelscale;
 	// LordHavoc: compute matrix
 	computebonematrix(x, y, z, a, b, c, frame < 0 ? &meshpose[num] : &pose[frame][num]);
 	return 1;
@@ -663,10 +652,6 @@ int parsemeshtriangles(void)
 				return 0;
 			}
 			memcpy(p->bonename, scenebone[bonenum].name, MAX_NAME);
-			// apply model scaling and offset
-			org[0] = (org[0] - modelorigin[0]) * modelscale;
-			org[1] = (org[1] - modelorigin[1]) * modelscale;
-			org[2] = (org[2] - modelorigin[2]) * modelscale;
 			// untransform the origin and normal
 			inversetransform(org, &bonematrix[sceneboneremap[bonenum]], p->origin);
 			inverserotate(normal, &bonematrix[sceneboneremap[bonenum]], p->normal);
@@ -783,6 +768,39 @@ typedef struct lump_s
 lump_t;
 
 float posemins[MAX_FRAMES][3], posemaxs[MAX_FRAMES][3], poseradius[MAX_FRAMES];
+
+void fixrootbones(void)
+{
+	int i, j;
+	float cy, sy;
+	bonepose_t rootpose, temp;
+	cy = cos(modelrotate * M_PI / 180.0);
+	sy = sin(modelrotate * M_PI / 180.0);
+	rootpose.m[0][0] = cy * modelscale;
+	rootpose.m[1][0] = sy * modelscale;
+	rootpose.m[2][0] = 0;
+	rootpose.m[0][1] = -sy * modelscale;
+	rootpose.m[1][1] = cy * modelscale;
+	rootpose.m[2][1] = 0;
+	rootpose.m[0][2] = 0;
+	rootpose.m[1][2] = 0;
+	rootpose.m[2][2] = modelscale;
+	rootpose.m[0][3] = -modelorigin[0] * rootpose.m[0][0] + -modelorigin[1] * rootpose.m[1][0] + -modelorigin[2] * rootpose.m[2][0];
+	rootpose.m[1][3] = -modelorigin[0] * rootpose.m[0][1] + -modelorigin[1] * rootpose.m[1][1] + -modelorigin[2] * rootpose.m[2][1];
+	rootpose.m[2][3] = -modelorigin[0] * rootpose.m[0][2] + -modelorigin[1] * rootpose.m[1][2] + -modelorigin[2] * rootpose.m[2][2];
+	for (j = 0;j < numbones;j++)
+	{
+		if (bone[j].parent < 0)
+		{
+			// a root bone
+			for (i = 0;i < numposes;i++)
+			{
+				matrixcopy(&pose[i][j], &temp);
+				concattransform(&rootpose, &temp, &pose[i][j]);
+			}
+		}
+	}
+}
 
 int convertmodel(void)
 {
@@ -1595,6 +1613,17 @@ int sc_origin(void)
 	return 1;
 }
 
+int sc_rotate(void)
+{
+	char *c = gettoken();
+	if (!c)
+		return 0;
+	if (!isfloat(c))
+		return 0;
+	modelrotate = atof(c);
+	return 1;
+}
+
 int sc_scale(void)
 {
 	char *c = gettoken();
@@ -1741,6 +1770,7 @@ sccommand sc_commands[] =
 {
 	{"output", sc_output},
 	{"origin", sc_origin},
+	{"rotate", sc_rotate},
 	{"scale", sc_scale},
 	{"mesh", sc_mesh},
 	{"scene", sc_scene},
@@ -1805,6 +1835,7 @@ void processscript(void)
 			numscenes++;
 	}
 	*/
+	fixrootbones();
 	convertmodel();
 }
 
