@@ -639,6 +639,12 @@ void(vector dir) vectorvectors = #432;
 //description:
 //shows that the engine supports Quake2 .sp2 files.
 
+//DP_QUAKE3_MAP
+//idea: quake community
+//darkplaces implementation: LordHavoc
+//description:
+//shows that the engine supports Quake3 .bsp files.
+
 //DP_QUAKE3_MODEL
 //idea: quake community
 //darkplaces implementation: LordHavoc
