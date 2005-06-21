@@ -20,10 +20,6 @@ int			overridelighttypes;
 int			minlight;
 int			ambientlight;
 
-#ifdef WRITE_LIGHTSFILE
-char lightsfilename[1024];		// filename to write light list to
-#endif
-
 byte		currentvis[(MAX_MAP_LEAFS + 7) / 8];
 
 int			c_occluded;
@@ -158,9 +154,9 @@ void ParseLightEntities( void )
 		// for some reason this * 0.5 is needed to match quake light
 		VectorScale(l->color, 0.5, l->color);
 
-		// fix tyrlite darklight radius value (but color remains negative)		
+		// fix tyrlite darklight radius value (but color remains negative)
 		l->radius = fabs(l->radius);
-		
+
 		// apply scaling to radius
 		vec[0] = FloatForKey( ent, "wait" );
 		if( !vec[0] )
@@ -488,7 +484,6 @@ light modelfile
 */
 int Light_Main( int argc, char **argv )
 {
-	char source[1024];
 	double start, end;
 	int i;
 
@@ -614,19 +609,7 @@ int Light_Main( int argc, char **argv )
 
 	start = I_DoubleTime ();
 
-	strcpy( source, argv[i] );
-
-#ifdef WRITE_LIGHTSFILE
-	strcpy( lightsfilename, source );
-#endif
-
-	DefaultExtension( source, ".bsp" );
-
-#ifdef WRITE_LIGHTSFILE
-	ReplaceExtension( lightsfilename, ".lights" );
-#endif
-
-	LoadBSPFile( source );
+	LoadBSPFile( filename_bsp );
 
 	memset( dlightdata, 0, sizeof( dlightdata ) );
 	memset( drgblightdata, 0, sizeof( drgblightdata ) );
@@ -649,7 +632,7 @@ int Light_Main( int argc, char **argv )
 
 	UnparseEntities ();
 
-	WriteBSPFile( source, relight );
+	WriteBSPFile( filename_bsp, relight );
 
 	end = I_DoubleTime ();
 	printf( "%5.2f seconds elapsed\n\n", end - start );

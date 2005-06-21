@@ -39,13 +39,6 @@ extern int	FileTime (char *path);
 
 extern void	Q_mkdir (char *path);
 
-extern char qdir[1024];
-extern char gamedir[1024];
-//extern void SetQdirFromPath (char *path);
-//extern char *ExpandPath (char *path);
-//extern char *ExpandPathAndArchive (char *path);
-
-
 extern double I_DoubleTime (void);
 
 extern void Error (char *error, ...);
@@ -60,9 +53,8 @@ extern void SafeWrite (FILE *f, void *buffer, int count);
 extern int LoadFile (char *filename, void **bufferptr);
 extern void SaveFile (char *filename, void *buffer, int count);
 
-extern void DefaultExtension (char *path, char *extension);
 extern void DefaultPath (char *path, char *basepath);
-extern void ReplaceExtension (char *path, char *extension);
+extern void ReplaceExtension (char *path, char *oldextension, char *replacementextension, char *missingextension);
 
 extern void ExtractFilePath (char *path, char *dest);
 extern void ExtractFileBase (char *path, char *dest);
@@ -99,7 +91,11 @@ extern unsigned short CRC_Value(unsigned short crcvalue);
 extern void COM_CreatePath (char *path);
 extern void COM_CopyFile (char *from, char *to);
 
-extern qboolean archive;
-extern char archivedir[1024];
+extern	char	filename_map[1024];
+extern	char	filename_bsp[1024];
+extern	char	filename_prt[1024];
+extern	char	filename_pts[1024];
+extern	char	filename_lit[1024];
+extern	char	filename_lights[1024];
 
 #endif

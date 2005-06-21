@@ -340,12 +340,7 @@ void WriteBSPFile (char *filename, qboolean litonly)
 	if (rgblightdatasize)
 	{
 		FILE *litfile;
-		char litfilename[1024];
-
-		strcpy(litfilename, filename);
-		ReplaceExtension(litfilename, ".lit");
-		litfile = SafeOpenWrite(litfilename);
-
+		litfile = SafeOpenWrite(filename_lit);
 		if (litfile)
 		{
 			fputc('Q', litfile);
@@ -360,7 +355,7 @@ void WriteBSPFile (char *filename, qboolean litonly)
 			fclose(litfile);
 		}
 		else
-			printf("unable to write \"%s\"\n", litfilename);
+			printf("unable to write \"%s\"\n", filename_lit);
 	}
 }
 

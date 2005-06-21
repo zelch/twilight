@@ -68,17 +68,11 @@ static void Bsp2Prt_GetWorldBounds( vec3_t mins, vec3_t maxs )
 Bsp2Prt_ProcessFile
 ==================
 */
-static void Bsp2Prt_ProcessFile( const char *filename )
+static void Bsp2Prt_ProcessFile( void )
 {
 	tree_t		*tree;
 
-	// create filenames
-	strcpy( bspfilename, filename );
-	strcpy( portfilename, filename );
-	DefaultExtension( bspfilename, ".bsp" );
-	ReplaceExtension( portfilename, ".prt" );
-
-	LoadBSPFile( bspfilename );
+	LoadBSPFile( filename_bsp );
 
 	tree = AllocTree ();
 
@@ -130,7 +124,7 @@ int Bsp2Prt_Main( int argc, char **argv )
 	start = I_DoubleTime ();
 
 	end = I_DoubleTime ();
-	Bsp2Prt_ProcessFile( argv[argc-1] );
+	Bsp2Prt_ProcessFile ();
 	printf( "%5.2f seconds elapsed\n\n", end - start );
 
 	// print memory stats

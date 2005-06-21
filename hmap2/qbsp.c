@@ -18,9 +18,12 @@ int		subdivide_size;
 
 int		valid;
 
-char	bspfilename[1024];
-char	pointfilename[1024];
-char	portfilename[1024];
+char	filename_map[1024];
+char	filename_bsp[1024];
+char	filename_prt[1024];
+char	filename_pts[1024];
+char	filename_lit[1024];
+char	filename_lights[1024];
 
 int		Vis_Main( int argc, char **argv );
 int		Light_Main( int argc, char **argv );
@@ -146,30 +149,24 @@ void CreateHulls (void)
 ProcessFile
 =================
 */
-void ProcessFile (char *sourcebase, char *bspfilename1)
+void ProcessFile (char *sourcebase, char *filename_bsp1)
 {
-	// create filenames
-	strcpy(bspfilename, bspfilename1);
-	strcpy(portfilename, bspfilename1);
-	strcpy(pointfilename, bspfilename1);
-	DefaultExtension(bspfilename, ".bsp");
-	ReplaceExtension(portfilename, ".prt");
-	ReplaceExtension(pointfilename, ".pts");
-
 	if (!onlyents)
 	{
-		remove (bspfilename);
-		remove (portfilename);
-		remove (pointfilename);
+		remove (filename_bsp);
+		remove (filename_prt);
+		remove (filename_pts);
+		remove (filename_lit);
+		remove (filename_lights);
 	}
 
 	// load brushes and entities
 	LoadMapFile (sourcebase);
 	if (onlyents)
 	{
-		LoadBSPFile (bspfilename);
+		LoadBSPFile (filename_bsp);
 		UpdateEntLump ();
-		WriteBSPFile (bspfilename, false);
+		WriteBSPFile (filename_bsp, false);
 		return;
 	}
 
@@ -197,8 +194,6 @@ int main (int argc, char **argv)
 {
 	int		i = 0;
 	double		start, end;
-	char		sourcename[1024];
-	char		destname[1024];
 
 	//	malloc_debug (15);
 	printf( "hmap2 by LordHavoc and Vic\n");
@@ -211,6 +206,17 @@ int main (int argc, char **argv)
 
 	if( argc == 1 )
 		goto error;
+
+	// create all the filenames pertaining to this map
+	strcpy(filename_map, argv[argc-1]);ReplaceExtension(filename_map, ".bsp", ".map", ".map");
+	strcpy(filename_bsp, filename_map);ReplaceExtension(filename_bsp, ".map", ".bsp", ".bsp");
+	strcpy(filename_prt, filename_bsp);ReplaceExtension(filename_prt, ".bsp", ".prt", ".prt");
+	strcpy(filename_pts, filename_bsp);ReplaceExtension(filename_pts, ".bsp", ".pts", ".pts");
+	strcpy(filename_lit, filename_bsp);ReplaceExtension(filename_lit, ".bsp", ".lit", ".lit");
+	strcpy(filename_lights, filename_bsp);ReplaceExtension(filename_lights, ".bsp", ".lights", ".lights");
+
+	if (!strcmp(filename_map, filename_bsp))
+		Error("filename_map \"%s\" == filename_bsp \"%s\"\n", filename_map, filename_bsp);
 
 	if( !strcmp( argv[1], "-bsp2prt" ) )
 		return Bsp2Prt_Main( argc - 1, argv + 1 );
@@ -266,10 +272,10 @@ int main (int argc, char **argv)
 			Error ("Unknown option '%s'", argv[i]);
 	}
 
-	if (i != argc - 2 && i != argc - 1)
+	if (i != argc - 1)
 error:
 		Error ("%s",
-"usage: hmap2 [options] sourcefile [destfile]\n"
+"usage: hmap2 [options] sourcefile\n"
 "Compiles .map to .bsp, does not compile vis or lighting data\n"
 "\n"
 "other utilities available:\n"
@@ -289,17 +295,8 @@ error:
 "-nowaterlightmap disable darkplaces lightmapped water feature\n"
 		);
 
-	// argv[i] and argv[arc-1] are the same if only one name is supplied
-	strcpy(sourcename, argv[i]);
-	strcpy(destname, argv[argc-1]);
-	DefaultExtension(sourcename, ".map");
-	DefaultExtension(destname, ".bsp");
-	if (!strcmp(sourcename, destname))
-		ReplaceExtension(destname, ".bsp");
-	printf("inputfile: %s\n", sourcename);
-	printf("outputfile: %s\n", destname);
-	if (!strcmp(sourcename, destname))
-		Error("sourcename == destname\n");
+	printf("inputfile: %s\n", filename_map);
+	printf("outputfile: %s\n", filename_bsp);
 
 	// init memory
 	Q_InitMem ();
@@ -308,7 +305,7 @@ error:
 	// do it!
 	//
 	start = I_DoubleTime ();
-	ProcessFile (sourcename, destname);
+	ProcessFile (filename_map, filename_bsp);
 	end = I_DoubleTime ();
 	printf ("%5.1f seconds elapsed\n\n", end-start);
 

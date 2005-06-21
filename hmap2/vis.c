@@ -587,8 +587,6 @@ Vis_Main
 int Vis_Main( int argc, char **argv )
 {
 	int			i;
-	char		portalfile[1024];
-	char		source[1024];
 	double		start, end;
 
 	printf ("---- vis ----\n");
@@ -697,13 +695,8 @@ int Vis_Main( int argc, char **argv )
 
 	start = I_DoubleTime ();
 
-	strcpy(source, argv[i]);
-	strcpy(portalfile, source);
-	DefaultExtension(source, ".bsp");
-	ReplaceExtension(portalfile, ".prt");
-
-	LoadBSPFile (source);
-	LoadPortals (portalfile);
+	LoadBSPFile (filename_bsp);
+	LoadPortals (filename_prt);
 
 	uncompressed = qmalloc(bitlongs*portalleafs*sizeof(long));
 	memset (uncompressed, 0, bitlongs*portalleafs*sizeof(long));
@@ -723,7 +716,7 @@ int Vis_Main( int argc, char **argv )
 	if (!noambient)
 		CalcAmbientSounds ();
 
-	WriteBSPFile (source, false);
+	WriteBSPFile (filename_bsp, false);
 
 //	unlink (portalfile);
 

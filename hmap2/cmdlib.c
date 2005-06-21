@@ -26,11 +26,8 @@
 int myargc;
 char **myargv;
 
-char		com_token[1024];
+char		com_token[MAXTOKEN];
 qboolean	com_eof;
-
-qboolean		archive;
-char			archivedir[1024];
 
 
 /*
@@ -481,27 +478,6 @@ void    SaveFile (char *filename, void *buffer, int count)
 }
 
 
-
-void DefaultExtension (char *path, char *extension)
-{
-  char    *src;
-  //
-  // if path doesn't have a .EXT, append extension
-  // (extension should include the .)
-  //
-  src = path + strlen(path) - 1;
-
-  while (*src != PATHSEPERATOR && src != path)
-    {
-      if (*src == '.')
-	return;                 // it has an extension
-      src--;
-    }
-
-  strcat (path, extension);
-}
-
-
 void DefaultPath (char *path, char *basepath)
 {
   char    temp[128];
@@ -514,27 +490,27 @@ void DefaultPath (char *path, char *basepath)
 }
 
 
-void ReplaceExtension (char *path, char *extension)
+void ReplaceExtension (char *path, char *oldextension, char *replacementextension, char *missingextension)
 {
 	char    *src;
-	//
 	// if path has a .EXT, replace it with extension
 	// if path doesn't have a .EXT, append extension
 	// (extension should include the .)
-	//
-	src = path + strlen(path) - 1;
 
-	while (*src != PATHSEPERATOR && src != path)
+	for (src = path + strlen(path) - 1;src >= path && *src != '/' && *src != '\\' && *src != ':';src--)
 	{
 		if (*src == '.')
 		{
-			*src = 0;
-			break;
+			if (!oldextension || !Q_strncasecmp(src, oldextension, strlen(oldextension)))
+			{
+				*src = 0;
+				strcat (path, replacementextension);
+			}
+			return;
 		}
-		src--;
 	}
 
-	strcat (path, extension);
+	strcat (path, missingextension);
 }
 
 

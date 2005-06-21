@@ -551,7 +551,7 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 
 	if (!brush_faces)
 	{
-		printf ("WARNING: couldn't create faces for brush %i in entity %i (incomplete brush?)\n", brushnum, CurrentEntity - entities);
+		printf ("WARNING: couldn't create faces for brush %i in entity %i (incomplete brush?)\n", brushnum, (int)(CurrentEntity - entities));
 		return NULL;
 	}
 

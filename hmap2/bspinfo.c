@@ -10,20 +10,16 @@ static void BspInfo_PrintInfo( const char *filename )
 	int length;
 	FILE *file;
 
-	// create filename
-	strcpy( bspfilename, filename );
-	DefaultExtension( bspfilename, ".bsp" );
-
 	// get file length
-	file = SafeOpenRead( bspfilename );
+	file = SafeOpenRead( filename_bsp );
 	length = Q_filelength( file );
 	fclose( file );
 
 	// print file length
-	printf( "%s: %i bytes\n", bspfilename, length );
+	printf( "%s: %i bytes\n", filename_bsp, length );
 	printf( "\n" );
 
-	LoadBSPFile( bspfilename );
+	LoadBSPFile( filename_bsp );
 
 	// print .bsp info
 	PrintBSPFileSizes ();

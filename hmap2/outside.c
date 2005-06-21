@@ -63,9 +63,9 @@ void MarkLeakTrail (portal_t *n2)
 	VectorNormalize (dir);
 
 	if (!leakfile)
-		leakfile = fopen (pointfilename, "w");
+		leakfile = fopen (filename_pts, "w");
 	if (!leakfile)
-		Error ("Couldn't open %s\n", pointfilename);
+		Error ("Couldn't open %s\n", filename_pts);
 
 	while (len > 2)
 	{
@@ -215,7 +215,7 @@ qboolean FillOutside (tree_t *tree, int hullnum)
 			qprintf ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 			qprintf ("reached occupant at: (%4.0f,%4.0f,%4.0f)\n", origin[0], origin[1], origin[2]);
 			qprintf ("no filling performed\n");
-			qprintf ("leak file written to %s\n", pointfilename);
+			qprintf ("leak file written to %s\n", filename_pts);
 			qprintf ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		}
 

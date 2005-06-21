@@ -36,9 +36,9 @@ void Q_PrintMem( void )
 	if( !mem_initialized )
 		return;
 
-	printf( "Active memory: %f MB (%i bytes)\n", total_active  / 1048576.0, total_active );
-	printf( "Peak active memory: %f MB (%i bytes)\n", total_peakactive  / 1048576.0, total_peakactive );
-	printf( "Total memory allocated: %f MB (%i bytes)\n", total_allocated  / 1048576.0, total_allocated );
+	printf( "Active memory: %f MB (%u bytes)\n", total_active  / 1048576.0, (unsigned int)total_active );
+	printf( "Peak active memory: %f MB (%u bytes)\n", total_peakactive  / 1048576.0, (unsigned int)total_peakactive );
+	printf( "Total memory allocated: %f MB (%u bytes)\n", total_allocated  / 1048576.0, (unsigned int)total_allocated );
 }
 
 void Q_ShutdownMem( void )

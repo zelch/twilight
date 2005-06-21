@@ -67,7 +67,7 @@ static void RemovePortalFromNode (portal_t *portal, node_t *l)
 	{
 		t = *pp;
 		if (!t)
-			Error ("RemovePortalFromNode: portal not in leaf");	
+			Error ("RemovePortalFromNode: portal not in leaf");
 
 		if ( t == portal )
 			break;
@@ -87,7 +87,7 @@ static void RemovePortalFromNode (portal_t *portal, node_t *l)
 	}
 	else if (portal->nodes[1] == l)
 	{
-		*pp = portal->next[1];	
+		*pp = portal->next[1];
 		portal->nodes[1] = NULL;
 	}
 }
@@ -213,7 +213,7 @@ static void CutNodePortals_r (node_t *node)
 	CalcNodeBounds (node);
 
 	//
-	// separate the portals on node into it's children	
+	// separate the portals on node into it's children
 	//
 	if (node->contents)
 		return;			// at a leaf, no more dividing
@@ -229,7 +229,7 @@ static void CutNodePortals_r (node_t *node)
 	//
 	w = BaseWindingForPlane (&mapplanes[node->planenum]);
 	side = 0;	// shut up compiler warning
-	for (p = node->portals ; p ; p = p->next[side])	
+	for (p = node->portals ; p ; p = p->next[side])
 	{
 		clipplane = mapplanes[p->planenum];
 		if (p->nodes[0] == node)
@@ -256,12 +256,12 @@ static void CutNodePortals_r (node_t *node)
 		// if the plane was not clipped on all sides, there was an error
 		new_portal = AllocPortal ();
 		new_portal->planenum = node->planenum;
-		new_portal->winding = w;	
+		new_portal->winding = w;
 		AddPortalToNodes (new_portal, f, b);
 	}
 
 	// partition the portals
-	for (p = node->portals ; p ; p = next_portal)	
+	for (p = node->portals ; p ; p = next_portal)
 	{
 		if (p->nodes[0] == node)
 			side = 0;
@@ -314,8 +314,8 @@ static void CutNodePortals_r (node_t *node)
 		}
 	}
 
-	CutNodePortals_r (f);	
-	CutNodePortals_r (b);	
+	CutNodePortals_r (f);
+	CutNodePortals_r (b);
 }
 
 
@@ -331,7 +331,7 @@ void PortalizeTree (tree_t *tree)
 	qprintf ("----- portalize ----\n");
 
 	MakeHeadnodePortals (tree->headnode, tree->mins, tree->maxs);
-	CutNodePortals_r (tree->headnode);	
+	CutNodePortals_r (tree->headnode);
 }
 
 /*
@@ -435,7 +435,7 @@ static void NumberLeafs_r (node_t *node)
 			p = p->next[0];
 		}
 		else
-			p = p->next[1];		
+			p = p->next[1];
 	}
 }
 
@@ -453,7 +453,7 @@ static void WriteFloatToPortalFile (vec_t f)
 
 static void WritePortalFile_r (node_t *node)
 {
-	int		i;	
+	int		i;
 	portal_t	*p;
 	winding_t	*w;
 	plane_t		*pl, plane2;
@@ -522,10 +522,10 @@ void WritePortalfile (tree_t *tree)
 	NumberLeafs_r (tree->headnode);
 
 	// write the file
-	printf ("writing %s\n", portfilename);
-	pf = fopen (portfilename, "w");
+	printf ("writing %s\n", filename_prt);
+	pf = fopen (filename_prt, "w");
 	if (!pf)
-		Error ("Error opening %s", portfilename);
+		Error ("Error opening %s", filename_prt);
 
 	fprintf (pf, "%s\n", PORTALFILE);
 	fprintf (pf, "%i\n", num_visleafs);

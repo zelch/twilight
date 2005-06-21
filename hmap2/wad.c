@@ -266,14 +266,14 @@ void WriteMiptex (void)
 			if (!success)
 			{
 				// if the map name has a path, we can try loading the wad from there
-				ExtractFilePath(bspfilename, wadfilename);
+				ExtractFilePath(filename_bsp, wadfilename);
 				if (wadfilename[0])
 				{
 					strcat(wadfilename, wadname);
 					if (!(success = loadwad(wadfilename) >= 0))
 					{
 						// try the parent directory
-						ExtractFilePath(bspfilename, wadfilename);
+						ExtractFilePath(filename_bsp, wadfilename);
 						strcat(wadfilename, "../");
 						strcat(wadfilename, wadname);
 						success = loadwad(wadfilename) >= 0;

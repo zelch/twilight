@@ -19,7 +19,7 @@ int FindFinalPlane( vec3_t normal, vec_t dist, int type )
 	dplane_t	*dplane;
 
 	for( i = 0, dplane = dplanes; i < numplanes; i++, dplane++ ) {
-		if( dplane->type != type 
+		if( dplane->type != type
 			|| dplane->dist != dist
 			|| dplane->normal[0] != normal[0]
 			|| dplane->normal[1] != normal[1]
@@ -51,7 +51,7 @@ static void EmitNodePlanes_r( node_t *node )
 
 	if( planemapping[node->planenum] == -1 ) {	// a new plane
 		plane_t *plane;
-		
+
 		plane = &mapplanes[node->planenum];
 		planemapping[node->planenum] = FindFinalPlane( plane->normal, plane->dist, plane->type );
 	}
@@ -225,7 +225,7 @@ void EmitDrawNodes_r( node_t *node )
 				EmitLeaf( node->children[i] );
 			}
 		} else {
-			n->children[i] = numnodes;	
+			n->children[i] = numnodes;
 			EmitDrawNodes_r( node->children[i] );
 		}
 	}
@@ -301,8 +301,8 @@ void FinishBSPFile( void )
 	printf( "--- BSP file information ---\n" );
 	PrintBSPFileSizes ();
 
-	qprintf( "--- WriteBSPFile: %s ---\n", bspfilename );
-	WriteBSPFile( bspfilename, false );
+	qprintf( "--- WriteBSPFile: %s ---\n", filename_bsp );
+	WriteBSPFile( filename_bsp, false );
 
 	qfree( planemapping );
 }

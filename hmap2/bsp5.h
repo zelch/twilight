@@ -202,9 +202,6 @@ void qprintf (char *fmt, ...);
 
 extern	int		valid;
 
-extern	char	portfilename[1024];
-extern	char	bspfilename[1024];
-extern	char	pointfilename[1024];
 
 // misc functions
 

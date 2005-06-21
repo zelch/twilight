@@ -10,10 +10,6 @@
 
 // #define WRITE_LIGHTSFILE
 
-#ifdef WRITE_LIGHTSFILE
-extern char lightsfilename[1024];
-#endif
-
 #define MAP_DIRECTLIGHTS	MAX_MAP_ENTITIES
 
 typedef enum lighttype_e
