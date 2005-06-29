@@ -187,7 +187,7 @@ float EF_DELTA = 8388608;
 //fields:
 .entity exteriormodeltoclient;
 //description:
-//the entity is visible to all clients with one exception: if the specified client is using first person view (not using chase_active) the entity will not be shown.
+//the entity is visible to all clients with one exception: if the specified client is using first person view (not using chase_active) the entity will not be shown.  Also if tag attachments are supported any entities attached to the player entity will not be drawn in first person.
 
 //DP_ENT_GLOW
 //idea: LordHavoc
@@ -302,6 +302,7 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 //note 2: if the tag is not found, it defaults to "" (attach to origin/angles of entity)
 //note 3: attaching to world turns off attachment
 //note 4: the entity that this is attached to must be visible for this to work
+//note 5: if an entity is attached to the player entity it will not be drawn in first person.
 
 //DP_GFX_SKINFILES
 //idea: LordHavoc
