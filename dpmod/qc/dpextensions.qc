@@ -393,7 +393,7 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 //idea: id Software
 //darkplaces implementation: id Software
 //movetype definitions:
-float MOVETYPE_BOUNCEMISSILE = 11;
+//float MOVETYPE_BOUNCEMISSILE = 11; // already in defs.qc
 //description:
 //MOVETYPE_BOUNCE but without gravity, and with full reflection (no speed loss like grenades have), in other words - bouncing laser bolts.
 
@@ -449,7 +449,7 @@ string(string s) cvar_string = #448;
 //builtin definitions:
 string(entity ent) etos = #65;
 //description:
-//lists all of the entity's fields into a string (similar to edict command in console). (this was a Q2 builtin)
+//prints "entity 1" or similar into a string. (this was a Q2 builtin)
 
 //DP_QC_FINDCHAIN
 //idea: LordHavoc
@@ -574,7 +574,7 @@ float(float minimum, float val, float maximum) bound = #96;
 //builtin definitions:
 vector() randomvec = #91;
 //description:
-//returns a vector of length < 1, much quicker version of this QC: do {v_x = random();v_y = random();v_z = random();} while(vlen(v) > 1)
+//returns a vector of length < 1, much quicker version of this QC: do {v_x = random()*2-1;v_y = random()*2-1;v_z = random()*2-1;} while(vlen(v) > 1)
 
 //DP_QC_SINCOSSQRTPOW
 //idea: id Software, LordHavoc
@@ -819,6 +819,8 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //darkplaces implementation: LordHavoc
 //field definitions:
 .vector movement;
+//cvar definitions:
+//"sv_playerphysicsqc" (0/1, default 1, allows user to disable qc player physics)
 //engine-called QC prototypes:
 //void() SV_PlayerPhysics;
 //description:
