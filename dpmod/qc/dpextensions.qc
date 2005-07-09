@@ -461,7 +461,7 @@ entity(.string fld, string match) findchain = #402;
 //similar to find() but returns a chain of entities like findradius.
 
 //DP_QC_FINDCHAINFLAGS
-//idea: LordHavoc
+//idea: Sajt
 //darkplaces implementation: LordHavoc
 //builtin definitions:
 entity(.float fld, float match) findchainflags = #450;
@@ -478,7 +478,7 @@ entity(.float fld, float match) findchainfloat = #403;
 //similar to findentity()/findfloat() but returns a chain of entities like findradius.
 
 //DP_QC_FINDFLAGS
-//idea: LordHavoc
+//idea: Sajt
 //darkplaces implementation: LordHavoc
 //builtin definitions:
 entity(entity start, .entity fld, float match) findflags = #449;
