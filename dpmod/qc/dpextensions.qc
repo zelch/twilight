@@ -481,7 +481,7 @@ entity(.float fld, float match) findchainfloat = #403;
 //idea: Sajt
 //darkplaces implementation: LordHavoc
 //builtin definitions:
-entity(entity start, .entity fld, float match) findflags = #449;
+entity(entity start, .float fld, float match) findflags = #449;
 //description:
 //finds an entity with the specified flag set in the field, similar to find()
 
