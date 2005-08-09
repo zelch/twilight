@@ -1173,6 +1173,7 @@ float PFLAGS_FULLDYNAMIC = 128; // light enable (without this set no light is pr
 //more powerful dynamic light settings
 //warning: it is best not to use cubemaps on a light entity that has a model, as using a skin number that a model does not have will cause issues in glquake, and produce warnings in darkplaces (use developer 1 to see them)
 //changes compared to tenebrae (because they're too 'leet' for standards):
+//note: networking should send entities with PFLAGS_FULLDYNAMIC set even if they have no model (lights in general do not have a model, nor should they)
 //EF_FULLDYNAMIC effects flag replaced by PFLAGS_FULLDYNAMIC flag (EF_FULLDYNAMIC conflicts with EF_NODRAW)
 
 //TW_SV_STEPCONTROL
