@@ -437,8 +437,8 @@ void(entity from, entity to) copyentity = #400;
 //copies all data in the entity to another entity.
 
 //DP_QC_CVAR_STRING
-//idea: Paul Timofeyev
-//DarkPlaces implementation: Paul Timofeyev, LordHavoc
+//idea: VorteX
+//DarkPlaces implementation: VorteX, LordHavoc
 //builtin definitions:
 string(string s) cvar_string = #448;
 //description:
