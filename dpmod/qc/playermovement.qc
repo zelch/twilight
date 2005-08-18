@@ -1,13 +1,19 @@
-float lastclientthink, sv_maxspeed, sv_friction, sv_accelerate, sv_stopspeed, sv_gravity;
+float lastclientthink;
+float sv_accelerate;
+float sv_airmaxspeed;
+float sv_friction;
+float sv_maxspeed;
+float sv_stopspeed;
+float sv_gravity;
 .float ladder_time;
 .entity ladder_entity;
+.float gravity;
 
-float intermission_running;
 void() havocbot_think;
 void() SV_PlayerPhysics =
 {
-	local   vector  wishvel, wishdir, v;
-	local   float   wishspeed, f, accelerate;
+	local vector wishvel, wishdir, v;
+	local float wishspeed, f;
 
 	// this is the first function run each frame, so do bot think here
 	if (clienttype(self) == CLIENTTYPE_BOT)
@@ -19,14 +25,13 @@ void() SV_PlayerPhysics =
 	if (time != lastclientthink)
 	{
 		lastclientthink = time;
+		sv_airmaxspeed = cvar("sv_airmaxspeed");
 		sv_maxspeed = cvar("sv_maxspeed");
 		sv_friction = cvar("sv_friction");
 		sv_accelerate = cvar("sv_accelerate");
 		sv_stopspeed = cvar("sv_stopspeed");
 		sv_gravity = cvar("sv_gravity");
 	}
-
-	accelerate = sv_accelerate;
 
 	if (self.punchangle != '0 0 0')
 	{
@@ -69,11 +74,27 @@ void() SV_PlayerPhysics =
 			self.flags = self.flags - (self.flags & FL_WATERJUMP);
 			self.teleport_time = 0;
 		}
-		return;
 	}
-
-	if (self.waterlevel >= 2)
-	if (self.movetype != MOVETYPE_NOCLIP)
+	else if (self.movetype == MOVETYPE_NOCLIP || self.movetype == MOVETYPE_FLY)
+	{
+		// noclipping or flying
+		self.velocity = self.velocity * (1 - frametime * sv_friction);
+		makevectors(self.v_angle);
+		//wishvel = v_forward * self.movement_x + v_right * self.movement_y + v_up * self.movement_z;
+		wishvel = v_forward * self.movement_x + v_right * self.movement_y + '0 0 1' * self.movement_z;
+		// acceleration
+		wishdir = normalize(wishvel);
+		wishspeed = vlen(wishvel);
+		if (wishspeed > sv_maxspeed)
+			wishspeed = sv_maxspeed;
+		if (time >= self.teleport_time)
+		{
+			f = wishspeed - (self.velocity * wishdir);
+			if (f > 0)
+				self.velocity = self.velocity + wishdir * min(f, sv_accelerate * frametime * wishspeed);
+		}
+	}
+	else if (self.waterlevel >= 2)
 	{
 		// swimming
 		makevectors(self.v_angle);
@@ -95,16 +116,6 @@ void() SV_PlayerPhysics =
 		f = wishspeed - (self.velocity * wishdir);
 		if (f > 0)
 			self.velocity = self.velocity + wishdir * min(f, sv_accelerate * frametime * wishspeed);
-		return;
-	}
-
-	if (self.movetype == MOVETYPE_NOCLIP || self.movetype == MOVETYPE_FLY)
-	{
-		// noclipping or flying
-		self.velocity = self.velocity * (1 - frametime * sv_friction);
-		makevectors(self.v_angle);
-		//wishvel = v_forward * self.movement_x + v_right * self.movement_y + v_up * self.movement_z;
-		wishvel = v_forward * self.movement_x + v_right * self.movement_y + '0 0 1' * self.movement_z;
 	}
 	else if (time < self.ladder_time)
 	{
@@ -137,6 +148,17 @@ void() SV_PlayerPhysics =
 				self.watertype = CONTENT_EMPTY;
 			}
 		}
+		// acceleration
+		wishdir = normalize(wishvel);
+		wishspeed = vlen(wishvel);
+		if (wishspeed > sv_maxspeed)
+			wishspeed = sv_maxspeed;
+		if (time >= self.teleport_time)
+		{
+			f = wishspeed - (self.velocity * wishdir);
+			if (f > 0)
+				self.velocity = self.velocity + wishdir * min(f, sv_accelerate * frametime * wishspeed);
+		}
 	}
 	else if (self.flags & FL_ONGROUND)
 	{
@@ -149,16 +171,25 @@ void() SV_PlayerPhysics =
 			v = self.velocity;
 			v_z = 0;
 			f = vlen(v);
-
 			if (f < sv_stopspeed)
 				f = 1 - frametime * (sv_stopspeed / f) * sv_friction;
 			else
 				f = 1 - frametime * sv_friction;
-
 			if (f > 0)
 				self.velocity = self.velocity * f;
 			else
 				self.velocity = '0 0 0';
+		}
+		// acceleration
+		wishdir = normalize(wishvel);
+		wishspeed = vlen(wishvel);
+		if (wishspeed > sv_maxspeed)
+			wishspeed = sv_maxspeed;
+		if (time >= self.teleport_time)
+		{
+			f = wishspeed - (self.velocity * wishdir);
+			if (f > 0)
+				self.velocity = self.velocity + wishdir * min(f, sv_accelerate * frametime * wishspeed);
 		}
 	}
 	else
@@ -166,22 +197,16 @@ void() SV_PlayerPhysics =
 		// airborn
 		makevectors(self.v_angle_y * '0 1 0');
 		wishvel = v_forward * self.movement_x + v_right * self.movement_y;
-		// LordHavoc: air control...
-		//accelerate = accelerate * 0.5;
-		// LordHavoc: no air control...
-		//if (vlen(wishvel) > 10)
-		//	wishvel = normalize(wishvel) * 10;
-	}
-
-	// acceleration
-	if (time >= self.teleport_time)
-	{
+		// acceleration
 		wishdir = normalize(wishvel);
 		wishspeed = vlen(wishvel);
-		if (wishspeed > sv_maxspeed)
-			wishspeed = sv_maxspeed;
-		f = wishspeed - (self.velocity * wishdir);
-		if (f > 0)
-			self.velocity = self.velocity + wishdir * min(f, accelerate * frametime * wishspeed);
+		if (wishspeed > sv_airmaxspeed)
+			wishspeed = sv_airmaxspeed;
+		if (time >= self.teleport_time)
+		{
+			f = wishspeed - (self.velocity * wishdir);
+			if (f > 0)
+				self.velocity = self.velocity + wishdir * min(f, sv_accelerate * frametime * wishspeed);
+		}
 	}
 };

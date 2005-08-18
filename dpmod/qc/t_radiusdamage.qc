@@ -71,7 +71,7 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 		head.radiusdamage_hit = 0;
 		head.radiusdamage_force = '0 0 0';
 		head.radiusdamage_lasthit = '0 0 0';
-		if (d > 0)
+		if (d > 0 || v != '0 0 0')
 			T_Damage (head, inflictor, attacker, d, d, dethtype, damgtype, l, v, obitfunc);
 		head = findfloat(head, radiusdamage_hit, 1);
 	}
@@ -83,12 +83,33 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 	{
 		damagepoints = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 1);
 		forcepoints = LinearRadDamage(head, ignore, inflictor.origin, force, radius, 1);
-		if (damagepoints > damage)
-			damagepoints = damage;
-		if (forcepoints > damage)
-			forcepoints = damage;
 		if (damagepoints > 0 || forcepoints > 0)
 		{
+			if (damagepoints > damage)
+				damagepoints = damage;
+			if (forcepoints > damage)
+				forcepoints = damage;
+			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
+			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 + '0 0 4'- inflictor.origin) * forcepoints;
+			head.radiusdamage_hit = 1;
+			head.radiusdamage_lasthit = raddamage_lasthit;
+		}
+		head = head.chain;
+	}
+
+	// now push around ragdolls
+	// (may be a corpse or gibs of what was just killed)
+	head = findchain(classname, "ragdoll_particle");
+	while (head)
+	{
+		damagepoints = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 1);
+		forcepoints = LinearRadDamage(head, ignore, inflictor.origin, force, radius, 1);
+		if (damagepoints > 0 || forcepoints > 0)
+		{
+			if (damagepoints > damage)
+				damagepoints = damage;
+			if (forcepoints > damage)
+				forcepoints = damage;
 			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
 			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 + '0 0 4'- inflictor.origin) * forcepoints;
 			head.radiusdamage_hit = 1;
@@ -108,7 +129,7 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 		head.radiusdamage_hit = 0;
 		head.radiusdamage_force = '0 0 0';
 		head.radiusdamage_lasthit = '0 0 0';
-		if (d > 0)
+		if (d > 0 || v != '0 0 0')
 			T_Damage (head, inflictor, attacker, d, d, dethtype, damgtype, l, v, obitfunc);
 		head = findfloat(head, radiusdamage_hit, 1);
 	}

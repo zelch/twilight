@@ -381,7 +381,7 @@ void() worldspawn =
 	// sounds used from C physics code
 	precache_sound ("demon/dland2.wav");		// landing thud
 	precache_sound ("misc/h2ohit1.wav");		// landing splash
-		
+
 	// player gib sounds
 	precache_sound ("player/gib.wav");			// player gib sound
 	precache_sound ("player/udeath.wav");		// player gib sound
@@ -447,7 +447,7 @@ void() worldspawn =
 	precache_sound ("weapons/pkup.wav");		// weapon up
 	precache_sound ("items/armor1.wav");		// armor up
 	precache_sound ("items/damage3.wav");
-	
+
 	precache_model ("progs/s_bubble.spr");	// drowning bubbles
 
 	if (game == GAME_NEXUIZ)
@@ -490,22 +490,22 @@ void() worldspawn =
 		//precache_model ("progs/playergr.mdl"); // used for visible weapons
 		//precache_model ("progs/playerrl.mdl"); // used for visible weapons
 		//precache_model ("progs/playerli.mdl"); // used for visible weapons
-	
+
 		precache_model ("progs/playernogun.mdl");
 		precache_model ("progs/playergun.mdl");
-	
+
 		precache_model ("progs/player.mdl");
 		precache_model ("progs/eyes.mdl");
 		precache_model ("progs/h_player.mdl");
 		precache_model ("progs/gib1.mdl");
 		precache_model ("progs/gib2.mdl");
 		precache_model ("progs/gib3.mdl");
-	
+
 		precache_model ("progs/backpack.mdl");
 
 		precache_sound ("weapons/lhit.wav");		//lightning
 		precache_sound ("weapons/lstart.wav");		//lightning start
-	
+
 		// spikey ball, used for monster in wall errors.
 		precache_model ("progs/star.mdl");
 	}
@@ -574,6 +574,8 @@ void() worldspawn =
 	}
 
 	monsterwander = cvar("monsterwander");
+
+	ItemClass_RegisterDefaultClasses();
 };
 
 void() bubble_split =

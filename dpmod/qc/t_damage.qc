@@ -243,7 +243,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 			tracebox(targ.origin, targ.mins, targ.maxs, targ.origin + '0 0 1', FALSE, targ);
 			setorigin(targ, trace_endpos);
 		}
-		if (targ.movetype != MOVETYPE_NONE)
+		//if (targ.movetype != MOVETYPE_NONE)
 		if (targ.movetype != MOVETYPE_NOCLIP)
 		if (targ.movetype != MOVETYPE_PUSH)
 		{

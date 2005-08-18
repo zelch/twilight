@@ -94,6 +94,7 @@ entity(string name, string pickupmodel, float carrylimit, float itemnum) ItemCla
 {
 	local entity item;
 	item = spawn();
+	//eprint(item);
 	item.classname = "playeritemclass";
 	item.itemclass = item;
 	item.netname = name;
@@ -112,11 +113,13 @@ entity(string name, string pickupmodel, float carrylimit, float itemnum) ItemCla
 	item.model = "";
 	setsize(item, '-16 -16 -24', '16 16 8');
 	item.items = itemnum;
+	//eprint(item);
 	return item;
 };
 
 void() ItemClass_RegisterDefaultClasses =
 {
+	//dprint("ItemClass_RegisterDefaultClasses\n");
 	ItemClass_Register("axe", "progs/backpack.mdl", 1, IT_WEAPON1);
 	ItemClass_Register("shotgun", "progs/backpack.mdl", 1, IT_WEAPON2);
 	ItemClass_Register("supershotgun", "progs/backpack.mdl", 1, IT_WEAPON3);
@@ -211,6 +214,7 @@ entity(entity original) Item_Clone =
 entity(entity aitemclass) Item_Create =
 {
 	local entity item;
+	dprint("Item_Create\n");
 	item = Item_Clone(aitemclass);
 	if (item != world)
 	{
@@ -582,9 +586,11 @@ float(entity character, string name, float adjust) Inventory_AdjustQuantity =
 		item = Inventory_GetNextItem(character, item);
 	}
 	// some may remain, check if we can spawn an item to hold it
+	//dprint("adjust ");dprint(ftos(adjust));dprint("\n");
 	if (adjust > 0)
 	{
 		aitemclass = ItemClass_FindByName(name);
+		//eprint(aitemclass);
 		d = aitemclass.count2;
 		while (adjust > 0 && c < d)
 		{
@@ -685,6 +691,8 @@ void(entity player) Inventory_FromParms =
 	local float c, valid;
 	oldself = self;
 	self = player;
+	if (findchain(classname, "playeritemclass") == world)
+		ItemClass_RegisterDefaultClasses();
 	valid = lhfp_decode(parm1);
 	//dprint("valid is ");dprint(ftos(valid));dprint("\n");
 	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
@@ -769,6 +777,7 @@ void(entity player) Inventory_FromParms =
 	else
 	{
 		//dprint("singleplayer\n");
+		//eprint(self);
 		self.items = 0;
 		self.health = STARTPARMSSP_HEALTH;
 		self.max_health = STARTPARMSSP_MAXHEALTH;
@@ -781,6 +790,7 @@ void(entity player) Inventory_FromParms =
 		Inventory_SetQuantity(self, "axe", 1);
 		Inventory_SetQuantity(self, "shotgun", 1);
 		self.weaponclass = W_BestWeaponClass(TRUE);
+		//eprint(self);
 	}
 	wsetweapon(self.weaponclass, TRUE);
 	// safety checks

@@ -750,7 +750,7 @@ void() W_WeaponFrame =
 
 float AXE_DAMAGE = 20;
 float AXE_REFIRE = 0.5;
-float SHOTGUN_SHELL = 160;
+float SHOTGUN_SHELL = 60;
 float SHOTGUN_SHELLS = 1;
 float SHOTGUN_REFIRE = 0.9;
 float PLASMASHOTGUN_SHELL = 150;
@@ -758,7 +758,7 @@ float PLASMASHOTGUN_CELL = 30;
 float PLASMASHOTGUN_CELLS = 3;
 float PLASMASHOTGUN_RADIUS = 60;
 float PLASMASHOTGUN_REFIRE = 0.9;
-float DBSHOTGUN_SHELL = 150;
+float DBSHOTGUN_SHELL = 60;
 float DBSHOTGUN_SHELLS = 2;
 float DBSHOTGUN_REFIRE = 1.4;
 float NAILGUN_NAIL = 15;
@@ -978,6 +978,7 @@ float(float request) w_shotgun =
 			{
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 				ejectcasing(shotorg + v_forward * -5, v_right * 100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
+				//Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 120 + v_up * 40, shotorg + v_forward * -3, v_right * 80 + v_up * 50, "progs/casing_shell.mdl");
 			}
 			if (self.weaponframe == 5)
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
@@ -1069,6 +1070,7 @@ float(float request) w_plasmashotgun =
 			{
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 				ejectcasing(shotorg + v_forward * -5, v_right * 100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
+				//Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 120 + v_up * 40, shotorg + v_forward * -3, v_right * 80 + v_up * 50, "progs/casing_shell.mdl");
 			}
 			if (self.weaponframe == 5)
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
@@ -1183,8 +1185,10 @@ float(float request) w_dbshotgun =
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 				if (self.shotgunshells & 1)
 					ejectcasing(shotorg + v_forward * -8 + v_right *  1, v_right *  100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
+					//Ragdoll_ThrowCasing(shotorg + v_forward * -8 + v_right *  1, v_right *  120 + v_up * 40, shotorg + v_forward * -6 + v_right *  1, v_right *  80 + v_up * 50, "progs/casing_shell.mdl");
 				if (self.shotgunshells & 2)
 					ejectcasing(shotorg + v_forward * -8 + v_right * -1, v_right * -100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 1);
+					//Ragdoll_ThrowCasing(shotorg + v_forward * -8 + v_right * -1, v_right * -120 + v_up * 40, shotorg + v_forward * -6 + v_right * -1, v_right * -80 + v_up * 50, "progs/casing_shell.mdl");
 				self.shotgunshells = 0;
 			}
 			if (self.weaponframe == 5)
@@ -1512,7 +1516,8 @@ float(float request) w_supernailgun =
 				w_muzzleflash(shotorg, 2);
 				Inventory_AdjustQuantity(self, "nails", -1);
 				FireBullets(self, self, 4, 1, SUPERNAILGUN_NAIL, SUPERNAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
-				//ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+				ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+				//Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 200 + v_up * 75, shotorg + v_forward * -3, v_right * 150 + v_up * 50, "progs/casing_bronze.mdl");
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -2309,7 +2314,7 @@ float(float request) w_flamer =
 		precache_model("progs/v_dpshot.mdl");
 		precache_model("progs/flame2.mdl");
 		precache_model("progs/grenade.mdl");
-		precache_model("progs/s_explode.spr");
+		precache_model("progs/s_explod.spr");
 		precache_sound("fire/launch.wav");
 		precache_sound("fire/burn.wav");
 		registerweapon(10, "Flamer", w_flamer, "flamer", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_CELLS, 0, FLAMER_SHOT_VELOCITY, FLAMER_SHOT_DAMAGE / FLAMER_SHOT_REFIRE, WANIMTYPE_SHOTGUN);
