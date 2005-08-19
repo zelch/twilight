@@ -70,6 +70,18 @@ float svc_cgame = 50; // [short] length [bytes] data
 //description:
 //indicates this engine supports the "seta" console command which creates or sets an archived cvar (saved to config.cfg on exit), it is recommended that set and seta commands be placed in default.cfg for mod-specific cvars.
 
+//DP_CON_ALIASPARAMETERS
+//idea: many
+//darkplaces implementation: Black
+//description:
+//indicates this engine supports aliases containing $1 through $9 parameter macros (which when called will expand to the parameters passed to the alias, for example alias test "say $2 $1", then you can type test hi there and it will execute say there hi), as well as $0 (name of the alias) and $* (all parameters $1 onward).
+
+//DP_CON_EXPANDCVAR
+//idea: many, PHP
+//darkplaces implementation: Black
+//description:
+//indicates this engine supports console commandlines containing $cvarname which will expand to the contents of that cvar as a parameter, for instance say my fov is $fov, will say "my fov is 90", or similar.
+
 //DP_CON_STARTMAP
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
