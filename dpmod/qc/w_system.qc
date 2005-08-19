@@ -977,8 +977,10 @@ float(float request) w_shotgun =
 			if (self.weaponframe == 3)
 			{
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
-				ejectcasing(shotorg + v_forward * -5, v_right * 100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
-				//Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 120 + v_up * 40, shotorg + v_forward * -3, v_right * 80 + v_up * 50, "progs/casing_shell.mdl");
+				if (cvar("dpmod_physics_casings"))
+					Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 120 + v_up * 40, shotorg + v_forward * -3, v_right * 80 + v_up * 50, "progs/casing_shell.mdl");
+				else
+					ejectcasing(shotorg + v_forward * -5, v_right * 100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
 			}
 			if (self.weaponframe == 5)
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
@@ -1069,8 +1071,10 @@ float(float request) w_plasmashotgun =
 			if (self.weaponframe == 3)
 			{
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
-				ejectcasing(shotorg + v_forward * -5, v_right * 100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
-				//Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 120 + v_up * 40, shotorg + v_forward * -3, v_right * 80 + v_up * 50, "progs/casing_shell.mdl");
+				if (cvar("dpmod_physics_casings"))
+					Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 120 + v_up * 40, shotorg + v_forward * -3, v_right * 80 + v_up * 50, "progs/casing_shell.mdl");
+				else
+					ejectcasing(shotorg + v_forward * -5, v_right * 100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
 			}
 			if (self.weaponframe == 5)
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
@@ -1184,11 +1188,19 @@ float(float request) w_dbshotgun =
 			{
 				sound(self, CHAN_AUTO, "weapons/bsgload.wav", 1, ATTN_STATIC);
 				if (self.shotgunshells & 1)
-					ejectcasing(shotorg + v_forward * -8 + v_right *  1, v_right *  100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
-					//Ragdoll_ThrowCasing(shotorg + v_forward * -8 + v_right *  1, v_right *  120 + v_up * 40, shotorg + v_forward * -6 + v_right *  1, v_right *  80 + v_up * 50, "progs/casing_shell.mdl");
+				{
+					if (cvar("dpmod_physics_casings"))
+						Ragdoll_ThrowCasing(shotorg + v_forward * -8 + v_right *  1, v_right *  120 + v_up * 40, shotorg + v_forward * -6 + v_right *  1, v_right *  80 + v_up * 50, "progs/casing_shell.mdl");
+					else
+						ejectcasing(shotorg + v_forward * -8 + v_right *  1, v_right *  100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
+				}
 				if (self.shotgunshells & 2)
-					ejectcasing(shotorg + v_forward * -8 + v_right * -1, v_right * -100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 1);
-					//Ragdoll_ThrowCasing(shotorg + v_forward * -8 + v_right * -1, v_right * -120 + v_up * 40, shotorg + v_forward * -6 + v_right * -1, v_right * -80 + v_up * 50, "progs/casing_shell.mdl");
+				{
+					if (cvar("dpmod_physics_casings"))
+						Ragdoll_ThrowCasing(shotorg + v_forward * -8 + v_right * -1, v_right * -120 + v_up * 40, shotorg + v_forward * -6 + v_right * -1, v_right * -80 + v_up * 50, "progs/casing_shell.mdl");
+					else
+						ejectcasing(shotorg + v_forward * -8 + v_right * -1, v_right * -100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 1);
+				}
 				self.shotgunshells = 0;
 			}
 			if (self.weaponframe == 5)
@@ -1516,8 +1528,10 @@ float(float request) w_supernailgun =
 				w_muzzleflash(shotorg, 2);
 				Inventory_AdjustQuantity(self, "nails", -1);
 				FireBullets(self, self, 4, 1, SUPERNAILGUN_NAIL, SUPERNAILGUN_NAIL, 0, 0, shotdir * 10000, 0.025, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
-				ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
-				//Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 200 + v_up * 75, shotorg + v_forward * -3, v_right * 150 + v_up * 50, "progs/casing_bronze.mdl");
+				if (cvar("dpmod_physics_casings"))
+					Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 200 + v_up * 75, shotorg + v_forward * -3, v_right * 150 + v_up * 50, "progs/casing_bronze.mdl");
+				else
+					ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);

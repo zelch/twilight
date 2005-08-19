@@ -32,7 +32,7 @@ void() gibknockedloosefunc =
 
 void() debristhink =
 {
-	local   float   p;
+	//local   float   p;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.nextthink = time + 0.1;
 	/*
@@ -95,21 +95,27 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 		e.cnt = time + 30; // + random() * 50;
 };
 
-//entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib;
+entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib;
 
 void(string gibname) ThrowGib =
 {
 	local   vector  org;
 	org = randompos(self.absmin, self.absmax);
-	ThrowDebris(world, org, '0 0 0', gibname, 0);
-	//Ragdoll_ThrowGib(org, '0 0 0', gibname);
+	if (cvar("dpmod_qcphysics_gibs"))
+		Ragdoll_ThrowGib(org, '0 0 0', gibname);
+	else
+		ThrowDebris(world, org, '0 0 0', gibname, 0);
 };
 
 void(string gibname) ThrowHead =
 {
-	ThrowDebris(self, self.origin + self.view_ofs, '0 0 0', gibname, 0);
-	//Ragdoll_ThrowGib(self.origin + self.view_ofs, '0 0 0', gibname);
-	//self.effects = self.effects | EF_NODRAW;
+	if (cvar("dpmod_qcphysics_gibs"))
+	{
+		Ragdoll_ThrowGib(self.origin + self.view_ofs, '0 0 0', gibname);
+		self.model = "";
+	}
+	else
+		ThrowDebris(self, self.origin + self.view_ofs, '0 0 0', gibname, 0);
 };
 
 /*
@@ -283,7 +289,7 @@ void(entity c, void() framefunc) BecomeCorpse =
 
 void(entity t) CopyToBodyQue =
 {
-	local entity e, c;
+	local entity c;
 	c = newdecor();
 	c.createdtime = time + 10; // give priority over bullet holes and such
 	c.iscorpse = TRUE;
@@ -460,7 +466,7 @@ void() dead_gibs =
 
 void() dead_bloodarea_doit =
 {
-	local   vector  v;
+	//local   vector  v;
 	bloodshower(self.origin - '16 16 16', self.origin + '16 16 16', 200, self.count * 10);
 	/*
 	while (self.count > 0)
@@ -1129,7 +1135,6 @@ void() Ragdoll_Think =
 };
 */
 
-/*
 .float ragdoll_bounce; // used on particles, recommended 1.2
 .float ragdoll_friction; // used on particles, recommended 0.05
 .entity ragdoll_next; // next particle/stick in list
@@ -1138,6 +1143,8 @@ void() Ragdoll_Think =
 .entity ragdoll_p1; // particle 1 of this stick (start)
 .entity ragdoll_p2; // particle 2 of this stick (end)
 .entity ragdoll_p3; // particle 3 of this stick (rotation)
+.float ragdoll_mass;
+.float ragdoll_inversemass;
 .float ragdoll_preferredlength; // preferred length of this stick
 void(entity ragdoll) Ragdoll_Remove;
 // implicit euler/verlet hybrid
@@ -1149,8 +1156,9 @@ void() Ragdoll_Think =
 	local float ftime;
 	local float t;
 	local float f;
-	local float step;
-	local float steps;
+	local vector force;
+	//local float step;
+	//local float steps;
 	//local float stepiftime;
 	//local float steptolerance;
 	//local vector org;
@@ -1187,16 +1195,16 @@ void() Ragdoll_Think =
 	//{
 	//	step = step + 1;
 	// run at least a certain framerate for robustness
-	//iftime = 128;
-	//ftime = 1 / iftime;
+	iftime = 100;
+	ftime = 1 / iftime;
 	//if (ftime > frametime)
 	//{
-		ftime = frametime;
-		iftime = 1 / ftime;
+	//	ftime = frametime;
+	//	iftime = 1 / ftime;
 	//}
-	//while (self.ltime < time)
+	while (self.ltime < time)
 	{
-		//self.ltime = self.ltime + ftime;
+		self.ltime = self.ltime + ftime;
 		// apply stick constraints to the velocities
 		stick = self.ragdoll_sticklist;
 		while (stick)
@@ -1228,14 +1236,16 @@ void() Ragdoll_Think =
 		{
 			// apply acceleration to the particles
 			// integration method: semi-implicit euler
-			part.velocity = part.velocity + '0 0 -1' * sv_gravity * ftime;
+			//part.velocity = part.velocity + '0 0 -1' * sv_gravity * ftime;
+			// integration method: half-step implicit euler
+			part.velocity = part.velocity + '0 0 -0.5' * sv_gravity * ftime;
 			t = ftime;
 			bump = 0;
 			while (bump < 16)
 			{
 				bump = bump + 1;
 				// check if there was an impact
-				tracebox(part.origin, part.mins, part.maxs, part.origin + part.velocity * t, TRUE, part);
+				tracebox(part.origin, part.mins, part.maxs, part.origin + part.velocity * t, FALSE, part);
 				if (trace_fraction == 1)
 				{
 					// ignore successful moves over short distances after the
@@ -1256,7 +1266,18 @@ void() Ragdoll_Think =
 					if (f < 0)
 						f = 0;
 					// BUG: ragdoll_bounce occurs in addition to the natural spring back of the sticks when flattened against a surface...
-					part.velocity = (part.velocity - trace_plane_normal * (trace_plane_normal * part.velocity) * part.ragdoll_bounce) * f;
+					if (trace_ent.classname == "ragdoll_particle")
+					{
+						// hack to make particles behave sort of spherically
+						//trace_plane_normal = normalize(part.origin - trace_ent.origin);
+						// calculate impulse (impact force)
+						force = trace_plane_normal * (trace_plane_normal * (part.velocity * part.ragdoll_mass - trace_ent.velocity * trace_ent.ragdoll_mass));
+						// apply to both particles (in opposite directions)
+						part.velocity = (part.velocity - force * part.ragdoll_inversemass * part.ragdoll_bounce) * f;
+						trace_ent.velocity = (part.velocity + force * part.ragdoll_inversemass * part.ragdoll_bounce) * f;
+					}
+					else
+						part.velocity = (part.velocity - (trace_plane_normal * (trace_plane_normal * part.velocity)) * part.ragdoll_bounce) * f;
 					//c = vlen(part.velocity);
 					//f = c - ftime * 50;
 					//if (f > 0)
@@ -1273,6 +1294,8 @@ void() Ragdoll_Think =
 					setorigin(part, trace_endpos);
 				}
 			}
+			// apply the rest of the acceleration now
+			part.velocity = part.velocity + '0 0 -0.5' * sv_gravity * ftime;
 			// go to the next particle
 			part = part.ragdoll_next;
 		}
@@ -1336,7 +1359,7 @@ void(entity ragdoll) Ragdoll_Remove =
 	remove(ragdoll);
 };
 
-entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float forcescal, float bouncefactor, float frictionfactor) Ragdoll_AddParticle =
+entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float mas, float forcescal, float bouncefactor, float frictionfactor) Ragdoll_AddParticle =
 {
 	local entity e;
 	e = spawn();
@@ -1344,6 +1367,8 @@ entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float force
 	e.owner = ragdoll;
 	e.ragdoll_next = e.owner.ragdoll_particlelist;
 	e.owner.ragdoll_particlelist = e;
+	e.ragdoll_mass = mas;
+	e.ragdoll_inversemass = 1.0 / mas;
 	e.ragdoll_bounce = bouncefactor;
 	e.ragdoll_friction = frictionfactor;
 	e.forcescale = forcescal;
@@ -1351,7 +1376,7 @@ entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float force
 	e.th_die = SUB_Null;
 	e.th_gib = SUB_Null;
 	e.th_pain = SUB_Null;
-	e.solid = SOLID_TRIGGER;
+	e.solid = SOLID_BBOX;
 	e.movetype = MOVETYPE_NONE;
 	e.velocity = vel;
 	setorigin(e, org);
@@ -1381,9 +1406,9 @@ entity(entity ragdoll, entity p1, entity p2, entity p3, string modelname) Ragdol
 entity(vector org1, vector vel1, vector org2, vector vel2, string modelname) Ragdoll_ThrowCasing =
 {
 	local entity r, p1, p2;
-	r = Ragdoll_Spawn(30);
-	p1 = Ragdoll_AddParticle(r, org1, vel1, '0 0 -1', '0 0 1', 6, 1.5, 0.2);
-	p2 = Ragdoll_AddParticle(r, org2, vel2, '0 0 -1', '0 0 1', 6, 1.5, 0.2);
+	r = Ragdoll_Spawn(60);
+	p1 = Ragdoll_AddParticle(r, org1, vel1, '-1 -1 -3', '1 1 3', 1, 6, 1.5, 0.2);
+	p2 = Ragdoll_AddParticle(r, org2, vel2, '-1 -1 -3', '1 1 3', 1, 6, 1.5, 0.2);
 	Ragdoll_AddStick(r, p1, p2, world, modelname);
 	return r;
 };
@@ -1391,15 +1416,15 @@ entity(vector org1, vector vel1, vector org2, vector vel2, string modelname) Rag
 entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 {
 	local entity r, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
-	r = Ragdoll_Spawn(30);
+	r = Ragdoll_Spawn(60);
 	makevectors(randomvec() * 360);
 	if (modelname == "progs/gib1.mdl")
 	{
 		// arm piece
-		p1 = Ragdoll_AddParticle(r, org + v_forward * -8, vel + randomvec() * 150, '0 0 -4', '0 0 4', 4, 1.5, 1.0);
-		//p2 = Ragdoll_AddParticle(r, org + v_forward *  8, vel + randomvec() * 150, '0 0 -4', '0 0 4', 4, 1.5, 1.0);
-		p3 = Ragdoll_AddParticle(r, org + v_right *  2, vel + randomvec() * 150, '0 0 -4', '0 0 4', 4, 1.5, 1.0);
-		p4 = Ragdoll_AddParticle(r, org + v_right * -2, vel + randomvec() * 150, '0 0 -4', '0 0 4', 4, 1.5, 1.0);
+		p1 = Ragdoll_AddParticle(r, org + v_forward * -8, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 0.5, 5, 1.5, 1.0);
+		//p2 = Ragdoll_AddParticle(r, org + v_forward *  8, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 0.5, 5, 1.5, 1.0);
+		p3 = Ragdoll_AddParticle(r, org + v_right *  2, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 0.5, 5, 1.5, 1.0);
+		p4 = Ragdoll_AddParticle(r, org + v_right * -2, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 0.5, 5, 1.5, 1.0);
 		//Ragdoll_AddStick(r, p1, p2, world, "");
 		Ragdoll_AddStick(r, p1, p3, world, "");
 		Ragdoll_AddStick(r, p1, p4, world, "");
@@ -1410,12 +1435,12 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 	else if (modelname == "progs/gib2.mdl")
 	{
 		// rib cage
-		p1 = Ragdoll_AddParticle(r, org + v_forward *  12, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p2 = Ragdoll_AddParticle(r, org + v_forward * -12, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p3 = Ragdoll_AddParticle(r, org + v_forward * 8 + v_right   *  12, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p4 = Ragdoll_AddParticle(r, org + v_forward * 8 + v_right   * -12, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p5 = Ragdoll_AddParticle(r, org + v_up      *  6, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p6 = Ragdoll_AddParticle(r, org + v_up      * -6, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
+		p1 = Ragdoll_AddParticle(r, org + v_forward *  12, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
+		p2 = Ragdoll_AddParticle(r, org + v_forward * -12, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
+		p3 = Ragdoll_AddParticle(r, org + v_forward * 8 + v_right   *  12, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
+		p4 = Ragdoll_AddParticle(r, org + v_forward * 8 + v_right   * -12, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
+		p5 = Ragdoll_AddParticle(r, org + v_up      *  6, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
+		p6 = Ragdoll_AddParticle(r, org + v_up      * -6, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
 		Ragdoll_AddStick(r, p1, p2, p3, modelname);
 		Ragdoll_AddStick(r, p1, p3, world, "");
 		Ragdoll_AddStick(r, p1, p4, world, "");
@@ -1435,10 +1460,10 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 	else if (modelname == "progs/gib3.mdl")
 	{
 		// slab of meat
-		p1 = Ragdoll_AddParticle(r, org + v_forward *  12, vel + randomvec() * 150, '0 0 -3', '0 0 3', 3, 1.5, 1.0);
-		p2 = Ragdoll_AddParticle(r, org + v_forward * -12, vel + randomvec() * 150, '0 0 -3', '0 0 3', 3, 1.5, 1.0);
-		p3 = Ragdoll_AddParticle(r, org + v_right   *  12, vel + randomvec() * 150, '0 0 -3', '0 0 3', 3, 1.5, 1.0);
-		//p4 = Ragdoll_AddParticle(r, org + v_right   * -12, vel + randomvec() * 150, '0 0 -3', '0 0 3', 3, 1.5, 1.0);
+		p1 = Ragdoll_AddParticle(r, org + v_forward *  12, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 10, 5, 1.5, 1.0);
+		p2 = Ragdoll_AddParticle(r, org + v_forward * -12, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 10, 5, 1.5, 1.0);
+		p3 = Ragdoll_AddParticle(r, org + v_right   *  12, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 10, 5, 1.5, 1.0);
+		//p4 = Ragdoll_AddParticle(r, org + v_right   * -12, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 10, 5, 1.5, 1.0);
 		Ragdoll_AddStick(r, p1, p2, p3, modelname);
 		Ragdoll_AddStick(r, p1, p3, world, "");
 		//Ragdoll_AddStick(r, p1, p4, world, "");
@@ -1449,16 +1474,16 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 	else
 	{
 		// probably a head
-		p1 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_forward *  5, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p2 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_forward * -5, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p3 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_right   *  5, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p4 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_right   * -5, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p5 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_forward *  5, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p6 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_forward * -5, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p7 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_right   *  5, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p8 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_right   * -5, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p9 = Ragdoll_AddParticle(r, org + v_up      *  0, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
-		p10= Ragdoll_AddParticle(r, org + v_up      * 12, vel + randomvec() * 150, '0 0 0', '0 0 0', 3, 1.5, 1.0);
+		p1 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_forward *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p2 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_forward * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p3 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_right   *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p4 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_right   * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p5 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_forward *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p6 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_forward * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p7 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_right   *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p8 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_right   * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p9 = Ragdoll_AddParticle(r, org + v_up      *  0, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p10= Ragdoll_AddParticle(r, org + v_up      * 12, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
 		Ragdoll_AddStick(r, p1, p2, p3, modelname);
 		Ragdoll_AddStick(r, p1, p3, world, "");
 		Ragdoll_AddStick(r, p1, p4, world, "");
@@ -1507,5 +1532,4 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 	}
 	return r;
 };
-*/
 
