@@ -5,7 +5,7 @@ require "include/main.php";
 
 startpage ("News");
 
-newsitem ("Saturday, 8 Augest 2005",
+newsitem ("Saturday, 8 August 2005",
 		"Mercury has released 0.2.1, and Win32 binaries are up."
 		. "  The changelog is, not small."
 );
