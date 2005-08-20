@@ -839,6 +839,12 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //description:
 //.movement vector contains the movement input from the player, allowing QC to do as it wishs with the input, and SV_PlayerPhysics will completely replace the player physics if present (works for all MOVETYPE's), see darkplaces mod source for example of this function (in playermovement.qc, adds HalfLife ladders support, as well as acceleration/deceleration while airborn (rather than the quake sudden-stop while airborn), and simplifies the physics a bit)
 
+//DP_SV_PRECACHEANYTIME
+//idea: id Software (Quake2)
+//darkplaces implementation: LordHavoc
+//description:
+//this extension allows precache_model and precache_sound (and any variants) to be used during the game (with automatic messages to clients to precache the new model/sound indices), also setmodel/sound/ambientsound can be called without precaching first (they will cause an automatic precache).
+
 //DP_SV_ROTATINGBMODEL
 //idea: id Software
 //darkplaces implementation: LordHavoc
