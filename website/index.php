@@ -5,7 +5,12 @@ require "include/main.php";
 
 startpage ("News");
 
-newsitem ("Saturday, 8 August 2005",
+newsitem ("Sunday, 21 August 2005",
+		"Released 0.2.2, and Win32 binaries are up."
+		. "  This fixes the explosion rendering."
+);
+
+newsitem ("Saturday, 20 August 2005",
 		"Mercury has released 0.2.1, and Win32 binaries are up."
 		. "  The changelog is, not small."
 );
