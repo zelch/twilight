@@ -12,3 +12,5 @@ echo "Pulsing the website..."
 # And THIS is a hack...
 $CVS -q -z3 -d$CVSROOT update -dACP &
 
+find . -type d -uid `id -u` -exec chmod g+ws \{\} \;
+find . -type f -uid `id -u` -exec chmod g+w \{\} \;
