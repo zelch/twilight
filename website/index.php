@@ -1,6 +1,7 @@
 <?php
 # $Id$
 
+
 require "include/main.php";
 
 startpage ("News");
