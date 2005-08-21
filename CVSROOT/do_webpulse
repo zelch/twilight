@@ -10,5 +10,5 @@ cd $WEBSPACE
 echo "Pulsing the website..."
 
 # And THIS is a hack...
-$CVS -q -z3 -d$CVSROOT update -dP &
+$CVS -q -z3 -d$CVSROOT update -dACP &
 
