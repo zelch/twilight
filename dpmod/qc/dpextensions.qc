@@ -873,6 +873,14 @@ void(entity ent, float colors) setcolor = #401;
 //sets the time scale of the server, mainly intended for use in singleplayer by the player, however potentially useful for mods, so here's an extension for it.
 //range is 0 to infinite, recommended values to try are 0.1 (very slow, 10% speed), 1 (normal speed), 5 (500% speed).
 
+//DP_SV_WRITEUNTERMINATEDSTRING
+//idea: shadowalker
+//darkplaces implementation: Sajt
+//builtin definitions:
+void(float to, string s) WriteUnterminatedString = #456;
+//description:
+//like WriteString, but does not write a terminating 0 after the string. This means you can include things like a player's netname in the middle of a string sent over the network. Just be sure to end it up with either a call to WriteString (which includes the trailing 0) or WriteByte(0) to terminate it yourself.
+
 //DP_TE_BLOOD
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
