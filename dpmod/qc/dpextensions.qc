@@ -947,8 +947,10 @@ void(vector org, vector color) te_explosionrgb = #407;
 //DP_TE_FLAMEJET
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
+//builtin definitions:
+void(vector org, vector vel, float howmany) te_flamejet = #457;
 //temp entity definitions:
-float TE_FLAMEJET = 74;
+//float TE_FLAMEJET = 74;
 //protocol:
 //vector origin
 //vector velocity
