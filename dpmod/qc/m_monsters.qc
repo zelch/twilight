@@ -74,6 +74,24 @@ void() monster_appearsetup =
 
 /*
 ================
+monster_setalpha
+
+Sets relative alpha of monster in skill 4 mode.
+================
+*/
+void(float a) monster_setalpha =
+{
+	if (skill < 4)
+	{
+		self.alpha = 1.0;
+		return;
+	}
+
+	self.alpha = SKILL4_MINALPHA + (1 - SKILL4_MINALPHA) * bound(0, a, 1);
+};
+
+/*
+================
 monster_death_use
 
 When a mosnter dies, it fires all of its targets with the current
@@ -217,6 +235,8 @@ void() walkmonster_start =
 	self.frags = 2; // actually just used to get havocbots to attack it...
 	self.bleedfunc = genericbleedfunc;
 	self.ismonster = TRUE;
+
+	monster_setalpha (0);
 };
 
 
@@ -307,6 +327,8 @@ void() flymonster_start =
 	self.frags = 2; // actually just used to get havocbots to attack it...
 	self.bleedfunc = genericbleedfunc;
 	self.ismonster = TRUE;
+
+	monster_setalpha (0);
 };
 
 
@@ -394,4 +416,6 @@ void() swimmonster_start =
 	self.frags = 2; // actually just used to get havocbots to attack it...
 	self.bleedfunc = genericbleedfunc;
 	self.ismonster = TRUE;
+
+	monster_setalpha(0);
 };

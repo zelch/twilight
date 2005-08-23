@@ -128,7 +128,7 @@ float(vector v, float maxfiredeviation) w_aimdir =
 
 	// jitter tracking
 	dist = vlen(diffang);
-	//diffang = diffang + randomvec() * (dist * 0.05 * (3.5 - skill));
+	//diffang = diffang + randomvec() * (dist * 0.05 * (3.5 - bound(0, skill, 3)));
 
 	/*
 	// simulate slight 'stickyness' of mouse on small moves

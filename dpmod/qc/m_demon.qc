@@ -72,9 +72,10 @@ void()	demon1_run6	=[	$run6,		demon1_run1	] {ai_run(36);};
 
 void()	demon1_jump1	=[	$leap1,		demon1_jump2	] {ai_face();};
 void()	demon1_jump2	=[	$leap2,		demon1_jump3	] {ai_face();};
-void()	demon1_jump3	=[	$leap3,		demon1_jump4	] {ai_face();};
+void()	demon1_jump3	=[	$leap3,		demon1_jump4	] {monster_setalpha(0.5);ai_face();};
 void()	demon1_jump4	=[	$leap4,		demon1_jump5	]
 {
+	monster_setalpha(1.0);
 	ai_face();
 
 	self.touch = Demon_JumpTouch;
@@ -93,31 +94,31 @@ self.nextthink = time + 3;
 // if three seconds pass, assume demon is stuck and jump again
 };
 
-void()	demon1_jump11	=[ 	$leap11,	demon1_jump12	] {};
+void()	demon1_jump11	=[ 	$leap11,	demon1_jump12	] {monster_setalpha(0.0);};
 void()	demon1_jump12	=[ 	$leap12,	demon1_run1	] {};
 
 
 void()	demon1_atta1	=[	$attacka1,		demon1_atta2	] {ai_charge(4);};
 void()	demon1_atta2	=[	$attacka2,		demon1_atta3	] {ai_charge(0);};
 void()	demon1_atta3	=[	$attacka3,		demon1_atta4	] {ai_charge(0);};
-void()	demon1_atta4	=[	$attacka4,		demon1_atta5	] {ai_charge(1);};
-void()	demon1_atta5	=[	$attacka5,		demon1_atta6	] {ai_charge(2); Demon_Melee(200);};
-void()	demon1_atta6	=[	$attacka6,		demon1_atta7	] {ai_charge(1);};
-void()	demon1_atta7	=[	$attacka7,		demon1_atta8	] {ai_charge(6);};
+void()	demon1_atta4	=[	$attacka4,		demon1_atta5	] {monster_setalpha(0.5);ai_charge(1);};
+void()	demon1_atta5	=[	$attacka5,		demon1_atta6	] {monster_setalpha(1.0);ai_charge(2); Demon_Melee(200);};
+void()	demon1_atta6	=[	$attacka6,		demon1_atta7	] {monster_setalpha(0.5);ai_charge(1);};
+void()	demon1_atta7	=[	$attacka7,		demon1_atta8	] {monster_setalpha(0.0);ai_charge(6);};
 void()	demon1_atta8	=[	$attacka8,		demon1_atta9	] {ai_charge(8);};
 void()	demon1_atta9	=[	$attacka9,		demon1_atta10] {ai_charge(4);};
-void()	demon1_atta10	=[	$attacka10,		demon1_atta11] {ai_charge(2);};
-void()	demon1_atta11	=[	$attacka11,		demon1_atta12] {Demon_Melee(-200);};
-void()	demon1_atta12	=[	$attacka12,		demon1_atta13] {ai_charge(5);};
-void()	demon1_atta13	=[	$attacka13,		demon1_atta14] {ai_charge(8);};
+void()	demon1_atta10	=[	$attacka10,		demon1_atta11] {monster_setalpha(0.5);ai_charge(2);};
+void()	demon1_atta11	=[	$attacka11,		demon1_atta12] {monster_setalpha(1.0);Demon_Melee(-200);};
+void()	demon1_atta12	=[	$attacka12,		demon1_atta13] {monster_setalpha(0.5);ai_charge(5);};
+void()	demon1_atta13	=[	$attacka13,		demon1_atta14] {monster_setalpha(0.0);ai_charge(8);};
 void()	demon1_atta14	=[	$attacka14,		demon1_atta15] {ai_charge(4);};
 void()	demon1_atta15	=[	$attacka15,		demon1_run1] {ai_charge(4);};
 
-void()	demon1_pain1	=[	$pain1,		demon1_pain2	] {};
-void()	demon1_pain2	=[	$pain2,		demon1_pain3	] {};
-void()	demon1_pain3	=[	$pain3,		demon1_pain4	] {};
-void()	demon1_pain4	=[	$pain4,		demon1_pain5	] {};
-void()	demon1_pain5	=[	$pain5,		demon1_pain6	] {};
+void()	demon1_pain1	=[	$pain1,		demon1_pain2	] {monster_setalpha(1.00);};
+void()	demon1_pain2	=[	$pain2,		demon1_pain3	] {monster_setalpha(0.75);};
+void()	demon1_pain3	=[	$pain3,		demon1_pain4	] {monster_setalpha(0.50);};
+void()	demon1_pain4	=[	$pain4,		demon1_pain5	] {monster_setalpha(0.25);};
+void()	demon1_pain5	=[	$pain5,		demon1_pain6	] {monster_setalpha(0.00);};
 void()	demon1_pain6	=[	$pain6,		demon1_run1	] {};
 
 void(entity attacker, float damage)	demon1_pain =
@@ -149,12 +150,14 @@ void()  demon1_die9             =[      $death9,                demon1_die9     
 
 void() demon_gib =
 {
+	monster_setalpha(1);
 	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
 	MonsterGibs("progs/h_demon.mdl", 6, "", 0, "", 0);
 };
 
 void() demon_die =
 {
+	monster_setalpha(1);
 	mctf_spawnpickup(self.origin, 1, 0, 1, 0.4);
 	MonsterCorpse(self, demon1_die1);
 };

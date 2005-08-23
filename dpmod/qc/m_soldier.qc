@@ -166,10 +166,10 @@ void(vector hit) army_pistol =
 void() army_pistol1 =[$shoot1, army_pistol2] {ai_face();self.dest = monster_shotleadbullet(0.4);};
 void() army_pistol2 =[$shoot2, army_pistol3] {ai_face();};
 void() army_pistol3 =[$shoot3, army_pistol4] {ai_face();};
-void() army_pistol4 =[$shoot4, army_pistol5] {ai_face();};
-void() army_pistol5 =[$shoot5, army_pistol6] {ai_face();army_pistol(self.dest);};
-void() army_pistol6 =[$shoot6, army_pistol7] {ai_face();};
-void() army_pistol7 =[$shoot7, army_pistol8] {ai_face();SUB_CheckRefire (army_pistol1);};
+void() army_pistol4 =[$shoot4, army_pistol5] {ai_face();monster_setalpha(0.5);};
+void() army_pistol5 =[$shoot5, army_pistol6] {ai_face();monster_setalpha(1.0);army_pistol(self.dest);};
+void() army_pistol6 =[$shoot6, army_pistol7] {ai_face();monster_setalpha(0.5);};
+void() army_pistol7 =[$shoot7, army_pistol8] {ai_face();monster_setalpha(0.0);SUB_CheckRefire (army_pistol1);};
 void() army_pistol8 =[$shoot8, army_pistol9] {ai_face();};
 void() army_pistol9 =[$shoot9, army_run1   ] {ai_face();};
 
@@ -198,13 +198,13 @@ void(vector hit) army_nail =
 void() army_nail1  =[$shoot1, army_nail2 ] {ai_face();self.dest1 = monster_shotleadbullet(0.4);};
 void() army_nail2  =[$shoot2, army_nail3 ] {ai_face();self.dest2 = monster_shotleadbullet(0.4);};
 void() army_nail3  =[$shoot3, army_nail4 ] {ai_face();self.dest3 = monster_shotleadbullet(0.4);};
-void() army_nail4  =[$shoot4, army_nail5 ] {ai_face();self.dest4 = monster_shotleadbullet(0.4);};
-void() army_nail5  =[$shoot5, army_nail6 ] {ai_face();army_nail(self.dest1);};
-void() army_nail6  =[$shoot5, army_nail7 ] {ai_face();army_nail(self.dest2);};
-void() army_nail7  =[$shoot5, army_nail8 ] {ai_face();army_nail(self.dest3);};
-void() army_nail8  =[$shoot5, army_nail9 ] {ai_face();army_nail(self.dest4);};
-void() army_nail9  =[$shoot6, army_nail10] {ai_face();};
-void() army_nail10 =[$shoot7, army_nail11] {ai_face();SUB_CheckRefire (army_nail1);};
+void() army_nail4  =[$shoot4, army_nail5 ] {ai_face();monster_setalpha(0.5);self.dest4 = monster_shotleadbullet(0.4);};
+void() army_nail5  =[$shoot5, army_nail6 ] {ai_face();monster_setalpha(1.0);army_nail(self.dest1);};
+void() army_nail6  =[$shoot5, army_nail7 ] {ai_face();monster_setalpha(1.0);army_nail(self.dest2);};
+void() army_nail7  =[$shoot5, army_nail8 ] {ai_face();monster_setalpha(1.0);army_nail(self.dest3);};
+void() army_nail8  =[$shoot5, army_nail9 ] {ai_face();monster_setalpha(1.0);army_nail(self.dest4);};
+void() army_nail9  =[$shoot6, army_nail10] {ai_face();monster_setalpha(0.5);};
+void() army_nail10 =[$shoot7, army_nail11] {ai_face();monster_setalpha(0.0);SUB_CheckRefire (army_nail1);};
 void() army_nail11 =[$shoot8, army_nail12] {ai_face();};
 void() army_nail12 =[$shoot9, army_run1  ] {ai_face();};
 
@@ -236,10 +236,10 @@ void() army_shotload1;
 void() army_shotgun1   =[$shoot1, army_shotgun2  ] {ai_face();self.dest = monster_shotleadbullet(0.4);};
 void() army_shotgun2   =[$shoot2, army_shotgun3  ] {ai_face();};
 void() army_shotgun3   =[$shoot3, army_shotgun4  ] {ai_face();};
-void() army_shotgun4   =[$shoot4, army_shotgun5  ] {ai_face();};
-void() army_shotgun5   =[$shoot5, army_shotgun6  ] {ai_face();army_shotgun(self.dest);};
-void() army_shotgun6   =[$shoot6, army_shotgun7  ] {ai_face();};
-void() army_shotgun7   =[$shoot7, army_shotgun8  ] {ai_face();SUB_CheckRefire (army_shotgun1);};
+void() army_shotgun4   =[$shoot4, army_shotgun5  ] {ai_face();monster_setalpha(0.5);};
+void() army_shotgun5   =[$shoot5, army_shotgun6  ] {ai_face();monster_setalpha(1.0);army_shotgun(self.dest);};
+void() army_shotgun6   =[$shoot6, army_shotgun7  ] {ai_face();monster_setalpha(0.5);};
+void() army_shotgun7   =[$shoot7, army_shotgun8  ] {ai_face();monster_setalpha(0.0);SUB_CheckRefire (army_shotgun1);};
 void() army_shotgun8   =[$shoot8, army_shotgun9  ] {ai_face();};
 void() army_shotgun9   =[$shoot9, army_run1      ] {ai_face();if (self.currentammo < 1){self.think = army_shotload1;}};
 void() army_shotload1  =[$load1 , army_shotload2 ] {ai_face();};
@@ -277,10 +277,10 @@ void(vector hit) army_rocket =
 void() army_rocket1    =[$shoot1, army_rocket2   ] {ai_face();self.dest = monster_shotlead(0.4, 1000);};
 void() army_rocket2    =[$shoot2, army_rocket3   ] {ai_face();};
 void() army_rocket3    =[$shoot3, army_rocket4   ] {ai_face();};
-void() army_rocket4    =[$shoot4, army_rocket5   ] {ai_face();};
-void() army_rocket5    =[$shoot5, army_rocket6   ] {ai_face();army_rocket(self.dest);};
-void() army_rocket6    =[$shoot6, army_rocket7   ] {ai_face();};
-void() army_rocket7    =[$shoot7, army_rocket8   ] {ai_face();SUB_CheckRefire (army_rocket1);};
+void() army_rocket4    =[$shoot4, army_rocket5   ] {ai_face();monster_setalpha(0.5);};
+void() army_rocket5    =[$shoot5, army_rocket6   ] {ai_face();monster_setalpha(1.0);army_rocket(self.dest);};
+void() army_rocket6    =[$shoot6, army_rocket7   ] {ai_face();monster_setalpha(0.5);};
+void() army_rocket7    =[$shoot7, army_rocket8   ] {ai_face();monster_setalpha(0.0);SUB_CheckRefire (army_rocket1);};
 void() army_rocket8    =[$shoot8, army_rocket9   ] {ai_face();};
 void() army_rocket9    =[$shoot9, army_rockload1 ] {ai_face();};
 void() army_rockload1  =[$load1 , army_rockload2 ] {ai_face();};
@@ -298,25 +298,25 @@ void() army_rockload11 =[$load11, army_run1      ] {ai_face();};
 // out of ammo, so just bash the guy
 // hacked up by Lord Havoc, using some shooting frames
 // as the grunts NEED a melee attack when out of ammo
-void() army_bash1 = [$shoot4, army_bash2] {ai_face();ai_charge(4);ai_charge(4);ai_charge(4);ai_melee();ai_melee();};
-void() army_bash2 = [$shoot4, army_bash3] {ai_face();};
-void() army_bash3 = [$shoot3, army_bash4] {ai_face();};
+void() army_bash1 = [$shoot4, army_bash2] {ai_face();monster_setalpha(1.0);ai_charge(4);ai_charge(4);ai_charge(4);ai_melee();ai_melee();};
+void() army_bash2 = [$shoot4, army_bash3] {ai_face();monster_setalpha(0.5);};
+void() army_bash3 = [$shoot3, army_bash4] {ai_face();monster_setalpha(0.0);};
 void() army_bash4 = [$shoot2, army_bash5] {ai_face();};
 void() army_bash5 = [$shoot1, army_run1 ] {ai_face();};
 */
 
-void() army_pain1 = [$pain1, army_pain2] {};
-void() army_pain2 = [$pain2, army_pain3] {};
-void() army_pain3 = [$pain3, army_pain4] {};
-void() army_pain4 = [$pain4, army_pain5] {};
-void() army_pain5 = [$pain5, army_pain6] {};
+void() army_pain1 = [$pain1, army_pain2] {monster_setalpha(1.00);};
+void() army_pain2 = [$pain2, army_pain3] {monster_setalpha(0.75);};
+void() army_pain3 = [$pain3, army_pain4] {monster_setalpha(0.50);};
+void() army_pain4 = [$pain4, army_pain5] {monster_setalpha(0.25);};
+void() army_pain5 = [$pain5, army_pain6] {monster_setalpha(0.00);};
 void() army_pain6 = [$pain6, army_run1 ] {ai_pain(1);};
 
-void() army_painb1  = [$painb1 , army_painb2 ] {};
-void() army_painb2  = [$painb2 , army_painb3 ] {ai_painforward(13);};
-void() army_painb3  = [$painb3 , army_painb4 ] {ai_painforward(9);};
-void() army_painb4  = [$painb4 , army_painb5 ] {};
-void() army_painb5  = [$painb5 , army_painb6 ] {};
+void() army_painb1  = [$painb1 , army_painb2 ] {monster_setalpha(1.00);};
+void() army_painb2  = [$painb2 , army_painb3 ] {monster_setalpha(0.75);ai_painforward(13);};
+void() army_painb3  = [$painb3 , army_painb4 ] {monster_setalpha(0.50);ai_painforward(9);};
+void() army_painb4  = [$painb4 , army_painb5 ] {monster_setalpha(0.25);};
+void() army_painb5  = [$painb5 , army_painb6 ] {monster_setalpha(0.00);};
 void() army_painb6  = [$painb6 , army_painb7 ] {};
 void() army_painb7  = [$painb7 , army_painb8 ] {};
 void() army_painb8  = [$painb8 , army_painb9 ] {};
@@ -327,11 +327,11 @@ void() army_painb12 = [$painb12, army_painb13] {ai_pain(2);};
 void() army_painb13 = [$painb13, army_painb14] {};
 void() army_painb14 = [$painb14, army_run1   ] {};
 
-void() army_painc1  = [$painc1 , army_painc2 ] {};
-void() army_painc2  = [$painc2 , army_painc3 ] {ai_pain(1);};
-void() army_painc3  = [$painc3 , army_painc4 ] {};
-void() army_painc4  = [$painc4 , army_painc5 ] {};
-void() army_painc5  = [$painc5 , army_painc6 ] {ai_painforward(1);};
+void() army_painc1  = [$painc1 , army_painc2 ] {monster_setalpha(1.00);};
+void() army_painc2  = [$painc2 , army_painc3 ] {monster_setalpha(0.75);ai_pain(1);};
+void() army_painc3  = [$painc3 , army_painc4 ] {monster_setalpha(0.50);};
+void() army_painc4  = [$painc4 , army_painc5 ] {monster_setalpha(0.25);};
+void() army_painc5  = [$painc5 , army_painc6 ] {monster_setalpha(0.00);ai_painforward(1);};
 void() army_painc6  = [$painc6 , army_painc7 ] {ai_painforward(1);};
 void() army_painc7  = [$painc7 , army_painc8 ] {};
 void() army_painc8  = [$painc8 , army_painc9 ] {ai_pain(1);};
@@ -395,12 +395,14 @@ void() army_cdie11 = [$deathc11, army_cdie11] {body_nonsolid('-16 -16 -24', '16 
 
 void() army_gib =
 {
+	monster_setalpha(1);
 	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
 	MonsterGibs("progs/h_guard.mdl", 6, "", 0, "", 0);
 };
 
 void() army_die =
 {
+	monster_setalpha(1);
 	mctf_spawnpickup(self.origin, 1, 0.3, 0.1, 0.05);
 	if (!metroidmode)
 		DropBackpack();

@@ -96,22 +96,22 @@ void() fish_melee =
 };
 
 void() f_attack1        =[      $attack1,       f_attack2 ] {ai_charge(10);};
-void() f_attack2        =[      $attack2,       f_attack3 ] {ai_charge(10);};
-void() f_attack3        =[      $attack3,       f_attack4 ] {fish_melee();};
-void() f_attack4        =[      $attack4,       f_attack5 ] {ai_charge(10);};
-void() f_attack5        =[      $attack5,       f_attack6 ] {ai_charge(10);};
+void() f_attack2        =[      $attack2,       f_attack3 ] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack3        =[      $attack3,       f_attack4 ] {monster_setalpha(1.0);fish_melee();};
+void() f_attack4        =[      $attack4,       f_attack5 ] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack5        =[      $attack5,       f_attack6 ] {monster_setalpha(0.0);ai_charge(10);};
 void() f_attack6        =[      $attack6,       f_attack7 ] {ai_charge(10);};
 void() f_attack7        =[      $attack7,       f_attack8 ] {ai_charge(10);};
-void() f_attack8        =[      $attack8,       f_attack9 ] {ai_charge(10);};
-void() f_attack9        =[      $attack9,       f_attack10] {fish_melee();};
-void() f_attack10       =[      $attack10,      f_attack11] {ai_charge(10);};
-void() f_attack11       =[      $attack11,      f_attack12] {ai_charge(10);};
+void() f_attack8        =[      $attack8,       f_attack9 ] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack9        =[      $attack9,       f_attack10] {monster_setalpha(1.0);fish_melee();};
+void() f_attack10       =[      $attack10,      f_attack11] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack11       =[      $attack11,      f_attack12] {monster_setalpha(0.0);ai_charge(10);};
 void() f_attack12       =[      $attack12,      f_attack13] {ai_charge(10);};
 void() f_attack13       =[      $attack13,      f_attack14] {ai_charge(10);};
-void() f_attack14       =[      $attack14,      f_attack15] {ai_charge(10);};
-void() f_attack15       =[      $attack15,      f_attack16] {fish_melee();};
-void() f_attack16       =[      $attack16,      f_attack17] {ai_charge(10);};
-void() f_attack17       =[      $attack17,      f_attack18] {ai_charge(10);};
+void() f_attack14       =[      $attack14,      f_attack15] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack15       =[      $attack15,      f_attack16] {monster_setalpha(1.0);fish_melee();};
+void() f_attack16       =[      $attack16,      f_attack17] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack17       =[      $attack17,      f_attack18] {monster_setalpha(0.0);ai_charge(10);};
 void() f_attack18       =[      $attack18,      f_run1    ] {ai_charge(10);};
 
 void() f_death1  =[      $death1,        f_death2        ] {body_solid('-16 -16 -24', '16 16  15');sound (self, CHAN_VOICE, "fish/death.wav", 1, ATTN_NORM);};
@@ -136,11 +136,11 @@ void() f_death19 =[      $death19,       f_death20       ] {body_nonsolid('-16 -
 void() f_death20 =[      $death20,       f_death21       ] {body_nonsolid('-16 -16 -24', '16 16 -13');};
 void() f_death21 =[      $death21,       f_death21       ] {body_nonsolid('-16 -16 -24', '16 16 -14');};
 
-void() f_pain1  =[      $pain1, f_pain2 ] {};
-void() f_pain2  =[      $pain2, f_pain3 ] {ai_pain(6);};
-void() f_pain3  =[      $pain3, f_pain4 ] {ai_pain(6);};
-void() f_pain4  =[      $pain4, f_pain5 ] {ai_pain(6);};
-void() f_pain5  =[      $pain5, f_pain6 ] {ai_pain(6);};
+void() f_pain1  =[      $pain1, f_pain2 ] {monster_setalpha(1.00);};
+void() f_pain2  =[      $pain2, f_pain3 ] {monster_setalpha(0.75);ai_pain(6);};
+void() f_pain3  =[      $pain3, f_pain4 ] {monster_setalpha(0.50);ai_pain(6);};
+void() f_pain4  =[      $pain4, f_pain5 ] {monster_setalpha(0.25);ai_pain(6);};
+void() f_pain5  =[      $pain5, f_pain6 ] {monster_setalpha(0.00);ai_pain(6);};
 void() f_pain6  =[      $pain6, f_pain7 ] {ai_pain(6);};
 void() f_pain7  =[      $pain7, f_pain8 ] {ai_pain(6);};
 void() f_pain8  =[      $pain8, f_pain9 ] {ai_pain(6);};
@@ -156,12 +156,14 @@ void(entity attacker, float damage)	fish_pain =
 // fish can now gib :)
 void() fish_gib =
 {
+	monster_setalpha(1);
 	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
 	MonsterGibs("", 0, "progs/gib1.mdl", 3, "", 0);
 };
 
 void() fish_die =
 {
+	monster_setalpha(1);
 	mctf_spawnpickup(self.origin, 1, 0.3, 0.05, 0.02);
 	MonsterCorpse(self, f_death1);
 };

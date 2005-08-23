@@ -250,9 +250,9 @@ void()	wiz_run12	=[	$fly12,		wiz_run13	] {ai_run(16);};
 void()	wiz_run13	=[	$fly13,		wiz_run14	] {ai_run(16);};
 void()	wiz_run14	=[	$fly14,		wiz_run1	] {ai_run(16);};
 
-void()	wiz_fast1	=[	$magatt1,		wiz_fast2	] {ai_face();Wiz_StartFast();};
-void()	wiz_fast2	=[	$magatt2,		wiz_fast3	] {ai_face();};
-void()	wiz_fast3	=[	$magatt3,		wiz_fast4	] {ai_face();};
+void()	wiz_fast1	=[	$magatt1,		wiz_fast2	] {monster_setalpha(1.0);ai_face();Wiz_StartFast();};
+void()	wiz_fast2	=[	$magatt2,		wiz_fast3	] {monster_setalpha(0.5);ai_face();};
+void()	wiz_fast3	=[	$magatt3,		wiz_fast4	] {monster_setalpha(0.0);ai_face();};
 void()	wiz_fast4	=[	$magatt4,		wiz_fast5	] {ai_face();};
 void()	wiz_fast5	=[	$magatt5,		wiz_fast6	] {ai_face();};
 void()	wiz_fast6	=[	$magatt6,		wiz_fast7	] {ai_face();};
@@ -261,10 +261,10 @@ void()	wiz_fast8	=[	$magatt4,		wiz_fast9	] {ai_face();};
 void()	wiz_fast9	=[	$magatt3,		wiz_fast10	] {ai_face();};
 void()	wiz_fast10	=[	$magatt2,		wiz_run1	] {ai_face();SUB_AttackFinished(2);WizardAttackFinished ();};
 
-void()	wiz_pain1	=[	$pain1,		wiz_pain2	] {};
-void()	wiz_pain2	=[	$pain2,		wiz_pain3	] {};
-void()	wiz_pain3	=[	$pain3,		wiz_pain4	] {};
-void()	wiz_pain4	=[	$pain4,		wiz_run1	] {};
+void()	wiz_pain1	=[	$pain1,		wiz_pain2	] {monster_setalpha(1.00);};
+void()	wiz_pain2	=[	$pain2,		wiz_pain3	] {monster_setalpha(0.67);};
+void()	wiz_pain3	=[	$pain3,		wiz_pain4	] {monster_setalpha(0.33);};
+void()	wiz_pain4	=[	$pain4,		wiz_run1	] {monster_setalpha(0.00);};
 
 void()  wiz_death1      =[      $death1,                wiz_death2      ]
 {
@@ -285,12 +285,14 @@ void()  wiz_death8      =[      $death8,                wiz_death8      ] {body_
 
 void() wiz_gib =
 {
+	monster_setalpha(1);
 	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
 	MonsterGibs("progs/h_wizard.mdl", 3, "", 0, "", 0);
 };
 
 void() wiz_die =
 {
+	monster_setalpha(1);
 	mctf_spawnpickup(self.origin, 1, 0.2, 0.2, 0.1);
 	MonsterCorpse(self, wiz_death1);
 };

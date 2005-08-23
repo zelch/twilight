@@ -848,7 +848,7 @@ void() damagescaleupdate =
 	// skill 2 =  75%
 	// skill 3 = 100%
 	if (skill >= 0)
-		monsterdamagescale = monsterdamagescale * (skill * 0.25 + 0.25);
+		monsterdamagescale = monsterdamagescale * (bound(0, skill, 3) * 0.25 + 0.25);
 	f = f * cvar("damagescale_monsterdamage");
 
 	// monster health multiplier (implemented by resisting player damage)

@@ -102,6 +102,8 @@ void()	Dog_JumpTouch =
 	self.touch = SUB_Null;
 	self.think = dog_run1;
 	self.nextthink = time + 0.1;
+
+	monster_setalpha(0.0);
 };
 
 
@@ -145,18 +147,19 @@ void() dog_run12	=[	$run12  ,	dog_run1	] {ai_run(32);};
 
 void() dog_atta1	=[	$attack1,	dog_atta2	] {ai_charge(10);};
 void() dog_atta2	=[	$attack2,	dog_atta3	] {ai_charge(10);};
-void() dog_atta3	=[	$attack3,	dog_atta4	] {ai_charge(10);};
-void() dog_atta4	=[	$attack4,	dog_atta5	] {
+void() dog_atta3	=[	$attack3,	dog_atta4	] {monster_setalpha(0.5);ai_charge(10);};
+void() dog_atta4	=[	$attack4,	dog_atta5	] {monster_setalpha(1.0);
 sound (self, CHAN_VOICE, "dog/dattack1.wav", 1, ATTN_NORM);
 dog_bite();};
-void() dog_atta5	=[	$attack5,	dog_atta6	] {ai_charge(10);};
-void() dog_atta6	=[	$attack6,	dog_atta7	] {ai_charge(10);};
+void() dog_atta5	=[	$attack5,	dog_atta6	] {monster_setalpha(0.5);ai_charge(10);};
+void() dog_atta6	=[	$attack6,	dog_atta7	] {monster_setalpha(0.0);ai_charge(10);};
 void() dog_atta7	=[	$attack7,	dog_atta8	] {ai_charge(10);};
 void() dog_atta8	=[	$attack8,	dog_run1	] {ai_charge(10);};
 
-void() dog_leap1	=[	$leap1,		dog_leap2	] {ai_face();};
+void() dog_leap1	=[	$leap1,		dog_leap2	] {monster_setalpha(0.5);ai_face();};
 void() dog_leap2	=[	$leap2,		dog_leap3	]
 {
+	monster_setalpha(1.0);
 	ai_face();
 
 	self.touch = Dog_JumpTouch;
@@ -182,18 +185,18 @@ float() dog_missile =
 	return TRUE;
 };
 
-void() dog_pain1	=[	$pain1 ,	dog_pain2	] {};
-void() dog_pain2	=[	$pain2 ,	dog_pain3	] {};
-void() dog_pain3	=[	$pain3 ,	dog_pain4	] {};
-void() dog_pain4	=[	$pain4 ,	dog_pain5	] {};
-void() dog_pain5	=[	$pain5 ,	dog_pain6	] {};
+void() dog_pain1	=[	$pain1 ,	dog_pain2	] {monster_setalpha(1.00);};
+void() dog_pain2	=[	$pain2 ,	dog_pain3	] {monster_setalpha(0.75);};
+void() dog_pain3	=[	$pain3 ,	dog_pain4	] {monster_setalpha(0.50);};
+void() dog_pain4	=[	$pain4 ,	dog_pain5	] {monster_setalpha(0.25);};
+void() dog_pain5	=[	$pain5 ,	dog_pain6	] {monster_setalpha(0.00);};
 void() dog_pain6	=[	$pain6 ,	dog_run1	] {};
 
-void() dog_painb1	=[	$painb1 ,	dog_painb2	] {};
-void() dog_painb2	=[	$painb2 ,	dog_painb3	] {};
-void() dog_painb3	=[	$painb3 ,	dog_painb4	] {ai_pain(4);};
-void() dog_painb4	=[	$painb4 ,	dog_painb5	] {ai_pain(12);};
-void() dog_painb5	=[	$painb5 ,	dog_painb6	] {ai_pain(12);};
+void() dog_painb1	=[	$painb1 ,	dog_painb2	] {monster_setalpha(1.00);};
+void() dog_painb2	=[	$painb2 ,	dog_painb3	] {monster_setalpha(0.75);};
+void() dog_painb3	=[	$painb3 ,	dog_painb4	] {monster_setalpha(0.50);ai_pain(4);};
+void() dog_painb4	=[	$painb4 ,	dog_painb5	] {monster_setalpha(0.25);ai_pain(12);};
+void() dog_painb5	=[	$painb5 ,	dog_painb6	] {monster_setalpha(0.00);ai_pain(12);};
 void() dog_painb6	=[	$painb6 ,	dog_painb7	] {ai_pain(2);};
 void() dog_painb7	=[	$painb7 ,	dog_painb8	] {};
 void() dog_painb8	=[	$painb8 ,	dog_painb9	] {ai_pain(4);};
@@ -239,12 +242,14 @@ void() dog_dieb9	=[	$deathb9,	dog_dieb9	] {body_nonsolid('-16 -16 -24', '16 16 -
 
 void() dog_gib =
 {
+	monster_setalpha(1);
 	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
 	MonsterGibs("progs/h_dog.mdl", 3, "", 0, "", 0);
 };
 
 void() dog_die =
 {
+	monster_setalpha(1);
 	mctf_spawnpickup(self.origin, 1, 0.5, 0.05, 0.02);
 	sound (self, CHAN_VOICE, "dog/ddeath.wav", 1, ATTN_NORM);
 	if (random() > 0.5)

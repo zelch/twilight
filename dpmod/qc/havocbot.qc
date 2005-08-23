@@ -1219,7 +1219,7 @@ void() havocbot_aim =
 	if (time < self.nextaim)
 		return;
 	self.nextaim = time + 0.1;
-	newping = 0.2 + 0.1 * (3 - skill);// + random() * 0.05;
+	newping = 0.2 + 0.1 * (3 - bound(0, skill, 3));// + random() * 0.05;
 	self.ping = self.ping + (newping - self.ping) * frametime * 3;
 	selfvel = self.velocity;
 	if (!self.waterlevel)
@@ -1373,7 +1373,7 @@ void() havocbot_doaim =
 	// give it a bit of randomness to simulate pretty good but not perfect tracking
 	originalangdiff = angdiff;
 	angdistance = vlen(angdiff);
-	angdiff = (((angdiff * (random() * 0.4 + 0.8)) + (randomvec() * (angdistance * 0.1))) - originalangdiff) * ((3.5 - skill) * 0.5) + originalangdiff;
+	angdiff = (((angdiff * (random() * 0.4 + 0.8)) + (randomvec() * (angdistance * 0.1))) - originalangdiff) * ((3.5 - bound(0, skill, 3)) * 0.5) + originalangdiff;
 
 	// don't fire if shot would be too inaccurate
 	if (angdistance > 270 * frametime)

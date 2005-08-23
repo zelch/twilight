@@ -216,9 +216,10 @@ void(vector p) boss_missile =
 	local vector org, vec, d;
 	local float t, shotspeed;
 
-	shotspeed = 400;
-	if (shotspeed > 1000)
-		shotspeed = 1000;
+	if (skill < 4)
+		shotspeed = 400;
+	else
+		shotspeed = 600;
 
 	//offang = vectoangles (self.enemy.origin - self.origin);
 	//makevectors (offang);

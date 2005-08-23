@@ -100,6 +100,8 @@ float   REDARMOR_TYPE           = 0.8;
 float   GLOWARMOR_VALUE         = 250;
 float   GLOWARMOR_TYPE          = 0.8;
 
+float	SKILL4_MINALPHA			= 0.2;
+
 float   DMG_SOLDIER_PISTOL_DAMAGE       =   30;
 float   DMG_SOLDIER_PISTOL_BDAMAGE      =   30;
 float   DMG_SOLDIER_MACHINEGUN_DAMAGE   =   15;

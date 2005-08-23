@@ -67,10 +67,10 @@ void() shal_attack4     =[      $attack4,       shal_attack5    ] {ai_face();};
 void() shal_attack5     =[      $attack5,       shal_attack6    ] {ai_face();};
 void() shal_attack6     =[      $attack6,       shal_attack7    ] {ai_face();};
 void() shal_attack7     =[      $attack7,       shal_attack8    ] {ai_face();};
-void() shal_attack8     =[      $attack8,       shal_attack9    ] {ai_face();};
-void() shal_attack9     =[      $attack9,       shal_attack10   ] {ShalMissile();};
-void() shal_attack10    =[      $attack10,      shal_attack11   ] {ai_face();};
-void() shal_attack11    =[      $attack11,      shal_run1   ] {};
+void() shal_attack8     =[      $attack8,       shal_attack9    ] {monster_setalpha(0.5);ai_face();};
+void() shal_attack9     =[      $attack9,       shal_attack10   ] {monster_setalpha(1.0);ShalMissile();};
+void() shal_attack10    =[      $attack10,      shal_attack11   ] {monster_setalpha(0.5);ai_face();};
+void() shal_attack11    =[      $attack11,      shal_run1   ] {monster_setalpha(0.0);};
 
 float() shal_missile =
 {
@@ -82,11 +82,11 @@ float() shal_missile =
 	return TRUE;
 };
 
-void() shal_pain1       =[      $pain1, shal_pain2      ] {};
-void() shal_pain2       =[      $pain2, shal_pain3      ] {};
-void() shal_pain3       =[      $pain3, shal_pain4      ] {};
-void() shal_pain4       =[      $pain4, shal_pain5      ] {};
-void() shal_pain5       =[      $pain5, shal_run1      ] {};
+void() shal_pain1       =[      $pain1, shal_pain2      ] {monster_setalpha(1.00);};
+void() shal_pain2       =[      $pain2, shal_pain3      ] {monster_setalpha(0.75);};
+void() shal_pain3       =[      $pain3, shal_pain4      ] {monster_setalpha(0.50);};
+void() shal_pain4       =[      $pain4, shal_pain5      ] {monster_setalpha(0.25);};
+void() shal_pain5       =[      $pain5, shal_run1      ] {monster_setalpha(0.00);};
 
 void() shal_death1      =[      $death1,        shal_death2     ] {body_solid('-32 -32 -24', '32 32 32');};
 void() shal_death2      =[      $death2,        shal_death3     ] {body_solid('-32 -32 -24', '32 32 20');};
@@ -109,12 +109,14 @@ void() shalrath_pain =
 
 void() shal_gib =
 {
-        sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
-        MonsterGibs("progs/h_shal.mdl", 6, "", 0, "", 0);
+	monster_setalpha(1);
+	sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
+	MonsterGibs("progs/h_shal.mdl", 6, "", 0, "", 0);
 };
 
 void() shalrath_die =
 {
+	monster_setalpha(1);
 	mctf_spawnpickup(self.origin, 3, 0, 0.4, 0.2);
 	sound (self, CHAN_VOICE, "shalrath/death.wav", 1, ATTN_NORM);
 	MonsterCorpse(self, shal_death1);
