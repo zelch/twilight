@@ -345,6 +345,9 @@ Keys:
 //=======================
 .string music;
 float metroidmode;
+void() trigger_message2;
+void() trigger_setskill2;
+void() trigger_teleport2;
 void() worldspawn =
 {
 	local float c;
@@ -561,6 +564,40 @@ void() worldspawn =
 
 	// spawn waypoints for the bots to use on this map
 	waypoint_spawnformap();
+
+	// spawn skill 4 teleport on the other side of the wooden beam that leads
+	// to the nightmare (skill 3) teleport
+	if (self.model == "maps/start.bsp")
+	{
+	// spawn message trigger
+		self = spawn ();
+		self.wait = 2;
+		self.message = "This beam selects UNREASONABLE skill!";
+		self.origin = '1390 1551 -146';
+		self.mins = '-58 -16 -24';
+		self.maxs = '58 16 32';
+		self.classname = "trigger_message2";
+		trigger_message2 ();
+	// spawn teleport
+		self = spawn ();
+		self.spawnflags = 2;	// SILENT (don't make a humming sound)
+		self.target = "t1";
+		self.origin = '1520 1551 -146';
+		self.mins = '-15 -15 -23';
+		self.maxs = '15 15 31';
+		self.classname = "trigger_teleport2";
+		trigger_teleport2 ();
+	// spawn setskill
+		self = spawn ();
+		self.message = "4";
+		self.origin = '1520 1551 -146';
+		self.mins = '-16 -16 -24';
+		self.maxs = '16 16 32';
+		self.classname = "trigger_setskill2";
+		trigger_setskill2 ();
+
+		self = world;
+	}
 
 	// plays music for the level if there is any
 	if (self.music)

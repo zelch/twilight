@@ -142,6 +142,25 @@ void() trigger_multiple =
 		self.touch = multi_touch;
 };
 
+void() trigger_message2 =
+{
+	self.noise = "misc/talk.wav";
+	precache_sound (self.noise);
+
+	if (!self.wait)
+		self.wait = 0.2;
+	self.use = multi_use;
+
+	if (self.movedir == '0 0 0')
+	if (self.angles != '0 0 0')
+		SetMovedir ();
+	self.solid = SOLID_TRIGGER;
+	self.movetype = MOVETYPE_NONE;
+	setsize (self, self.mins, self.maxs);
+
+	self.touch = multi_touch;
+};
+
 
 /*QUAKED trigger_once (.5 .5 .5) ? notouch
 Variable sized trigger. Triggers once, then removes itself.  You must set the key "target" to the name of another object in the level that has a matching
@@ -571,6 +590,27 @@ void() trigger_teleport =
 	}
 };
 
+void() trigger_teleport2 =
+{
+	if (self.movedir == '0 0 0')
+	if (self.angles != '0 0 0')
+		SetMovedir ();
+	self.solid = SOLID_TRIGGER;
+	self.movetype = MOVETYPE_NONE;
+	setsize (self, self.mins, self.maxs);
+
+	self.touch = teleport_touch;
+	if (!self.target)
+		objerror ("trigger_teleport2: no target");
+	self.use = teleport_use;
+
+	if (!(self.spawnflags & SILENT))
+	{
+		precache_sound ("ambience/hum1.wav");
+		ambientsound (self.origin, "ambience/hum1.wav", 0.5, ATTN_STATIC);
+	}
+};
+
 /*
 ==============================================================================
 
@@ -597,6 +637,16 @@ void() trigger_setskill =
 	self.touch = trigger_skill_touch;
 };
 
+void() trigger_setskill2 =
+{
+	if (self.movedir == '0 0 0')
+	if (self.angles != '0 0 0')
+		SetMovedir ();
+	self.solid = SOLID_TRIGGER;
+	self.movetype = MOVETYPE_NONE;
+	setsize (self, self.mins, self.maxs);
+	self.touch = trigger_skill_touch;
+};
 
 /*
 ==============================================================================
