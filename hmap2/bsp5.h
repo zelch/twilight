@@ -198,8 +198,6 @@ extern	qboolean waterlightmap;
 
 extern	int		subdivide_size;
 
-void qprintf (char *fmt, ...);
-
 extern	int		valid;
 
 
