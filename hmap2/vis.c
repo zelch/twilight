@@ -104,7 +104,7 @@ void *LeafThread (int thread)
 			newtime = time(NULL);
 			if (newtime != oldtime)
 			{
-				printf("\rportal %4i of %4i (%3i%%), estimated time left: %i seconds", (int) portalschecked, (int) numportals * 2, (int) (portalschecked*100/(numportals*2)), (int) ((numportals*2-portalschecked)*(newtime-portalizestarttime)/portalschecked));
+				printf("\rportal %4i of %4i (%3i%%), estimated time left: %4i seconds    \b\b\b\b", (int) portalschecked, (int) numportals * 2, (int) (portalschecked*100/(numportals*2)), (int) ((numportals*2-portalschecked)*(newtime-portalizestarttime)/portalschecked));
 				fflush(stdout);
 				oldtime = newtime;
 			}
