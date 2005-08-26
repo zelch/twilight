@@ -1376,7 +1376,7 @@ entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float mas, 
 	e.th_die = SUB_Null;
 	e.th_gib = SUB_Null;
 	e.th_pain = SUB_Null;
-	e.solid = SOLID_BBOX;
+	e.solid = SOLID_TRIGGER;//BBOX;
 	e.movetype = MOVETYPE_NONE;
 	e.velocity = vel;
 	setorigin(e, org);
