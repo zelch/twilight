@@ -193,13 +193,6 @@ This is done by brute force, and could easily get a lot faster if anyone cares.
 ==============================================================================
 */
 
-vec3_t	hull_size[3][2] =
-{
-{{  0,  0,  0}, {  0,  0,  0}},
-{{-16,-16,-32}, { 16, 16, 24}},
-{{-32,-32,-64}, { 32, 32, 24}}
-};
-
 // LordHavoc: these were 32 and 64 respectively
 #define	MAX_HULL_POINTS	512
 #define	MAX_HULL_EDGES	1024
@@ -313,7 +306,7 @@ AddHullPoint
 Doesn't add if duplicated
 =============
 */
-int AddHullPoint (vec3_t p, int hullnum)
+int AddHullPoint (vec3_t p, vec3_t *hullsize)
 {
 	int		i;
 	vec_t	*c;
@@ -331,9 +324,9 @@ int AddHullPoint (vec3_t p, int hullnum)
 		for (y=0 ; y<2 ; y++)
 			for (z=0; z<2 ; z++)
 			{
-				c[0] = p[0] + hull_size[hullnum][x][0];
-				c[1] = p[1] + hull_size[hullnum][y][1];
-				c[2] = p[2] + hull_size[hullnum][z][2];
+				c[0] = p[0] + hullsize[x][0];
+				c[1] = p[1] + hullsize[y][1];
+				c[2] = p[2] + hullsize[z][2];
 				c += 3;
 			}
 
@@ -353,7 +346,7 @@ AddHullEdge
 Creates all of the hull planes around the given edge, if not done allready
 =============
 */
-void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
+void AddHullEdge (vec3_t p1, vec3_t p2, vec3_t *hullsize)
 {
 	int		pt1, pt2;
 	int		i;
@@ -362,8 +355,8 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 	plane_t	plane;
 	vec_t	length;
 
-	pt1 = AddHullPoint(p1, hullnum);
-	pt2 = AddHullPoint(p2, hullnum);
+	pt1 = AddHullPoint(p1, hullsize);
+	pt2 = AddHullPoint(p2, hullsize);
 
 	for (i=0 ; i<num_hull_edges ; i++)
 		if ((hull_edges[i][0] == pt1 && hull_edges[i][1] == pt2) || (hull_edges[i][0] == pt2 && hull_edges[i][1] == pt1))
@@ -399,8 +392,8 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 			for (e = 0 ; e < 2 ; e++)
 			{
 				VectorCopy(p1, planeorg);
-				planeorg[b] += hull_size[hullnum][d][b];
-				planeorg[c] += hull_size[hullnum][e][c];
+				planeorg[b] += hullsize[d][b];
+				planeorg[c] += hullsize[e][c];
 				plane.dist = DotProduct(planeorg, plane.normal);
 
 				TestAddPlane(&plane);
@@ -414,7 +407,7 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 ExpandBrush
 =============
 */
-void ExpandBrush (int hullnum)
+void ExpandBrush (vec3_t *hullsize)
 {
 	int			i, x, s;
 	vec3_t		corner;
@@ -429,7 +422,7 @@ void ExpandBrush (int hullnum)
 	for (f=brush_faces ; f ; f=f->next) {
 		w = f->winding;
 		for (i=0 ; i<w->numpoints ; i++)
-			AddHullPoint (w->points[i], hullnum);
+			AddHullPoint (w->points[i], hullsize);
 	}
 
 	// expand all of the planes
@@ -440,9 +433,9 @@ void ExpandBrush (int hullnum)
 		for (x=0 ; x<3 ; x++)
 		{
 			if (p->normal[x] > 0)
-				corner[x] = hull_size[hullnum][1][x];
+				corner[x] = hullsize[1][x];
 			else if (p->normal[x] < 0)
-				corner[x] = hull_size[hullnum][0][x];
+				corner[x] = hullsize[0][x];
 		}
 		p->dist += DotProduct (corner, p->normal);
 	}
@@ -455,9 +448,9 @@ void ExpandBrush (int hullnum)
 			VectorClear (plane.normal);
 			plane.normal[x] = s;
 			if (s == -1)
-				plane.dist = -brush_mins[x] + -hull_size[hullnum][0][x];
+				plane.dist = -brush_mins[x] + -hullsize[0][x];
 			else
-				plane.dist = brush_maxs[x] + hull_size[hullnum][1][x];
+				plane.dist = brush_maxs[x] + hullsize[1][x];
 			AddBrushPlane (&plane);
 		}
 
@@ -465,7 +458,7 @@ void ExpandBrush (int hullnum)
 	for (f=brush_faces ; f ; f=f->next) {
 		w = f->winding;
 		for (i=0 ; i<w->numpoints ; i++)
-			AddHullEdge (w->points[i], w->points[(i+1)%w->numpoints], hullnum);
+			AddHullEdge (w->points[i], w->points[(i+1)%w->numpoints], hullsize);
 	}
 }
 
@@ -479,7 +472,7 @@ LoadBrush
 Converts a mapbrush to a bsp brush
 ===============
 */
-brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
+brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum, vec3_t *hullsize)
 {
 	brush_t		*b;
 	int			contents;
@@ -557,7 +550,7 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 
 	if (hullnum)
 	{
-		ExpandBrush (hullnum);
+		ExpandBrush (hullsize);
 		for (face=brush_faces ; face ; face=next)
 		{
 			next = face->next;
@@ -589,7 +582,7 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 Brush_LoadEntity
 ============
 */
-void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum )
+void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum, vec3_t *hullsize )
 {
 	mbrush_t	*mbr;
 	int			brushnum, numbrushes;
@@ -604,7 +597,7 @@ void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum )
 
 	for (mbr = ent->brushes, brushnum = 0; mbr; mbr=mbr->next, brushnum++)
 	{
-		b = LoadBrush (mbr, brushnum, hullnum);
+		b = LoadBrush (mbr, brushnum, hullnum, hullsize);
 		if (!b)
 			continue;
 

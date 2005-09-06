@@ -40,7 +40,7 @@ void FreeTree( tree_t *t ) {
 Tree_ProcessEntity
 ===============
 */
-tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum )
+tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum, vec3_t *hullsize )
 {
 	tree_t		*tree;
 	qboolean	worldmodel;
@@ -59,7 +59,7 @@ tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum )
 
 	// take the brushes and clip off all overlapping and contained faces,
 	// leaving a perfect skin of the model with no hidden faces
-	Brush_LoadEntity( ent, tree, hullnum );
+	Brush_LoadEntity( ent, tree, hullnum, hullsize );
 	if( !tree->brushes ) {
 		PrintEntity( ent );
 		Error( "Entity with no valid brushes" );

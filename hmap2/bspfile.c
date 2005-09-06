@@ -55,6 +55,8 @@ unsigned short		dmarksurfaces[MAX_MAP_MARKSURFACES];
 int			numsurfedges;
 int			dsurfedges[MAX_MAP_SURFEDGES];
 
+qboolean	ismcbsp;
+
 //=============================================================================
 
 /*
@@ -239,19 +241,42 @@ LoadBSPFile
 */
 void	LoadBSPFile (char *filename)
 {
-	int			i;
+	int		i;
 
 	//
 	// load the file header
 	//
 	LoadFile (filename, (void **)&header);
 
-	// swap the header
-	for (i=0 ; i< (int)sizeof(dheader_t)/4 ; i++)
-		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
+	if (ismcbsp)
+	{
+		if (!memcmp ((void*)header, "MCBSP", 5))
+		{
+			header = (void*)((byte*)header + 5);
 
-	if (header->version != BSPVERSION)
-		Error ("%s is version %i, should be %i", filename, i, BSPVERSION);
+			for (i = 0; i < (int)sizeof(dheader_t)/4; i++)
+				((int*)header)[i] = LittleLong(((int*)header)[i]);
+
+			if (header->version != MCBSPVERSION)
+				Error ("%s is version %i, should be %i", filename, i, MCBSPVERSION);
+		}
+		else
+		{
+			char tag[6];
+			memcpy (tag, header, 5);
+			tag[5] = 0;
+			Error ("%s has wrong header, %s should be MCBSP", filename, tag);
+		}
+	}
+	else
+	{
+		// swap the header
+		for (i=0 ; i< (int)sizeof(dheader_t)/4 ; i++)
+			((int *)header)[i] = LittleLong ( ((int *)header)[i]);
+
+		if (header->version != BSPVERSION)
+			Error ("%s is version %i, should be %i", filename, i, BSPVERSION);
+	}
 
 	nummodels = CopyLump (LUMP_MODELS, dmodels, sizeof(dmodel_t));
 	numvertexes = CopyLump (LUMP_VERTEXES, dvertexes, sizeof(dvertex_t));
@@ -270,6 +295,8 @@ void	LoadBSPFile (char *filename)
 	lightdatasize = CopyLump (LUMP_LIGHTING, dlightdata, 1);
 	entdatasize = CopyLump (LUMP_ENTITIES, dentdata, 1);
 
+	if (ismcbsp)
+		header = (void*)((byte*)header - 5);
 	qfree (header);		// everything has been copied out
 
 	//
@@ -289,7 +316,11 @@ void AddLump (int lumpnum, void *data, int len)
 
 	lump = &header->lumps[lumpnum];
 
-	lump->fileofs = LittleLong( ftell(wadfile) );
+	if (ismcbsp)
+		lump->fileofs = LittleLong( ftell(wadfile) - 5 );
+	else
+		lump->fileofs = LittleLong( ftell(wadfile) );
+
 	lump->filelen = LittleLong(len);
 	SafeWrite (wadfile, data, (len+3)&~3);
 }
@@ -310,9 +341,16 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 		SwapBSPFile (true);
 
-		header->version = LittleLong (BSPVERSION);
-
 		wadfile = SafeOpenWrite (filename);
+
+		if (ismcbsp)
+		{
+			SafeWrite (wadfile, "MCBSP", 5);
+			header->version = LittleLong (MCBSPVERSION);
+		}
+		else
+			header->version = LittleLong (BSPVERSION);
+
 		SafeWrite (wadfile, header, sizeof(dheader_t));	// overwritten later
 
 		AddLump (LUMP_PLANES, dplanes, numplanes*sizeof(dplane_t));
@@ -327,17 +365,22 @@ void WriteBSPFile (char *filename, qboolean litonly)
 		AddLump (LUMP_EDGES, dedges, numedges*sizeof(dedge_t));
 		AddLump (LUMP_MODELS, dmodels, nummodels*sizeof(dmodel_t));
 
-		AddLump (LUMP_LIGHTING, dlightdata, lightdatasize);
+		if (ismcbsp)
+			AddLump (LUMP_LIGHTING, drgblightdata, rgblightdatasize);
+		else
+			AddLump (LUMP_LIGHTING, dlightdata, lightdatasize);
 		AddLump (LUMP_VISIBILITY, dvisdata, visdatasize);
 		AddLump (LUMP_ENTITIES, dentdata, entdatasize);
 		AddLump (LUMP_TEXTURES, dtexdata, texdatasize);
 
 		fseek (wadfile, 0, SEEK_SET);
+		if (ismcbsp)
+			SafeWrite (wadfile, "MCBSP", 5);
 		SafeWrite (wadfile, header, sizeof(dheader_t));
 		fclose (wadfile);
 	}
 
-	if (rgblightdatasize)
+	if (!ismcbsp && rgblightdatasize)
 	{
 		FILE *litfile;
 		litfile = SafeOpenWrite(filename_lit);

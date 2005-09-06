@@ -32,8 +32,8 @@
 
 //=============================================================================
 
-
 #define BSPVERSION	29
+#define MCBSPVERSION 1
 
 typedef struct
 {
@@ -195,8 +195,6 @@ typedef struct
 
 //============================================================================
 
-#ifndef QUAKE_GAME
-
 // the utilities get to be lazy and just use large static arrays
 
 extern	int			nummodels;
@@ -248,6 +246,8 @@ extern	unsigned short	dmarksurfaces[MAX_MAP_MARKSURFACES];
 extern	int			numsurfedges;
 extern	int			dsurfedges[MAX_MAP_SURFEDGES];
 
+extern qboolean		ismcbsp;
+
 typedef struct epair_s
 {
 	struct epair_s	*next;
@@ -280,8 +280,6 @@ void	DecompressVis(byte *in, byte *out, int size);
 void LoadBSPFile (char *filename);
 void WriteBSPFile (char *filename, qboolean litonly);
 void PrintBSPFileSizes (void);
-
-#endif
 
 #endif
 

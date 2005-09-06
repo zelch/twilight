@@ -53,7 +53,7 @@ void qprintf( char *fmt, ... )
 ProcessEntity
 ===============
 */
-void ProcessEntity (int entnum, int modnum, int hullnum)
+void ProcessEntity (int entnum, int modnum, int hullnum, vec3_t *hullsize)
 {
 	entity_t	*ent;
 	tree_t		*tree;
@@ -62,7 +62,7 @@ void ProcessEntity (int entnum, int modnum, int hullnum)
 	if( !ent->brushes )
 		return;
 
-	tree = Tree_ProcessEntity( ent, modnum, hullnum );
+	tree = Tree_ProcessEntity( ent, modnum, hullnum, hullsize );
 	EmitNodePlanes( tree->headnode );
 
 	if( hullnum != 0 ) {
@@ -103,22 +103,37 @@ void UpdateEntLump (void)
 CreateSingleHull
 =================
 */
-void CreateSingleHull ( int hullnum )
+void CreateSingleHull ( int hullnum, vec3_t *hullsize )
 {
 	int			entnum;
 	int			modnum;
 
 	// for each entity in the map file that has geometry
 	verbose = true;	// print world
-	for( entnum = 0, modnum = 0; entnum < num_entities; entnum++ ) {
-		if( !entities[entnum].brushes )
+	for (entnum = 0, modnum = 0; entnum < num_entities; entnum++)
+	{
+		if (!entities[entnum].brushes)
 			continue;
 
-		ProcessEntity( entnum, modnum++, hullnum );
-		if( !allverbose )
+		ProcessEntity (entnum, modnum++, hullnum, hullsize);
+		if (!allverbose)
 			verbose = false;	// don't print rest of entities
 	}
 }
+
+vec3_t	quake_hull_sizes[3][2] =
+{
+{{  0,  0,  0}, {  0,  0,  0}},
+{{-16,-16,-32}, { 16, 16, 24}},
+{{-32,-32,-64}, { 32, 32, 24}}
+};
+
+vec3_t	mc_hull_sizes[3][2] =
+{
+{{  0,  0,  0}, {  0,  0,  0}},
+{{-12,-12,-32}, { 12, 12, 24}},
+{{-12,-12,-16}, { 12, 12, 24}}
+};
 
 /*
 =================
@@ -130,7 +145,7 @@ void CreateHulls (void)
 	// commanded to ignore the hulls altogether
 	if (noclip)
     {
-		CreateSingleHull ( 0 );
+		CreateSingleHull ( 0, quake_hull_sizes[0] );
 		return;
     }
 
@@ -139,9 +154,18 @@ void CreateHulls (void)
 	// create the hulls sequentially
 	printf ("building hulls sequentially...\n");
 
-	CreateSingleHull ( 0 );
-	CreateSingleHull ( 1 );
-	CreateSingleHull ( 2 );
+	if (ismcbsp)
+	{
+		CreateSingleHull ( 0, mc_hull_sizes[0] );
+		CreateSingleHull ( 1, mc_hull_sizes[1] );
+		CreateSingleHull ( 2, mc_hull_sizes[2] );
+	}
+	else
+	{
+		CreateSingleHull ( 0, quake_hull_sizes[0] );
+		CreateSingleHull ( 1, quake_hull_sizes[1] );
+		CreateSingleHull ( 2, quake_hull_sizes[2] );
+	}
 }
 
 /*
@@ -192,8 +216,8 @@ main
 */
 int main (int argc, char **argv)
 {
-	int		i = 0;
-	double		start, end;
+	int		i;
+	double	start, end;
 
 	//	malloc_debug (15);
 	printf( "hmap2 by LordHavoc and Vic\n");
@@ -204,7 +228,7 @@ int main (int argc, char **argv)
 	// check command line flags
 	//
 
-	if( argc == 1 )
+	if (argc == 1)
 		goto error;
 
 	// create all the filenames pertaining to this map
@@ -218,14 +242,26 @@ int main (int argc, char **argv)
 	if (!strcmp(filename_map, filename_bsp))
 		Error("filename_map \"%s\" == filename_bsp \"%s\"\n", filename_map, filename_bsp);
 
-	if( !strcmp( argv[1], "-bsp2prt" ) )
-		return Bsp2Prt_Main( argc - 1, argv + 1 );
-	else if( !strcmp( argv[1], "-bspinfo" ) )
-		return BspInfo_Main( argc - 1, argv + 1 );
-	else if( !strcmp( argv[1], "-vis" ) )
-		return Vis_Main( argc - 1, argv + 1 );
-	else if( !strcmp( argv[1], "-light" ) )
-		return Light_Main( argc - 1, argv + 1 );
+	i = 1;
+	ismcbsp = false;
+	if (!strcmp (argv[i], "-mc"))
+	{
+		printf ("Using Martial Concert bsp format\n");
+		ismcbsp = true;
+		i++;
+	}
+
+	if (argc == i)
+		goto error;
+
+	if (!strcmp (argv[i], "-bsp2prt"))
+		return Bsp2Prt_Main (argc-i, argv+i);
+	else if (!strcmp (argv[i], "-bspinfo"))
+		return BspInfo_Main (argc-i, argv+i);
+	else if (!strcmp (argv[i], "-vis"))
+		return Vis_Main (argc-i, argv+i);
+	else if (!strcmp (argv[i], "-light"))
+		return Light_Main (argc-i, argv+i);
 
 	nofill = false;
 	notjunc = false;
@@ -238,7 +274,7 @@ int main (int argc, char **argv)
 	waterlightmap = true;
 	subdivide_size = 240;
 
-	for (i=1 ; i<argc ; i++)
+	for (; i < argc; i++)
 	{
 		if (argv[i][0] != '-')
 			break;
@@ -275,8 +311,10 @@ int main (int argc, char **argv)
 	if (i != argc - 1)
 error:
 		Error ("%s",
-"usage: hmap2 [options] sourcefile\n"
+"usage: hmap2 [-mc] [options] sourcefile\n"
 "Compiles .map to .bsp, does not compile vis or lighting data\n"
+"\n"
+"-mc         uses \"Martial Concert\" format bsp\n"
 "\n"
 "other utilities available:\n"
 "-bsp2prt    bsp2prt utility, run -bsp2prt as the first parameter for more\n"

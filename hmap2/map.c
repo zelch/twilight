@@ -332,15 +332,20 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 			vecs[1][3] = (vec_t)atof(token);
 			// ]
 			GetToken(false);
+
+			// rotation (unused - implicit in tex coords)
+			GetToken(false);
+			rotate = 0;
 		}
 		else
 		{
 			vecs[0][3] = (vec_t)atof(token); // LordHavoc: float coords
 			GetToken (false);
 			vecs[1][3] = (vec_t)atof(token); // LordHavoc: float coords
+			GetToken (false);
+			rotate = atof(token); // LordHavoc: float coords
 		}
-		GetToken (false);
-		rotate = atof(token);	 // LordHavoc: float coords
+
 		GetToken (false);
 		scale[0] = (vec_t)atof(token); // LordHavoc: was already float coords
 		GetToken (false);
@@ -394,34 +399,47 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 	}
 	else
 	{
-		if (!hltexdef)
+		if (hltexdef)
+		{
+			for (i = 0; i < 2; i++)
+			{
+				d = 1.0 / (scale[i] ? scale[i] : 1.0);
+				for (j = 0; j < 3; j++)
+					tx.vecs[i][j] = vecs[i][j] * d;
+				tx.vecs[i][3] = vecs[i][3] /*+ DotProduct(origin, tx.vecs[i])*/;
+// Sajt: ripped the commented out bit from the HL compiler code, not really sure what it is exactly doing
+// 'origin': origin set on bmodel by origin brush or origin key
+			}
+		}
+		else
 		{
 			// fake proper texture vectors from QuakeEd style
 			TextureAxisFromPlane(&plane, vecs[0], vecs[1], q3brushface);
-		}
-		// rotate axis
-			 if (rotate ==  0) {sinv = 0;cosv = 1;}
-		else if (rotate == 90) {sinv = 1;cosv = 0;}
-		else if (rotate == 180) {sinv = 0;cosv = -1;}
-		else if (rotate == 270) {sinv = -1;cosv = 0;}
-		else {ang = rotate * (Q_PI / 180);sinv = sin(ang);cosv = cos(ang);}
 
-		// LordHavoc: I don't quite understand this
-		for (sv = 0;sv < 2 && !vecs[0][sv];sv++);
-		for (tv = 0;tv < 2 && !vecs[1][tv];tv++);
+			// rotate axis
+				 if (rotate ==  0) {sinv = 0;cosv = 1;}
+			else if (rotate == 90) {sinv = 1;cosv = 0;}
+			else if (rotate == 180) {sinv = 0;cosv = -1;}
+			else if (rotate == 270) {sinv = -1;cosv = 0;}
+			else {ang = rotate * (Q_PI / 180);sinv = sin(ang);cosv = cos(ang);}
 
-		for (i = 0;i < 2;i++)
-		{
-			// rotate
-			ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
-			nt = sinv * vecs[i][sv] + cosv * vecs[i][tv];
-			vecs[i][sv] = ns;
-			vecs[i][tv] = nt;
-			// scale and store into texinfo
-			d = 1.0 / (scale[i] ? scale[i] : 1.0);
-			for (j = 0;j < 3;j++)
-				tx.vecs[i][j] = vecs[i][j] * d;
-			tx.vecs[i][3] = vecs[i][3];
+			// LordHavoc: I don't quite understand this
+			for (sv = 0;sv < 2 && !vecs[0][sv];sv++);
+			for (tv = 0;tv < 2 && !vecs[1][tv];tv++);
+
+			for (i = 0;i < 2;i++)
+			{
+				// rotate
+				ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
+				nt = sinv * vecs[i][sv] + cosv * vecs[i][tv];
+				vecs[i][sv] = ns;
+				vecs[i][tv] = nt;
+				// scale and store into texinfo
+				d = 1.0 / (scale[i] ? scale[i] : 1.0);
+				for (j = 0;j < 3;j++)
+					tx.vecs[i][j] = vecs[i][j] * d;
+				tx.vecs[i][3] = vecs[i][3];
+			}
 		}
 	}
 

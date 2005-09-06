@@ -598,6 +598,9 @@ int Vis_Main( int argc, char **argv )
 	noreuse = false;
 	farplane = 0;
 
+	if (ismcbsp)
+		noambient = true;
+
 	for (i=1 ; i<argc ; i++)
 	{
 		if (!strcmp(argv[i], "-norvis"))
@@ -671,8 +674,10 @@ int Vis_Main( int argc, char **argv )
 	if (i != argc - 1)
 	{
 		Error ("%s",
-"usage: hmap2 -vis [options] bspfile\n"
+"usage: hmap2 [-mc] -vis [options] bspfile\n"
 "Compiles visibility data in a .bsp, needs a .prt file\n"
+"\n"
+"-mc             uses \"Martial Concert\" format bsp\n"
 "\n"
 "What the options do:\n"
 "-level 0-4      quality, default 4\n"
