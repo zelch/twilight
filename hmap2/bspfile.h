@@ -61,6 +61,13 @@ typedef struct
 
 typedef struct
 {
+	int			numhulls;
+	int			filehulls;
+	float		hullsizes[MAX_MAP_HULLS][2][3];
+} hullinfo_t;
+
+typedef struct
+{
 	float		mins[3], maxs[3];
 	float		origin[3];
 	int			headnode[MAX_MAP_HULLS];
@@ -192,9 +199,6 @@ typedef struct
 
 // the utilities get to be lazy and just use large static arrays
 
-extern	int			numhulls;
-extern	float		dhulls[MAX_MAP_HULLS][2][3];
-
 extern	int			nummodels;
 extern	dmodel_t	dmodels[MAX_MAP_MODELS];
 
@@ -243,6 +247,8 @@ extern	unsigned short	dmarksurfaces[MAX_MAP_MARKSURFACES];
 
 extern	int			numsurfedges;
 extern	int			dsurfedges[MAX_MAP_SURFEDGES];
+
+extern	hullinfo_t	hullinfo;
 
 extern qboolean		ismcbsp;
 

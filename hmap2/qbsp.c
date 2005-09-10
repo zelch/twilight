@@ -132,14 +132,15 @@ void CreateHulls (void)
 	int	i;
 
 // hull 0 is always point-sized
-	VectorClear (dhulls[0][0]);
-	VectorClear (dhulls[0][1]);
+	VectorClear (hullinfo.hullsizes[0][0]);
+	VectorClear (hullinfo.hullsizes[0][1]);
 	CreateSingleHull (0);
 
 	// commanded to ignore the hulls altogether
 	if (noclip)
     {
-		numhulls = 1;
+		hullinfo.numhulls = 1;
+		hullinfo.filehulls = (ismcbsp ? 1 : 4);
 		return;
     }
 
@@ -157,38 +158,38 @@ void CreateHulls (void)
 	// read hull values from _hull# fields in worldspawn
 		world = FindEntityWithKeyPair ("classname", "worldspawn");
 
-		for (numhulls = 1; numhulls < MAX_MAP_HULLS; numhulls++)
+		for (hullinfo.numhulls = 1; hullinfo.numhulls < MAX_MAP_HULLS; hullinfo.numhulls++)
 		{
-			sprintf (keymins, "_hull%d_mins", numhulls);
-			sprintf (keymaxs, "_hull%d_maxs", numhulls);
+			sprintf (keymins, "_hull%d_mins", hullinfo.numhulls);
+			sprintf (keymaxs, "_hull%d_maxs", hullinfo.numhulls);
 
 			if (HasKey(world, keymins) && HasKey(world, keymaxs))
 			{
 				GetVectorForKey (world, keymins, v);
-				VectorCopy (v, dhulls[numhulls][0]);
+				VectorCopy (v, hullinfo.hullsizes[hullinfo.numhulls][0]);
 				GetVectorForKey (world, keymaxs, v);
-				VectorCopy (v, dhulls[numhulls][1]);
+				VectorCopy (v, hullinfo.hullsizes[hullinfo.numhulls][1]);
 			}
 			else
 				break;
 		}
+		hullinfo.filehulls = hullinfo.numhulls;
 
-		printf ("Map has %d hulls:\n", numhulls);
-		for (i = 0; i < numhulls; i++)
-			printf ("%2d: %.1f %.1f %.1f, %.1f %.1f %.1f\n", i, dhulls[i][0][0], dhulls[i][0][1], dhulls[i][0][2], dhulls[i][1][0], dhulls[i][1][1], dhulls[i][1][2]);
+		printf ("Map has %d hulls:\n", hullinfo.numhulls);
+		for (i = 0; i < hullinfo.numhulls; i++)
+			printf ("%2d: %.1f %.1f %.1f, %.1f %.1f %.1f\n", i, hullinfo.hullsizes[i][0][0], hullinfo.hullsizes[i][0][1], hullinfo.hullsizes[i][0][2], hullinfo.hullsizes[i][1][0], hullinfo.hullsizes[i][1][1], hullinfo.hullsizes[i][1][2]);
 	}
 	else
 	{
-		numhulls = 4;	// there are 4 hulls, but only 3 are actually used
-		VectorSet (dhulls[1][0], -16, -16, -24);
-		VectorSet (dhulls[1][1], 16, 16, 32);
-		VectorSet (dhulls[2][0], -32, -32, -24);
-		VectorSet (dhulls[2][1], 32, 32, 64);
-		VectorClear (dhulls[3][0]);
-		VectorClear (dhulls[3][1]);
+		hullinfo.numhulls = 3;
+		hullinfo.filehulls = 4;
+		VectorSet (hullinfo.hullsizes[1][0], -16, -16, -24);
+		VectorSet (hullinfo.hullsizes[1][1], 16, 16, 32);
+		VectorSet (hullinfo.hullsizes[2][0], -32, -32, -24);
+		VectorSet (hullinfo.hullsizes[2][1], 32, 32, 64);
 	}
 
-	for (i = 1; i < numhulls; i++)
+	for (i = 1; i < hullinfo.numhulls; i++)
 		CreateSingleHull (i);
 }
 

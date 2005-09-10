@@ -324,9 +324,9 @@ int AddHullPoint (vec3_t p, int hullnum)
 		for (y=0 ; y<2 ; y++)
 			for (z=0; z<2 ; z++)
 			{
-				c[0] = p[0] - dhulls[hullnum][x^1][0];
-				c[1] = p[1] - dhulls[hullnum][y^1][1];
-				c[2] = p[2] - dhulls[hullnum][z^1][2];
+				c[0] = p[0] - hullinfo.hullsizes[hullnum][x^1][0];
+				c[1] = p[1] - hullinfo.hullsizes[hullnum][y^1][1];
+				c[2] = p[2] - hullinfo.hullsizes[hullnum][z^1][2];
 				c += 3;
 			}
 
@@ -392,8 +392,8 @@ void AddHullEdge (vec3_t p1, vec3_t p2, int hullnum)
 			for (e = 0 ; e < 2 ; e++)
 			{
 				VectorCopy(p1, planeorg);
-				planeorg[b] -= dhulls[hullnum][d^1][b];
-				planeorg[c] -= dhulls[hullnum][e^1][c];
+				planeorg[b] -= hullinfo.hullsizes[hullnum][d^1][b];
+				planeorg[c] -= hullinfo.hullsizes[hullnum][e^1][c];
 				plane.dist = DotProduct(planeorg, plane.normal);
 
 				TestAddPlane(&plane);
@@ -434,9 +434,9 @@ void ExpandBrush (int hullnum)
 		for (x=0 ; x<3 ; x++)
 		{
 			if (p->normal[x] > 0)
-				corner[x] = -dhulls[hullnum][0][x];
+				corner[x] = -hullinfo.hullsizes[hullnum][0][x];
 			else if (p->normal[x] < 0)
-				corner[x] = -dhulls[hullnum][1][x];
+				corner[x] = -hullinfo.hullsizes[hullnum][1][x];
 		}
 		p->dist += DotProduct (corner, p->normal);
 	}
@@ -449,9 +449,9 @@ void ExpandBrush (int hullnum)
 			VectorClear (plane.normal);
 			plane.normal[x] = s;
 			if (s == -1)
-				plane.dist = -brush_mins[x] + dhulls[hullnum][1][x];
+				plane.dist = -brush_mins[x] + hullinfo.hullsizes[hullnum][1][x];
 			else
-				plane.dist = brush_maxs[x] + -dhulls[hullnum][0][x];
+				plane.dist = brush_maxs[x] + -hullinfo.hullsizes[hullnum][0][x];
 			AddBrushPlane (&plane);
 		}
 

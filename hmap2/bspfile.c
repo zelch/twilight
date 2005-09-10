@@ -6,9 +6,6 @@
 
 //=============================================================================
 
-int			numhulls;
-float		dhulls[MAX_MAP_HULLS][2][3];
-
 int			nummodels;
 dmodel_t	dmodels[MAX_MAP_MODELS];
 
@@ -57,6 +54,8 @@ unsigned short		dmarksurfaces[MAX_MAP_MARKSURFACES];
 
 int			numsurfedges;
 int			dsurfedges[MAX_MAP_SURFEDGES];
+
+hullinfo_t	hullinfo;
 
 qboolean	ismcbsp;
 
@@ -112,25 +111,29 @@ byte SB_ReadByte (swappedbuffer_t *sbuf)
 short SB_ReadShort (swappedbuffer_t *sbuf)
 {
 	short s;
-	s = *(short*)sbuf->index;
+	s = sbuf->index[0] + 256*sbuf->index[1];
 	sbuf->index += 2;
-	return LittleShort(s);
+	return s;
 }
 
 int SB_ReadInt (swappedbuffer_t *sbuf)
 {
 	int i;
-	i = *(int*)sbuf->index;
+	i = sbuf->index[0] + 256*sbuf->index[1] + 65536*sbuf->index[2] + 16777216*sbuf->index[3];
 	sbuf->index += 4;
-	return LittleLong(i);
+	return i;
 }
 
 float SB_ReadFloat (swappedbuffer_t *sbuf)
 {
-	float f;
-	f = *(float*)sbuf->index;
-	sbuf->index += 4;
-	return LittleFloat(f);
+	union
+	{
+		int		i;
+		float	f;
+	} u;
+
+	u.i = SB_ReadInt (sbuf);
+	return u.f;
 }
 
 void SB_ReadData (swappedbuffer_t *sbuf, void *d, int n)
@@ -152,23 +155,30 @@ void SB_WriteByte (swappedbuffer_t *sbuf, byte b)
 
 void SB_WriteShort (swappedbuffer_t *sbuf, short i)
 {
-	i = LittleShort (i);
-	*(short*)sbuf->index = i;
+	sbuf->index[0] = (i >> 8) & 0xFF;
+	sbuf->index[1] = i & 0xFF;
 	sbuf->index += 2;
 }
 
 void SB_WriteInt (swappedbuffer_t *sbuf, int i)
 {
-	i = LittleLong (i);
-	*(int*)sbuf->index = i;
+	sbuf->index[0] = (i >> 24) & 0xFF;
+	sbuf->index[1] = (i >> 16) & 0xFF;
+	sbuf->index[2] = (i >> 8) & 0xFF;
+	sbuf->index[3] = i & 0xFF;
 	sbuf->index += 4;
 }
 
 void SB_WriteFloat (swappedbuffer_t *sbuf, float f)
 {
-	f = LittleFloat (f);
-	*(float*)sbuf->index = f;
-	sbuf->index += 4;
+	union
+	{
+		int		i;
+		float	f;
+	} u;
+
+	u.f = f;
+	SB_WriteInt (sbuf, u.i);
 }
 
 void SB_WriteData (swappedbuffer_t *sbuf, void *d, int n)
@@ -209,31 +219,32 @@ void	LoadBSPFile (char *filename)
 	SB_LoadFile (&sb, filename);
 
 // hull 0 is always point-sized
-	VectorClear (dhulls[0][0]);
-	VectorClear (dhulls[0][1]);
+	VectorClear (hullinfo.hullsizes[0][0]);
+	VectorClear (hullinfo.hullsizes[0][1]);
 
 // check header
 	if (ismcbsp)
 	{
-		char	header[5];
+		char	header[8];
 
-		SB_ReadData (&sb, header, 5);
-		if (memcmp (header, "MCBSP", 5))
-			Error ("%s has wrong header, should be \"MCBSP\"\n", filename);
+		SB_ReadData (&sb, header, 8);
+		if (memcmp (header, "MCBSPpad", 8))
+			Error ("%s has wrong header, should be \"MCBSPpad\"\n", filename);
 
 		i = SB_ReadInt (&sb);
 		if (i != MCBSPVERSION)
 			Error ("%s is version %i, should be %i", filename, i, MCBSPVERSION);
 
-		numhulls = SB_ReadInt (&sb);
-		for (i = 1; i < numhulls; i++)
+		hullinfo.numhulls = SB_ReadInt (&sb);
+		hullinfo.filehulls = hullinfo.numhulls;
+		for (i = 1; i < hullinfo.numhulls; i++)
 		{
-			dhulls[i][0][0] = SB_ReadFloat (&sb);
-			dhulls[i][0][1] = SB_ReadFloat (&sb);
-			dhulls[i][0][2] = SB_ReadFloat (&sb);
-			dhulls[i][1][0] = SB_ReadFloat (&sb);
-			dhulls[i][1][1] = SB_ReadFloat (&sb);
-			dhulls[i][1][2] = SB_ReadFloat (&sb);
+			hullinfo.hullsizes[i][0][0] = SB_ReadFloat (&sb);
+			hullinfo.hullsizes[i][0][1] = SB_ReadFloat (&sb);
+			hullinfo.hullsizes[i][0][2] = SB_ReadFloat (&sb);
+			hullinfo.hullsizes[i][1][0] = SB_ReadFloat (&sb);
+			hullinfo.hullsizes[i][1][1] = SB_ReadFloat (&sb);
+			hullinfo.hullsizes[i][1][2] = SB_ReadFloat (&sb);
 		}
 	}
 	else
@@ -242,13 +253,12 @@ void	LoadBSPFile (char *filename)
 		if (i != BSPVERSION)
 			Error ("%s is version %i, should be %i", filename, i, BSPVERSION);
 
-		numhulls = 4;	// there are 4 hulls, but only 3 are used
-		VectorSet (dhulls[1][0], -16, -16, -24);
-		VectorSet (dhulls[1][1], 16, 16, 32);
-		VectorSet (dhulls[2][0], -32, -32, -24);
-		VectorSet (dhulls[2][1], 32, 32, 64);
-		VectorClear (dhulls[3][0]);
-		VectorClear (dhulls[3][1]);
+		hullinfo.numhulls = 3;
+		hullinfo.filehulls = 4;
+		VectorSet (hullinfo.hullsizes[1][0], -16, -16, -24);
+		VectorSet (hullinfo.hullsizes[1][1], 16, 16, 32);
+		VectorSet (hullinfo.hullsizes[2][0], -32, -32, -24);
+		VectorSet (hullinfo.hullsizes[2][1], 32, 32, 64);
 	}
 
 	for (i = 0; i < HEADER_LUMPS; i++)
@@ -382,7 +392,7 @@ void	LoadBSPFile (char *filename)
 
 	lump = &lumps[LUMP_MODELS];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	nummodels = lump->filelen / (ismcbsp ? (48+4*numhulls) : (48+4*MAX_Q1MAP_HULLS));
+	nummodels = lump->filelen / (48+4*hullinfo.filehulls);
 	for (i = 0; i < nummodels; i++)
 	{
 		dmodels[i].mins[0] = SB_ReadFloat (&sb);
@@ -394,7 +404,7 @@ void	LoadBSPFile (char *filename)
 		dmodels[i].origin[0] = SB_ReadFloat (&sb);
 		dmodels[i].origin[1] = SB_ReadFloat (&sb);
 		dmodels[i].origin[2] = SB_ReadFloat (&sb);
-		for (j = 0; j < numhulls; j++)
+		for (j = 0; j < hullinfo.filehulls; j++)
 			dmodels[i].headnode[j] = SB_ReadInt (&sb);
 		dmodels[i].visleafs = SB_ReadInt (&sb);
 		dmodels[i].firstface = SB_ReadInt (&sb);
@@ -454,7 +464,7 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 	// allocate as much memory is needed for the buffer -- sorry about this! Please do something about this!
 		if (ismcbsp)
-			bspsize = 5+4+4+numhulls*24;
+			bspsize = 5+4+4+hullinfo.numhulls*24;
 		else
 			bspsize = 4;
 		bspsize += sizeof(lumps)+20*numplanes+(24+NUM_AMBIENTS)*numleafs+12*numvertexes;
@@ -473,10 +483,10 @@ void WriteBSPFile (char *filename, qboolean litonly)
 	// write header
 		if (ismcbsp)
 		{
-			SB_WriteData (&sb, "MCBSP", 5);
+			SB_WriteData (&sb, "MCBSPpad", 8);
 			SB_WriteInt (&sb, MCBSPVERSION);
-			SB_WriteInt (&sb, numhulls);
-			SB_ZeroFill (&sb, (numhulls - 1)*24);	// filled in later
+			SB_WriteInt (&sb, hullinfo.numhulls);
+			SB_ZeroFill (&sb, (hullinfo.numhulls - 1)*24);	// filled in later
 		}
 		else
 			SB_WriteInt (&sb, BSPVERSION);
@@ -629,7 +639,7 @@ void WriteBSPFile (char *filename, qboolean litonly)
 			SB_WriteFloat (&sb, dmodels[i].origin[0]);
 			SB_WriteFloat (&sb, dmodels[i].origin[1]);
 			SB_WriteFloat (&sb, dmodels[i].origin[2]);
-			for (j = 0; j < numhulls; j++)
+			for (j = 0; j < hullinfo.filehulls; j++)
 				SB_WriteInt (&sb, dmodels[i].headnode[j]);
 			SB_WriteInt (&sb, dmodels[i].visleafs);
 			SB_WriteInt (&sb, dmodels[i].firstface);
@@ -671,17 +681,17 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 		if (ismcbsp)
 		{
-			SB_WriteData (&sb, "MCBSP", 5);
+			SB_WriteData (&sb, "MCBSPpad", 8);
 			SB_WriteInt (&sb, MCBSPVERSION);
-			SB_WriteInt (&sb, numhulls);
-			for (i = 1; i < numhulls; i++)
+			SB_WriteInt (&sb, hullinfo.numhulls);
+			for (i = 1; i < hullinfo.numhulls; i++)
 			{
-				SB_WriteFloat (&sb, dhulls[i][0][0]);
-				SB_WriteFloat (&sb, dhulls[i][0][1]);
-				SB_WriteFloat (&sb, dhulls[i][0][2]);
-				SB_WriteFloat (&sb, dhulls[i][1][0]);
-				SB_WriteFloat (&sb, dhulls[i][1][1]);
-				SB_WriteFloat (&sb, dhulls[i][1][2]);
+				SB_WriteFloat (&sb, hullinfo.hullsizes[i][0][0]);
+				SB_WriteFloat (&sb, hullinfo.hullsizes[i][0][1]);
+				SB_WriteFloat (&sb, hullinfo.hullsizes[i][0][2]);
+				SB_WriteFloat (&sb, hullinfo.hullsizes[i][1][0]);
+				SB_WriteFloat (&sb, hullinfo.hullsizes[i][1][1]);
+				SB_WriteFloat (&sb, hullinfo.hullsizes[i][1][2]);
 			}
 		}
 		else
