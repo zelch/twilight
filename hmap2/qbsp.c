@@ -150,7 +150,6 @@ void CreateHulls (void)
 	if (ismcbsp)
 	{
 		entity_t	*world;
-		epair_t		*epmins, *epmaxs;
 		char		keymins[16], keymaxs[16];
 		vec3_t		v;
 		int			i;
@@ -163,7 +162,7 @@ void CreateHulls (void)
 			sprintf (keymins, "_hull%d_mins", numhulls);
 			sprintf (keymaxs, "_hull%d_maxs", numhulls);
 
-			if ((epmins = HasKey(world, keymins)) && (epmaxs = HasKey(world, keymaxs)))
+			if (HasKey(world, keymins) && HasKey(world, keymaxs))
 			{
 				GetVectorForKey (world, keymins, v);
 				VectorCopy (v, dhulls[numhulls][0]);

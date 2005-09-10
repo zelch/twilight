@@ -265,7 +265,7 @@ extern	entity_t	entities[MAX_MAP_ENTITIES];
 void	PrintEntity (entity_t *ent);
 char 	*ValueForKey (entity_t *ent, char *key);
 vec_t	FloatForKey (entity_t *ent, char *key);
-epair_t	*HasKey (entity_t *ent, char *key);
+qboolean HasKey (entity_t *ent, char *key);
 void	SetKeyValue (entity_t *ent, char *key, char *value);
 entity_t *FindEntityWithKeyPair( char *key, char *value );
 void 	GetVectorForKey (entity_t *ent, char *key, vec3_t vec);

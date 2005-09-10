@@ -852,15 +852,15 @@ vec_t FloatForKey (entity_t *ent, char *key)
 	return 0;
 }
 
-epair_t *HasKey (entity_t *ent, char *key)
+qboolean HasKey (entity_t *ent, char *key)
 {
 	epair_t *ep;
 
 	for (ep = ent->epairs; ep; ep = ep->next)
 		if (!strcmp (ep->key, key))
-			return ep;
+			return true;
 
-	return NULL;
+	return false;
 }
 
 void SetKeyValue (entity_t *ent, char *key, char *value)
