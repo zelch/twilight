@@ -4,7 +4,8 @@
 
 // upper design bounds
 
-#define	MAX_MAP_HULLS			4
+#define	MAX_Q1MAP_HULLS			4
+#define	MAX_MAP_HULLS			16
 
 #define	MAX_MAP_MODELS			256
 #define	MAX_MAP_BRUSHES			32768		// LordHavoc: I ran into this myself, was 4096
@@ -33,7 +34,7 @@
 //=============================================================================
 
 #define BSPVERSION	29
-#define MCBSPVERSION 1
+#define MCBSPVERSION 2
 
 typedef struct
 {
@@ -66,12 +67,6 @@ typedef struct
 	int			visleafs;		// not including the solid leaf 0
 	int			firstface, numfaces;
 } dmodel_t;
-
-typedef struct
-{
-	int			version;
-	lump_t		lumps[HEADER_LUMPS];
-} dheader_t;
 
 typedef struct
 {
@@ -197,6 +192,9 @@ typedef struct
 
 // the utilities get to be lazy and just use large static arrays
 
+extern	int			numhulls;
+extern	float		dhulls[MAX_MAP_HULLS][2][3];
+
 extern	int			nummodels;
 extern	dmodel_t	dmodels[MAX_MAP_MODELS];
 
@@ -267,6 +265,7 @@ extern	entity_t	entities[MAX_MAP_ENTITIES];
 void	PrintEntity (entity_t *ent);
 char 	*ValueForKey (entity_t *ent, char *key);
 vec_t	FloatForKey (entity_t *ent, char *key);
+epair_t	*HasKey (entity_t *ent, char *key);
 void	SetKeyValue (entity_t *ent, char *key, char *value);
 entity_t *FindEntityWithKeyPair( char *key, char *value );
 void 	GetVectorForKey (entity_t *ent, char *key, vec3_t vec);

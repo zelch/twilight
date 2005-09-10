@@ -6,6 +6,9 @@
 
 //=============================================================================
 
+int			numhulls;
+float		dhulls[MAX_MAP_HULLS][2][3];
+
 int			nummodels;
 dmodel_t	dmodels[MAX_MAP_MODELS];
 
@@ -59,179 +62,136 @@ qboolean	ismcbsp;
 
 //=============================================================================
 
-/*
-=============
-SwapBSPFile
-
-Byte swaps all data in a bsp file.
-=============
-*/
-void SwapBSPFile (qboolean todisk)
+typedef struct
 {
-	int				i, j, c;
-	dmodel_t		*d;
-	dmiptexlump_t	*mtl;
+	int		initialized;
+	int		maxsize;
+	byte	*start;
+	byte	*index;
+} swappedbuffer_t;
 
+void SB_LoadFile (swappedbuffer_t *sbuf, char *filename)
+{
+	FILE	*f;
 
-	// models
-	for (i=0 ; i<nummodels ; i++)
-	{
-		d = &dmodels[i];
+	f = SafeOpenRead (filename);
+	sbuf->maxsize = Q_filelength (f);
+	sbuf->start = qmalloc (sbuf->maxsize + 1);
+	sbuf->start[sbuf->maxsize] = 0;
+	SafeRead (f, sbuf->start, sbuf->maxsize);
+	fclose (f);
 
-		for (j=0 ; j<MAX_MAP_HULLS ; j++)
-			d->headnode[j] = LittleLong (d->headnode[j]);
-
-		d->visleafs = LittleLong (d->visleafs);
-		d->firstface = LittleLong (d->firstface);
-		d->numfaces = LittleLong (d->numfaces);
-
-		for (j=0 ; j<3 ; j++)
-		{
-			d->mins[j] = LittleFloat(d->mins[j]);
-			d->maxs[j] = LittleFloat(d->maxs[j]);
-			d->origin[j] = LittleFloat(d->origin[j]);
-		}
-	}
-
-	//
-	// vertexes
-	//
-	for (i=0 ; i<numvertexes ; i++)
-		for (j=0 ; j<3 ; j++)
-			dvertexes[i].point[j] = LittleFloat (dvertexes[i].point[j]);
-
-	//
-	// planes
-	//
-	for (i=0 ; i<numplanes ; i++)
-	{
-		for (j=0 ; j<3 ; j++)
-			dplanes[i].normal[j] = LittleFloat (dplanes[i].normal[j]);
-		dplanes[i].dist = LittleFloat (dplanes[i].dist);
-		dplanes[i].type = LittleLong (dplanes[i].type);
-	}
-
-	//
-	// texinfos
-	//
-	for (i=0 ; i<numtexinfo ; i++)
-	{
-		for (j=0 ; j<8 ; j++)
-			texinfo[i].vecs[0][j] = LittleFloat (texinfo[i].vecs[0][j]);
-		texinfo[i].miptex = LittleLong (texinfo[i].miptex);
-		texinfo[i].flags = LittleLong (texinfo[i].flags);
-	}
-
-	//
-	// faces
-	//
-	for (i=0 ; i<numfaces ; i++)
-	{
-		dfaces[i].texinfo = LittleShort (dfaces[i].texinfo);
-		dfaces[i].planenum = LittleShort (dfaces[i].planenum);
-		dfaces[i].side = LittleShort (dfaces[i].side);
-		dfaces[i].lightofs = LittleLong (dfaces[i].lightofs);
-		dfaces[i].firstedge = LittleLong (dfaces[i].firstedge);
-		dfaces[i].numedges = LittleShort (dfaces[i].numedges);
-	}
-
-	//
-	// nodes
-	//
-	for (i=0 ; i<numnodes ; i++)
-	{
-		dnodes[i].planenum = LittleLong (dnodes[i].planenum);
-		for (j=0 ; j<3 ; j++)
-		{
-			dnodes[i].mins[j] = LittleShort (dnodes[i].mins[j]);
-			dnodes[i].maxs[j] = LittleShort (dnodes[i].maxs[j]);
-		}
-		dnodes[i].children[0] = LittleShort (dnodes[i].children[0]);
-		dnodes[i].children[1] = LittleShort (dnodes[i].children[1]);
-		dnodes[i].firstface = LittleShort (dnodes[i].firstface);
-		dnodes[i].numfaces = LittleShort (dnodes[i].numfaces);
-	}
-
-	//
-	// leafs
-	//
-	for (i=0 ; i<numleafs ; i++)
-	{
-		dleafs[i].contents = LittleLong (dleafs[i].contents);
-		for (j=0 ; j<3 ; j++)
-		{
-			dleafs[i].mins[j] = LittleShort (dleafs[i].mins[j]);
-			dleafs[i].maxs[j] = LittleShort (dleafs[i].maxs[j]);
-		}
-
-		dleafs[i].firstmarksurface = LittleShort (dleafs[i].firstmarksurface);
-		dleafs[i].nummarksurfaces = LittleShort (dleafs[i].nummarksurfaces);
-		dleafs[i].visofs = LittleLong (dleafs[i].visofs);
-	}
-
-	//
-	// clipnodes
-	//
-	for (i=0 ; i<numclipnodes ; i++)
-	{
-		dclipnodes[i].planenum = LittleLong (dclipnodes[i].planenum);
-		dclipnodes[i].children[0] = LittleShort (dclipnodes[i].children[0]);
-		dclipnodes[i].children[1] = LittleShort (dclipnodes[i].children[1]);
-	}
-
-	//
-	// miptex
-	//
-	if (texdatasize)
-	{
-		mtl = (dmiptexlump_t *)dtexdata;
-		if (todisk)
-			c = mtl->nummiptex;
-		else
-			c = LittleLong(mtl->nummiptex);
-		mtl->nummiptex = LittleLong (mtl->nummiptex);
-		for (i=0 ; i<c ; i++)
-			mtl->dataofs[i] = LittleLong(mtl->dataofs[i]);
-	}
-
-	//
-	// marksurfaces
-	//
-	for (i=0 ; i<nummarksurfaces ; i++)
-		dmarksurfaces[i] = LittleShort (dmarksurfaces[i]);
-
-	//
-	// surfedges
-	//
-	for (i=0 ; i<numsurfedges ; i++)
-		dsurfedges[i] = LittleLong (dsurfedges[i]);
-
-	//
-	// edges
-	//
-	for (i=0 ; i<numedges ; i++)
-	{
-		dedges[i].v[0] = LittleShort (dedges[i].v[0]);
-		dedges[i].v[1] = LittleShort (dedges[i].v[1]);
-	}
+	sbuf->index = sbuf->start;
+	sbuf->initialized = true;
 }
 
-
-dheader_t	*header;
-
-int CopyLump (int lump, void *dest, int size)
+void SB_Alloc (swappedbuffer_t *sbuf, int maxsize)
 {
-	int		length, ofs;
+	sbuf->maxsize = maxsize;
+	sbuf->start = qmalloc (maxsize);
+	sbuf->index = sbuf->start;
+	sbuf->initialized = true;
+}
 
-	length = header->lumps[lump].filelen;
-	ofs = header->lumps[lump].fileofs;
+void SB_Free (swappedbuffer_t *sbuf)
+{
+	if (!sbuf->initialized)
+		return;
 
-	if (length % size)
-		Error ("LoadBSPFile: odd lump size");
+	qfree (sbuf->start);
+	memset (sbuf, 0, sizeof(*sbuf));
+}
 
-	memcpy (dest, (byte *)header + ofs, length);
+byte SB_ReadByte (swappedbuffer_t *sbuf)
+{
+	byte b;
+	b = *sbuf->index++;
+	return b;
+}
 
-	return length / size;
+short SB_ReadShort (swappedbuffer_t *sbuf)
+{
+	short s;
+	s = *(short*)sbuf->index;
+	sbuf->index += 2;
+	return LittleShort(s);
+}
+
+int SB_ReadInt (swappedbuffer_t *sbuf)
+{
+	int i;
+	i = *(int*)sbuf->index;
+	sbuf->index += 4;
+	return LittleLong(i);
+}
+
+float SB_ReadFloat (swappedbuffer_t *sbuf)
+{
+	float f;
+	f = *(float*)sbuf->index;
+	sbuf->index += 4;
+	return LittleFloat(f);
+}
+
+void SB_ReadData (swappedbuffer_t *sbuf, void *d, int n)
+{
+	memcpy (d, sbuf->index, n);
+	sbuf->index += n;
+}
+
+void SB_ZeroFill (swappedbuffer_t *sbuf, int n)
+{
+	while (n--)
+		*sbuf->index++ = 0;
+}
+
+void SB_WriteByte (swappedbuffer_t *sbuf, byte b)
+{
+	*sbuf->index++ = b;
+}
+
+void SB_WriteShort (swappedbuffer_t *sbuf, short i)
+{
+	i = LittleShort (i);
+	*(short*)sbuf->index = i;
+	sbuf->index += 2;
+}
+
+void SB_WriteInt (swappedbuffer_t *sbuf, int i)
+{
+	i = LittleLong (i);
+	*(int*)sbuf->index = i;
+	sbuf->index += 4;
+}
+
+void SB_WriteFloat (swappedbuffer_t *sbuf, float f)
+{
+	f = LittleFloat (f);
+	*(float*)sbuf->index = f;
+	sbuf->index += 4;
+}
+
+void SB_WriteData (swappedbuffer_t *sbuf, void *d, int n)
+{
+	memcpy (sbuf->index, d, n);
+	sbuf->index += n;
+}
+
+void SB_WriteString (swappedbuffer_t *sbuf, char *s)
+{
+	while (*s)
+		*sbuf->index++ = *s++;
+	*sbuf->index++ = 0;
+}
+
+void SB_SeekAbsolute (swappedbuffer_t *sbuf, int index)
+{
+	sbuf->index = sbuf->start + index;
+}
+
+int SB_Tell (swappedbuffer_t *sbuf)
+{
+	return sbuf->index - sbuf->start;
 }
 
 /*
@@ -241,88 +201,236 @@ LoadBSPFile
 */
 void	LoadBSPFile (char *filename)
 {
-	int		i;
+	int				i, j;
+	swappedbuffer_t	sb;
+	lump_t			lumps[HEADER_LUMPS], *lump;
 
-	//
-	// load the file header
-	//
-	LoadFile (filename, (void **)&header);
+// load file into buffer
+	SB_LoadFile (&sb, filename);
 
+// hull 0 is always point-sized
+	VectorClear (dhulls[0][0]);
+	VectorClear (dhulls[0][1]);
+
+// check header
 	if (ismcbsp)
 	{
-		if (!memcmp ((void*)header, "MCBSP", 5))
-		{
-			header = (void*)((byte*)header + 5);
+		char	header[5];
 
-			for (i = 0; i < (int)sizeof(dheader_t)/4; i++)
-				((int*)header)[i] = LittleLong(((int*)header)[i]);
+		SB_ReadData (&sb, header, 5);
+		if (memcmp (header, "MCBSP", 5))
+			Error ("%s has wrong header, should be \"MCBSP\"\n", filename);
 
-			if (header->version != MCBSPVERSION)
-				Error ("%s is version %i, should be %i", filename, i, MCBSPVERSION);
-		}
-		else
+		i = SB_ReadInt (&sb);
+		if (i != MCBSPVERSION)
+			Error ("%s is version %i, should be %i", filename, i, MCBSPVERSION);
+
+		numhulls = SB_ReadInt (&sb);
+		for (i = 1; i < numhulls; i++)
 		{
-			char tag[6];
-			memcpy (tag, header, 5);
-			tag[5] = 0;
-			Error ("%s has wrong header, %s should be MCBSP", filename, tag);
+			dhulls[i][0][0] = SB_ReadFloat (&sb);
+			dhulls[i][0][1] = SB_ReadFloat (&sb);
+			dhulls[i][0][2] = SB_ReadFloat (&sb);
+			dhulls[i][1][0] = SB_ReadFloat (&sb);
+			dhulls[i][1][1] = SB_ReadFloat (&sb);
+			dhulls[i][1][2] = SB_ReadFloat (&sb);
 		}
 	}
 	else
 	{
-		// swap the header
-		for (i=0 ; i< (int)sizeof(dheader_t)/4 ; i++)
-			((int *)header)[i] = LittleLong ( ((int *)header)[i]);
-
-		if (header->version != BSPVERSION)
+		i = SB_ReadInt (&sb);
+		if (i != BSPVERSION)
 			Error ("%s is version %i, should be %i", filename, i, BSPVERSION);
+
+		numhulls = 4;	// there are 4 hulls, but only 3 are used
+		VectorSet (dhulls[1][0], -16, -16, -24);
+		VectorSet (dhulls[1][1], 16, 16, 32);
+		VectorSet (dhulls[2][0], -32, -32, -24);
+		VectorSet (dhulls[2][1], 32, 32, 64);
+		VectorClear (dhulls[3][0]);
+		VectorClear (dhulls[3][1]);
 	}
 
-	nummodels = CopyLump (LUMP_MODELS, dmodels, sizeof(dmodel_t));
-	numvertexes = CopyLump (LUMP_VERTEXES, dvertexes, sizeof(dvertex_t));
-	numplanes = CopyLump (LUMP_PLANES, dplanes, sizeof(dplane_t));
-	numleafs = CopyLump (LUMP_LEAFS, dleafs, sizeof(dleaf_t));
-	numnodes = CopyLump (LUMP_NODES, dnodes, sizeof(dnode_t));
-	numtexinfo = CopyLump (LUMP_TEXINFO, texinfo, sizeof(texinfo_t));
-	numclipnodes = CopyLump (LUMP_CLIPNODES, dclipnodes, sizeof(dclipnode_t));
-	numfaces = CopyLump (LUMP_FACES, dfaces, sizeof(dface_t));
-	nummarksurfaces = CopyLump (LUMP_MARKSURFACES, dmarksurfaces, sizeof(dmarksurfaces[0]));
-	numsurfedges = CopyLump (LUMP_SURFEDGES, dsurfedges, sizeof(dsurfedges[0]));
-	numedges = CopyLump (LUMP_EDGES, dedges, sizeof(dedge_t));
+	for (i = 0; i < HEADER_LUMPS; i++)
+	{
+		lumps[i].fileofs = SB_ReadInt (&sb);
+		lumps[i].filelen = SB_ReadInt (&sb);
+	}
 
-	texdatasize = CopyLump (LUMP_TEXTURES, dtexdata, 1);
-	visdatasize = CopyLump (LUMP_VISIBILITY, dvisdata, 1);
-	lightdatasize = CopyLump (LUMP_LIGHTING, dlightdata, 1);
-	entdatasize = CopyLump (LUMP_ENTITIES, dentdata, 1);
+// read lumps (sigh...)
+	lump = &lumps[LUMP_PLANES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numplanes = lump->filelen / sizeof(dplane_t);
+	for (i = 0; i < numplanes; i++)
+	{
+		dplanes[i].normal[0] = SB_ReadFloat (&sb);
+		dplanes[i].normal[1] = SB_ReadFloat (&sb);
+		dplanes[i].normal[2] = SB_ReadFloat (&sb);
+		dplanes[i].dist = SB_ReadFloat (&sb);
+		dplanes[i].type = SB_ReadInt (&sb);
+	}
 
+	lump = &lumps[LUMP_LEAFS];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numleafs = lump->filelen / sizeof(dleaf_t);
+	for (i = 0; i < numleafs; i++)
+	{
+		dleafs[i].contents = SB_ReadInt (&sb);
+		dleafs[i].visofs = SB_ReadInt (&sb);
+		dleafs[i].mins[0] = SB_ReadShort (&sb);
+		dleafs[i].mins[1] = SB_ReadShort (&sb);
+		dleafs[i].mins[2] = SB_ReadShort (&sb);
+		dleafs[i].maxs[0] = SB_ReadShort (&sb);
+		dleafs[i].maxs[1] = SB_ReadShort (&sb);
+		dleafs[i].maxs[2] = SB_ReadShort (&sb);
+		dleafs[i].firstmarksurface = SB_ReadShort (&sb);
+		dleafs[i].nummarksurfaces = SB_ReadShort (&sb);
+		for (j = 0; j < NUM_AMBIENTS; j++)
+			dleafs[i].ambient_level[j] = SB_ReadByte (&sb);
+	}
+
+	lump = &lumps[LUMP_VERTEXES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numvertexes = lump->filelen / sizeof(dvertex_t);
+	for (i = 0; i < numvertexes; i++)
+	{
+		dvertexes[i].point[0] = SB_ReadFloat (&sb);
+		dvertexes[i].point[1] = SB_ReadFloat (&sb);
+		dvertexes[i].point[2] = SB_ReadFloat (&sb);
+	}
+
+	lump = &lumps[LUMP_NODES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numnodes = lump->filelen / sizeof(dnode_t);
+	for (i = 0; i < numnodes; i++)
+	{
+		dnodes[i].planenum = SB_ReadInt (&sb);
+		dnodes[i].children[0] = SB_ReadShort (&sb);
+		dnodes[i].children[1] = SB_ReadShort (&sb);
+		dnodes[i].mins[0] = SB_ReadShort (&sb);
+		dnodes[i].mins[1] = SB_ReadShort (&sb);
+		dnodes[i].mins[2] = SB_ReadShort (&sb);
+		dnodes[i].maxs[0] = SB_ReadShort (&sb);
+		dnodes[i].maxs[1] = SB_ReadShort (&sb);
+		dnodes[i].maxs[2] = SB_ReadShort (&sb);
+		dnodes[i].firstface = SB_ReadShort (&sb);
+		dnodes[i].numfaces = SB_ReadShort (&sb);
+	}
+
+	lump = &lumps[LUMP_TEXINFO];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numtexinfo = lump->filelen / sizeof(texinfo_t);
+	for (i = 0; i < numtexinfo; i++)
+	{
+		texinfo[i].vecs[0][0] = SB_ReadFloat (&sb);
+		texinfo[i].vecs[0][1] = SB_ReadFloat (&sb);
+		texinfo[i].vecs[0][2] = SB_ReadFloat (&sb);
+		texinfo[i].vecs[0][3] = SB_ReadFloat (&sb);
+		texinfo[i].vecs[1][0] = SB_ReadFloat (&sb);
+		texinfo[i].vecs[1][1] = SB_ReadFloat (&sb);
+		texinfo[i].vecs[1][2] = SB_ReadFloat (&sb);
+		texinfo[i].vecs[1][3] = SB_ReadFloat (&sb);
+		texinfo[i].miptex = SB_ReadInt (&sb);
+		texinfo[i].flags = SB_ReadInt (&sb);
+	}
+
+	lump = &lumps[LUMP_FACES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numfaces = lump->filelen / sizeof(dface_t);
+	for (i = 0; i < numfaces; i++)
+	{
+		dfaces[i].planenum = SB_ReadShort (&sb);
+		dfaces[i].side = SB_ReadShort (&sb);
+		dfaces[i].firstedge = SB_ReadInt (&sb);
+		dfaces[i].numedges = SB_ReadShort (&sb);
+		dfaces[i].texinfo = SB_ReadShort (&sb);
+		for (j = 0; j < MAXLIGHTMAPS; j++)
+			dfaces[i].styles[j] = SB_ReadByte (&sb);
+		dfaces[i].lightofs = SB_ReadInt (&sb);
+	}
+
+	lump = &lumps[LUMP_CLIPNODES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numclipnodes = lump->filelen / sizeof(dclipnode_t);
+	for (i = 0; i < numclipnodes; i++)
+	{
+		dclipnodes[i].planenum = SB_ReadInt (&sb);
+		dclipnodes[i].children[0] = SB_ReadShort (&sb);
+		dclipnodes[i].children[1] = SB_ReadShort (&sb);
+	}
+
+	lump = &lumps[LUMP_MARKSURFACES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	nummarksurfaces = lump->filelen / sizeof(dmarksurfaces[0]);
+	for (i = 0; i < nummarksurfaces; i++)
+		dmarksurfaces[i] = SB_ReadShort (&sb);
+
+	lump = &lumps[LUMP_SURFEDGES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numsurfedges = lump->filelen / sizeof(dsurfedges[0]);
+	for (i = 0; i < numsurfedges; i++)
+		dsurfedges[i] = SB_ReadInt (&sb);
+
+	lump = &lumps[LUMP_EDGES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	numedges = lump->filelen / sizeof(dedge_t);
+	for (i = 0; i < numedges; i++)
+	{
+		dedges[i].v[0] = SB_ReadShort (&sb);
+		dedges[i].v[1] = SB_ReadShort (&sb);
+	}
+
+	lump = &lumps[LUMP_MODELS];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	nummodels = lump->filelen / (ismcbsp ? (48+4*numhulls) : (48+4*MAX_Q1MAP_HULLS));
+	for (i = 0; i < nummodels; i++)
+	{
+		dmodels[i].mins[0] = SB_ReadFloat (&sb);
+		dmodels[i].mins[1] = SB_ReadFloat (&sb);
+		dmodels[i].mins[2] = SB_ReadFloat (&sb);
+		dmodels[i].maxs[0] = SB_ReadFloat (&sb);
+		dmodels[i].maxs[1] = SB_ReadFloat (&sb);
+		dmodels[i].maxs[2] = SB_ReadFloat (&sb);
+		dmodels[i].origin[0] = SB_ReadFloat (&sb);
+		dmodels[i].origin[1] = SB_ReadFloat (&sb);
+		dmodels[i].origin[2] = SB_ReadFloat (&sb);
+		for (j = 0; j < numhulls; j++)
+			dmodels[i].headnode[j] = SB_ReadInt (&sb);
+		dmodels[i].visleafs = SB_ReadInt (&sb);
+		dmodels[i].firstface = SB_ReadInt (&sb);
+		dmodels[i].numfaces = SB_ReadInt (&sb);
+	}
+
+	lump = &lumps[LUMP_LIGHTING];
+	SB_SeekAbsolute (&sb, lump->fileofs);
 	if (ismcbsp)
-		header = (void*)((byte*)header - 5);
-	qfree (header);		// everything has been copied out
-
-	//
-	// swap everything
-	//
-	SwapBSPFile (false);
-}
-
-//============================================================================
-
-FILE		*wadfile;
-dheader_t	outheader;
-
-void AddLump (int lumpnum, void *data, int len)
-{
-	lump_t *lump;
-
-	lump = &header->lumps[lumpnum];
-
-	if (ismcbsp)
-		lump->fileofs = LittleLong( ftell(wadfile) - 5 );
+	{
+		rgblightdatasize = lump->filelen;
+		SB_ReadData (&sb, drgblightdata, rgblightdatasize);
+	}
 	else
-		lump->fileofs = LittleLong( ftell(wadfile) );
+	{
+		lightdatasize = lump->filelen;
+		SB_ReadData (&sb, dlightdata, lightdatasize);
+	}
 
-	lump->filelen = LittleLong(len);
-	SafeWrite (wadfile, data, (len+3)&~3);
+	lump = &lumps[LUMP_VISIBILITY];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	visdatasize = lump->filelen;
+	SB_ReadData (&sb, dvisdata, visdatasize);
+
+	lump = &lumps[LUMP_ENTITIES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	entdatasize = lump->filelen;
+	SB_ReadData (&sb, dentdata, entdatasize);
+
+	lump = &lumps[LUMP_TEXTURES];
+	SB_SeekAbsolute (&sb, lump->fileofs);
+	texdatasize = lump->filelen;
+	SB_ReadData (&sb, dtexdata, texdatasize);
+
+// finish up
+	SB_Free (&sb);
 }
 
 /*
@@ -334,50 +442,266 @@ Swaps the bsp file in place, so it should not be referenced again
 */
 void WriteBSPFile (char *filename, qboolean litonly)
 {
+	int				i, j;
+	FILE			*f;
+	swappedbuffer_t	sb;
+
 	if (!litonly)
 	{
-		header = &outheader;
-		memset (header, 0, sizeof(dheader_t));
+		int		index;
+		int		bspsize;
+		lump_t	lumps[HEADER_LUMPS], *lump;
 
-		SwapBSPFile (true);
+	// allocate as much memory is needed for the buffer -- sorry about this! Please do something about this!
+		if (ismcbsp)
+			bspsize = 5+4+4+numhulls*24;
+		else
+			bspsize = 4;
+		bspsize += sizeof(lumps)+20*numplanes+(24+NUM_AMBIENTS)*numleafs+12*numvertexes;
+		bspsize += 24*numnodes+40*numtexinfo+(16+MAXLIGHTMAPS)*numfaces+8*numclipnodes;
+		bspsize += 2*nummarksurfaces+4*numsurfedges+4*numedges;
+		if (ismcbsp)
+			bspsize += (48+4*MAX_MAP_HULLS)*nummodels+rgblightdatasize;
+		else
+			bspsize += (48+4*MAX_Q1MAP_HULLS)*nummodels+lightdatasize;
+		bspsize += visdatasize+entdatasize+texdatasize;
+		bspsize += 512;	// extra case for safety and to compensate for the 4-byte padding of the lumps
 
-		wadfile = SafeOpenWrite (filename);
+		SB_Alloc (&sb, bspsize);
+		printf ("Allocated %f MB (%d bytes) for file buffer\n", bspsize*(1.0f/(1024.0f*1024.0f)), bspsize);
+
+	// write header
+		if (ismcbsp)
+		{
+			SB_WriteData (&sb, "MCBSP", 5);
+			SB_WriteInt (&sb, MCBSPVERSION);
+			SB_WriteInt (&sb, numhulls);
+			SB_ZeroFill (&sb, (numhulls - 1)*24);	// filled in later
+		}
+		else
+			SB_WriteInt (&sb, BSPVERSION);
+
+		SB_ZeroFill (&sb, sizeof(lumps));	// filled in later
+
+	// write lumps and pad each one to a multiple of 4 bytes
+		lump = &lumps[LUMP_PLANES];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numplanes; i++)
+		{
+			SB_WriteFloat (&sb, dplanes[i].normal[0]);
+			SB_WriteFloat (&sb, dplanes[i].normal[1]);
+			SB_WriteFloat (&sb, dplanes[i].normal[2]);
+			SB_WriteFloat (&sb, dplanes[i].dist);
+			SB_WriteInt (&sb, dplanes[i].type);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_LEAFS];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numleafs; i++)
+		{
+			SB_WriteInt (&sb, dleafs[i].contents);
+			SB_WriteInt (&sb, dleafs[i].visofs);
+			SB_WriteShort (&sb, dleafs[i].mins[0]);
+			SB_WriteShort (&sb, dleafs[i].mins[1]);
+			SB_WriteShort (&sb, dleafs[i].mins[2]);
+			SB_WriteShort (&sb, dleafs[i].maxs[0]);
+			SB_WriteShort (&sb, dleafs[i].maxs[1]);
+			SB_WriteShort (&sb, dleafs[i].maxs[2]);
+			SB_WriteShort (&sb, dleafs[i].firstmarksurface);
+			SB_WriteShort (&sb, dleafs[i].nummarksurfaces);
+			for (j = 0; j < NUM_AMBIENTS; j++)
+				SB_WriteByte (&sb, dleafs[i].ambient_level[j]);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_VERTEXES];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numvertexes; i++)
+		{
+			SB_WriteFloat (&sb, dvertexes[i].point[0]);
+			SB_WriteFloat (&sb, dvertexes[i].point[1]);
+			SB_WriteFloat (&sb, dvertexes[i].point[2]);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_NODES];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numnodes; i++)
+		{
+			SB_WriteInt (&sb, dnodes[i].planenum);
+			SB_WriteShort (&sb, dnodes[i].children[0]);
+			SB_WriteShort (&sb, dnodes[i].children[1]);
+			SB_WriteShort (&sb, dnodes[i].mins[0]);
+			SB_WriteShort (&sb, dnodes[i].mins[1]);
+			SB_WriteShort (&sb, dnodes[i].mins[2]);
+			SB_WriteShort (&sb, dnodes[i].maxs[0]);
+			SB_WriteShort (&sb, dnodes[i].maxs[1]);
+			SB_WriteShort (&sb, dnodes[i].maxs[2]);
+			SB_WriteShort (&sb, dnodes[i].firstface);
+			SB_WriteShort (&sb, dnodes[i].numfaces);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_TEXINFO];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numtexinfo; i++)
+		{
+			SB_WriteFloat (&sb, texinfo[i].vecs[0][0]);
+			SB_WriteFloat (&sb, texinfo[i].vecs[0][1]);
+			SB_WriteFloat (&sb, texinfo[i].vecs[0][2]);
+			SB_WriteFloat (&sb, texinfo[i].vecs[0][3]);
+			SB_WriteFloat (&sb, texinfo[i].vecs[1][0]);
+			SB_WriteFloat (&sb, texinfo[i].vecs[1][1]);
+			SB_WriteFloat (&sb, texinfo[i].vecs[1][2]);
+			SB_WriteFloat (&sb, texinfo[i].vecs[1][3]);
+			SB_WriteInt (&sb, texinfo[i].miptex);
+			SB_WriteInt (&sb, texinfo[i].flags);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_FACES];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numfaces; i++)
+		{
+			SB_WriteShort (&sb, dfaces[i].planenum);
+			SB_WriteShort (&sb, dfaces[i].side);
+			SB_WriteInt (&sb, dfaces[i].firstedge);
+			SB_WriteShort (&sb, dfaces[i].numedges);
+			SB_WriteShort (&sb, dfaces[i].texinfo);
+			for (j = 0; j < MAXLIGHTMAPS; j++)
+				SB_WriteByte (&sb, dfaces[i].styles[j]);
+			SB_WriteInt (&sb, dfaces[i].lightofs);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_CLIPNODES];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numclipnodes; i++)
+		{
+			SB_WriteInt (&sb, dclipnodes[i].planenum);
+			SB_WriteShort (&sb, dclipnodes[i].children[0]);
+			SB_WriteShort (&sb, dclipnodes[i].children[1]);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_MARKSURFACES];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < nummarksurfaces; i++)
+			SB_WriteShort (&sb, dmarksurfaces[i]);
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_SURFEDGES];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numsurfedges; i++)
+			SB_WriteInt (&sb, dsurfedges[i]);
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_EDGES];
+		lump->fileofs = SB_Tell(&sb);
+		for (i = 0; i < numedges; i++)
+		{
+			SB_WriteShort (&sb, dedges[i].v[0]);
+			SB_WriteShort (&sb, dedges[i].v[1]);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_MODELS];
+		lump->fileofs = SB_Tell (&sb);
+		for (i = 0; i < nummodels; i++)
+		{
+			SB_WriteFloat (&sb, dmodels[i].mins[0]);
+			SB_WriteFloat (&sb, dmodels[i].mins[1]);
+			SB_WriteFloat (&sb, dmodels[i].mins[2]);
+			SB_WriteFloat (&sb, dmodels[i].maxs[0]);
+			SB_WriteFloat (&sb, dmodels[i].maxs[1]);
+			SB_WriteFloat (&sb, dmodels[i].maxs[2]);
+			SB_WriteFloat (&sb, dmodels[i].origin[0]);
+			SB_WriteFloat (&sb, dmodels[i].origin[1]);
+			SB_WriteFloat (&sb, dmodels[i].origin[2]);
+			for (j = 0; j < numhulls; j++)
+				SB_WriteInt (&sb, dmodels[i].headnode[j]);
+			SB_WriteInt (&sb, dmodels[i].visleafs);
+			SB_WriteInt (&sb, dmodels[i].firstface);
+			SB_WriteInt (&sb, dmodels[i].numfaces);
+		}
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_LIGHTING];
+		lump->fileofs = SB_Tell (&sb);
+		if (ismcbsp)
+			SB_WriteData (&sb, drgblightdata, rgblightdatasize);
+		else
+			SB_WriteData (&sb, dlightdata, lightdatasize);			
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_VISIBILITY];
+		lump->fileofs = SB_Tell (&sb);
+		SB_WriteData (&sb, dvisdata, visdatasize);
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_ENTITIES];
+		lump->fileofs = SB_Tell (&sb);
+		SB_WriteData (&sb, dentdata, entdatasize);
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+		lump = &lumps[LUMP_TEXTURES];
+		lump->fileofs = SB_Tell (&sb);
+		SB_WriteData (&sb, dtexdata, texdatasize);
+		lump->filelen = SB_Tell(&sb) - lump->fileofs;
+		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
+
+	// go back and update the header
+		index = SB_Tell (&sb);
+		SB_SeekAbsolute (&sb, 0);
 
 		if (ismcbsp)
 		{
-			SafeWrite (wadfile, "MCBSP", 5);
-			header->version = LittleLong (MCBSPVERSION);
+			SB_WriteData (&sb, "MCBSP", 5);
+			SB_WriteInt (&sb, MCBSPVERSION);
+			SB_WriteInt (&sb, numhulls);
+			for (i = 1; i < numhulls; i++)
+			{
+				SB_WriteFloat (&sb, dhulls[i][0][0]);
+				SB_WriteFloat (&sb, dhulls[i][0][1]);
+				SB_WriteFloat (&sb, dhulls[i][0][2]);
+				SB_WriteFloat (&sb, dhulls[i][1][0]);
+				SB_WriteFloat (&sb, dhulls[i][1][1]);
+				SB_WriteFloat (&sb, dhulls[i][1][2]);
+			}
 		}
 		else
-			header->version = LittleLong (BSPVERSION);
+			SB_WriteInt (&sb, BSPVERSION);
 
-		SafeWrite (wadfile, header, sizeof(dheader_t));	// overwritten later
+		for (i = 0; i < HEADER_LUMPS; i++)
+		{
+			SB_WriteInt (&sb, lumps[i].fileofs);
+			SB_WriteInt (&sb, lumps[i].filelen);
+		}
 
-		AddLump (LUMP_PLANES, dplanes, numplanes*sizeof(dplane_t));
-		AddLump (LUMP_LEAFS, dleafs, numleafs*sizeof(dleaf_t));
-		AddLump (LUMP_VERTEXES, dvertexes, numvertexes*sizeof(dvertex_t));
-		AddLump (LUMP_NODES, dnodes, numnodes*sizeof(dnode_t));
-		AddLump (LUMP_TEXINFO, texinfo, numtexinfo*sizeof(texinfo_t));
-		AddLump (LUMP_FACES, dfaces, numfaces*sizeof(dface_t));
-		AddLump (LUMP_CLIPNODES, dclipnodes, numclipnodes*sizeof(dclipnode_t));
-		AddLump (LUMP_MARKSURFACES, dmarksurfaces, nummarksurfaces*sizeof(dmarksurfaces[0]));
-		AddLump (LUMP_SURFEDGES, dsurfedges, numsurfedges*sizeof(dsurfedges[0]));
-		AddLump (LUMP_EDGES, dedges, numedges*sizeof(dedge_t));
-		AddLump (LUMP_MODELS, dmodels, nummodels*sizeof(dmodel_t));
+		SB_SeekAbsolute (&sb, index);
 
-		if (ismcbsp)
-			AddLump (LUMP_LIGHTING, drgblightdata, rgblightdatasize);
-		else
-			AddLump (LUMP_LIGHTING, dlightdata, lightdatasize);
-		AddLump (LUMP_VISIBILITY, dvisdata, visdatasize);
-		AddLump (LUMP_ENTITIES, dentdata, entdatasize);
-		AddLump (LUMP_TEXTURES, dtexdata, texdatasize);
+	// open a file and dump the buffer into it
+		f = SafeOpenWrite (filename);
+		SafeWrite (f, sb.start, (sb.index - sb.start));
+		fclose (f);
 
-		fseek (wadfile, 0, SEEK_SET);
-		if (ismcbsp)
-			SafeWrite (wadfile, "MCBSP", 5);
-		SafeWrite (wadfile, header, sizeof(dheader_t));
-		fclose (wadfile);
+	// finish up
+		SB_Free (&sb);
 	}
 
 	if (!ismcbsp && rgblightdatasize)
@@ -413,7 +737,10 @@ Dumps info about current file
 */
 void PrintBSPFileSizes (void)
 {
-	printf ("%5i models       %6i\n", nummodels, (int)(nummodels*sizeof(dmodel_t)));
+	if (ismcbsp)
+		printf ("%5i models       %6i\n", nummodels, (int)(nummodels*sizeof(dmodel_t)));
+	else
+		printf ("%5i models       %6i\n", nummodels, (int)(nummodels*64));
 	printf ("%5i planes       %6i\n", numplanes, (int)(numplanes*sizeof(dplane_t)));
 	printf ("%5i vertexes     %6i\n", numvertexes, (int)(numvertexes*sizeof(dvertex_t)));
 	printf ("%5i nodes        %6i\n", numnodes, (int)(numnodes*sizeof(dnode_t)));
@@ -523,6 +850,17 @@ vec_t FloatForKey (entity_t *ent, char *key)
 			return atof( ep->value );
 
 	return 0;
+}
+
+epair_t *HasKey (entity_t *ent, char *key)
+{
+	epair_t *ep;
+
+	for (ep = ent->epairs; ep; ep = ep->next)
+		if (!strcmp (ep->key, key))
+			return ep;
+
+	return NULL;
 }
 
 void SetKeyValue (entity_t *ent, char *key, char *value)

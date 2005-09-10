@@ -53,26 +53,27 @@ void qprintf( char *fmt, ... )
 ProcessEntity
 ===============
 */
-void ProcessEntity (int entnum, int modnum, int hullnum, vec3_t *hullsize)
+void ProcessEntity (int entnum, int modnum, int hullnum)
 {
 	entity_t	*ent;
 	tree_t		*tree;
 
 	ent = &entities[entnum];
-	if( !ent->brushes )
+	if (!ent->brushes)
 		return;
 
-	tree = Tree_ProcessEntity( ent, modnum, hullnum, hullsize );
-	EmitNodePlanes( tree->headnode );
+	tree = Tree_ProcessEntity (ent, modnum, hullnum);
+	EmitNodePlanes (tree->headnode);
 
-	if( hullnum != 0 ) {
-		EmitClipNodes( tree->headnode, modnum, hullnum );
-	} else {
-		EmitNodeFaces( tree->headnode );
-		EmitDrawNodes( tree->headnode );
+	if (hullnum != 0)
+		EmitClipNodes (tree->headnode, modnum, hullnum);
+	else
+	{
+		EmitNodeFaces (tree->headnode);
+		EmitDrawNodes (tree->headnode);
 	}
 
-	FreeTree( tree );
+	FreeTree (tree);
 }
 
 /*
@@ -103,7 +104,7 @@ void UpdateEntLump (void)
 CreateSingleHull
 =================
 */
-void CreateSingleHull ( int hullnum, vec3_t *hullsize )
+void CreateSingleHull (int hullnum)
 {
 	int			entnum;
 	int			modnum;
@@ -115,25 +116,11 @@ void CreateSingleHull ( int hullnum, vec3_t *hullsize )
 		if (!entities[entnum].brushes)
 			continue;
 
-		ProcessEntity (entnum, modnum++, hullnum, hullsize);
+		ProcessEntity (entnum, modnum++, hullnum);
 		if (!allverbose)
 			verbose = false;	// don't print rest of entities
 	}
 }
-
-vec3_t	quake_hull_sizes[3][2] =
-{
-{{  0,  0,  0}, {  0,  0,  0}},
-{{-16,-16,-32}, { 16, 16, 24}},
-{{-32,-32,-64}, { 32, 32, 24}}
-};
-
-vec3_t	mc_hull_sizes[3][2] =
-{
-{{  0,  0,  0}, {  0,  0,  0}},
-{{-12,-12,-32}, { 12, 12, 24}},
-{{-12,-12,-16}, { 12, 12, 24}}
-};
 
 /*
 =================
@@ -142,30 +129,68 @@ CreateHulls
 */
 void CreateHulls (void)
 {
+	int	i;
+
+// hull 0 is always point-sized
+	VectorClear (dhulls[0][0]);
+	VectorClear (dhulls[0][1]);
+	CreateSingleHull (0);
+
 	// commanded to ignore the hulls altogether
 	if (noclip)
     {
-		CreateSingleHull ( 0, quake_hull_sizes[0] );
+		numhulls = 1;
 		return;
     }
-
-	// create all the hulls
 
 	// create the hulls sequentially
 	printf ("building hulls sequentially...\n");
 
+	// get the hull sizes
 	if (ismcbsp)
 	{
-		CreateSingleHull ( 0, mc_hull_sizes[0] );
-		CreateSingleHull ( 1, mc_hull_sizes[1] );
-		CreateSingleHull ( 2, mc_hull_sizes[2] );
+		entity_t	*world;
+		epair_t		*epmins, *epmaxs;
+		char		keymins[16], keymaxs[16];
+		vec3_t		v;
+		int			i;
+
+	// read hull values from _hull# fields in worldspawn
+		world = FindEntityWithKeyPair ("classname", "worldspawn");
+
+		for (numhulls = 1; numhulls < MAX_MAP_HULLS; numhulls++)
+		{
+			sprintf (keymins, "_hull%d_mins", numhulls);
+			sprintf (keymaxs, "_hull%d_maxs", numhulls);
+
+			if ((epmins = HasKey(world, keymins)) && (epmaxs = HasKey(world, keymaxs)))
+			{
+				GetVectorForKey (world, keymins, v);
+				VectorCopy (v, dhulls[numhulls][0]);
+				GetVectorForKey (world, keymaxs, v);
+				VectorCopy (v, dhulls[numhulls][1]);
+			}
+			else
+				break;
+		}
+
+		printf ("Map has %d hulls:\n", numhulls);
+		for (i = 0; i < numhulls; i++)
+			printf ("%2d: %.1f %.1f %.1f, %.1f %.1f %.1f\n", i, dhulls[i][0][0], dhulls[i][0][1], dhulls[i][0][2], dhulls[i][1][0], dhulls[i][1][1], dhulls[i][1][2]);
 	}
 	else
 	{
-		CreateSingleHull ( 0, quake_hull_sizes[0] );
-		CreateSingleHull ( 1, quake_hull_sizes[1] );
-		CreateSingleHull ( 2, quake_hull_sizes[2] );
+		numhulls = 4;	// there are 4 hulls, but only 3 are actually used
+		VectorSet (dhulls[1][0], -16, -16, -24);
+		VectorSet (dhulls[1][1], 16, 16, 32);
+		VectorSet (dhulls[2][0], -32, -32, -24);
+		VectorSet (dhulls[2][1], 32, 32, 64);
+		VectorClear (dhulls[3][0]);
+		VectorClear (dhulls[3][1]);
 	}
+
+	for (i = 1; i < numhulls; i++)
+		CreateSingleHull (i);
 }
 
 /*

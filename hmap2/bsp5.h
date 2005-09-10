@@ -96,7 +96,7 @@ typedef struct
 // brush.c
 brush_t *AllocBrush( void );
 void FreeBrush( brush_t *b );
-void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum, vec3_t *hullsize );
+void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum );
 
 //=============================================================================
 
@@ -157,7 +157,7 @@ void FixTJunctions( tree_t *tree );
 // tree.c
 tree_t *AllocTree( void );
 void FreeTree( tree_t *t );
-tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum, vec3_t *hullsize );
+tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum );
 
 //=============================================================================
 

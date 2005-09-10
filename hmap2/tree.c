@@ -40,18 +40,19 @@ void FreeTree( tree_t *t ) {
 Tree_ProcessEntity
 ===============
 */
-tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum, vec3_t *hullsize )
+tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum )
 {
 	tree_t		*tree;
 	qboolean	worldmodel;
 
-	if( !strcmp( ValueForKey( ent, "classname" ), "worldspawn" ) ) {
+	if (!strcmp (ValueForKey(ent, "classname"), "worldspawn"))
 		worldmodel = true;
-	} else {
+	else
+	{
 		worldmodel = false;
 
-		if( verbose )
-			PrintEntity( ent );
+		if (verbose)
+			PrintEntity (ent);
 	}
 
 	// allocate a tree to hold our entity
@@ -59,28 +60,34 @@ tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum, vec3_t *hull
 
 	// take the brushes and clip off all overlapping and contained faces,
 	// leaving a perfect skin of the model with no hidden faces
-	Brush_LoadEntity( ent, tree, hullnum, hullsize );
-	if( !tree->brushes ) {
+	Brush_LoadEntity( ent, tree, hullnum );
+	if( !tree->brushes )
+	{
 		PrintEntity( ent );
 		Error( "Entity with no valid brushes" );
 	}
 
 	CSGFaces( tree );
 
-	if( hullnum != 0 ) {
+	if( hullnum != 0 )
+	{
 		SolidBSP( tree, true );
 
 		// assume non-world bmodels are simple
-		if( worldmodel && !nofill ) {
+		if( worldmodel && !nofill )
+		{
 			PortalizeTree( tree );
 
-			if( FillOutside( tree, hullnum ) ) {
+			if( FillOutside( tree, hullnum ) )
+			{
 				GatherTreeFaces( tree );
 				SolidBSP( tree, false );	// make a really good tree
 			}
 			FreeTreePortals( tree );
 		}
-	} else {
+	}
+	else
+	{
 		// if not the world, make a good tree first
 		// the world is just going to make a bad tree
 		// because the outside filling will force a regeneration later
@@ -90,10 +97,12 @@ tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum, vec3_t *hull
 		// some portals are solid polygons, and some are paths to other leafs
 
 		// assume non-world bmodels are simple
-		if( worldmodel && (!nofill || forcevis) ) {
+		if( worldmodel && (!nofill || forcevis) )
+		{
 			PortalizeTree( tree );
 
-			if( FillOutside( tree, 0 ) || forcevis ) {
+			if( FillOutside( tree, 0 ) || forcevis )
+			{
 				FreeTreePortals( tree );
 
 				// get the remaining faces together into surfaces again
