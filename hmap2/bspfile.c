@@ -155,17 +155,17 @@ void SB_WriteByte (swappedbuffer_t *sbuf, byte b)
 
 void SB_WriteShort (swappedbuffer_t *sbuf, short i)
 {
-	sbuf->index[0] = (i >> 8) & 0xFF;
-	sbuf->index[1] = i & 0xFF;
+	sbuf->index[0] = i & 0xFF;
+	sbuf->index[1] = (i >> 8) & 0xFF;
 	sbuf->index += 2;
 }
 
 void SB_WriteInt (swappedbuffer_t *sbuf, int i)
 {
-	sbuf->index[0] = (i >> 24) & 0xFF;
-	sbuf->index[1] = (i >> 16) & 0xFF;
-	sbuf->index[2] = (i >> 8) & 0xFF;
-	sbuf->index[3] = i & 0xFF;
+	sbuf->index[0] = i & 0xFF;
+	sbuf->index[1] = (i >> 8) & 0xFF;
+	sbuf->index[2] = (i >> 16) & 0xFF;
+	sbuf->index[3] = (i >> 24) & 0xFF;
 	sbuf->index += 4;
 }
 
