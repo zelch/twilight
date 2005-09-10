@@ -59,7 +59,6 @@ typedef struct
 	dface_t			*face;
 } lightinfo_t;
 
-#define BUGGY_TEST
 static qboolean ranout = false; // FIXME: do this some other way?
 
 /*
