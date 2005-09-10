@@ -163,7 +163,7 @@ void CreateHulls (void)
 			sprintf (keymins, "_hull%d_mins", hullinfo.numhulls);
 			sprintf (keymaxs, "_hull%d_maxs", hullinfo.numhulls);
 
-			if (HasKey(world, keymins) && HasKey(world, keymaxs))
+			if ((ValueForKey(world, keymins))[0] && (ValueForKey(world, keymaxs))[0])
 			{
 				GetVectorForKey (world, keymins, v);
 				VectorCopy (v, hullinfo.hullsizes[hullinfo.numhulls][0]);
