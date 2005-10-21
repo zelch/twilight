@@ -695,7 +695,22 @@ void(entity player) Inventory_FromParms =
 		ItemClass_RegisterDefaultClasses();
 	valid = lhfp_decode(parm1);
 	//dprint("valid is ");dprint(ftos(valid));dprint("\n");
-	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
+	if (metroidmode)
+	{
+		//dprint("metroidmode\n");
+		self.items = 0;
+		self.health = STARTPARMSMCTF_HEALTH;
+		self.max_health = STARTPARMSMCTF_MAXHEALTH;
+		self.armorvalue = STARTPARMSMCTF_ARMORVALUE;
+		self.armortype = STARTPARMSMCTF_ARMORTYPE;
+		Inventory_SetQuantity(self, "shells", STARTPARMSMCTF_AMMO_SHELLS);
+		Inventory_SetQuantity(self, "nails", STARTPARMSMCTF_AMMO_NAILS);
+		Inventory_SetQuantity(self, "rockets", STARTPARMSMCTF_AMMO_ROCKETS);
+		Inventory_SetQuantity(self, "cells", STARTPARMSMCTF_AMMO_CELLS);
+		Inventory_SetQuantity(self, "mplasmacannon", 1);
+		self.weaponclass = W_BestWeaponClass(TRUE);
+	}
+	else if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
 	{
 		//dprint("deathmatch full pack\n");
 		self.items = 0;
@@ -758,21 +773,6 @@ void(entity player) Inventory_FromParms =
 			aitemclass = aitemclass.chain;
 		}
 		//eprint(self);
-	}
-	else if (metroidmode)
-	{
-		//dprint("metroidmode\n");
-		self.items = 0;
-		self.health = STARTPARMSMCTF_HEALTH;
-		self.max_health = STARTPARMSMCTF_MAXHEALTH;
-		self.armorvalue = STARTPARMSMCTF_ARMORVALUE;
-		self.armortype = STARTPARMSMCTF_ARMORTYPE;
-		Inventory_SetQuantity(self, "shells", STARTPARMSMCTF_AMMO_SHELLS);
-		Inventory_SetQuantity(self, "nails", STARTPARMSMCTF_AMMO_NAILS);
-		Inventory_SetQuantity(self, "rockets", STARTPARMSMCTF_AMMO_ROCKETS);
-		Inventory_SetQuantity(self, "cells", STARTPARMSMCTF_AMMO_CELLS);
-		Inventory_SetQuantity(self, "mplasmacannon", 1);
-		self.weaponclass = W_BestWeaponClass(TRUE);
 	}
 	else
 	{
