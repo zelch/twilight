@@ -963,9 +963,7 @@ void() havocbot_new =
 	}
 	havoccurrentbots = havoccurrentbots + 1;
 	self.netname = havocbot_name();
-	self.c_pants = random() * 16;
-	self.c_shirt = random() * 16;
-	self.clientcolors = self.c_shirt * 16 + self.c_pants;
+	self.clientcolors = random() * 16 + random();
 	ClientConnect();
 	PutClientInServer();
 	havocbot_relinkbotlist();

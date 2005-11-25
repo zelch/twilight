@@ -676,9 +676,6 @@ void() PutClientInServer =
 	// paustime is set by teleporters to keep the player from moving a while
 	self.pausetime = 0;
 
-	// make sure team is validated by game mode
-	//SV_ChangeTeam(self.c_pants + self.c_shirt * 16);
-
 	spot = SelectSpawnPoint ();
 
 	self.angles = spot.angles;

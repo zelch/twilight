@@ -6,10 +6,6 @@ entity team0, team1, team2, team3, team4, team5, team6, team7, team8, team9, tea
 
 entity() weakestteam;
 
-.float c_pants;
-.float c_shirt;
-void(entity e, float p, float s) setplayercolor;
-
 string(float c) colorname =
 {
 	// yikes, the quake color set is HARD to describe
@@ -126,7 +122,7 @@ void() checkinvalidteam =
 	{
 		// team not allowed, reassign team
 		e = weakestteam();
-		setplayercolor(self, e.team - 1, e.team - 1);
+		setcolor(self, (e.team - 1) + (e.team - 1) * 16);
 	}
 };
 
@@ -192,22 +188,10 @@ float(float p) checkteamcolor =
 	return t.team - 1;
 };
 
-void(entity e, float pants, float shirt) setplayercolor =
-{
-	//local string s;
-	local float old;
-	e.c_pants = pants;
-	e.c_shirt = shirt;
-	old = e.colormap;
-	e.colormap = e.c_pants + e.c_shirt * 16 + 1024;
-	e.team = pants + 1;
-	if (e.flags & FL_CLIENT)
-		setcolor(e, e.colormap - 1024);
-};
-
 void(float c) SV_ChangeTeam =
 {
 	local float pants, shirt, old;
+	old = self.clientcolors & 15;
 	if (c >= 0)
 	{
 		pants = c & 15;
@@ -218,18 +202,10 @@ void(float c) SV_ChangeTeam =
 		pants = -1;
 		shirt = -1;
 	}
-	/*
-	bprint("SV_ChangeTeam(");
-	bprintfloat(pants);
-	bprint(", ");
-	bprintfloat(shirt);
-	bprint(")\n");
-	*/
 	pants = checkteamcolor(pants);
 	if (mode_shirtmustmatchpants || shirt < 0)
 		shirt = pants;
-	old = self.c_pants;
-	setplayercolor(self, pants, shirt);
+	setcolor(self, pants + shirt * 16);
 	if (pants != old && old >= 0 && teamplay && deathmatch)
 	{
 		T_Damage(self, self, self, 0, 0, " changed teams", DT_TELEFRAG, self.origin, '0 0 0', Obituary_Generic);
@@ -280,7 +256,7 @@ void() mode_updatecvars =
 	else if (deathmatch == 11) setteamplay("3?Dark Places - Capture The Flag - 3 Team");
 	else if (deathmatch == 12) setteamplay("3?Dark Places - Domination");
 	else if (deathmatch == 13) setteamplay("3?Dark Places - Monster Capture The Flag - 2 Team");
-	else 
+	else
 	{
 		     if (cvar("teamplay") == 0) setteamplay("0?Dark Places - No Teamplay");
 		else if (cvar("teamplay") == 1) setteamplay("1?Dark Places - No team damage");

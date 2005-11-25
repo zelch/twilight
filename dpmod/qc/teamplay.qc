@@ -45,11 +45,11 @@ entity modecode;
 .void(float color) chooseteam;
 
 void() modecoopframe = {};
-void(float pants, float shirt) modecoopteam = {setplayercolor(self, pants, shirt);};
+void(float pants, float shirt) modecoopteam = {setcolor(self, pants + shirt * 16);};
 void() modecoopplayer = {};
 
 void() modedmframe = {};
-void(float pants, float shirt) modedmteam = {setplayercolor(self, pants, shirt);};
+void(float pants, float shirt) modedmteam = {setcolor(self, pants + shirt * 16);};
 void() modedmplayer = {};
 
 // engine feature
