@@ -1,17 +1,7 @@
-##### Win32 variables #####
-
-WIN32_EXE=modeltool.exe
-WIN32_LDFLAGS=-lm
-
-##### Unix variables #####
-
-UNIX_EXE=modeltool
-UNIX_LDFLAGS=-lm
-
 ##### Common variables #####
 
 CC=gcc
-CFLAGS=-MD -Wall -O2
+CFLAGS=-MD -Wall
 #CFLAGS=-MD -Wall -g
 
 ifdef windir
@@ -19,6 +9,16 @@ CMD_RM=del
 else
 CMD_RM=rm -f
 endif
+
+##### Win32 variables #####
+
+WIN32_EXE=modeltool.exe
+WIN32_LDFLAGS=$(CFLAGS) -lm
+
+##### Unix variables #####
+
+UNIX_EXE=modeltool
+UNIX_LDFLAGS=$(CFLAGS) -lm
 
 ##### Commands #####
 
