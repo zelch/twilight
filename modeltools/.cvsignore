@@ -1,5 +1,5 @@
 *.o
 *.d
 *.exe
-modeltools
+modeltool
 makesp2
