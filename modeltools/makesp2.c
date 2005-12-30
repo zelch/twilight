@@ -58,14 +58,14 @@ int main(int argc, char **argv)
 	data = malloc(datasize);
 	memcpy(data, "IDS2", 4);
 	write32(data + 4, 2); // version
-	write32(data + 4, numframes);
+	write32(data + 8, numframes);
 	for (i = 0;i < numframes;i++)
 	{
 		framedata = data + 12 + i * 80;
 		write32(framedata, width);
-		write32(framedata, height);
-		write32(framedata, width / 2);
-		write32(framedata, height / 2);
+		write32(framedata + 4, height);
+		write32(framedata + 8, width / 2);
+		write32(framedata + 12, height / 2);
 		memset(framedata + 16, 0, 64);
 		snprintf((char *)framedata + 16, 64, imageprintf, i);
 	}
