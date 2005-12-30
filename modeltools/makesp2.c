@@ -23,7 +23,7 @@ void printusage(void)
 	fprintf(stderr,
 "usage: makesp2 <sp2filename> <imageprintf> <numframes> <width> <height>\n"
 "example:\n"
-"makesp2 explosion1.sp2 explosion1_%%02d.tga 20 64 64\n"
+"makesp2 models/explosion1.sp2 models/explosion1_%%02d.tga 20 64 64\n"
 "(note: that would be frames named explosion1_00.tga then 01 and so on,\n"
 "       use %%d by itself for _0 then _1 and so on)\n"
 	);
