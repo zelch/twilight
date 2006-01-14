@@ -1,6 +1,9 @@
 
 //DarkPlaces supported extension list, draft version 1.04
 
+//things that don't have extensions yet:
+float EF_DOUBLESIDED = 32768; // render as double sided (backfaces are visible), can be useful on transparent stuff
+
 //definitions that id Software left out
 //these are passed as the 'nomonsters' parameter to traceline/tracebox (yes really this was supported in all quake engines, nomonsters is misnamed)
 float MOVE_NORMAL = 0; // same as FALSE
@@ -767,6 +770,7 @@ float(entity clent) clienttype = #455; // returns one of the CLIENTTYPE_* consta
 //DP_SV_CLIENTCOLORS
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
+//field definitions:
 .float clientcolors; // colors of the client (format: pants + shirt * 16)
 //description:
 //allows qc to read and modify the client colors associated with a client entity (not particularly useful on other entities), and automatically sends out any appropriate network updates if changed
@@ -774,7 +778,25 @@ float(entity clent) clienttype = #455; // returns one of the CLIENTTYPE_* consta
 //DP_SV_CLIENTNAME
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
+//description:
 //allows qc to modify the client's .netname, and automatically sends out any appropriate network updates if changed
+
+//DP_SV_CUSTOMIZEENTITYFORCLIENT
+//idea: LordHavoc
+//darkplaces implementation: [515] and LordHavoc
+//field definitions:
+.float() customizeentityforclient; // self = this entity, other = client entity
+//description:
+//allows qc to modify an entity before it is sent to each client, the function returns TRUE if it should send, FALSE if it should not, and is fully capable of editing the entity's fields, this allows cloaked players to appear less transparent to their teammates, navigation markers to only show to their team, etc
+//tips on writing customize functions:
+//it is a good idea to return FALSE early in the function if possible to reduce cpu usage, because this function may be called many thousands of times per frame if there are many customized entities on a 64+ player server.
+//you are free to change anything in self, but please do not change any other entities (the results may be very inconsistent).
+//example ideas for use of this extension:
+//making icons over teammates' heads which are only visible to teammates.  for exasmple: float() playericon_customizeentityforclient = {return self.owner.team == other.team;};
+//making cloaked players more visible to their teammates than their enemies.  for example: float() player_customizeentityforclient = {if (self.items & IT_CLOAKING) {if (self.team == other.team) self.alpha = 0.6;else self.alpha = 0.1;} return TRUE;};
+//making explosion models that face the viewer (does not work well with chase_active).  for example: float() explosion_customizeentityforclient = {self.angles = vectoangles(other.origin + other.view_ofs - self.origin);self.angles_x = 0 - self.angles_x;};
+//implementation notes:
+//entity customization is done before per-client culling (visibility for instance) because the entity may be doing setorigin to display itself in different locations on different clients, may be altering its .modelindex, .effects and other fields important to culling, so customized entities increase cpu usage (non-customized entities can use all the early culling they want however, as they are not changing on a per client basis).
 
 //DP_SV_DRAWONLYTOCLIENT
 //idea: LordHavoc
