@@ -2,9 +2,8 @@
 //DarkPlaces supported extension list, draft version 1.04
 
 //things that don't have extensions yet:
-float EF_DOUBLESIDED = 32768; // render as double sided (backfaces are visible), can be useful on transparent stuff
 
-//definitions that id Software left out
+//definitions that id Software left out:
 //these are passed as the 'nomonsters' parameter to traceline/tracebox (yes really this was supported in all quake engines, nomonsters is misnamed)
 float MOVE_NORMAL = 0; // same as FALSE
 float MOVE_NOMONSTERS = 1; // same as TRUE
@@ -106,6 +105,14 @@ float   EF_ADDITIVE     = 32;
 float   EF_BLUE         = 64;
 //description:
 //entity emits blue light (used for quad)
+
+//DP_EF_DOUBLESIDED
+//idea: LordHavoc
+//darkplaces implementation: [515] and LordHavoc
+//effects bit:
+float EF_DOUBLESIDED = 32768;
+//description:
+//render entity as double sided (backfaces are visible, I.E. you see the 'interior' of the model, rather than just the front), can be occasionally useful on transparent stuff.
 
 //DP_EF_FLAME
 //idea: LordHavoc
