@@ -1124,6 +1124,15 @@ void(entity own, vector start, vector end) te_beam = #431;
 //description:
 //scales fov and sensitivity of player, valid range is 0 to 1 (intended for sniper rifle zooming, and such)
 
+//EXT_BITSHIFT
+//idea: Spike
+//darkplaces implementation: [515]
+//builtin definitions:
+float(float number, float quantity) bitshift = #218;
+//description:
+//multiplies number by a power of 2 corresponding to quantity (0 = *1, 1 = *2, 2 = *4, 3 = *8, -1 = /2, -2 = /4x, etc), and rounds down (due to integer math) like other bit operations do (& and | and the like).
+//note: it is faster to use multiply if you are shifting by a constant, avoiding the quakec function call cost, however that does not do a floor for you.
+
 //FRIK_FILE
 //idea: FrikaC
 //darkplaces implementation: LordHavoc
