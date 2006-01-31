@@ -174,7 +174,7 @@ void() hknightspike_think =
 			v = normalize(self.enemy.origin + self.dest - self.origin);
 			v2 = normalize(self.velocity);
 			if (v * v2 > 0.5)
-				self.velocity = self.velocity + (v * 500 - self.velocity) * frametime * 2;
+				self.velocity = self.velocity + (v * 500 - self.velocity) * frametime * 4;
 			else // can't see player anymore, fly off
 				self.enemy = world;
 		}
