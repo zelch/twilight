@@ -5585,8 +5585,8 @@ void() W_Precache =
 		//w_jackhammer(WR_REGISTER);
 		w_thunderbolt(WR_REGISTER);
 		w_plasmarifle(WR_REGISTER);
-		w_plasmawave(WR_REGISTER);
-		w_flamer(WR_REGISTER);
+		//w_plasmawave(WR_REGISTER);
+		//w_flamer(WR_REGISTER);
 
 		//w_handgrenade(WR_REGISTER);
 		//w_hopper(WR_REGISTER);
