@@ -209,9 +209,16 @@ void() ImpulseCommands =
 			wclass = wclass.w_next;
 		}
 		while (wclass != w_chain);
+		sprint(self, "Console variables:
+		sprint(self, "damagescale_playerdamage - affects weapon damage to everything\n");
+		sprint(self, "damagescale_monsterdamage - affects monster damage to players\n");
+		sprint(self, "damagescale_monsterhealth - affects player damage to monsters\n");
+		sprint(self, "spawnmonsters - how many monsters to fight in deathmatch\n");
+		sprint(self, "monsterwander - makes monsters roam the level\n");
+		sprint(self, "bots - how many bots to play with\n");
+		sprint(self, "sv_maplist - map list to cycle on servers\n");
 		sprint(self, "Impulses:\n");
 		sprint(self, "stats - shows current kill/death stats\n");
-		sprint(self, "addbot - adds a bot\n");
 		sprint(self, "+button3 - secondary fire (used by some weapons)\n");
 		sprint(self, "+button4 - zoom (available with all weapons)\n");
 		sprint(self, "+button5 - grapple (not in singleplayer/coop)\n");
