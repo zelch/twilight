@@ -290,7 +290,7 @@ void() modesetup =
 	mode_shirtmustmatchpants = deathmatch >= DM_TEAM_MODS_START && deathmatch < DM_TEAM_MODS_END;
 	spawnteams();
 
-	itemrespawn = deathmatch || cvar("coop");
+	itemrespawn = cvar("deathmatch") + cvar("coop");
 
 	// don't spawn any monsters until 15 seconds
 	spawnchecktime = 15;
