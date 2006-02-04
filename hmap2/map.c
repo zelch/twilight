@@ -123,68 +123,6 @@ int	FindTexinfo( texinfo_t *t )
 //============================================================================
 
 
-/*
-==================
-textureAxisFromPlane
-==================
-*/
-vec3_t	baseaxis[18] =
-{
-	{0,0,1}, {1,0,0}, {0,-1,0},			// floor
-	{0,0,-1}, {1,0,0}, {0,-1,0},		// ceiling
-	{1,0,0}, {0,1,0}, {0,0,-1},			// west wall
-	{-1,0,0}, {0,1,0}, {0,0,-1},		// east wall
-	{0,1,0}, {1,0,0}, {0,0,-1},			// south wall
-	{0,-1,0}, {1,0,0}, {0,0,-1}			// north wall
-};
-
-void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv, qboolean q3brush)
-{
-	if (q3brush)
-	{
-		// LordHavoc: why oh why did they have to change it?
-		float a, ac, as, bc, bs;
-		a = -atan2(pln->normal[2], sqrt(pln->normal[0]*pln->normal[0]+pln->normal[1]*pln->normal[1]));
-		ac = cos(a);
-		as = sin(a);
-		a = atan2(pln->normal[1], pln->normal[0]);
-		bc = cos(a);
-		bs = sin(a);
-		xv[0] = -bs;
-		xv[1] = bc;
-		xv[2] = 0;
-		yv[0] = -as*bc;
-		yv[1] = -as*bs;
-		yv[2] = -ac;
-	}
-	else
-	{
-		int		bestaxis;
-		vec_t	dot,best;
-		int		i;
-
-		best = 0;
-		bestaxis = 0;
-
-		for (i=0 ; i<6 ; i++)
-		{
-			dot = DotProduct (pln->normal, baseaxis[i*3]);
-			if (dot > best)
-			{
-				best = dot;
-				bestaxis = i;
-			}
-		}
-
-		VectorCopy (baseaxis[bestaxis*3+1], xv);
-		VectorCopy (baseaxis[bestaxis*3+2], yv);
-	}
-}
-
-
-//=============================================================================
-
-
 typedef enum brushtype_e
 {
 	BRUSHTYPE_QUAKE,
@@ -196,8 +134,8 @@ brushtype_t;
 
 void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushtype)
 {
-	int			i, j, sv, tv, hltexdef, facecontents, faceflags, facevalue, q2brushface, q3brushface, bpface;
-	vec_t		planepts[3][3], t1[3], t2[3], d, rotate, scale[2], vecs[2][4], ang, sinv, cosv, ns, nt, bp[2][3];
+	int			i, j, hltexdef, facecontents, faceflags, facevalue, q2brushface, q3brushface, bpface;
+	vec_t		planepts[3][3], t1[3], t2[3], d, rotate, scale[2], vecs[2][4], ang, sinv, cosv, bp[2][3];
 	mface_t		*f, *f2;
 	plane_t	plane;
 	texinfo_t	tx;
@@ -381,65 +319,83 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 		return;
 	}
 
+	scale[0] = 1.0 / scale[0];
+	scale[1] = 1.0 / scale[1];
+
 	if (bpface)
 	{
-		// fake proper texture vectors from QuakeEd style
-		TextureAxisFromPlane(&plane, vecs[0], vecs[1], true);
-		// FIXME: deal with the bp stuff here
-		printf("warning: brush primitive texturing not yet supported (line %d)\n", scriptline);
-		// generic texturing
-		tx.vecs[0][0] = vecs[0][0];
-		tx.vecs[0][1] = vecs[0][1];
-		tx.vecs[0][2] = vecs[0][2];
-		tx.vecs[0][3] = vecs[0][3];
-		tx.vecs[1][0] = vecs[1][0];
-		tx.vecs[1][1] = vecs[1][1];
-		tx.vecs[1][2] = vecs[1][2];
-		tx.vecs[1][3] = vecs[1][3];
+		// calculate proper texture vectors from GTKRadiant/Doom3 brushprimitives matrix
+		float a, ac, as, bc, bs;
+		a = -atan2(plane.normal[2], sqrt(plane.normal[0]*plane.normal[0]+plane.normal[1]*plane.normal[1]));
+		ac = cos(a);
+		as = sin(a);
+		a = atan2(plane.normal[1], plane.normal[0]);
+		bc = cos(a);
+		bs = sin(a);
+		vecs[0][0] = -bs;
+		vecs[0][1] = bc;
+		vecs[0][2] = 0;
+		vecs[1][0] = -as*bc;
+		vecs[1][1] = -as*bs;
+		vecs[1][2] = -ac;
+		tx.vecs[0][0] = bp[0][0] * vecs[0][0] + bp[0][1] * vecs[1][0];
+		tx.vecs[0][1] = bp[0][0] * vecs[0][1] + bp[0][1] * vecs[1][1];
+		tx.vecs[0][2] = bp[0][0] * vecs[0][2] + bp[0][1] * vecs[1][2];
+		tx.vecs[0][3] = bp[0][0] * vecs[0][3] + bp[0][1] * vecs[1][3] + bp[0][2];
+		tx.vecs[1][0] = bp[1][0] * vecs[0][0] + bp[1][1] * vecs[1][0];
+		tx.vecs[1][1] = bp[1][0] * vecs[0][1] + bp[1][1] * vecs[1][1];
+		tx.vecs[1][2] = bp[1][0] * vecs[0][2] + bp[1][1] * vecs[1][2];
+		tx.vecs[1][3] = bp[1][0] * vecs[0][3] + bp[1][1] * vecs[1][3] + bp[1][2];
+	}
+	else if (hltexdef)
+	{
+		// HL texture vectors are almost ready to go
+		for (i = 0; i < 2; i++)
+		{
+			for (j = 0; j < 3; j++)
+				tx.vecs[i][j] = vecs[i][j] * scale[i];
+			tx.vecs[i][3] = vecs[i][3] /*+ DotProduct(origin, tx.vecs[i])*/;
+// Sajt: ripped the commented out bit from the HL compiler code, not really sure what it is exactly doing
+// 'origin': origin set on bmodel by origin brush or origin key
+		}
 	}
 	else
 	{
-		if (hltexdef)
+		// fake proper texture vectors from QuakeEd style
+
+		// texture rotation around the plane normal
+			 if (rotate ==  0) {sinv = 0;cosv = 1;}
+		else if (rotate == 90) {sinv = 1;cosv = 0;}
+		else if (rotate == 180) {sinv = 0;cosv = -1;}
+		else if (rotate == 270) {sinv = -1;cosv = 0;}
+		else {ang = rotate * (Q_PI / 180);sinv = sin(ang);cosv = cos(ang);}
+
+		if (fabs(plane.normal[2]) < fabs(plane.normal[0]))
 		{
-			for (i = 0; i < 2; i++)
+			if (fabs(plane.normal[0]) < fabs(plane.normal[1]))
 			{
-				d = 1.0 / (scale[i] ? scale[i] : 1.0);
-				for (j = 0; j < 3; j++)
-					tx.vecs[i][j] = vecs[i][j] * d;
-				tx.vecs[i][3] = vecs[i][3] /*+ DotProduct(origin, tx.vecs[i])*/;
-// Sajt: ripped the commented out bit from the HL compiler code, not really sure what it is exactly doing
-// 'origin': origin set on bmodel by origin brush or origin key
+				// Y primary
+				VectorSet4(tx.vecs[0],  0,  cosv*scale[0],  sinv*scale[0], vecs[0][3]);
+				VectorSet4(tx.vecs[1],  0,  sinv*scale[1], -cosv*scale[1], vecs[1][3]);
 			}
+			else
+			{
+				// X primary
+				VectorSet4(tx.vecs[0],  cosv*scale[0],  sinv*scale[0],  0, vecs[0][3]);
+				VectorSet4(tx.vecs[1],  sinv*scale[1], -cosv*scale[1],  0, vecs[1][3]);
+			}
+		}
+		else if (fabs(plane.normal[2]) < fabs(plane.normal[1]))
+		{
+			// Y primary
+			VectorSet4(tx.vecs[0],  0,  cosv*scale[0],  sinv*scale[0], vecs[0][3]);
+			VectorSet4(tx.vecs[1],  0,  sinv*scale[1], -cosv*scale[1], vecs[1][3]);
 		}
 		else
 		{
-			// fake proper texture vectors from QuakeEd style
-			TextureAxisFromPlane(&plane, vecs[0], vecs[1], q3brushface);
-
-			// rotate axis
-				 if (rotate ==  0) {sinv = 0;cosv = 1;}
-			else if (rotate == 90) {sinv = 1;cosv = 0;}
-			else if (rotate == 180) {sinv = 0;cosv = -1;}
-			else if (rotate == 270) {sinv = -1;cosv = 0;}
-			else {ang = rotate * (Q_PI / 180);sinv = sin(ang);cosv = cos(ang);}
-
-			// LordHavoc: I don't quite understand this
-			for (sv = 0;sv < 2 && !vecs[0][sv];sv++);
-			for (tv = 0;tv < 2 && !vecs[1][tv];tv++);
-
-			for (i = 0;i < 2;i++)
-			{
-				// rotate
-				ns = cosv * vecs[i][sv] - sinv * vecs[i][tv];
-				nt = sinv * vecs[i][sv] + cosv * vecs[i][tv];
-				vecs[i][sv] = ns;
-				vecs[i][tv] = nt;
-				// scale and store into texinfo
-				d = 1.0 / (scale[i] ? scale[i] : 1.0);
-				for (j = 0;j < 3;j++)
-					tx.vecs[i][j] = vecs[i][j] * d;
-				tx.vecs[i][3] = vecs[i][3];
-			}
+			// Z primary
+			VectorSet4(tx.vecs[0],  cosv*scale[0],  0,  sinv*scale[0], vecs[0][3]);
+			VectorSet4(tx.vecs[1],  sinv*scale[1],  0, -cosv*scale[1], vecs[1][3]);
 		}
 	}
 
