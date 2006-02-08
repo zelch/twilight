@@ -9,7 +9,7 @@ void() InitDecals =
 //	precache_model ("progs/!bullethole.spr32");  // nailgun hole
 };
 
-void(vector org, entity en, vector dir, string dmodel, float dframe, float importance) newdecal =
+void(vector org, entity en, vector dir, string dmodel, float dskin, float dframe, float importance) newdecal =
 {
 	local vector dirangles;
 	local entity e;
@@ -45,6 +45,7 @@ void(vector org, entity en, vector dir, string dmodel, float dframe, float impor
 		e.createdtime = time + importance;
 	}
 	setmodel (e, dmodel);
+	e.skin = dskin;
 	e.frame = dframe;
 	e.angles = dirangles;
 	setorigin (e, org);
@@ -69,11 +70,11 @@ void(vector org, entity en, vector dir, float holetype) newbullethole =
         local   float   r;
         r = random() * 0.999;
              if (holetype == 0) // bullet hole
-                newdecal(org, en, dir, "progs/!bullethole.spr32", r * 10, 0);
+                newdecal(org, en, dir, "progs/!bullethole.spr32", 0, r * 10, 0);
         else if (holetype == 1) // shotgun pellet hole
-                newdecal(org, en, dir, "progs/!pellethole.spr32", r * 10, 0);
+                newdecal(org, en, dir, "progs/!pellethole.spr32", 0, r * 10, 0);
         else                    // small burn mark
-                newdecal(org, en, dir, "progs/!plasmamark.spr32", r * 10, 0);
+                newdecal(org, en, dir, "progs/!plasmamark.spr32", 0, r * 10, 0);
 };
 */
 
@@ -84,9 +85,9 @@ void(vector org, entity en, vector dir, float splattype, float importance) newbl
         local   float   r;
         r = random() * 0.999;
         if (splattype == 1) // huge blood pool
-                newdecal(org, en, dir, "progs/!bloodbig.spr32", r * 5, importance);
+                newdecal(org, en, dir, "progs/!bloodbig.spr32", 0, r * 5, importance);
         else // blood splat
-                newdecal(org, en, dir, "progs/!blood.spr32", r * 10, importance);
+                newdecal(org, en, dir, "progs/!blood.spr32", 0, r * 10, importance);
 };
 */
 
@@ -150,7 +151,7 @@ void(vector org, float holetype) blastmarkarea =
                         v = '0 0 0' - tpn;
                         traceline(org, org + v * 32, TRUE, world);
                         if (trace_plane_normal == tpn) // same surface
-                                newbullethole(trace_endpos, trace_ent, trace_plane_normal, holetype);
+                                newbullethole(trace_endpos, trace_ent, trace_plane_normal, 0, holetype);
                 }
         }
 };
