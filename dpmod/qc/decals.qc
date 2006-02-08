@@ -9,60 +9,58 @@ void() InitDecals =
 //	precache_model ("progs/!bullethole.spr32");  // nailgun hole
 };
 
-/*
 void(vector org, entity en, vector dir, string dmodel, float dframe, float importance) newdecal =
 {
-        local   vector  dirangles;
-        local   entity  e;
-        if (cvar("temp1") & 2048)
-                return;
-        if (en.solid != SOLID_BSP || en.model == "")
-                return;
-        dir = normalize(dir);
-        org = org + dir; // push it off the surface
-        // to orient the bullet hole properly
-        dirangles = vectoangles('0 0 0' - dir); // sprite bug
-        dirangles_x = 0 - dirangles_x; // sprite bug
+	local vector dirangles;
+	local entity e;
+	if (cvar("temp1") & 2048)
+		return;
+	if (en.solid != SOLID_BSP || en.model == "")
+		return;
+	dir = normalize(dir);
+	org = org + dir; // push it off the surface
+	// to orient the bullet hole properly
+	dirangles = vectoangles('0 0 0' - dir); // sprite bug
+	dirangles_x = 0 - dirangles_x; // sprite bug
 
-        e = findchain(classname, "decor");
-        while (e != world)
-        {
-                if (e.angles == dirangles) // same surface
-                if (e.model == dmodel) // same type of decal
-                if (vlen(e.origin - org) < 4) // remove existing mark
-                        remove(e);
-                e = e.chain;
-        }
+	e = findchain(classname, "decor");
+	while (e != world)
+	{
+		if (e.angles == dirangles) // same surface
+		if (e.model == dmodel) // same type of decal
+		if (vlen(e.origin - org) < 4) // remove existing mark
+			remove(e);
+		e = e.chain;
+	}
 
-        if (importance >= 1000) // permanent
-        {
-                e = spawn();
-                e.classname = "permanentdecal";
-                e.createdtime = time;
-        }
-        else
-        {
-                e = newdecor();
-                e.createdtime = time + importance;
-        }
-        setmodel (e, dmodel);
-        e.frame = dframe;
-        e.angles = dirangles;
-        setorigin (e, org);
-        e.solid = SOLID_NOT;
-        e.movetype = MOVETYPE_NONE;
-        e.effects = EF_DELTA;
-        setsize (e, '0 0 0', '0 0 0');
-        if (en != world) // might be a mobile surface, follow it
-        {
-                e.aiment = en;
-                e.view_ofs = org - en.origin;
-                e.punchangle = en.angles; // base angles
-                e.v_angle = e.angles - en.angles;
-                e.movetype = MOVETYPE_FOLLOW;
-        }
+	if (importance >= 1000) // permanent
+	{
+		e = spawn();
+		e.classname = "permanentdecal";
+		e.createdtime = time;
+	}
+	else
+	{
+		e = newdecor();
+		e.createdtime = time + importance;
+	}
+	setmodel (e, dmodel);
+	e.frame = dframe;
+	e.angles = dirangles;
+	setorigin (e, org);
+	e.solid = SOLID_NOT;
+	e.movetype = MOVETYPE_NONE;
+	//e.effects = EF_DELTA;
+	setsize (e, '0 0 0', '0 0 0');
+	if (en != world) // might be a mobile surface, follow it
+	{
+		e.aiment = en;
+		e.view_ofs = org - en.origin;
+		e.punchangle = en.angles; // base angles
+		e.v_angle = e.angles - en.angles;
+		e.movetype = MOVETYPE_FOLLOW;
+	}
 };
-*/
 
 // make a bullet hole
 /*
@@ -95,8 +93,7 @@ void(vector org, entity en, vector dir, float splattype, float importance) newbl
 // make a spike in the wall
 void(vector org, entity en, vector dir) newwallspike =
 {
-	local   vector  vdir;
-	local   entity  e;
+	local entity e;
 	if (cvar("temp1") & 2048)
 		return;
 	if (en.solid != SOLID_BSP || en.model == "")
