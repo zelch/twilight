@@ -20,9 +20,13 @@ void(vector org, entity en, vector dir, string dmodel, float dskin, float dframe
 	dir = normalize(dir);
 	org = org + dir; // push it off the surface
 	// to orient the bullet hole properly
-	dirangles = vectoangles('0 0 0' - dir); // sprite bug
-	if (!ismodel)
+	if (ismodel)
+		dirangles = vectoangles(dir); // sprite bug
+	else if (!ismodel)
+	{
+		dirangles = vectoangles('0 0 0' - dir); // sprite bug
 		dirangles_x = 0 - dirangles_x; // sprite bug
+	}
 
 	e = findchain(classname, "decor");
 	while (e != world)
