@@ -9,7 +9,7 @@ void() InitDecals =
 //	precache_model ("progs/!bullethole.spr32");  // nailgun hole
 };
 
-void(vector org, entity en, vector dir, string dmodel, float dskin, float dframe, float importance) newdecal =
+void(vector org, entity en, vector dir, string dmodel, float dskin, float dframe, float importance, float ismodel) newdecal =
 {
 	local vector dirangles;
 	local entity e;
@@ -21,7 +21,8 @@ void(vector org, entity en, vector dir, string dmodel, float dskin, float dframe
 	org = org + dir; // push it off the surface
 	// to orient the bullet hole properly
 	dirangles = vectoangles('0 0 0' - dir); // sprite bug
-	dirangles_x = 0 - dirangles_x; // sprite bug
+	if (!ismodel)
+		dirangles_x = 0 - dirangles_x; // sprite bug
 
 	e = findchain(classname, "decor");
 	while (e != world)

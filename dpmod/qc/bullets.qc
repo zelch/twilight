@@ -20,7 +20,7 @@ void() bullet_touch =
 		else if (self.lefty == 1) // shotgun pellet
 			bulletpuff(self.origin - dir * 4, self.effects & EF_BLUE);
 		//traceline(self.origin, self.origin + dir, FALSE, self);
-		//newdecal(self.origin, other, trace_plane_normal, "models/decals/blastmark.md3", 0, 0, 0);
+		//newdecal(self.origin + trace_plane_normal * 0.125, other, trace_plane_normal, "models/decals/decal.md3", 0, 0, 0, TRUE);
 	}
 	setorigin(self, self.origin - dir * 8);
 	if (self.count2)
