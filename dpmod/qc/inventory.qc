@@ -130,7 +130,7 @@ void() ItemClass_RegisterDefaultClasses =
 	ItemClass_Register("thunderbolt", "progs/backpack.mdl", 1, IT_WEAPON8);
 	ItemClass_Register("plasmarifle", "progs/backpack.mdl", 1, IT_WEAPON8);
 	ItemClass_Register("plasmawave", "progs/backpack.mdl", 1, IT_WEAPON8);
-	ItemClass_Register("laserrifle", "progs/backpack.mdl", 1, IT_WEAPON3);
+	ItemClass_Register("laserrifle", "progs/backpack.mdl", 1, IT_WEAPON8);
 	ItemClass_Register("flamer", "progs/backpack.mdl", 1, IT_WEAPON8);
 
 	ItemClass_Register("pistol", "progs/backpack.mdl", 1, IT_WEAPON1);
