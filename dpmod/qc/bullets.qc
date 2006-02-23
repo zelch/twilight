@@ -6,7 +6,7 @@ void() bullet_touch =
 {
 	local   vector  dir;
 	dir = normalize(self.velocity);
-	T_Damage(other, self, self.realowner, self.dmg, self.count, self.deathtype, self.cnt, self.origin, dir * self.count * 0.2, self.obitfunc1);
+	T_Damage(other, self, self.realowner, self.dmg, self.count, self.deathtype, self.cnt, self.origin, '0 0 0', self.obitfunc1);
 	if (other.solid == SOLID_BSP) // hit a wall
 	if (self.lefty >= 0)
 	if (pointcontents(self.origin) != CONTENT_SKY)
