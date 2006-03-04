@@ -134,7 +134,7 @@ brushtype_t;
 
 void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushtype)
 {
-	int			i, j, hltexdef, facecontents, faceflags, facevalue, q2brushface, q3brushface, bpface;
+	int			i, j, hltexdef, facecontents, faceflags, facevalue, q2brushface, q3brushface, bpface, brushplane;
 	vec_t		planepts[3][3], t1[3], t2[3], d, rotate, scale[2], vecs[2][4], ang, sinv, cosv, bp[2][3];
 	mface_t		*f, *f2;
 	plane_t	plane;
@@ -155,6 +155,7 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 	GetToken (false);
 	if (!strcmp(token, ")"))
 	{
+		brushplane = false;
 		GetToken (false);
 		if (strcmp(token, "("))
 			Error("parsing brush on line %d\n", scriptline);
@@ -191,6 +192,7 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 	else
 	{
 		// oh, it's actually a 4 value plane
+		brushplane = true;
 		plane.normal[0] = planepts[0][0];
 		plane.normal[1] = planepts[0][1];
 		plane.normal[2] = planepts[0][2];
@@ -375,28 +377,29 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 			if (fabs(plane.normal[0]) < fabs(plane.normal[1]))
 			{
 				// Y primary
-				VectorSet4(tx.vecs[0],  0,  cosv*scale[0],  sinv*scale[0], vecs[0][3]);
-				VectorSet4(tx.vecs[1],  0,  sinv*scale[1], -cosv*scale[1], vecs[1][3]);
+				VectorSet4(tx.vecs[0],  cosv*scale[0],  0,  sinv*scale[0], vecs[0][3]);
+				VectorSet4(tx.vecs[1],  sinv*scale[1],  0, -cosv*scale[1], vecs[1][3]);
 			}
 			else
 			{
 				// X primary
-				VectorSet4(tx.vecs[0],  cosv*scale[0],  sinv*scale[0],  0, vecs[0][3]);
-				VectorSet4(tx.vecs[1],  sinv*scale[1], -cosv*scale[1],  0, vecs[1][3]);
+				VectorSet4(tx.vecs[0],  0,  cosv*scale[0],  sinv*scale[0], vecs[0][3]);
+				VectorSet4(tx.vecs[1],  0,  sinv*scale[1], -cosv*scale[1], vecs[1][3]);
 			}
 		}
 		else if (fabs(plane.normal[2]) < fabs(plane.normal[1]))
 		{
 			// Y primary
-			VectorSet4(tx.vecs[0],  0,  cosv*scale[0],  sinv*scale[0], vecs[0][3]);
-			VectorSet4(tx.vecs[1],  0,  sinv*scale[1], -cosv*scale[1], vecs[1][3]);
+			VectorSet4(tx.vecs[0],  cosv*scale[0],  0,  sinv*scale[0], vecs[0][3]);
+			VectorSet4(tx.vecs[1],  sinv*scale[1],  0, -cosv*scale[1], vecs[1][3]);
 		}
 		else
 		{
 			// Z primary
-			VectorSet4(tx.vecs[0],  cosv*scale[0],  0,  sinv*scale[0], vecs[0][3]);
-			VectorSet4(tx.vecs[1],  sinv*scale[1],  0, -cosv*scale[1], vecs[1][3]);
+			VectorSet4(tx.vecs[0],  cosv*scale[0],  sinv*scale[0], 0, vecs[0][3]);
+			VectorSet4(tx.vecs[1],  sinv*scale[1], -cosv*scale[1], 0, vecs[1][3]);
 		}
+		//printf("plane + rotate scale = texture vectors:\n(%f %f %f %f) + [%f %f %f] =\n[%f %f %f %f] [%f %f %f %f]\n", plane.normal[0], plane.normal[1], plane.normal[2], plane.dist, rotate, scale[0], scale[1], tx.vecs[0][0], tx.vecs[0][1], tx.vecs[0][2], tx.vecs[0][3], tx.vecs[1][0], tx.vecs[1][1], tx.vecs[1][2], tx.vecs[1][3]);
 	}
 
 	/*
@@ -439,23 +442,37 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 	b = *brushpointer;
 	if (b)
 	{
-		// if the three points are all on a previous plane, it is a
-		// duplicate plane
-		for (f2 = b->faces ; f2 ; f2=f2->next)
+		if (brushplane)
 		{
-			for (i = 0;i < 3;i++)
+			for (f2 = b->faces ; f2 ;f2=f2->next)
+				if (VectorCompare(plane.normal, f2->plane.normal) && fabs(plane.dist - f2->plane.dist) < ON_EPSILON)
+					break;
+			if (f2)
 			{
-				d = DotProduct(planepts[i],f2->plane.normal) - f2->plane.dist;
-				if (d < -ON_EPSILON || d > ON_EPSILON)
+				printf ("WARNING: brush with duplicate plane (%g %g %g %g, .map file line number %d)\n", plane.normal[0], plane.normal[1], plane.normal[2], plane.dist, scriptline);
+				return;
+			}
+		}
+		else
+		{
+			// if the three points are all on a previous plane, it is a
+			// duplicate plane
+			for (f2 = b->faces ; f2 ; f2=f2->next)
+			{
+				for (i = 0;i < 3;i++)
+				{
+					d = DotProduct(planepts[i],f2->plane.normal) - f2->plane.dist;
+					if (d < -ON_EPSILON || d > ON_EPSILON)
+						break;
+				}
+				if (i==3)
 					break;
 			}
-			if (i==3)
-				break;
-		}
-		if (f2)
-		{
-			printf ("WARNING: brush with duplicate plane (first point is at %g %g %g, .map file line number %d)\n", planepts[0][0], planepts[0][1], planepts[0][2], scriptline);
-			return;
+			if (f2)
+			{
+				printf ("WARNING: brush with duplicate plane (first point is at %g %g %g, .map file line number %d)\n", planepts[0][0], planepts[0][1], planepts[0][2], scriptline);
+				return;
+			}
 		}
 	}
 	else
