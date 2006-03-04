@@ -7,19 +7,19 @@
 #define	MAX_Q1MAP_HULLS			4
 #define	MAX_MAP_HULLS			16
 
-#define	MAX_MAP_MODELS			256
+#define	MAX_MAP_MODELS			4096		// was 256
 #define	MAX_MAP_BRUSHES			32768		// LordHavoc: I ran into this myself, was 4096
-#define	MAX_MAP_ENTITIES		2048		// LordHavoc: was 1024
+#define	MAX_MAP_ENTITIES		32768		// LordHavoc: was 1024
 #define	MAX_MAP_ENTSTRING		0x100000	// LordHavoc: was 65536
 
-#define	MAX_MAP_PLANES			32767		// LordHavoc: I ran into this myself, was 8192
+#define	MAX_MAP_PLANES			65536		// LordHavoc: I ran into this myself, was 8192
 #define	MAX_MAP_NODES			32767		// because negative shorts are contents
 #define	MAX_MAP_CLIPNODES		32767		//
 #define	MAX_MAP_LEAFS			32767		//
 #define	MAX_MAP_VERTS			65535
-#define	MAX_MAP_FACES			65535
+#define	MAX_MAP_FACES			65536
 #define	MAX_MAP_MARKSURFACES	65535
-#define	MAX_MAP_TEXINFO			4096
+#define	MAX_MAP_TEXINFO			MAX_MAP_FACES // LordHavoc: I ran into this myself, was 4096
 #define	MAX_MAP_EDGES			0x100000	// LordHavoc: was 256000
 #define	MAX_MAP_SURFEDGES		0x200000	// LordHavoc: was 512000
 #define	MAX_MAP_MIPTEX			0x800000	// LordHavoc: quadrupled (was 0x200000)
@@ -162,7 +162,7 @@ typedef struct
 	short		side;
 
 	int			firstedge;		// we must support > 64k edges
-	short		numedges;	
+	short		numedges;
 	short		texinfo;
 
 // lighting info
