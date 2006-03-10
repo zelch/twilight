@@ -1,6 +1,6 @@
 float lastclientthink;
 float sv_accelerate;
-float sv_airmaxspeed;
+float sv_maxairspeed;
 float sv_friction;
 float sv_maxspeed;
 float sv_stopspeed;
@@ -25,7 +25,7 @@ void() SV_PlayerPhysics =
 	if (time != lastclientthink)
 	{
 		lastclientthink = time;
-		sv_airmaxspeed = cvar("sv_airmaxspeed");
+		sv_maxairspeed = cvar("sv_maxairspeed");
 		sv_maxspeed = cvar("sv_maxspeed");
 		sv_friction = cvar("sv_friction");
 		sv_accelerate = cvar("sv_accelerate");
@@ -200,8 +200,8 @@ void() SV_PlayerPhysics =
 		// acceleration
 		wishdir = normalize(wishvel);
 		wishspeed = vlen(wishvel);
-		if (wishspeed > sv_airmaxspeed)
-			wishspeed = sv_airmaxspeed;
+		if (wishspeed > sv_maxairspeed)
+			wishspeed = sv_maxairspeed;
 		if (time >= self.teleport_time)
 		{
 			f = wishspeed - (self.velocity * wishdir);
