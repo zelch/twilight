@@ -5,6 +5,11 @@
 void() bullet_touch =
 {
 	local   vector  dir;
+	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
+	{
+		remove(self);
+		return;
+	}
 	dir = normalize(self.velocity);
 	T_Damage(other, self, self.realowner, self.dmg, self.count, self.deathtype, self.cnt, self.origin, '0 0 0', self.obitfunc1);
 	if (other.solid == SOLID_BSP) // hit a wall

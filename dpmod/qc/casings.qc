@@ -16,6 +16,11 @@ void() InitCasings =
 
 void() casingtouch =
 {
+	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
+	{
+		remove(self);
+		return;
+	}
 	if (other.solid == SOLID_BSP)
 	{
 		self.velocity = self.velocity * 0.8;

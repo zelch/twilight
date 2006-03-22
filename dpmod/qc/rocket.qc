@@ -97,6 +97,11 @@ void() MissileDet =
 void() MissileTouch =
 {
 	local   vector  v;
+	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
+	{
+		remove(self);
+		return;
+	}
 	fightdone = time + 1; // delay stuff until fighting is over
 	if (other == self.owner)
 		return; // ignore owner

@@ -170,6 +170,11 @@ void() DropBackpack =
 	//if (!(self.items & (IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10)))
 		return; // nothing in it
 
+	// don't drop a backpack if in a NODROP zone (such as lava)
+	traceline(self.origin, self.origin, MOVE_NORMAL, self);
+	if (trace_dpstartcontents & DPCONTENTS_NODROP)
+		return;
+
 	c = 0;t = time + 5;
 	head = findchain(classname, "backpack");
 	while (head != world)

@@ -119,6 +119,11 @@ void() GrenadeThink =
 void() GrenadeTouch =
 {
 	local vector v;
+	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
+	{
+		remove(self);
+		return;
+	}
 	if (other == self.owner)
 		return; // don't hit owner
 	if (vlen(self.velocity))

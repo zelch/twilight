@@ -247,6 +247,11 @@ void() laserdotthink =
 void() MineTouch =
 {
 	local vector v;
+	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
+	{
+		remove(self);
+		return;
+	}
 	if (other == self.owner)
 		return; // don't hit owner
 	if (other.solid == SOLID_BSP)

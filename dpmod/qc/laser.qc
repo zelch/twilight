@@ -1,6 +1,11 @@
 
 void() Laser_Touch =
 {
+	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
+	{
+		remove(self);
+		return;
+	}
 	if (other == self.owner)
 		return;		// don't explode on owner
 

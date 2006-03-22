@@ -2,6 +2,11 @@
 void() plasma_touch =
 {
 	local   vector  v;
+	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
+	{
+		remove(self);
+		return;
+	}
 	if (other == self.owner)
 		return;
 	if (other.owner == self.owner)

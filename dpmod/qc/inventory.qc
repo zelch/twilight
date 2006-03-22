@@ -214,7 +214,7 @@ entity(entity original) Item_Clone =
 entity(entity aitemclass) Item_Create =
 {
 	local entity item;
-	dprint("Item_Create\n");
+	//dprint("Item_Create\n");
 	item = Item_Clone(aitemclass);
 	if (item != world)
 	{
