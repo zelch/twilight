@@ -344,6 +344,12 @@ void(entity t) CopyToBodyQue =
 	c.th_gib = t.th_gib;
 	c.takedamage = t.takedamage;
 	c.frozen = t.frozen;
+	// if on fire, transfer the flame to the corpse
+	if (t.flame)
+	{
+		c.flame = t.flame;
+		c.flame.enemy = c;
+	}
 
 	c.flags = 0;
 	setorigin (c, t.origin);
