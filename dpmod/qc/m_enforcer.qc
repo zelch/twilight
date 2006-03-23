@@ -59,7 +59,33 @@ void(vector hit) enforcer_laser =
 	LaunchLaser(self, shotorg, shotdir * 1000, DMG_ENFORCER_LASER, self.deathtype, Obituary_Generic);
 };
 
-void(vector hit) enforcer_plasma =
+void(vector hit) enforcer_dbshotgun =
+{
+	makevectors (self.angles);
+	shotorg = self.origin + v_forward * 15 + v_right * 8.5 + '0 0 16';
+	traceline(shotorg, hit, FALSE, self);
+	if (trace_fraction < 1 && trace_ent != self.enemy)
+	{
+		// the shot wouldn't hit, so don't bother
+		enf_run1();
+		return;
+	}
+	if (vlen(trace_endpos - shotorg) > DMG_ENFORCER_DBSHOTGUN_RANGE)
+	{
+		enf_run1();
+		return;
+	}
+	self.effects = self.effects | EF_MUZZLEFLASH;
+
+	shotdir = normalize(hit - shotorg);
+	sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
+	w_muzzleflash(shotorg, 2);
+	ejectcasing(shotorg + v_forward * -8 + v_right *  1, v_right *  100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 1);
+	ejectcasing(shotorg + v_forward * -8 + v_right * -1, v_right * -100 + v_up * 40, 30, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 1);
+	FireBullets(self, self, 1, 20, DMG_ENFORCER_DBSHOTGUN_DAMAGE * 0.05, DMG_ENFORCER_DBSHOTGUN_DAMAGE * 0.05, 0, 0, shotdir * 10000, 0.1, self.deathtype, DT_SHOTGUN, Obituary_Generic);
+};
+
+void(vector hit) enforcer_supernail =
 {
 	makevectors (self.angles);
 	shotorg = self.origin + v_forward * 15 + v_right * 8.5 + '0 0 16';
@@ -74,8 +100,9 @@ void(vector hit) enforcer_plasma =
 
 	shotdir = normalize(hit - shotorg);
 	w_muzzleflash(shotorg, 2);
-	sound (self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-	FirePlasma(self, self, shotorg, shotdir * 5000, DMG_ENFORCER_PLASMA_DAMAGE, DMG_ENFORCER_PLASMA_FORCE, DMG_ENFORCER_PLASMA_RADIUS, self.deathtype, Obituary_Generic);
+	sound(self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
+	ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+	FireBullets(self, self, 4, 2, DMG_ENFORCER_SUPERNAIL_DAMAGE, DMG_ENFORCER_SUPERNAIL_DAMAGE, 0, 0, shotdir * 10000, 0.05, self.deathtype, DT_NAIL, Obituary_Generic);
 };
 
 void(vector hit) enforcer_rocket =
@@ -100,6 +127,25 @@ void(vector hit) enforcer_rocket =
 	sound(self, CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 	w_muzzleflash(shotorg, 5);
 	LaunchMissile(shotorg, shotdir * 3000, self, DMG_ENFORCER_ROCKET_DAMAGE, DMG_ENFORCER_ROCKET_FORCE, DMG_ENFORCER_ROCKET_RADIUS, self.deathtype, Obituary_Generic);
+};
+
+void(vector hit) enforcer_plasma =
+{
+	makevectors (self.angles);
+	shotorg = self.origin + v_forward * 15 + v_right * 8.5 + '0 0 16';
+	traceline(shotorg, hit, FALSE, self);
+	if (trace_fraction < 1 && trace_ent != self.enemy)
+	{
+		// the shot wouldn't hit, so don't bother
+		enf_run1();
+		return;
+	}
+	self.effects = self.effects | EF_MUZZLEFLASH;
+
+	shotdir = normalize(hit - shotorg);
+	w_muzzleflash(shotorg, 2);
+	sound (self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
+	FirePlasma(self, self, shotorg, shotdir * 5000, DMG_ENFORCER_PLASMA_DAMAGE, DMG_ENFORCER_PLASMA_FORCE, DMG_ENFORCER_PLASMA_RADIUS, self.deathtype, Obituary_Generic);
 };
 
 void(vector hit) enforcer_flamer =
@@ -181,22 +227,45 @@ float() enf_missile_laser =
 	return TRUE;
 };
 
-void()  enf_plasma1        =[      $attack1,       enf_plasma2 ] {ai_face();};
-void()  enf_plasma2        =[      $attack2,       enf_plasma3 ] {ai_face();};
-void()  enf_plasma3        =[      $attack3,       enf_plasma4 ] {ai_face();self.dest1 = monster_shotlead(0.3, 3000);};
-void()  enf_plasma4        =[      $attack4,       enf_plasma5 ] {ai_face();self.dest2 = monster_shotlead(0.3, 3000);};
-void()  enf_plasma5        =[      $attack5,       enf_plasma6 ] {monster_setalpha(0.5);ai_face();self.dest3 = monster_shotlead(0.3, 3000);};
-void()  enf_plasma6        =[      $attack6,       enf_plasma7 ] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest1);};
-void()  enf_plasma7        =[      $attack6,       enf_plasma8 ] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest2);};
-void()  enf_plasma8        =[      $attack6,       enf_plasma9 ] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest3);};
-void()  enf_plasma9        =[      $attack7,       enf_plasma10] {monster_setalpha(0.5);ai_face();};
-void()  enf_plasma10       =[      $attack8,       enf_plasma11] {monster_setalpha(0.0);ai_face();};
-void()  enf_plasma11       =[      $attack9,       enf_plasma12] {ai_face();};
-void()  enf_plasma12       =[      $attack10,      enf_run1    ] {ai_face();SUB_CheckRefire (enf_plasma1);};
+void()  enf_dbshotgun10;
+void()  enf_dbshotgun1        =[      $attack1,       enf_dbshotgun2 ] {ai_face();};
+void()  enf_dbshotgun2        =[      $attack2,       enf_dbshotgun3 ] {ai_face();self.dest1 = monster_shotlead(0.4, 10000);};
+void()  enf_dbshotgun3        =[      $attack3,       enf_dbshotgun4 ] {ai_face();};
+void()  enf_dbshotgun4        =[      $attack4,       enf_dbshotgun5 ] {ai_face();};
+void()  enf_dbshotgun5        =[      $attack5,       enf_dbshotgun6 ] {monster_setalpha(0.5);ai_face();self.dest2 = monster_shotlead(0.3, 2000);};
+void()  enf_dbshotgun6        =[      $attack6,       enf_dbshotgun7 ] {monster_setalpha(1.0);ai_face();enforcer_dbshotgun(self.dest1);};
+void()  enf_dbshotgun7        =[      $attack7,       enf_dbshotgun8 ] {monster_setalpha(1.0);if (skill < 3) self.think = enf_dbshotgun10;ai_face();};
+void()  enf_dbshotgun8        =[      $attack6,       enf_dbshotgun9 ] {monster_setalpha(1.0);ai_face();enforcer_dbshotgun(self.dest2);};
+void()  enf_dbshotgun9        =[      $attack7,       enf_dbshotgun10] {monster_setalpha(0.5);ai_face();};
+void()  enf_dbshotgun10       =[      $attack8,       enf_dbshotgun11] {monster_setalpha(0.0);ai_face();};
+void()  enf_dbshotgun11       =[      $attack9,       enf_dbshotgun12] {ai_face();};
+void()  enf_dbshotgun12       =[      $attack10,      enf_run1    ] {ai_face();};
 
-float() enf_missile_plasma =
+float() enf_missile_dbshotgun =
 {
-	enf_plasma1();
+	enf_dbshotgun1();
+	return TRUE;
+};
+
+void()  enf_supernail1        =[      $attack1,       enf_supernail2 ] {ai_face();};
+void()  enf_supernail2        =[      $attack2,       enf_supernail3 ] {ai_face();self.dest1 = monster_shotlead(0.4, 10000);};
+void()  enf_supernail3        =[      $attack3,       enf_supernail4 ] {ai_face();self.dest2 = monster_shotlead(0.4, 10000);};
+void()  enf_supernail4        =[      $attack4,       enf_supernail5 ] {ai_face();self.dest3 = monster_shotlead(0.4, 10000);};
+void()  enf_supernail5        =[      $attack5,       enf_supernail6 ] {monster_setalpha(0.5);ai_face();self.dest4 = monster_shotlead(0.4, 10000);};
+void()  enf_supernail6        =[      $attack6,       enf_supernail7 ] {monster_setalpha(1.0);ai_face();enforcer_supernail(self.dest1);self.dest1 = monster_shotlead(0.4, 10000);};
+void()  enf_supernail7        =[      $attack6,       enf_supernail8 ] {monster_setalpha(1.0);ai_face();enforcer_supernail(self.dest2);self.dest2 = monster_shotlead(0.4, 10000);};
+void()  enf_supernail8        =[      $attack6,       enf_supernail9 ] {monster_setalpha(1.0);ai_face();enforcer_supernail(self.dest3);};
+void()  enf_supernail9        =[      $attack6,       enf_supernail10] {monster_setalpha(1.0);ai_face();enforcer_supernail(self.dest4);};
+void()  enf_supernail10       =[      $attack6,       enf_supernail11] {monster_setalpha(1.0);ai_face();enforcer_supernail(self.dest1);};
+void()  enf_supernail11       =[      $attack6,       enf_supernail12] {monster_setalpha(1.0);ai_face();enforcer_supernail(self.dest2);};
+void()  enf_supernail12       =[      $attack7,       enf_supernail13] {monster_setalpha(0.5);ai_face();};
+void()  enf_supernail13       =[      $attack8,       enf_supernail14] {monster_setalpha(0.0);ai_face();};
+void()  enf_supernail14       =[      $attack9,       enf_supernail15] {ai_face();};
+void()  enf_supernail15       =[      $attack10,      enf_run1       ] {ai_face();SUB_CheckRefire (enf_supernail1);};
+
+float() enf_missile_supernailgun =
+{
+	enf_supernail1();
 	return TRUE;
 };
 
@@ -217,6 +286,25 @@ void()  enf_rocket12       =[      $attack10,      enf_run1    ] {ai_face();};
 float() enf_missile_rocket =
 {
 	enf_rocket1();
+	return TRUE;
+};
+
+void()  enf_plasma1        =[      $attack1,       enf_plasma2 ] {ai_face();};
+void()  enf_plasma2        =[      $attack2,       enf_plasma3 ] {ai_face();};
+void()  enf_plasma3        =[      $attack3,       enf_plasma4 ] {ai_face();self.dest1 = monster_shotlead(0.3, 3000);};
+void()  enf_plasma4        =[      $attack4,       enf_plasma5 ] {ai_face();self.dest2 = monster_shotlead(0.3, 3000);};
+void()  enf_plasma5        =[      $attack5,       enf_plasma6 ] {monster_setalpha(0.5);ai_face();self.dest3 = monster_shotlead(0.3, 3000);};
+void()  enf_plasma6        =[      $attack6,       enf_plasma7 ] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest1);};
+void()  enf_plasma7        =[      $attack6,       enf_plasma8 ] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest2);};
+void()  enf_plasma8        =[      $attack6,       enf_plasma9 ] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest3);};
+void()  enf_plasma9        =[      $attack7,       enf_plasma10] {monster_setalpha(0.5);ai_face();};
+void()  enf_plasma10       =[      $attack8,       enf_plasma11] {monster_setalpha(0.0);ai_face();};
+void()  enf_plasma11       =[      $attack9,       enf_plasma12] {ai_face();};
+void()  enf_plasma12       =[      $attack10,      enf_run1    ] {ai_face();SUB_CheckRefire (enf_plasma1);};
+
+float() enf_missile_plasma =
+{
+	enf_plasma1();
 	return TRUE;
 };
 
@@ -487,12 +575,30 @@ void() monster_enforcer =
 	}
 	else if (r < 0.60)
 	{
+		self.th_missile = enf_missile_dbshotgun;
+		Inventory_SetQuantity(self, "shells", AMMO_ENFORCER_SHELLS);
+		Inventory_SetQuantity(self, "dbshotgun", 1);
+		if (!self.deathtype) // map makers can override this
+			self.deathtype = " was scorched by an enforcer";
+	}
+	else if (r < 0.80)
+	{
+		self.th_missile = enf_missile_supernailgun;
+		Inventory_SetQuantity(self, "nails", AMMO_ENFORCER_NAILS);
+		Inventory_SetQuantity(self, "supernailgun", 1);
+		if (!self.deathtype) // map makers can override this
+			self.deathtype = " was scorched by an enforcer";
+	}
+	/*
+	else if (r < 0.60)
+	{
 		self.th_missile = enf_missile_flamer;
 		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_FLAMERCELLS);
 		Inventory_SetQuantity(self, "flamer", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was cremated by an enforcer";
 	}
+	*/
 	else
 	{
 		self.th_missile = enf_missile_laser;
