@@ -1712,7 +1712,7 @@ float(float request) w_plasmarifle =
 				cells = Inventory_Quantity(self, "cells");
 				if (cells > PLASMARIFLE_NORMAL_CELLS)
 					cells = PLASMARIFLE_NORMAL_CELLS;
-				FirePlasma(self, self, shotorg, shotdir * PLASMARIFLE_NORMAL_VELOCITY, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_CELL * cells, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
+				FirePlasma(self, self, shotorg, shotdir * PLASMARIFLE_NORMAL_VELOCITY, PLASMARIFLE_NORMAL_CELL * cells, 0, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
 				//while (cells > 0)
 				//{
@@ -1803,7 +1803,7 @@ vector(entity inflictor, entity attacker, vector start, vector end, float hdamag
 	local entity lightningchainhead, e;
 	local float c;
 	local vector force;
-	force = (normalize(end - start) + '0 0 0.25') * 2 * bdamage;
+	force = '0 0 0';//(normalize(end - start) + '0 0 0.25') * 2 * bdamage;
 
 	// find entities in the beam
 	c = 0;
