@@ -1,4 +1,6 @@
 
+float darkmode;
+
 float maxclients; // how many player slots there actually are
 entity modechecker;
 
@@ -557,6 +559,18 @@ void() worldspawn =
 
 	// 63 testing
 	lightstyle(63, "a");
+
+	darkmode = cvar("darkmode");
+	if (darkmode)
+	{
+		c = 0;
+		while (c < 64)
+		{
+			lightstyle(c, "a");
+			c = c + 1;
+		}
+		lightstyle(255, "m");
+	}
 
 	damagescaleupdate();
 

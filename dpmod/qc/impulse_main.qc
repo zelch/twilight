@@ -182,6 +182,44 @@ void() GibClone =
 };
 
 
+.entity flashlight;
+void() FlashLight_Think =
+{
+	self.nextthink = time;
+	if (self.owner.flashlight != self)
+	{
+		remove(self);
+		return;
+	}
+	setorigin(self, self.owner.origin + '0 0 16');
+	self.angles = self.owner.v_angle;
+	self.angles_x = self.angles_x * -1;
+};
+
+void() ToggleFlashLight =
+{
+	if (self.flashlight)
+	{
+		// the flashlight will remove itself
+		self.flashlight = world;
+		return;
+	}
+	else
+	{
+		self.flashlight = spawn();
+		self.flashlight.owner = self;
+		self.flashlight.nextthink = time;
+		self.flashlight.think = FlashLight_Think;
+		self.flashlight.pflags = PFLAGS_FULLDYNAMIC;
+		self.flashlight.light_lev = 1000;
+		self.flashlight.color = '2 2 2';
+		self.flashlight.style = 255;
+		self.flashlight.skin = 201;
+		//setattachment(self.flashlight, self, "");
+		//setorigin(self.flashlight, '10 0 16');
+	}
+}
+
 void() superdomination_impulses;
 
 /*
@@ -608,6 +646,7 @@ void() ImpulseCommands =
 	if ((self.impulse >= 1 && self.impulse <= 9) || (self.impulse >= 201 && self.impulse <= 220)) W_ChangeWeapon();
 	else if (self.impulse == 10) CycleWeaponCommand ();
 	else if (self.impulse == 12) CycleWeaponReverseCommand ();
+	else if (self.impulse == 30) ToggleFlashLight();
 	superdomination_impulses();
 
 	self.impulse = 0;

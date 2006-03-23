@@ -68,7 +68,7 @@ void() light_environment =
 	if (self.style >= 32)
 	{
 		self.use = light_use;
-		if (self.spawnflags & 1)
+		if ((self.spawnflags & 1) || darkmode)
 			lightstyle(self.style, "a");
 		else
 			lightstyle(self.style, "m");

@@ -582,6 +582,8 @@ entity() SelectSpawnPoint =
 // .entity lastwaypoint;
 .float bubble_count;
 .float candrown;
+.entity flashlight;
+void() ToggleFlashLight;
 
 /*
 ===========
@@ -780,6 +782,10 @@ void() PutClientInServer =
 		return;
 
 	player_move ();
+
+	if (darkmode)
+	if (self.flashlight == world)
+		ToggleFlashLight();
 };
 
 

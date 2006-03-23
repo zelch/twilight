@@ -46,9 +46,9 @@ float		parm1, parm2, parm3, parm4, parm5, parm6, parm7, parm8, parm9, parm10, pa
 
 //
 // global variables set by built in functions
-//	
+//
 vector		v_forward, v_up, v_right;	// set by makevectors()
-	
+
 // set by traceline / tracebox
 float		trace_allsolid;
 float		trace_startsolid;
@@ -523,7 +523,7 @@ float	AS_MISSILE		= 4;
 .string		group;
 
 // counts of how many keys this player/bot has
-.float		keys_silver;            
+.float		keys_silver;
 .float		keys_gold;
 
 .float		havocattack;
@@ -566,7 +566,7 @@ float	AS_MISSILE		= 4;
 //
 .float		aflag;
 .float		dmg;			// damage done by door when hit
-	
+
 //
 // misc
 //
@@ -602,7 +602,7 @@ float	AS_MISSILE		= 4;
 
 
 //===========================================================================
-	
+
 
 //
 // builtin functions
@@ -629,7 +629,7 @@ void(entity e) remove				= #15;
 // An entity will also be ignored for testing if forent == test,
 // forent->owner == test, or test->owner == forent
 // a forent of world is ignored
-void(vector v1, vector v2, float nomonsters, entity forent) traceline = #16;	
+void(vector v1, vector v2, float nomonsters, entity forent) traceline = #16;
 
 entity() checkclient				= #17;	// returns a client to look for
 entity(entity start, .string fld, string match) find = #18;
@@ -1093,3 +1093,4 @@ float GAME_QUAKE = 0;
 float GAME_NEXUIZ = 1;
 float game;
 
+float darkmode;
