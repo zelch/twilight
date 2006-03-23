@@ -255,23 +255,23 @@ void() hknight_fireball =
 
 void() hknight_infernowarning =
 {
-	//traceline((self.absmin + self.absmax) * 0.5, (self.enemy.absmin + self.enemy.absmax) * 0.5, TRUE, world);
-	//if (trace_fraction != 1)
-	//	return; // not visible
-	//self.enemy.effects = self.enemy.effects | EF_MUZZLEFLASH;
-	//sound(self.enemy, CHAN_AUTO, "fire/burn.wav", 1, ATTN_NORM);
-	self.effects = self.effects | EF_MUZZLEFLASH;
-	sound(self, CHAN_AUTO, "fire/burn.wav", 1, ATTN_NORM);
+	traceline((self.absmin + self.absmax) * 0.5, (self.enemy.absmin + self.enemy.absmax) * 0.5, TRUE, world);
+	if (trace_fraction != 1)
+		return; // not visible
+	self.enemy.effects = self.enemy.effects | EF_MUZZLEFLASH;
+	sound(self.enemy, CHAN_AUTO, "fire/burn.wav", 1, ATTN_NORM);
+	//self.effects = self.effects | EF_MUZZLEFLASH;
+	//sound(self, CHAN_AUTO, "fire/burn.wav", 1, ATTN_NORM);
 };
 
 void() hknight_inferno =
 {
-	//traceline((self.absmin + self.absmax) * 0.5, (self.enemy.absmin + self.enemy.absmax) * 0.5, TRUE, world);
-	//if (trace_fraction != 1)
-	//	return; // not visible
+	traceline((self.absmin + self.absmax) * 0.5, (self.enemy.absmin + self.enemy.absmax) * 0.5, TRUE, world);
+	if (trace_fraction != 1)
+		return; // not visible
 	//T_Damage(self.enemy, self, self, 75, 75, self.deathtype, DT_EXPLOSION, self.enemy.origin + '0 0 -8', '0 0 0');
-	//SpawnFire(self.enemy, self, 25, self.deathtype, (self.enemy.absmin + self.enemy.absmax) * 0.5);
-	SpawnFire(self, self, 500, self.deathtype, (self.enemy.absmin + self.enemy.absmax) * 0.5);
+	SpawnFire(self.enemy, self, 75, self.deathtype, (self.enemy.absmin + self.enemy.absmax) * 0.5);
+	//SpawnFire(self, self, 500, self.deathtype, (self.enemy.absmin + self.enemy.absmax) * 0.5);
 };
 
 float() hknight_missile;
@@ -665,11 +665,11 @@ float() hknight_missile =
 				}
 			}
 		}
-		/*
-		if (hknight_mtype == 0) // ignite self
+/*
+		if (hknight_mtype == 0) // inferno
 		{
 			hknight_mtype = 1;
-			if (self.flame.cnt <= 0) // not already burning
+//			if (self.flame.cnt <= 0) // not already burning
 //			if (self.flamecount <= 0) // not already burning
 			if (pointcontents(self.origin) == CONTENT_EMPTY) // in air
 			if (pointcontents(self.enemy.origin) == CONTENT_EMPTY) // in air
@@ -714,7 +714,7 @@ float() hknight_missile =
 				}
 			}
 		}
-		*/
+*/
 	}
 	return FALSE;
 };
