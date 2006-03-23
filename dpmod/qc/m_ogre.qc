@@ -111,7 +111,8 @@ OgreFireGrenade
 */
 float() OgreFireGrenade =
 {
-	local   vector  v;
+	local float f;
+	local vector v;
 	if (Inventory_Quantity(self, "rockets") < 1)
 		return FALSE;
 	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 1000, 2.5, 0, self))
@@ -120,7 +121,9 @@ float() OgreFireGrenade =
 
 	sound (self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 
-	v = (3 - bound(0, skill, 3)) * 20 * randomvec();
+	f = (5 - bound(0, skill, 3));
+	f = f * vlen(findtrajectory_velocity) * 0.1;
+	v = f * randomvec();
 	LaunchGrenade(self.origin, findtrajectory_velocity + v, self, DMG_OGRE_GRENADE_DAMAGE, DMG_OGRE_GRENADE_FORCE, DMG_OGRE_GRENADE_RADIUS, GRENADE_DETONATEONCREATURE, 5, self.deathtype, Obituary_Generic);
 
 	return TRUE;
