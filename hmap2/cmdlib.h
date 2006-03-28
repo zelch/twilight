@@ -96,6 +96,7 @@ extern	char	filename_bsp[1024];
 extern	char	filename_prt[1024];
 extern	char	filename_pts[1024];
 extern	char	filename_lit[1024];
+extern	char	filename_dlit[1024];
 extern	char	filename_lights[1024];
 
 #endif

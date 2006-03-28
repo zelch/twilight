@@ -212,6 +212,10 @@ extern	byte		dlightdata[MAX_MAP_LIGHTING];
 extern	int			rgblightdatasize;
 extern	byte		drgblightdata[MAX_MAP_LIGHTING*3];
 
+// LordHavoc: stored in .dlit file
+extern	int			nmaplightdatasize;
+extern	byte		dnmaplightdata[MAX_MAP_LIGHTING*3];
+
 extern	int			texdatasize;
 extern	byte		dtexdata[MAX_MAP_MIPTEX]; // (dmiptexlump_t)
 

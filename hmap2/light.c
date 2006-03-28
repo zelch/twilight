@@ -329,6 +329,7 @@ void LightWorld( void )
 	if( !relight )
 		lightdatasize = 0;
 	rgblightdatasize = 0;
+	nmaplightdatasize = 0;
 	lightstarttime = time( NULL );
 
 	lightchainbufindex = 0;
@@ -553,8 +554,9 @@ int Light_Main( int argc, char **argv )
 			defaultlighttype = atoi( argv[i] );
 			if( defaultlighttype < 0 || defaultlighttype >= LIGHTTYPE_TOTAL )
 				Error( "invalid value given to -defaulttype\n" );
+			printf( "defaulting all lights to type %i\n", defaultlighttype);
 		} else if( !strcmp( argv[i],"-overridetypes" ) ) {
-			printf( "overriding all light types with current default\n" );
+			printf( "overriding all light types with current default (%i)\n", defaultlighttype );
 			overridelighttypes = true;
 		}
 		else if( !strcmp( argv[i],"-harshshade" ) )
@@ -620,6 +622,7 @@ int Light_Main( int argc, char **argv )
 
 	memset( dlightdata, 0, sizeof( dlightdata ) );
 	memset( drgblightdata, 0, sizeof( drgblightdata ) );
+	memset( dnmaplightdata, 0, sizeof( dnmaplightdata ) );
 
 	if( !visdatasize ) {
 		printf( "no visibility data found (run -vis before -light to compile faster)\n" );

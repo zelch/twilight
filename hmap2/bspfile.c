@@ -19,6 +19,11 @@ byte		dlightdata[MAX_MAP_LIGHTING];
 int			rgblightdatasize;
 byte		drgblightdata[MAX_MAP_LIGHTING*3];
 
+// LordHavoc: stored in .dlit file
+int			nmaplightdatasize;
+byte		dnmaplightdata[MAX_MAP_LIGHTING*3];
+
+
 int			texdatasize;
 byte		dtexdata[MAX_MAP_MIPTEX]; // (dmiptexlump_t)
 
@@ -653,7 +658,7 @@ void WriteBSPFile (char *filename, qboolean litonly)
 		if (ismcbsp)
 			SB_WriteData (&sb, drgblightdata, rgblightdatasize);
 		else
-			SB_WriteData (&sb, dlightdata, lightdatasize);			
+			SB_WriteData (&sb, dlightdata, lightdatasize);
 		lump->filelen = SB_Tell(&sb) - lump->fileofs;
 		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
 
@@ -733,6 +738,27 @@ void WriteBSPFile (char *filename, qboolean litonly)
 		}
 		else
 			printf("unable to write \"%s\"\n", filename_lit);
+	}
+
+	if (nmaplightdatasize)
+	{
+		FILE *litfile;
+		litfile = SafeOpenWrite(filename_dlit);
+		if (litfile)
+		{
+			fputc('Q', litfile);
+			fputc('L', litfile);
+			fputc('I', litfile);
+			fputc('T', litfile);
+			fputc(1, litfile);
+			fputc(0, litfile);
+			fputc(0, litfile);
+			fputc(0, litfile);
+			SafeWrite(litfile, dnmaplightdata, nmaplightdatasize);
+			fclose(litfile);
+		}
+		else
+			printf("unable to write \"%s\"\n", filename_dlit);
 	}
 }
 

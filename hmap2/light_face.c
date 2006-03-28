@@ -33,6 +33,7 @@ typedef struct
 typedef struct
 {
 	vec3_t			c;
+	vec3_t			n; // surface normal in tangentspace
 } lightsample_t;
 
 typedef struct
@@ -223,7 +224,7 @@ static void CalcPoints( lightinfo_t *l )
 	int i;
 	vec3_t v;
 	vec_t nudgeScale = 1.0 / 8.0;
-	vec_t nudgeFractions[2][9] = 
+	vec_t nudgeFractions[2][9] =
 	{
 		{ 0, 0, 0, 1, 1, 1, -1, -1, -1 },
 		{ 0, 1, -1, 0, 1, -1, 0, 1, -1 },
@@ -350,7 +351,7 @@ SingleLightFace_Sun
 static void SingleLightFace_Sun( const directlight_t *light, lightinfo_t *l )
 {
 	int				i, mapnum;
-	vec_t			shade;
+	vec_t			shade, f;
 	vec3_t			endpos, c;
 	lightpoint_t	*point;
 	lightsample_t	*sample;
@@ -395,6 +396,9 @@ static void SingleLightFace_Sun( const directlight_t *light, lightinfo_t *l )
 		// accumulate the lighting
 		sample = &l->sample[mapnum][point->samplepos];
 		VectorMA( sample->c, extrasamplesscale, c, sample->c );
+		// accumulate the weighted average surface normal
+		f = -VectorLength(c) * extrasamplesscale;
+		VectorMA(sample->n, f, light->spotdir, sample->n);
 	}
 }
 
@@ -406,7 +410,7 @@ SingleLightFace
 static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 {
 	int				i, mapnum;
-	vec_t			add, dist, idist, dist2, dist3, rad2;
+	vec_t			add, dist, idist, dist2, dist3, rad2, f;
 	vec3_t			incoming, c;
 	lightpoint_t	*point;
 	lightsample_t	*sample;
@@ -426,13 +430,15 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 	// mapnum won't be allocated until some light hits the surface
 	mapnum = -1;
 
+	rad2 = light->clampradius / light->radius;
+
 	for( i = 0, point = l->point; i < l->numpoints; i++, point++ ) {
 		if( point->occluded )
 			continue;
 
 		VectorSubtract( light->origin, point->v, incoming );
 		dist = VectorLength( incoming );
-		if( !dist || dist > light->radius )
+		if( !dist || dist > light->clampradius )
 			continue;
 
 		idist = 1.0 / dist;
@@ -444,7 +450,6 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 
 		dist2 = dist / light->radius;
 		dist3 = dist / light->clampradius;
-		rad2 = light->clampradius / light->radius;
 
 		switch( light->type ) {
 			case LIGHTTYPE_MINUSX:
@@ -454,10 +459,10 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 				add = (1.0 - (dist2 * dist2)) - (1.0 - (rad2 * rad2)) * dist3;
 				break;
 			case LIGHTTYPE_RECIPX:
-				add = (1.0 / (dist2        )) - (1.0 / (rad2       )) * dist3;
+				add = (1.0 / (dist2        ));
 				break;
 			case LIGHTTYPE_RECIPXX:
-				add = (1.0 / (dist2 * dist2)) - (1.0 / (rad2 * rad2)) * dist3;
+				add = (1.0 / (dist2 * dist2));
 				break;
 			default:
 				add = 1.0;
@@ -466,7 +471,7 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 
 		if( add <= 0 )
 			continue;
-		
+
 		// LordHavoc: FIXME: decide this 0.5 bias based on shader properties (some are dull, some are shiny)
 		if (!harshshade)
 			add = add * (DotProduct( incoming, l->facenormal ) * 0.5 + 0.5);
@@ -494,6 +499,9 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 		// accumulate the lighting
 		sample = &l->sample[mapnum][point->samplepos];
 		VectorMA( sample->c, extrasamplesscale, c, sample->c );
+		// accumulate the weighted average light direction (deluxemap)
+		f = VectorLength(c) * extrasamplesscale;
+		VectorMA(sample->n, f, incoming, sample->n);
 	}
 }
 
@@ -506,9 +514,10 @@ lightinfo_t l; // if this is made multithreaded again, this should be inside the
 void LightFace( dface_t *f, const lightchain_t *lightchain, const directlight_t **novislight, int novislights, const vec3_t faceorg )
 {
 	int				i, j, size;
-	int				red, green, blue, white;
-	byte			*out, *lit;
+	byte			*out, *lit, *nmap;
 	lightsample_t	*sample;
+	vec3_t			tangentvectors[3]; // [0] is along S texcoord, [1] is along T texcoord, [2] is surface normal
+	vec_t			dist;
 
 	//memset (&l, 0, sizeof(l));
 	l.face = f;
@@ -522,7 +531,7 @@ void LightFace( dface_t *f, const lightchain_t *lightchain, const directlight_t 
 			f->styles[i] = l.lightstyles[i] = 255;
 		f->lightofs = -1;
 
-		// return if it's not a lightmapped surface 
+		// return if it's not a lightmapped surface
 		if( texinfo[f->texinfo].flags & TEX_SPECIAL )
 			return;
 		// return if we've run out of lightmap data space
@@ -568,18 +577,40 @@ void LightFace( dface_t *f, const lightchain_t *lightchain, const directlight_t 
 		SingleLightFace( *novislight++, &l );
 
 	// apply ambientlight if needed
-	if( ambientlight > 0 ) {
+	if( ambientlight > 0 )
+	{
+		vec_t d;
+		vec3_t v;
+		v[0] = ambientlight;
+		v[1] = ambientlight;
+		v[2] = ambientlight;
+		d = VectorLength(v);
 		for( i = 0; i < l.numsamples; i++ )
-			for( j = 0; j < 3; j++)
-				l.sample[0][i].c[j] += ambientlight;
+		{
+			VectorAdd(l.sample[0][i].c, v, l.sample[0][i].c);
+			// accumulate ambientlight normal as directly infront of the face
+			VectorMA(l.sample[0][i].n, d, l.facenormal, l.sample[0][i].n);
+		}
 	}
 
 	// apply minlight if needed
-	if( minlight > 0 ) {
+	if( minlight > 0 )
+	{
+		vec_t d;
+		vec3_t v;
 		for( i = 0; i < l.numsamples; i++ )
+		{
 			for( j = 0; j < 3; j++ )
-				if( l.sample[0][i].c[j] < minlight )
-					l.sample[0][i].c[j] = minlight;
+			{
+				v[j] = minlight - l.sample[0][i].c[j];
+				if (v[j] < 0)
+					v[j] = 0;
+			}
+			VectorAdd(l.sample[0][i].c, v, l.sample[0][i].c);
+			// accumulate minlight normal as directly infront of the face
+			d = VectorLength(v);
+			VectorMA(l.sample[0][i].n, d, l.facenormal, l.sample[0][i].n);
+		}
 	}
 
 	// save out the values
@@ -613,21 +644,62 @@ void LightFace( dface_t *f, const lightchain_t *lightchain, const directlight_t 
 	}
 
 	rgblightdatasize = lightdatasize * 3;
+	nmaplightdatasize = lightdatasize * 3;
 
 	out = dlightdata + f->lightofs;
 	lit = drgblightdata + f->lightofs * 3;
+	nmap = dnmaplightdata + f->lightofs * 3;
+
+	// calculate tangent vectors for deluxemap normalmap building
+	VectorCopy(l.textoworld[0], tangentvectors[0]);
+	VectorNegate(l.textoworld[1], tangentvectors[1]);
+	VectorCopy(l.facenormal, tangentvectors[2]);
+
+	// project onto plane
+	dist = -DotProduct(tangentvectors[0], l.facenormal);
+	VectorMA(tangentvectors[0], dist, l.facenormal, tangentvectors[0]);
+
+	// project onto plane
+	dist = -DotProduct(tangentvectors[1], l.facenormal);
+	VectorMA(tangentvectors[1], dist, l.facenormal, tangentvectors[1]);
+
+	// normalize
+	VectorNormalize(tangentvectors[0]);
+	VectorNormalize(tangentvectors[1]);
 
 	for( i = 0; i < MAXLIGHTMAPS && f->styles[i] != 255; i++ ) {
 		for( j = 0, sample = l.sample[i]; j < l.numsamples; j++, sample++ ) {
+			int red, green, blue, white, tn[3];
+			vec3_t n;
 			red   = (int)sample->c[0];
 			green = (int)sample->c[1];
 			blue  = (int)sample->c[2];
 			white = (int)((sample->c[0] + sample->c[1] + sample->c[2]) * (1.0 / 3.0));
+			// output tangentspace normalmap instead of modelspace, this is
+			// done by doing a matrix multiply on the normal vector with the
+			// tangent matrix
+			// additionally we renormalize the modelspace normal here by
+			// multiplying by 128 (a scale used to remap into the 0-255 color
+			// range expected in normalmaps) divided by the current length of
+			// the normal
+			VectorCopy(sample->n, n);
+			VectorNormalize(n);
+			//if (VectorLength(n) < 0.01)
+			//	VectorCopy(l.tangentvectors[2], n);
+			tn[0] = (int)(DotProduct(n, tangentvectors[0]) * 128 + 128);
+			tn[1] = (int)(DotProduct(n, tangentvectors[1]) * 128 + 128);
+			tn[2] = (int)(DotProduct(n, tangentvectors[2]) * 128 + 128);
+			//tn[0] = (int)(n[0] * 128 + 128);
+			//tn[1] = (int)(n[1] * 128 + 128);
+			//tn[2] = (int)(n[2] * 128 + 128);
 
 			*lit++ = bound( 0, red, 255 );
 			*lit++ = bound( 0, green, 255 );
 			*lit++ = bound( 0, blue, 255 );
 			*out++ = bound( 0, white, 255 );
+			*nmap++ = bound(0, tn[0], 255);
+			*nmap++ = bound(0, tn[1], 255);
+			*nmap++ = bound(0, tn[2], 255);
 		}
 	}
 }
