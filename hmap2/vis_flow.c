@@ -21,7 +21,7 @@ viswinding_t *NewVisWinding (int points)
 	if (points > MAX_POINTS_ON_VISWINDING)
 		Error ("NewWinding: %i points", points);
 
-	size = (int)((viswinding_t *)0)->points[points];
+	size = (int)((size_t)((viswinding_t *)0)->points[points]);
 	w = qmalloc (size);
 	memset (w, 0, size);
 
@@ -49,7 +49,7 @@ viswinding_t *CopyVisWinding (viswinding_t *w)
 	int			size;
 	viswinding_t	*c;
 
-	size = (int)((viswinding_t *)0)->points[w->numpoints];
+	size = (int)((size_t)((viswinding_t *)0)->points[w->numpoints]);
 	c = qmalloc (size);
 	memcpy (c, w, size);
 	c->original = false;
