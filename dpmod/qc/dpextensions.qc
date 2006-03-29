@@ -1116,7 +1116,7 @@ void(entity own, vector start, vector end) te_beam = #431;
 //description:
 //to make life easier on mod coders.
 
-//DP_TRACE_DPHITCONTENTSMASK_SURFACEINFO
+//DP_TRACE_HITCONTENTSMASK_SURFACEINFO
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
 //globals:
