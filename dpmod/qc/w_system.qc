@@ -281,93 +281,21 @@ void(float wimpulse, string printname, float(float request) func, string itemnam
 	}
 };
 
-void() wanimate =
-{
-	local float f;
-
-	W_SetupShot();
-	f = bound(0, time - self.wanim_lasttime, 0.1);
-	self.wanim_lasttime = time;
-	if (f)
-	{
-		self.wanim_accumulator = self.wanim_accumulator + f;
-		if (self.wanim_frameseconds)
-		{
-			/*
-			bprint("f: ");
-			bprintfloat(f);
-			bprint("\nbefore accum: ");
-			bprintfloat(self.wanim_accumulator);
-			bprint(" increment: ");
-			bprintfloat(self.wanim_increment);
-			bprint(" frame: ");
-			bprintfloat(self.weaponframe);
-			bprint(" finalframe: ");
-			bprintfloat(self.wanim_finalframe);
-			bprint(" ->\n");
-			*/
-			while (self.wanim_accumulator >= self.wanim_frameseconds)
-			{
-				self.wanim_accumulator = self.wanim_accumulator - self.wanim_frameseconds;
-				self.weaponclass.w_func(WR_ANIMATIONFRAME);
-				if (self.weaponframe != self.wanim_finalframe)
-					self.weaponframe = self.weaponframe + self.wanim_increment;
-				else
-					self.weaponclass.w_func(WR_ANIMATIONFINISH);
-				if (!self.wanim_frameseconds)
-					break;
-			}
-			/*
-			bprint("after accum: ");
-			bprintfloat(self.wanim_accumulator);
-			bprint(" increment: ");
-			bprintfloat(self.wanim_increment);
-			bprint(" frame: ");
-			bprintfloat(self.weaponframe);
-			bprint(" finalframe: ");
-			bprintfloat(self.wanim_finalframe);
-			bprint("\n");
-			*/
-		}
-		else
-		{
-			self.wanim_accumulator = 0;
-			if (self.weaponframe != self.wanim_finalframe)
-			{
-				self.weaponframe = self.weaponframe + self.wanim_increment;
-				self.weaponclass.w_func(WR_ANIMATIONFRAME);
-			}
-			else
-				self.weaponclass.w_func(WR_ANIMATIONFINISH);
-		}
-	}
-
-	f = 0;
-	if (self.wanim_id != WANIM_RAISE)
-	if (self.wanim_id != WANIM_LOWER)
-	if (self.weaponframe >= 0)
-		f = self.weaponframe;
-	if (self.weaponclass.lefty == WANIMTYPE_SHOTGUN)
-		havoc_shotanimupdate(f);
-	else if (self.weaponclass.lefty == WANIMTYPE_NAILGUN)
-		havoc_nailanimupdate(f);
-	else if (self.weaponclass.lefty == WANIMTYPE_ROCKET)
-		havoc_rockanimupdate(f);
-	else if (self.weaponclass.lefty == WANIMTYPE_LIGHTNING)
-		havoc_lightanimupdate(f);
-};
-
+.float wanim_framesleft;
 void(float animid, float startframe, float deltaframe, float deltatime) wsetanim =
 {
 	self.wanim_id = animid;
-	self.weaponframe = startframe;
 	self.wanim_increment = 1;
 	if (deltaframe == 0)
 		deltaframe = 1;
 	else if (deltaframe < 0)
 		self.wanim_increment = -1;
-	self.wanim_frameseconds = deltatime / (deltaframe * self.wanim_increment);
-	self.wanim_finalframe = startframe + deltaframe - self.wanim_increment;
+	self.wanim_framesleft = deltaframe * self.wanim_increment;
+	self.wanim_frameseconds = deltatime / self.wanim_framesleft;
+	self.wanim_finalframe = startframe + deltaframe;
+	self.weaponframe = startframe;
+	self.wanim_accumulator = self.wanim_accumulator - self.wanim_frameseconds;
+	self.weaponclass.w_func(WR_ANIMATIONFRAME);
 	/*
 	bprint("animid ");bprintfloat(animid);
 	bprint(" startframe ");bprintfloat(startframe);
@@ -378,26 +306,20 @@ void(float animid, float startframe, float deltaframe, float deltatime) wsetanim
 	bprint(" finalframe ");bprintfloat(self.wanim_finalframe);
 	bprint("\n");
 	*/
-	wanimate();
 };
 
 void(entity wclass, float instantswitch) wsetweapon =
 {
-	self.wanim_lasttime = time;
-	self.wanim_accumulator = 0;
 	self.switchweaponclass = wclass;
 	self.weaponclass = wclass;
 	self.items = (self.items - (self.items & (IT_SHELLS | IT_NAILS | IT_ROCKETS | IT_CELLS))) | self.weaponclass.items;
 	self.weaponmodel = self.weaponclass.weaponmodel;
-	self.weaponframe = -1;
+	self.weaponframe = 0;
 	W_SetupShot();
 	if (instantswitch)
 		self.weaponclass.w_func(WR_INSTANTSETUP);
 	else
 		self.weaponclass.w_func(WR_SETUP);
-	// let the animations settle down before returning
-	self.weaponclass.w_func(WR_FRAME);
-	self.weaponclass.w_func(WR_FRAME);
 };
 
 void() wswitch =
@@ -698,14 +620,50 @@ void() W_WeaponFrame =
 	// weapon animation, firing, etc
 	self.oldfiring = self.firing;
 	self.firing = FALSE;
-	//wanimate();
 	if (self.weaponclass)
 	{
+		// if 10 frames was not enough to push the accumulator into the
+		// negatives, reset it
+		if (self.wanim_accumulator > 0)
+			self.wanim_accumulator = 0;
 		self.weaponclass.w_func(WR_FRAME);
-		self.weaponclass.w_func(WR_FRAME);
-		self.weaponclass.w_func(WR_FRAME);
+		// run 10 times to give a weapon a chance to fire multiple times per
+		// frame if needed
+		self.wanim_accumulator = self.wanim_accumulator + frametime;
+		f = 0;
+		while (self.wanim_accumulator > 0 && f < 10)
+		{
+			f = f + 1;
+			self.weaponframe = self.weaponframe + self.wanim_increment;
+			if (self.weaponframe == self.wanim_finalframe)
+				self.weaponclass.w_func(WR_ANIMATIONFINISH);
+			else
+			{
+				self.wanim_accumulator = self.wanim_accumulator - self.wanim_frameseconds;
+				self.weaponclass.w_func(WR_ANIMATIONFRAME);
+			}
+		}
+		// if 10 frames was not enough to push the accumulator into the
+		// negatives, reset it
+		if (self.wanim_accumulator > 0)
+			self.wanim_accumulator = 0;
 	}
-	//wanimate();
+
+	// update the player model animation
+	f = 0;
+	if (self.wanim_id != WANIM_RAISE)
+	if (self.wanim_id != WANIM_LOWER)
+	if (self.weaponframe >= 0)
+		f = self.weaponframe;
+
+	if (self.weaponclass.lefty == WANIMTYPE_SHOTGUN)
+		havoc_shotanimupdate(f);
+	else if (self.weaponclass.lefty == WANIMTYPE_NAILGUN)
+		havoc_nailanimupdate(f);
+	else if (self.weaponclass.lefty == WANIMTYPE_ROCKET)
+		havoc_rockanimupdate(f);
+	else if (self.weaponclass.lefty == WANIMTYPE_LIGHTNING)
+		havoc_lightanimupdate(f);
 
 	if (self.viewzoom != self.idealzoom)
 	{
@@ -776,7 +734,7 @@ float ROCKETLAUNCHER_MAXLOAD = 2;
 float ROCKETLAUNCHER_VELOCITY = 3000;
 float ROCKETLAUNCHER_MULTI_VELOCITY = 3000;
 float THUNDERBOLT_CELL_HEALTH = 30;
-float THUNDERBOLT_CELL_BODY = 8;
+float THUNDERBOLT_CELL_BODY = 15;
 float THUNDERBOLT_CELLSPERSECOND = 10;
 float PLASMARIFLE_NORMAL_CELL = 30;
 float PLASMARIFLE_NORMAL_CELLS = 1;
@@ -889,7 +847,6 @@ float(float request) w_axe =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = 0;
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -999,7 +956,6 @@ float(float request) w_shotgun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "shells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -1104,7 +1060,6 @@ float(float request) w_dbshotgun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "shells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -1252,7 +1207,6 @@ float(float request) w_nailgun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "nails");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -1264,7 +1218,7 @@ float(float request) w_nailgun =
 		if (self.button0)
 		if (Inventory_Quantity(self, "nails") > 0)
 		{
-			wsetanim(WANIM_FIRE1, 1, 0, 0);
+			wsetanim(WANIM_FIRE1, 1, 8, NAILGUN_REFIRE * 8);
 			return TRUE;
 		}
 		if (self.button3)
@@ -1431,7 +1385,6 @@ float(float request) w_supernailgun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "nails");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -1443,7 +1396,7 @@ float(float request) w_supernailgun =
 		if (self.button0)
 		if (Inventory_Quantity(self, "nails") > 0)
 		{
-			wsetanim(WANIM_FIRE1, 1, 0, 0);
+			wsetanim(WANIM_FIRE1, 1, 8, SUPERNAILGUN_REFIRE * 8);
 			return TRUE;
 		}
 		if (self.button3)
@@ -1517,7 +1470,6 @@ float(float request) w_grenadelauncher =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -1598,7 +1550,6 @@ float(float request) w_rocketlauncher =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.button3)
 		self.detonatetimeout = time + 0.1;
@@ -1741,7 +1692,6 @@ float(float request) w_plasmarifle =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "cells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -1774,7 +1724,7 @@ float(float request) w_plasmarifle =
 		if (time > self.attack_finished)
 		if (Inventory_Quantity(self, "cells") > 0)
 		{
-			wsetanim(WANIM_FIRE1, 1, 0, 0);
+			wsetanim(WANIM_FIRE1, 1, 8, PLASMARIFLE_NORMAL_REFIRE * 8);
 			return TRUE;
 		}
 		return TRUE;
@@ -1839,7 +1789,7 @@ vector(entity inflictor, entity attacker, vector start, vector end, float hdamag
 	while (e != world)
 	{
 		if (e != attacker)
-			T_Damage(e, inflictor, attacker, hdamage, bdamage, dmsg, dtype, trace_endpos, force, obitfunc);
+			T_Damage(e, inflictor, attacker, hdamage, bdamage, dmsg, dtype, e.lightninghitpoint, force, obitfunc);
 		e = e.lightningchain;
 	}
 	return end;
@@ -1877,14 +1827,16 @@ float(float request) w_thunderbolt =
 	{
 		if (self.wanim_id == WANIM_FIRE1)
 		{
+			sound(self, CHAN_WEAPON, "weapons/lhit.wav", 1, ATTN_NORM);
+			cells = Inventory_Quantity(self, "cells");
 			if (self.button0)
-			if (Inventory_Quantity(self, "cells") >= 1)
+			if (cells > 0)
 			{
+				cells = min(cells, 1);
 				self.wfiretime = time;
 				W_Hostile();
-				sound(self, CHAN_WEAPON, "weapons/lhit.wav", 1, ATTN_NORM);
-				Inventory_AdjustQuantity(self, "cells", -1);
-				v = W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, THUNDERBOLT_CELL_HEALTH, THUNDERBOLT_CELL_BODY, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
+				Inventory_AdjustQuantity(self, "cells", 0 - cells);
+				v = W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, THUNDERBOLT_CELL_HEALTH * cells, THUNDERBOLT_CELL_BODY * cells, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
 				te_lightning2(self, shotorg, v);
 				return TRUE;
 			}
@@ -1912,7 +1864,6 @@ float(float request) w_thunderbolt =
 		return FALSE;
 	wframetime = time - self.wtime;
 	self.wtime = time;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "cells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2044,7 +1995,6 @@ float(float request) w_plasmawave =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "cells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2148,7 +2098,6 @@ float(float request) w_laserrifle =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "cells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2161,7 +2110,7 @@ float(float request) w_laserrifle =
 		if (Inventory_Quantity(self, "cells"))
 		{
 			self.wload = LASERRIFLE_BURST;
-			wsetanim(WANIM_FIRE1, 1, 0, 0);
+			wsetanim(WANIM_FIRE1, 1, 0, LASERRIFLE_BURSTREFIRE);
 		}
 		return TRUE;
 	}
@@ -2253,7 +2202,6 @@ float(float request) w_flamer =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "cells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2265,7 +2213,7 @@ float(float request) w_flamer =
 		if (self.button0)
 		{
 			if (Inventory_Quantity(self, "cells") >= FLAMER_SHOT_CELLS)
-				wsetanim(WANIM_FIRE1, 1, 0, 0);
+				wsetanim(WANIM_FIRE1, 1, 0, FLAMER_SHOT_REFIRE);
 		}
 		else if (self.button3)
 		{
@@ -2368,7 +2316,6 @@ float(float request) w_plasmashotgun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "cells") / PLASMASHOTGUN_CELLS;
 	f = Inventory_Quantity(self, "shells");
 	if (self.currentammo > f)
@@ -2472,7 +2419,6 @@ float(float request) w_pistol =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "nails");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2658,7 +2604,6 @@ float(float request) w_chainsaw =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = 0;
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2735,7 +2680,6 @@ float(float request) w_hopper =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2813,7 +2757,6 @@ float(float request) w_handgrenade =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2892,7 +2835,6 @@ float(float request) w_prickler =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "shells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -2968,7 +2910,6 @@ float(float request) w_scattergun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "shells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3062,7 +3003,6 @@ float(float request) w_rifle =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "shells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3138,7 +3078,6 @@ float(float request) w_machinegun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "nails");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3214,7 +3153,6 @@ float(float request) w_vulcan =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "nails");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3290,7 +3228,6 @@ float(float request) w_executioner =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3366,7 +3303,6 @@ float(float request) w_jackhammer =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3454,7 +3390,6 @@ float(float request) w_grenadelauncher2 =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3537,7 +3472,6 @@ float(float request) w_backpackmortar =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3625,7 +3559,6 @@ float(float request) w_incinerator =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "cells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -3717,7 +3650,6 @@ float(float request) w_railgun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "shells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -4068,7 +4000,6 @@ float(float request) w_mplasmacannon =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = self.wburst;
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -4261,7 +4192,6 @@ float(float request) w_mplasmacannon =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = self.wburst;
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -4444,7 +4374,6 @@ float(float request) w_mplasmacannon =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = self.wburst;
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -4668,7 +4597,6 @@ float(float request) w_micecannon =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = self.wburst;
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -4814,7 +4742,6 @@ float(float request) w_mplasmabeam =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = self.wburst;
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -4923,7 +4850,6 @@ float(float request) w_mmissilelauncher =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -5023,7 +4949,6 @@ float(float request) w_mbomblauncher =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wanimate();
 	self.currentammo = bound(0, self.currentammo + BOMBLAUNCHER_AMMOREGEN * frametime, BOMBLAUNCHER_AMMO);//Inventory_Quantity(self, "rockets");
 	if (self.wanim_id == WANIM_READY)
 	{

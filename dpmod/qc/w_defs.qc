@@ -29,7 +29,6 @@ entity w_chain;
 .entity w_prev;
 .float(float request) w_func;
 .float wanim_id;
-.float wanim_lasttime;
 .float wanim_accumulator;
 .float wanim_frameseconds;
 .float wanim_finalframe;
