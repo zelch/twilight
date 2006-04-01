@@ -564,7 +564,7 @@ void() worldspawn =
 	if (darkmode)
 	{
 		c = 0;
-		while (c < 64)
+		while (c < 255)
 		{
 			lightstyle(c, "a");
 			c = c + 1;
@@ -857,18 +857,18 @@ void(entity e) WaterMove =
 		if (wt == CONTENT_LAVA || wt == CONTENT_SLIME)
 		if (time >= e.dmgtime)
 		{
-			e.dmgtime = e.dmgtime + 0.1;
+			e.dmgtime = e.dmgtime + 0.2;
 			if (e.dmgtime < time)
-				e.dmgtime = time + 0.1;
+				e.dmgtime = time + 0.2;
 			if (wt == CONTENT_LAVA)
 			{
 				//particle(randompos(e.absmin, e.absmax), '0 0 100', 232, 30);
-				T_Damage (e, world, world, 10*wl, 10*wl, "LAVA", DT_LAVA, e.origin, '0 0 0', Obituary_Lava);
+				T_Damage (e, world, world, 20*wl, 20*wl, "LAVA", DT_LAVA, e.origin, '0 0 0', Obituary_Lava);
 			}
 			else if (wt == CONTENT_SLIME)
 			{
 				//particle(randompos(e.absmin, e.absmax), '0 0 100', 61, 30);
-				T_Damage (e, world, world, wl, wl, "SLIME", DT_SLIME, e.origin, '0 0 0', Obituary_Slime);
+				T_Damage (e, world, world, 2*wl, 2*wl, "SLIME", DT_SLIME, e.origin, '0 0 0', Obituary_Slime);
 			}
 		}
 	}
@@ -877,11 +877,11 @@ void(entity e) WaterMove =
 		if (wt == CONTENT_LAVA)
 		if (time >= e.dmgtime)
 		{
-			e.dmgtime = e.dmgtime + 0.1;
+			e.dmgtime = e.dmgtime + 0.2;
 			if (e.dmgtime < time)
-				e.dmgtime = time + 0.1;
+				e.dmgtime = time + 0.2;
 			//particle(randompos(e.absmin, e.absmax), '0 0 100', 232, 30);
-			T_Damage (e, world, world, wl, wl, "LAVA", DT_LAVA, e.origin, '0 0 0', Obituary_Lava);
+			T_Damage (e, world, world, 2*wl, 2*wl, "LAVA", DT_LAVA, e.origin, '0 0 0', Obituary_Lava);
 		}
 	}
 };
