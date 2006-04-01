@@ -191,7 +191,8 @@ void() FlashLight_Think =
 		remove(self);
 		return;
 	}
-	setorigin(self, self.owner.origin + '0 0 16');
+	makevectors(self.owner.v_angle);
+	setorigin(self, self.owner.origin + '0 0 16' + v_forward * 10);
 	self.angles = self.owner.v_angle;
 	self.angles_x = self.angles_x * -1;
 };
