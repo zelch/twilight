@@ -56,14 +56,6 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	self = oself;
 };
 
-.float frozen;
-.float thawtime;
-.float thawedeffects;
-.void() thawedtouch;
-.float thawedmovetype;
-.void() thawedthink;
-.float thawedthinkdelay;
-
 void() frozenthink =
 {
 	if (self.deadflag == DEAD_DYING)
@@ -155,23 +147,11 @@ The damage is coming from inflictor, but get mad at attacker
 This should be the only function that ever reduces health.
 ============
 */
-.float regenthink; // next time player will regen some health
+void() FoundTarget;
 void(entity targ, entity inflictor, entity attacker, float healthdamage, float damage, string dethtype, float damgtype, vector damgpoint, vector force, void(entity t, entity a, string m, float dtyp) obitfunc) T_Damage =
 {
 	local entity oldself;
 	local float save, htake, take, ratio;
-
-	if (damgtype & DTF_FREEZE)
-	if (targ.takedamage)
-	{
-		if (targ.frozen)
-			freezeentity(targ);
-		else
-		{
-			freezeentity(targ);
-			return;
-		}
-	}
 
 	oldself = self;
 
@@ -206,6 +186,21 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	if (!targ.takedamage)
 		return;
 
+	if (damgtype & DTF_FREEZE)
+	{
+		if (targ.frozen)
+			freezeentity(targ);
+		else
+		{
+			freezeentity(targ);
+			return;
+		}
+	}
+
+
+	// used by buttons and triggers to set activator for target firing
+	damage_attacker = attacker;
+
 	if (damgtype & DTF_TELEFRAG)
 	{
 		// used by buttons and triggers to set activator for target firing
@@ -221,11 +216,26 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	}
 	else
 	{
-		if (damage < 1) // no damage to begin with
+		if (damage <= 0) // no damage to begin with
 			return;
+		if (targ.flags & FL_GODMODE)
+			return;
+		if (targ.invincible_finished >= time)
+		{
+			if (self.invincible_sound < time)
+			{
+				sound (targ, CHAN_ITEM, "items/protect3.wav", 1, ATTN_NORM);
+				self.invincible_sound = time + 2;
+			}
+			return;
+		}
 
-		// used by buttons and triggers to set activator for target firing
-		damage_attacker = attacker;
+// team play damage avoidance
+		if (targ.team > 0)
+		if (targ.team == attacker.team)
+		if (teamplay == 1 || teamplay == 3)
+		if (targ != attacker || teamplay == 1)
+			return;
 
 		// consult the target's damage modifier code and resistance data
 		ratio = 1.0;
@@ -240,32 +250,13 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		if (targ.resist_energy   ) if (damgtype & DTF_RESIST_ENERGY   ) ratio = ratio * targ.resist_energy;
 		if (targ.resist_fire     ) if (damgtype & DTF_RESIST_FIRE     ) ratio = ratio * targ.resist_fire;
 		if (targ.flags & FL_MONSTER) ratio = ratio * monsterresistancescale;
-		if (targ.items & IT_INVULNERABILITY)
-		{
-			if (attacker.classname == "player" && targ.classname == "player" && targ != attacker)
-				ratio = ratio * 0.33;
-			else
-				ratio = 0;
-		}
 
-//		// check for quad damage powerup on the attacker
-//		if (attacker.items & IT_QUAD)
-//			ratio = ratio * 4;
-
-		if (targ.team > 0)
-		if (targ.team == attacker.team)
-		if (teamplay == 1 || teamplay == 3)
-		if (targ != attacker || teamplay == 1)
-			ratio = 0;
-		if (targ.flags & FL_GODMODE)
-			ratio = 0;
+		if (ratio <= 0) // resistance prevented damage
+			return;
 
 		// apply resistances
 		healthdamage = healthdamage * ratio;
 		damage = damage * ratio;
-
-		if (damage < 1) // resistance prevented damage
-			return;
 
 		// healthdamage can only be more than damage
 		if (healthdamage < damage)
@@ -300,6 +291,16 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		htake = take * ratio; // health damage
 		if (htake < 0.01) htake = 0.01;
 
+		// add to the damage total for clients, which will be sent as a single
+		// message at the end of the frame
+		// FIXME: remove after combining shotgun blasts?
+		if (targ.flags & FL_CLIENT)
+		{
+			targ.dmg_take = targ.dmg_take + htake;
+			targ.dmg_save = targ.dmg_save + save;
+			targ.dmg_inflictor = inflictor;
+		}
+
 		if (targ.bleedfunc)
 		{
 			self = targ;
@@ -315,26 +316,6 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 			targ.items = targ.items - (targ.items & (IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3));
 		}
 
-		// add to the damage total for clients, which will be sent as a single
-		// message at the end of the frame
-		// FIXME: remove after combining shotgun blasts?
-		if (targ.flags & FL_CLIENT)
-		{
-			targ.dmg_take = targ.dmg_take + take;
-			targ.dmg_save = targ.dmg_save + save;
-			targ.dmg_inflictor = inflictor;
-		}
-
-		// team play damage avoidance
-		if (teamplay == 1 || teamplay == 3)
-		if (targ.team > 0)
-		if (targ.team == attacker.team)
-		if (targ != attacker || teamplay == 1)
-			return;
-
-		if (targ.flags & FL_GODMODE)
-			return;
-
 		// do the damage
 		targ.health = targ.health - htake;
 		targ.bodyhealth = targ.bodyhealth - take;
@@ -343,41 +324,33 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	targ.regenthink = time + 2; // stop regeneration for 2 sec
 
 	targ.deathmsg = dethtype;
+	if (targ.health <= 0)
 	if (targ.th_die)
 	if (targ.th_die != SUB_Null)
+	if (!targ.iscorpse || targ.bodyhealth <= 0)
 	{
-		if (targ.iscorpse)
-		{
-			if (targ.bodyhealth < 1)
-			{
-				Killed (targ, attacker, dethtype, damgtype, obitfunc);
-				return;
-			}
-		}
-		else
-		{
-			if (targ.health < 1)
-			{
-				Killed (targ, attacker, dethtype, damgtype, obitfunc);
-				return;
-			}
-		}
+		Killed (targ, attacker, dethtype, damgtype, obitfunc);
+		return;
 	}
 
 	// react to the damage
 	self = targ;
 
-	if ((self.flags & FL_MONSTER) && attacker != world) // get mad unless of the same class (except for soldiers)
-	if (self != attacker && attacker != self.enemy)
-	if (self.classname != attacker.classname || self.classname == "monster_army")
-//	//if (attacker.classname == "player")
+	if ( (self.flags & FL_MONSTER) && attacker != world)
 	if (attacker.takedamage)
-	if (attacker.havocattack == TRUE)
 	{
-		if (self.enemy.classname == "player")
-			self.oldenemy = self.enemy;
-		self.enemy = attacker;
-		FoundTarget ();
+	// get mad unless of the same class (except for soldiers)
+		if (self != attacker && attacker != self.enemy)
+		{
+			if ( (self.classname != attacker.classname)
+			|| (self.classname == "monster_army" ) )
+			{
+				if (self.enemy.classname == "player")
+					self.oldenemy = self.enemy;
+				self.enemy = attacker;
+				FoundTarget ();
+			}
+		}
 	}
 
 	if (self.th_pain)
@@ -391,4 +364,236 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	}
 
 	self = oldself;
+};
+
+float(entity targ, entity ignore, vector org, float checkcount) CanRadDamage =
+{
+	local vector v, m1, m2;
+	local float c, d, s;
+	// hack to make tracelines hit dead bodies
+	s = ignore.solid;
+	if (s == SOLID_SLIDEBOX)
+		ignore.solid = SOLID_BBOX;
+	m1 = targ.mins + targ.origin;
+	m2 = targ.maxs + targ.origin - m1;
+	d = 0;
+	c = 0;
+	while(c < checkcount)
+	{
+		c = c + 1;
+		v_x = m1_x + random() * m2_x;
+		v_y = m1_y + random() * m2_y;
+		v_z = m1_z + random() * m2_z;
+		traceline(org, v, MOVE_NOMONSTERS, ignore);
+		if (!trace_startsolid)
+		if (trace_fraction == 1 || trace_ent == targ)
+			d = d + 1;
+	}
+	if (s == SOLID_SLIDEBOX)
+		ignore.solid = s;
+	return (d / checkcount);
+};
+
+// Quake style falloff
+float(entity targ, entity ignore, vector org, float radius, float checkcount) LinearRadDamage =
+{
+	local vector v, m1, m2;
+	local float b, dist;
+	m1 = targ.mins + targ.origin;
+	m2 = targ.maxs + targ.origin;
+	// find nearest point and calc damage for that
+	v_x = bound(m1_x, org_x, m2_x);
+	v_y = bound(m1_y, org_y, m2_y);
+	v_z = bound(m1_z, org_z, m2_z);
+	dist = vlen(v - org);
+	// if really close, do full damage
+	if (dist < 2)
+	{
+		raddamage_lasthit = org;
+		return 1;
+	}
+	// if outside radius, do no damage
+	if (dist >= radius)
+		return 0;
+	// calculate distance-attenuated damage
+	b = 1 - dist/radius;
+	if (b <= 0)
+		return 0; // no damage
+
+	raddamage_lasthit = v;
+
+	// direct hit
+	traceline(org, v, MOVE_NOMONSTERS, ignore);
+	if (!trace_startsolid)
+	if (trace_fraction == 1 || trace_ent == targ)
+		return b;
+
+	// partial hit
+	return b * CanRadDamage(targ, ignore, org, checkcount);
+};
+
+
+/*
+============
+T_RadiusDamage
+============
+*/
+void(entity inflictor, entity attacker, float damage, float force, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage =
+{
+	local	float	points, damagepoints, forcepoints, wt, d, ownerdamagescale;
+	local	entity	head;
+	local	vector	v, l;
+
+	/*
+	traceline(inflictor.origin, inflictor.origin, TRUE, world);
+	if (trace_startsolid)
+	{
+		dprint("T_RadiusDamage: inflictor in a solid\n");
+		return; // uh, it's in a wall, uh, lets be as sensible as we can in this strange situation...
+	}
+	*/
+	wt = pointcontents(inflictor.origin);
+	if ((wt != CONTENT_WATER) && (wt != CONTENT_SLIME))
+		wt = 0;
+	ownerdamagescale = inflictor.radiusdamage_ownerdamagescale;
+	if (!ownerdamagescale)
+		ownerdamagescale = 0.5;
+
+	damgtype = damgtype | DTF_INDIRECT; // splash not direct damage
+
+	// first count the damage
+	head = findradius(inflictor.origin, radius + 4);
+	while (head)
+	{
+		if (head.takedamage)
+		if (!head.isdecor)
+		{
+			points = LinearRadDamage(head, ignore, inflictor.origin, radius, 3);
+			if (points > 0)
+			{
+				damagepoints = damage * points;
+				forcepoints = force * points;
+				if (head == attacker)
+					damagepoints = damagepoints * ownerdamagescale;
+				head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
+				head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
+				head.radiusdamage_hit = 1;
+				head.radiusdamage_lasthit = raddamage_lasthit;
+			}
+		}
+		head = head.chain;
+	}
+
+	// then apply it
+	head = findfloat(world, radiusdamage_hit, 1);
+	while (head)
+	{
+		d = head.radiusdamage_amount;
+		v = head.radiusdamage_force;
+		l = head.radiusdamage_lasthit;
+		head.radiusdamage_amount = 0;
+		head.radiusdamage_hit = 0;
+		head.radiusdamage_force = '0 0 0';
+		head.radiusdamage_lasthit = '0 0 0';
+		if (d > 0 || v != '0 0 0')
+			T_Damage (head, inflictor, attacker, d, d, dethtype, damgtype, l, v, obitfunc);
+		head = findfloat(head, radiusdamage_hit, 1);
+	}
+
+	// now push around gibs and such
+	// (such as those made by a corpse which was just gibbed)
+	head = findchainfloat(isdecor, TRUE);
+	while (head)
+	{
+		points = LinearRadDamage(head, ignore, inflictor.origin, radius, 1);
+		if (points > 0)
+		{
+			damagepoints = damage * points;
+			forcepoints = force * points;
+			if (head == attacker)
+				damagepoints = damagepoints * ownerdamagescale;
+			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
+			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
+			head.radiusdamage_hit = 1;
+			head.radiusdamage_lasthit = raddamage_lasthit;
+		}
+		head = head.chain;
+	}
+
+	// now push around ragdolls
+	// (may be a corpse or gibs of what was just killed)
+	head = findchain(classname, "ragdoll_particle");
+	while (head)
+	{
+		points = LinearRadDamage(head, ignore, inflictor.origin, radius, 1);
+		if (points > 0)
+		{
+			damagepoints = damage * points;
+			forcepoints = force * points;
+			if (head == attacker)
+				damagepoints = damagepoints * ownerdamagescale;
+			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
+			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
+			head.radiusdamage_hit = 1;
+			head.radiusdamage_lasthit = raddamage_lasthit;
+		}
+		head = head.chain;
+	}
+
+	// then apply it
+	head = findfloat(world, radiusdamage_hit, 1);
+	while (head)
+	{
+		d = head.radiusdamage_amount;
+		v = head.radiusdamage_force;
+		l = head.radiusdamage_lasthit;
+		head.radiusdamage_amount = 0;
+		head.radiusdamage_hit = 0;
+		head.radiusdamage_force = '0 0 0';
+		head.radiusdamage_lasthit = '0 0 0';
+		if (d > 0 || v != '0 0 0')
+			T_Damage (head, inflictor, attacker, d, d, dethtype, damgtype, l, v, obitfunc);
+		head = findfloat(head, radiusdamage_hit, 1);
+	}
+};
+
+
+/*
+============
+CanDamage
+
+Returns true if the inflictor can directly damage the target.  Used for
+explosions and melee attacks.
+============
+*/
+float(entity targ, entity inflictor) CanDamage =
+{
+// bmodels need special checking because their origin is 0,0,0
+	if (targ.movetype == MOVETYPE_PUSH)
+	{
+		traceline(inflictor.origin, 0.5 * (targ.absmin + targ.absmax), TRUE, self);
+		if (trace_fraction == 1)
+			return TRUE;
+		if (trace_ent == targ)
+			return TRUE;
+		return FALSE;
+	}
+
+	traceline(inflictor.origin, targ.origin, TRUE, self);
+	if (trace_fraction == 1)
+		return TRUE;
+	traceline(inflictor.origin, targ.origin + '15 15 0', TRUE, self);
+	if (trace_fraction == 1)
+		return TRUE;
+	traceline(inflictor.origin, targ.origin + '-15 -15 0', TRUE, self);
+	if (trace_fraction == 1)
+		return TRUE;
+	traceline(inflictor.origin, targ.origin + '-15 15 0', TRUE, self);
+	if (trace_fraction == 1)
+		return TRUE;
+	traceline(inflictor.origin, targ.origin + '15 -15 0', TRUE, self);
+	if (trace_fraction == 1)
+		return TRUE;
+
+	return FALSE;
 };
