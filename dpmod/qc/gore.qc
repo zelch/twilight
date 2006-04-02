@@ -95,6 +95,7 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 	e.think = debristhink;
 	e.nextthink = time;
 	e.takedamage = DAMAGE_YES;
+	e.bleedfunc = genericbleedfunc;
 	e.touch = debristouch;
 	e.th_die = SUB_Null;
 	e.th_gib = SUB_Null;
@@ -109,12 +110,13 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib;
 
 void(string gibname) ThrowGib =
 {
-	local   vector  org;
+	local vector org;
 	// don't throw a gib if in a NODROP zone (such as lava)
 	traceline(self.origin, self.origin, MOVE_NORMAL, self);
 	if (trace_dpstartcontents & DPCONTENTS_NODROP)
 		return;
-	org = randompos(self.absmin, self.absmax);
+	org = self.origin + randompos(self.mins, self.maxs);
+	org_z = bound(self.origin_z + self.mins_z + 8, org_z, self.origin_z + self.maxs_z + 8);
 	if (cvar("dpmod_qcphysics_gibs"))
 		Ragdoll_ThrowGib(org, '0 0 0', gibname);
 	else
@@ -123,6 +125,7 @@ void(string gibname) ThrowGib =
 
 void(string gibname) ThrowHead =
 {
+	local vector org;
 	if (cvar("dpmod_qcphysics_gibs"))
 	{
 		Ragdoll_ThrowGib(self.origin + self.view_ofs, '0 0 0', gibname);
@@ -138,7 +141,9 @@ void(string gibname) ThrowHead =
 			return;
 		}
 
-		ThrowDebris(self, self.origin + self.view_ofs, '0 0 0', gibname, 0);
+		org = self.origin + self.view_ofs;
+		org_z = bound(self.origin_z + self.mins_z + 8, org_z, self.origin_z + self.maxs_z + 8);
+		ThrowDebris(self, org, '0 0 0', gibname, 0);
 	}
 };
 
