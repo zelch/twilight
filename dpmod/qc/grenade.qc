@@ -29,14 +29,14 @@ void() GrenadeExplode =
 	else if (self.deathtype == "GRENADE")
 	{
 		if (self.lefty)
-			T_RadiusDamage(self, self.owner, self.dmg2, self.count2, self.dmg2, world, "GRENADEBOUNCED", DT_EXPLOSION, self.obitfunc1);
+			T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, "GRENADEBOUNCED", DT_EXPLOSION, self.obitfunc1);
 		else
-			T_RadiusDamage(self, self.owner, self.dmg2, self.count2, self.dmg2, world, "GRENADEDIRECT", DT_EXPLOSION, self.obitfunc1);
+			T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, "GRENADEDIRECT", DT_EXPLOSION, self.obitfunc1);
 		BecomeExplosion(self, '0 0 0', self.effects & EF_BLUE);
 	}
 	else
 	{
-		T_RadiusDamage(self, self.owner, self.dmg2, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+		T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
 		BecomeExplosion(self, '0 0 0', self.effects & EF_BLUE);
 	}
 };
