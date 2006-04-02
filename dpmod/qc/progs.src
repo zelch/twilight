@@ -30,9 +30,6 @@ raddamage.qc
 t_radiusdamage.qc
 
 decors.qc
-casings.qc
-decals.qc
-gore.qc
 
 projectiles.qc
 
