@@ -19,15 +19,11 @@ util.qc         // useful functions (trajectory tracing for example)
 
 inventory.qc
 
-think.qc        // the extrathink function, which lets you use multiple thinks
-
 playermovement.qc
 
 subs.qc
 fight.qc
 ai.qc
-
-fog.qc
 
 t_damage.qc
 raddamage.qc
@@ -58,16 +54,7 @@ mode_management.qc
 
 halflife.qc // for testing HalfLife map loading
 
-itemstuff.qc
-item_health.qc
-item_armor.qc
-item_weapons.qc
-item_ammo.qc
-item_keys.qc
-item_sigil.qc
-item_artifacts.qc
-item_legacystuff.qc
-item_backpacks.qc
+items.qc
 
 w_system.qc
 
@@ -88,8 +75,6 @@ trig_original.qc
 trig_playercount.qc
 trig_stuffcmd.qc
 trig_ticker.qc
-
-spotlights.qc   // spinning spot lights etc
 
 plats.qc
 misc.qc

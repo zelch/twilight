@@ -107,6 +107,11 @@ float RESPAWNTIME_HEALTH      =  20;
 float RESPAWNTIME_MEGAHEALTH  =  30;
 float RESPAWNTIME_ARTIFACT    =  60;
 
+float ARTIFACT_SUIT_TIME            =  30;
+float ARTIFACT_SUPER_DAMAGE_TIME    =  30;
+float ARTIFACT_INVULNERABILITY_TIME =  30;
+float ARTIFACT_INVISIBILITY_TIME    =  30;
+
 float HEALTHSTART             = 125;
 float HEALTHMAX               = 100;
 float HEALTHBODY              = 200; // body health limit
