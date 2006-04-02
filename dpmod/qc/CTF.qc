@@ -307,7 +307,7 @@ Keys:
 
 void() item_flag_team1 =
 {
-	if (deathmatch != DM_CTF_2TEAM && deathmatch != DM_CTF_3TEAM && deathmatch != DM_MCTF_2TEAM)
+	if (deathmatch != DM_CTF_2TEAM && deathmatch != DM_CTF_3TEAM)
 	{
 		remove(self);
 		return;
@@ -340,7 +340,7 @@ Keys:
 
 void() item_flag_team2 =
 {
-	if (deathmatch != DM_CTF_2TEAM && deathmatch != DM_CTF_3TEAM && deathmatch != DM_MCTF_2TEAM)
+	if (deathmatch != DM_CTF_2TEAM && deathmatch != DM_CTF_3TEAM)
 	{
 		remove(self);
 		return;

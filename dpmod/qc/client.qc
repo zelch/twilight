@@ -473,7 +473,7 @@ entity() SelectSpawnPoint =
 		if (lastspawn != world)
 			return lastspawn;
 	}
-	else if (deathmatch == DM_CTF_2TEAM || deathmatch == DM_CTF_3TEAM || deathmatch == DM_MCTF_2TEAM)
+	else if (deathmatch == DM_CTF_2TEAM || deathmatch == DM_CTF_3TEAM)
 	{
 		cname = "info_player_deathmatch";
 		if (self.team == 5) // red
@@ -955,10 +955,7 @@ void() PlayerJump =
 		if (game != GAME_NEXUIZ)
 			sound (self, CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
 	}
-	if (metroidmode)
-		self.velocity_z = self.velocity_z + 350;
-	else
-		self.velocity_z = self.velocity_z + 270;
+	self.velocity_z = self.velocity_z + 270;
 };
 
 // .float steamtime;

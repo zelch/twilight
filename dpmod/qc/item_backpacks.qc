@@ -145,7 +145,7 @@ void() DropBackpack =
 	local entity item, head, killent;
 	local float c, t;
 
-	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM || metroidmode)
+	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
 		return;
 
 	//if (deathmatch == DM_RPG)

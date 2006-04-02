@@ -163,7 +163,6 @@ void() fish_gib =
 void() fish_die =
 {
 	monster_setalpha(1);
-	mctf_spawnpickup(self.origin, 1, 0.3, 0.05, 0.02);
 	MonsterCorpse(self, f_death1);
 };
 

@@ -116,16 +116,6 @@ float (entity e, float amount, float ignore) T_Heal =
 	if (e.health < 1)
 		return 0;
 
-	if (metroidmode)
-	{
-		if (ignore)
-		{
-			e.max_health = min(e.max_health + amount, 1000);
-			e.health = e.max_health;
-			return 1;
-		}
-	}
-
 	// which maxhealth to use
 	m = e.max_health;
 	if (ignore)

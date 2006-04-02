@@ -21,7 +21,6 @@ float DM_TEAM_MODS_START              = 10;
 float DM_CTF_2TEAM                    = 10;
 float DM_CTF_3TEAM                    = 11;
 float DM_DOMINATION                   = 12;
-float DM_MCTF_2TEAM                   = 13;
 float DM_SUPERDOMINATION              = 14;
 float DM_TEAM_MODS_END                = 20;
 

@@ -80,7 +80,6 @@ item_backpacks.qc
 w_system.qc
 
 CTF.qc
-mctf.qc
 
 regen.qc
 

@@ -117,7 +117,6 @@ void() shal_gib =
 void() shalrath_die =
 {
 	monster_setalpha(1);
-	mctf_spawnpickup(self.origin, 3, 0, 0.4, 0.2);
 	sound (self, CHAN_VOICE, "shalrath/death.wav", 1, ATTN_NORM);
 	MonsterCorpse(self, shal_death1);
 };

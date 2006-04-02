@@ -124,42 +124,11 @@ void() ItemClass_RegisterDefaultClasses =
 	ItemClass_Register("plasmarifle", "progs/backpack.mdl", 1, IT_WEAPON8);
 	ItemClass_Register("plasmawave", "progs/backpack.mdl", 1, IT_WEAPON8);
 	ItemClass_Register("laserrifle", "progs/backpack.mdl", 1, IT_WEAPON8);
-	ItemClass_Register("flamer", "progs/backpack.mdl", 1, IT_WEAPON8);
-
-	ItemClass_Register("pistol", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("chainsaw", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("handgrenade", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("hopper", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("prickler", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("scattergun", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("rifle", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("machinegun", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("vulcan", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("executioner", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("jackhammer", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("grenadelauncher2", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("backpackmortar", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("incinerator", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("railgun", "progs/backpack.mdl", 1, IT_WEAPON1);
-
-	ItemClass_Register("mplasmacannon", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("mchargecannon", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("micecannon", "progs/backpack.mdl", 1, IT_WEAPON4);
-	ItemClass_Register("mbomblauncher", "progs/backpack.mdl", 1, IT_WEAPON6);
-	ItemClass_Register("mmissilelauncher", "progs/backpack.mdl", 1, IT_WEAPON7);
-	ItemClass_Register("mgrapple", "progs/backpack.mdl", 1, IT_WEAPON1);
-	ItemClass_Register("mmulticannon", "progs/backpack.mdl", 1, IT_WEAPON1);
 
 	ItemClass_Register("shells", "progs/backpack.mdl", AMMOMAX_SHELLS, IT_SHELLS);
 	ItemClass_Register("nails", "progs/backpack.mdl", AMMOMAX_NAILS, IT_NAILS);
 	ItemClass_Register("rockets", "progs/backpack.mdl", AMMOMAX_ROCKETS, IT_ROCKETS);
 	ItemClass_Register("cells", "progs/backpack.mdl", AMMOMAX_CELLS, IT_CELLS);
-	ItemClass_Register("sliverammo", "progs/backpack.mdl", 100, IT_NAILS);
-	ItemClass_Register("rifleammo", "progs/backpack.mdl", 50, IT_SHELLS);
-	ItemClass_Register("machinegunammo", "progs/backpack.mdl", 250, IT_NAILS);
-	ItemClass_Register("executionerammo", "progs/backpack.mdl", 100, IT_ROCKETS);
-	ItemClass_Register("incineratorammo", "progs/backpack.mdl", 250, IT_CELLS);
-	ItemClass_Register("railgunammo", "progs/backpack.mdl", 50, IT_SHELLS);
 };
 
 entity(string name) ItemClass_FindByName =
@@ -677,7 +646,6 @@ void(entity player) Inventory_ToParms =
 };
 
 void(entity wclass, float instantswitch) wsetweapon;
-float metroidmode;
 void(entity player) Inventory_FromParms =
 {
 	local entity aitemclass, oldself;
@@ -688,22 +656,7 @@ void(entity player) Inventory_FromParms =
 		ItemClass_RegisterDefaultClasses();
 	valid = lhfp_decode(parm1);
 	//dprint("valid is ");dprint(ftos(valid));dprint("\n");
-	if (metroidmode)
-	{
-		//dprint("metroidmode\n");
-		self.items = 0;
-		self.health = STARTPARMSMCTF_HEALTH;
-		self.max_health = STARTPARMSMCTF_MAXHEALTH;
-		self.armorvalue = STARTPARMSMCTF_ARMORVALUE;
-		self.armortype = STARTPARMSMCTF_ARMORTYPE;
-		Inventory_SetQuantity(self, "shells", STARTPARMSMCTF_AMMO_SHELLS);
-		Inventory_SetQuantity(self, "nails", STARTPARMSMCTF_AMMO_NAILS);
-		Inventory_SetQuantity(self, "rockets", STARTPARMSMCTF_AMMO_ROCKETS);
-		Inventory_SetQuantity(self, "cells", STARTPARMSMCTF_AMMO_CELLS);
-		Inventory_SetQuantity(self, "mplasmacannon", 1);
-		self.weaponclass = W_BestWeaponClass(TRUE);
-	}
-	else if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
+	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
 	{
 		//dprint("deathmatch full pack\n");
 		self.items = 0;

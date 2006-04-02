@@ -22,20 +22,17 @@ void() RegenStuff =
 				self.regenthink = time + 0.1;
 			else
 				self.regenthink = time + 0.25;
-			if (!metroidmode) // no healing in metroidmode
+			if (self.health < self.max_health)
 			{
-				if (self.health < self.max_health)
-				{
-					self.health = self.health + 1;
-					if (self.health > self.max_health)
-						self.health = self.max_health;
-				}
-				if (self.bodyhealth < self.health + 100)
-				{
-					self.bodyhealth = self.bodyhealth + 2;
-					if (self.bodyhealth > self.health + 100)
-						self.bodyhealth = self.health + 100;
-				}
+				self.health = self.health + 1;
+				if (self.health > self.max_health)
+					self.health = self.max_health;
+			}
+			if (self.bodyhealth < self.health + 100)
+			{
+				self.bodyhealth = self.bodyhealth + 2;
+				if (self.bodyhealth > self.health + 100)
+					self.bodyhealth = self.health + 100;
 			}
 		}
 	}

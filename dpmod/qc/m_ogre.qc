@@ -412,9 +412,7 @@ void() ogre_gib =
 void() ogre_die =
 {
 	monster_setalpha(1);
-	mctf_spawnpickup(self.origin, 2, 0, 0.3, 0.1);
-	if (!metroidmode)
-		DropBackpack();
+	DropBackpack();
 	sound (self, CHAN_VOICE, "ogre/ogdth.wav", 1, ATTN_NORM);
 	if (random() < 0.5)
 		MonsterCorpse(self, ogre_die1);
@@ -469,12 +467,6 @@ void() monster_ogre =
 
 	if (!self.deathtype) // map makers can override this
 		self.deathtype = " was destroyed by an ogre";
-	if (!metroidmode)
-	{
-		Inventory_SetQuantity(self, "rockets", AMMO_OGRE_GRENADELAUNCHER);
-		Inventory_SetQuantity(self, "grenadelauncher", 1);
-		//Inventory_SetQuantity(self, "nails", 0);
-	}
 
 	self.shoulddodge = TRUE;
 	self.dangerrating = 150;
@@ -496,6 +488,10 @@ void() monster_ogre =
 	self.health = self.health;
 	self.bodyhealth = self.health + MB_OGRE;
 	self.bleedratio = 0.5; // not much health damage due to armor
+
+	Inventory_SetQuantity(self, "rockets", AMMO_OGRE_GRENADELAUNCHER);
+	Inventory_SetQuantity(self, "grenadelauncher", 1);
+	//Inventory_SetQuantity(self, "nails", 0);
 
 	self.th_stand = ogre_stand1;
 	self.th_walk = ogre_walk1;

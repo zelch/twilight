@@ -158,7 +158,6 @@ void() demon_gib =
 void() demon_die =
 {
 	monster_setalpha(1);
-	mctf_spawnpickup(self.origin, 1, 0, 1, 0.4);
 	MonsterCorpse(self, demon1_die1);
 };
 

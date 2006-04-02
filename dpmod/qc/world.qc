@@ -340,7 +340,6 @@ Keys:
 */
 //=======================
 .string music;
-float metroidmode;
 void() trigger_message2;
 void() trigger_setskill2;
 void() trigger_teleport2;
@@ -350,9 +349,6 @@ void() worldspawn =
 	local entity head;
 
 	game = GAME_QUAKE;
-	metroidmode = cvar("metroidmode");
-	if (cvar("deathmatch") == DM_MCTF_2TEAM)
-		metroidmode = TRUE;
 
 	c = 0;
 	head = nextent(world);

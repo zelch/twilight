@@ -69,11 +69,6 @@ float(entity player, entity item) item_armor_pickupeval =
 */
 void() item_armor_green =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		return;
-	}
 	self.classname = "item_armor_green";
 	self.touch = armor_touch;
 	if (game == GAME_NEXUIZ)
@@ -108,11 +103,6 @@ void() item_armor_green =
 */
 void() item_armor_yellow =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		return;
-	}
 	self.classname = "item_armor_yellow";
 	self.touch = armor_touch;
 	if (game == GAME_NEXUIZ)
@@ -147,11 +137,6 @@ void() item_armor_yellow =
 */
 void() item_armor_red =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		return;
-	}
 	self.classname = "item_armor_red";
 	self.touch = armor_touch;
 	if (game == GAME_NEXUIZ)
@@ -185,11 +170,6 @@ void() item_armor_red =
 */
 void() item_armor_glow =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		return;
-	}
 	self.classname = "item_armor_glow";
 	self.touch = armor_touch;
 	if (game == GAME_NEXUIZ)

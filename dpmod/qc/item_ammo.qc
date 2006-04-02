@@ -82,11 +82,6 @@ float(entity player, entity item) item_cells_pickupeval = {if (Inventory_Quantit
 
 void() item_shells =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		return;
-	}
 	self.touch = ammo_touch;
 
 	self.ammo_typestring = "shells";
@@ -138,11 +133,6 @@ void() item_shells =
 
 void() item_spikes =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		return;
-	}
 	self.touch = ammo_touch;
 
 	self.ammo_typestring = "nails";
@@ -194,11 +184,6 @@ void() item_spikes =
 
 void() item_rockets =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		return;
-	}
 	self.touch = ammo_touch;
 
 	self.ammo_typestring = "rockets";
@@ -250,11 +235,6 @@ void() item_rockets =
 
 void() item_cells =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		return;
-	}
 	self.touch = ammo_touch;
 
 	self.ammo_typestring = "cells";

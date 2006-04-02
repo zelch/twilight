@@ -148,25 +148,6 @@ void(vector hit) enforcer_plasma =
 	FirePlasma(self, self, shotorg, shotdir * 5000, DMG_ENFORCER_PLASMA_DAMAGE, DMG_ENFORCER_PLASMA_FORCE, DMG_ENFORCER_PLASMA_RADIUS, self.deathtype, Obituary_Generic);
 };
 
-void(vector hit) enforcer_flamer =
-{
-	makevectors (self.angles);
-	shotorg = self.origin + v_forward * 15 + v_right * 8.5 + '0 0 16';
-	traceline(shotorg, hit, FALSE, self);
-	if (trace_fraction < 1 && trace_ent != self.enemy)
-	{
-		// the shot wouldn't hit, so don't bother
-		enf_run1();
-		return;
-	}
-	self.effects = self.effects | EF_MUZZLEFLASH;
-
-	shotdir = normalize(hit - shotorg);
-	w_muzzleflash(shotorg, 2);
-	//LaunchFlamer(self, shotorg, shotdir * 600, DMG_ENFORCER_FLAMER_DAMAGE, DMG_ENFORCER_FLAMER_FORCE, DMG_ENFORCER_FLAMER_RADIUS, self.deathtype, Obituary_Generic);
-	LaunchFireball(shotorg, shotdir * 600, self, DMG_ENFORCER_FLAMER_DAMAGE, DMG_ENFORCER_FLAMER_FORCE, DMG_ENFORCER_FLAMER_RADIUS, DMG_ENFORCER_FLAMER_BURNDAMAGE, DMG_ENFORCER_FLAMER_BURNLIMIT, self.deathtype, Obituary_Generic);
-};
-
 //============================================================================
 
 void() enf_stand1	=[	$stand1,	enf_stand2	] {ai_stand();};
@@ -308,48 +289,6 @@ float() enf_missile_plasma =
 	return TRUE;
 };
 
-void()	enf_flamer10;
-void()	enf_flamer1		=[	$attack1,	enf_flamer2		] {ai_face();};
-void()	enf_flamer2		=[	$attack2,	enf_flamer3		] {ai_face();};
-void()	enf_flamer3		=[	$attack3,	enf_flamer4		] {ai_face();self.dest1 = monster_shotlead(0.3, 2000);};
-void()	enf_flamer4		=[	$attack4,	enf_flamer5		] {ai_face();};
-void()	enf_flamer5		=[	$attack5,	enf_flamer6		] {monster_setalpha(0.5);ai_face();self.dest2 = monster_shotlead(0.3, 2000);};
-void()	enf_flamer6		=[	$attack6,	enf_flamer7		] {monster_setalpha(1.0);ai_face();enforcer_flamer(self.dest1);};
-void()	enf_flamer7		=[	$attack7,	enf_flamer8		] {monster_setalpha(1.0);if (skill < 3) self.think = enf_flamer10;ai_face();};
-void()	enf_flamer8		=[	$attack6,	enf_flamer9		] {monster_setalpha(0.5);ai_face();enforcer_flamer(self.dest2);};
-void()	enf_flamer9		=[	$attack7,	enf_flamer10	] {monster_setalpha(0.0);ai_face();};
-void()	enf_flamer10	=[	$attack8,	enf_flamer11	] {monster_setalpha(0.0);ai_face();};
-void()	enf_flamer11	=[	$attack9,	enf_flamer12	] {ai_face();};
-void()	enf_flamer12	=[	$attack10,	enf_run1		] {ai_face();};
-
-float() enf_missile_flamer =
-{
-	enf_flamer1();
-	return TRUE;
-};
-
-/*
-void()	enf_flamer1		=[	$attack1,	enf_flamer2		] {ai_face();};
-void()	enf_flamer2		=[	$attack2,	enf_flamer3		] {ai_face();};
-void()	enf_flamer3		=[	$attack3,	enf_flamer4		] {ai_face();self.dest1 = monster_shotlead(0.3, 3000);};
-void()	enf_flamer4		=[	$attack4,	enf_flamer5		] {ai_face();self.dest2 = monster_shotlead(0.3, 3000);};
-void()	enf_flamer5		=[	$attack5,	enf_flamer6		] {monster_setalpha(0.5);ai_face();self.dest3 = monster_shotlead(0.3, 3000);};
-void()	enf_flamer6		=[	$attack6,	enf_flamer7		] {monster_setalpha(1.0);ai_face();self.dest4 = monster_shotlead(0.3, 3000);enforcer_flamer(self.dest1);};
-void()	enf_flamer7		=[	$attack6,	enf_flamer8		] {monster_setalpha(1.0);ai_face();self.dest5 = monster_shotlead(0.3, 3000);enforcer_flamer(self.dest2);};
-void()	enf_flamer8		=[	$attack6,	enf_flamer9		] {monster_setalpha(1.0);ai_face();enforcer_flamer(self.dest3);};
-void()	enf_flamer9		=[	$attack6,	enf_flamer10	] {monster_setalpha(1.0);ai_face();enforcer_flamer(self.dest4);};
-void()	enf_flamer10	=[	$attack6,	enf_flamer11	] {monster_setalpha(1.0);ai_face();enforcer_flamer(self.dest5);};
-void()	enf_flamer11	=[	$attack7,	enf_flamer12	] {monster_setalpha(0.5);ai_face();};
-void()	enf_flamer12	=[	$attack8,	enf_flamer13	] {monster_setalpha(0.0);ai_face();};
-void()	enf_flamer13	=[	$attack9,	enf_flamer14	] {ai_face();};
-void()	enf_flamer14	=[	$attack10,	enf_run1		] {ai_face();SUB_CheckRefire (enf_flamer1);};
-
-float() enf_missile_flamer =
-{
-	enf_flamer1();
-	return TRUE;
-};
-*/
 
 
 void() enf_paina1	=[	$paina1,	enf_paina2	] {monster_setalpha(1.00);};
@@ -469,9 +408,7 @@ void() enf_gib =
 void() enf_die =
 {
 	monster_setalpha(1);
-	mctf_spawnpickup(self.origin, 2, 0.3, 0.2, 0.15);
-	if (!metroidmode)
-		DropBackpack();
+	DropBackpack();
 	sound (self, CHAN_VOICE, "enforcer/death1.wav", 1, ATTN_NORM);
 	if (random() > 0.5)
 		MonsterCorpse(self, enf_die1);
@@ -577,16 +514,6 @@ void() monster_enforcer =
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was scorched by an enforcer";
 	}
-	/*
-	else if (r < 0.60)
-	{
-		self.th_missile = enf_missile_flamer;
-		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_FLAMER);
-		Inventory_SetQuantity(self, "flamer", 1);
-		if (!self.deathtype) // map makers can override this
-			self.deathtype = " was cremated by an enforcer";
-	}
-	*/
 	else
 	{
 		self.th_missile = enf_missile_laser;

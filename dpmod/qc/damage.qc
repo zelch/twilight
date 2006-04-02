@@ -15,16 +15,6 @@ float STARTPARMSDM_MAXHEALTH       =  100;
 float STARTPARMSDM_ARMORVALUE      =    0;
 float STARTPARMSDM_ARMORTYPE       =    0;
 
-float STARTPARMSMCTF_AMMO_SHELLS     =    0;
-float STARTPARMSMCTF_AMMO_NAILS      =    0;
-float STARTPARMSMCTF_AMMO_ROCKETS    =    0;
-float STARTPARMSMCTF_AMMO_CELLS      =    0;
-//float STARTPARMSMCTF_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
-float STARTPARMSMCTF_HEALTH          =  100;
-float STARTPARMSMCTF_MAXHEALTH       =  100;
-float STARTPARMSMCTF_ARMORVALUE      =    0;
-float STARTPARMSMCTF_ARMORTYPE       =    0;
-
 float STARTPARMSSP_AMMO_SHELLS     =   50; // 20
 float STARTPARMSSP_AMMO_NAILS      =    0;
 float STARTPARMSSP_AMMO_ROCKETS    =    0;
@@ -79,7 +69,6 @@ float AMMO_ENFORCER_SUPERNAILGUN        =   20;
 float AMMO_ENFORCER_ROCKETLAUNCHER      =    5;
 float AMMO_ENFORCER_PLASMARIFLE         =    5;
 float AMMO_ENFORCER_LASERRIFLE          =    5;
-float AMMO_ENFORCER_FLAMER              =    5;
 float AMMO_OGRE_GRENADELAUNCHER         =    5;
 */
 // darkplaces mod values
@@ -108,7 +97,6 @@ float AMMO_ENFORCER_SUPERNAILGUN        =   50;
 float AMMO_ENFORCER_ROCKETLAUNCHER      =   10;
 float AMMO_ENFORCER_PLASMARIFLE         =   10;
 float AMMO_ENFORCER_LASERRIFLE          =   10;
-float AMMO_ENFORCER_FLAMER              =   10;
 float AMMO_OGRE_GRENADELAUNCHER         =   10;
 
 // respawn times
@@ -153,11 +141,6 @@ float DMG_DOG_JUMP_BASE               =   10;
 float DMG_DOG_JUMP_RANDOM             =   10;
 float DMG_ENFORCER_DBSHOTGUN_DAMAGE   =   28;
 float DMG_ENFORCER_DBSHOTGUN_RANGE    =  500;
-float DMG_ENFORCER_FLAMER_BURNDAMAGE  =   15;
-float DMG_ENFORCER_FLAMER_BURNLIMIT   =   90;
-float DMG_ENFORCER_FLAMER_DAMAGE      =    0;
-float DMG_ENFORCER_FLAMER_FORCE       =    0;
-float DMG_ENFORCER_FLAMER_RADIUS      =   40;
 float DMG_ENFORCER_LASER              =   15;
 float DMG_ENFORCER_PLASMA_DAMAGE      =   15;
 float DMG_ENFORCER_PLASMA_FORCE       =    0;

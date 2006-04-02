@@ -249,7 +249,6 @@ void() dog_gib =
 void() dog_die =
 {
 	monster_setalpha(1);
-	mctf_spawnpickup(self.origin, 1, 0.5, 0.05, 0.02);
 	sound (self, CHAN_VOICE, "dog/ddeath.wav", 1, ATTN_NORM);
 	if (random() > 0.5)
 		MonsterCorpse(self, dog_die1);

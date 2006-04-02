@@ -87,12 +87,6 @@ void(string wmdl, float rating, string name) weapon_spawnhandler =
 */
 void() weapon_supershotgun =
 {
-	if (metroidmode)
-	{
-		weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Muli Cannon upgrade!\n");
-		Inventory_SetQuantity(self, "mmulticannon", 1);
-		return;
-	}
 	weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Super Shotgun!\n");
 	Inventory_SetQuantity(self, "supershotgun", 1);
 	Inventory_SetQuantity(self, "shells", AMMO_SHELLS);
@@ -102,12 +96,6 @@ void() weapon_supershotgun =
 */
 void() weapon_nailgun =
 {
-	if (metroidmode)
-	{
-		weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Charge Cannon upgrade!\n");
-		Inventory_SetQuantity(self, "mchargecannon", 1);
-		return;
-	}
 	weapon_spawnhandler("progs/g_nail.mdl", 2000, "You got the Nailgun!\n");
 	Inventory_SetQuantity(self, "nailgun", 1);
 	Inventory_SetQuantity(self, "nails", AMMO_NAILS);
@@ -117,12 +105,6 @@ void() weapon_nailgun =
 */
 void() weapon_supernailgun =
 {
-	if (metroidmode)
-	{
-		weapon_spawnhandler("progs/g_nail2.mdl", 2000, "You got the Grapple upgrade!\n");
-		Inventory_SetQuantity(self, "mgrapple", 1);
-		return;
-	}
 	weapon_spawnhandler("progs/g_nail2.mdl", 2000, "You got the Super Nailgun!\n");
 	Inventory_SetQuantity(self, "supernailgun", 1);
 	Inventory_SetQuantity(self, "nails", AMMO_NAILS);
@@ -132,12 +114,6 @@ void() weapon_supernailgun =
 */
 void() weapon_grenadelauncher =
 {
-	if (metroidmode)
-	{
-		weapon_spawnhandler("progs/g_rock.mdl", 2000, "You got the Bomb upgrade!\n");
-		Inventory_SetQuantity(self, "mbomblauncher", 1);
-		return;
-	}
 	weapon_spawnhandler("progs/g_rock.mdl", 2000, "You got the Proximity Grenade Launcher!\n");
 	Inventory_SetQuantity(self, "grenadelauncher", 1);
 	Inventory_SetQuantity(self, "rockets", AMMO_ROCKETS);
@@ -147,13 +123,6 @@ void() weapon_grenadelauncher =
 */
 void() weapon_rocketlauncher =
 {
-	if (metroidmode)
-	{
-		remove(self);
-		//weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Charge Cannon upgrade!\n");
-		//Inventory_SetQuantity(self, "mchargecannon", 1);
-		return;
-	}
 	weapon_spawnhandler("progs/g_rock2.mdl", 2000, "You got the Rocket Launcher!\n");
 	Inventory_SetQuantity(self, "rocketlauncher", 1);
 	Inventory_SetQuantity(self, "rockets", AMMO_ROCKETS);
@@ -163,12 +132,6 @@ void() weapon_rocketlauncher =
 */
 void() weapon_lightning =
 {
-	if (metroidmode)
-	{
-		weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Plasma Beam!\n");
-		Inventory_SetQuantity(self, "mplasmabeam", 1);
-		return;
-	}
 	weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Thunderbolt!\n");
 	Inventory_SetQuantity(self, "thunderbolt", 1);
 	Inventory_SetQuantity(self, "plasmarifle", 1);

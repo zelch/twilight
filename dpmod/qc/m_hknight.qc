@@ -430,7 +430,6 @@ void() hknight_gib =
 void() hknight_die =
 {
 	monster_setalpha(1);
-	mctf_spawnpickup(self.origin, 2, 0, 0.5, 0.2);
 	sound (self, CHAN_VOICE, "hknight/death1.wav", 1, ATTN_NORM);
 	if (random() > 0.5)
 		MonsterCorpse(self, hknight_die1);
