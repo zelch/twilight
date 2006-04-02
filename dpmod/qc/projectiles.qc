@@ -403,10 +403,10 @@ void() bullet_touch =
 		//traceline(self.origin, self.origin + dir, FALSE, self);
 		//newdecal(self.origin + trace_plane_normal * 0.125, other, trace_plane_normal, "models/decals/decal.md3", 0, 0, 0, TRUE);
 	}
-	setorigin(self, self.origin - dir * 8);
 	if (self.count2)
 	{
 		T_RadiusDamage(self, self.owner, self.dmg2, self.dmg2, self.count2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+		setorigin(self, self.origin - dir * 8);
 		BecomeExplosion(self, '-1 0 0', self.effects & EF_BLUE);
 	}
 	else
@@ -480,18 +480,22 @@ float GRENADE_DETONATEONCREATURE = 32;
 
 void() GrenadeExplode =
 {
+	local vector v;
 	self.owner.activemines = self.owner.activemines - 1;
+	v = normalize(self.velocity);
 	if (self.deathtype == "GRENADE")
 	{
 		if (self.lefty)
 			T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, "GRENADEBOUNCED", DT_EXPLOSION, self.obitfunc1);
 		else
 			T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, "GRENADEDIRECT", DT_EXPLOSION, self.obitfunc1);
+		setorigin(self, self.origin - v * 16);
 		BecomeExplosion(self, '0 0 0', self.effects & EF_BLUE);
 	}
 	else
 	{
 		T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+		setorigin(self, self.origin - v * 16);
 		BecomeExplosion(self, '0 0 0', self.effects & EF_BLUE);
 	}
 };
@@ -573,7 +577,6 @@ void() GrenadeThink =
 
 void() GrenadeTouch =
 {
-	local vector v;
 	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
 	{
 		remove(self);
@@ -586,8 +589,6 @@ void() GrenadeTouch =
 		self.avelocity = randomvec() * 400;
 	if (self.weapon & GRENADE_IMPACT)
 	{
-		v = normalize(self.velocity);
-		setorigin(self, self.origin - v * 16);
 		self.th_die();
 		return;
 	}
@@ -664,8 +665,11 @@ ROCKETS
 
 void() MissileExplode =
 {
+	local vector v;
 	fightdone = time + 1; // delay stuff until fighting is over
 	T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, self.deathtype, DT_EXPLOSION, self.obitfunc1);
+	v = normalize(self.velocity);
+	setorigin(self, self.origin - v * 16);
 	BecomeExplosion(self, '0 0 0', self.effects & EF_BLUE);
 };
 
@@ -677,7 +681,6 @@ void() MissileDet =
 
 void() MissileTouch =
 {
-	local vector v;
 	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
 	{
 		remove(self);
@@ -691,8 +694,6 @@ void() MissileTouch =
 		remove(self);
 		return;
 	}
-	v = normalize(self.velocity);
-	setorigin(self, self.origin - v * 16);
 	self.th_gib();
 };
 
@@ -910,6 +911,7 @@ SPIKES
 
 void() spike_touch =
 {
+	local vector v;
 	if (other == self.owner)
 		return;
 	if (other.solid == SOLID_TRIGGER)
@@ -919,10 +921,10 @@ void() spike_touch =
 		remove(self);
 		return;
 	}
-	self.dest = normalize(self.dest);
-	setorigin(self, self.origin - 8*self.dest);
 	T_Damage (other, self, self.owner, self.health, self.health, self.deathtype, DT_NAIL, self.origin, self.dest * self.health, self.obitfunc1);
 
+	v = normalize(self.velocity);
+	setorigin(self, self.origin - 8*v);
 	if (self.weapon == 1) te_wizspike(self.origin);
 	else if (self.weapon == 2) te_knightspike(self.origin);
 	else                       te_spike(self.origin);
