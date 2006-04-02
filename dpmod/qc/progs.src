@@ -10,8 +10,7 @@ dpextensions.qc // engine features
 
 modedefs.qc     // deathmatch and teamplay settings
 
-damagetype.qc   // deathtype, damagetype, etcetera...
-damage.qc       // max ammo amounts, how much damage, starting health, etc
+damage.qc       // max ammo amounts, how much damage, starting health, damage type definitions, etc
 
 w_defs.qc
 

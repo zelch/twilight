@@ -1117,3 +1117,73 @@ float maxdecors;
 
 //void(vector org, entity en, vector dir, float splattype, float importance) newbloodsplat;
 void(vector org, float bodydamage, float armordamage, vector vel, float damgtype) genericbleedfunc;
+
+
+
+
+// damage stuff
+
+void(entity targ, entity inflictor, entity attacker, float damage, float bdamage, string dt, float damgtype, vector damgpoint, vector force, void(entity t, entity a, string m, float dtyp) obitfunc) T_Damage;
+void(entity inflictor, entity attacker, float damage, float force, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage;
+
+
+// resistances to 4 kinds of damage:
+.float resist_bullet, resist_explosive, resist_energy, resist_fire, resist_ice;
+// every monster can have resistances
+// note: -1 means immune, as 0.0 can't be used
+
+// kill message
+.string deathtype;
+// copied from .deathtype for the attacker
+// a map entity can gain alot of meaning by
+// adding a kill message in the deathtype key
+// such as ' was chopped to bits'
+// or ' fell into the abyss'
+// if you set a deathtype for a monster
+// in a map key it will override the normal
+// kill message for that monster
+// so you could have some hell knights that
+// say ' was slain by one of the palace guards'
+// and many other ways to add meaning to a map
+.string deathmsg;
+
+.float regenthink; // next time player will regen some health
+.float isdecor;
+.float radiusdamage_amount; // damage counter
+.vector radiusdamage_force; // direction and power of blast kick
+.float radiusdamage_hit; // 1 if it was hit, reset to 0 afterward
+.vector radiusdamage_lasthit; // location
+.float radiusdamage_ownerdamagescale; // if set on inflictor this will scale damage to owner (overriding default of 0.5)
+vector raddamage_lasthit;
+
+.float frozen;
+.float thawtime;
+.float thawedeffects;
+.void() thawedtouch;
+.float thawedmovetype;
+.void() thawedthink;
+.float thawedthinkdelay;
+
+.void() knockedloosefunc; // called when kinetically disturbed
+.float forcescale; // used for damage force calculations (shambler has lower forcescale than player for instance)
+
+// how much bleeding 'matters' to this entity, a percentage between
+// bodydamage (-1 = 0% as 0 doesn't work) and healthdamage (1.0 = 100%)
+// for instance a player is 100% and a zombie is 0% (bleeding doesn't matter)
+.float bleedratio;
+.float(entity e, float healthdamage, float damage, float damgtype, string dethtype) damagemodifier;
+
+.void() th_gib;
+
+.float health; // if this goes below 1 the thing is dead
+.float bodyhealth; // used for gibbing
+
+// adjustable monster damage settings
+float monsterdamagescale;
+float monsterresistancescale;
+// adjustable player damage settings
+float playerdamagescale;
+
+void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, entity a, string m, float dtyp) obitfunc) ClientObituary;
+
+void() monster_death_use;
