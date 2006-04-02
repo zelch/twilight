@@ -12,9 +12,9 @@ T_RadiusDamage
 */
 void(entity inflictor, entity attacker, float damage, float force, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage =
 {
-	local float damagepoints, forcepoints, wt, d, ownerdamagescale;
-	local vector v, l;
-	local entity head;
+	local	float	points, damagepoints, forcepoints, wt, d, ownerdamagescale;
+	local	entity	head;
+	local	vector	v, l;
 
 	/*
 	traceline(inflictor.origin, inflictor.origin, TRUE, world);
@@ -37,24 +37,23 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 	head = findradius(inflictor.origin, radius + 4);
 	while (head)
 	{
-		if (head.takedamage)
-		if (!head.isdecor)
 		if (head != ignore)
 		{
-			damagepoints = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 3);
-			forcepoints = LinearRadDamage(head, ignore, inflictor.origin, force, radius, 3);
-			if (damagepoints > damage)
-				damagepoints = damage;
-			if (head == attacker)
-				damagepoints = damagepoints * ownerdamagescale;
-			if (forcepoints > force)
-				forcepoints = force;
-			if (damagepoints > 0 || forcepoints > 0)
+			if (head.takedamage)
+			if (!head.isdecor)
 			{
-				head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
-				head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
-				head.radiusdamage_hit = 1;
-				head.radiusdamage_lasthit = raddamage_lasthit;
+				points = LinearRadDamage(head, ignore, inflictor.origin, radius, 3);
+				if (points > 0)
+				{
+					damagepoints = damage * points;
+					forcepoints = force * points;
+					if (head == attacker)
+						damagepoints = damagepoints * ownerdamagescale;
+					head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
+					head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
+					head.radiusdamage_hit = 1;
+					head.radiusdamage_lasthit = raddamage_lasthit;
+				}
 			}
 		}
 		head = head.chain;
@@ -81,16 +80,15 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 	head = findchainfloat(isdecor, TRUE);
 	while (head)
 	{
-		damagepoints = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 1);
-		forcepoints = LinearRadDamage(head, ignore, inflictor.origin, force, radius, 1);
-		if (damagepoints > 0 || forcepoints > 0)
+		points = LinearRadDamage(head, ignore, inflictor.origin, radius, 1);
+		if (points > 0)
 		{
-			if (damagepoints > damage)
-				damagepoints = damage;
-			if (forcepoints > damage)
-				forcepoints = damage;
+			damagepoints = damage * points;
+			forcepoints = force * points;
+			if (head == attacker)
+				damagepoints = damagepoints * ownerdamagescale;
 			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
-			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 + '0 0 4'- inflictor.origin) * forcepoints;
+			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
 			head.radiusdamage_hit = 1;
 			head.radiusdamage_lasthit = raddamage_lasthit;
 		}
@@ -102,16 +100,15 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 	head = findchain(classname, "ragdoll_particle");
 	while (head)
 	{
-		damagepoints = LinearRadDamage(head, ignore, inflictor.origin, damage, radius, 1);
-		forcepoints = LinearRadDamage(head, ignore, inflictor.origin, force, radius, 1);
-		if (damagepoints > 0 || forcepoints > 0)
+		points = LinearRadDamage(head, ignore, inflictor.origin, radius, 1);
+		if (points > 0)
 		{
-			if (damagepoints > damage)
-				damagepoints = damage;
-			if (forcepoints > damage)
-				forcepoints = damage;
+			damagepoints = damage * points;
+			forcepoints = force * points;
+			if (head == attacker)
+				damagepoints = damagepoints * ownerdamagescale;
 			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
-			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 + '0 0 4'- inflictor.origin) * forcepoints;
+			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
 			head.radiusdamage_hit = 1;
 			head.radiusdamage_lasthit = raddamage_lasthit;
 		}

@@ -34,18 +34,7 @@ casings.qc
 decals.qc
 gore.qc
 
-fire.qc
-explosion.qc
-
-bullets.qc
-plasma.qc
-rocket.qc
-grenade.qc
-mine.qc
-laser.qc
-spike.qc
-lightning.qc
-fireball.qc
+projectiles.qc
 
 visibleweapons.qc
 

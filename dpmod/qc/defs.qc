@@ -1106,3 +1106,6 @@ float CHAN_WEAPON2            = 7;
 // several counters
 .float count1, count2, count3, count4, count5, count6, cnt1, cnt2;
 
+.void(entity t, entity a, string m, float dtyp) obitfunc1;
+.entity realowner;
+

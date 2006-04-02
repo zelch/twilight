@@ -69,41 +69,40 @@ float(entity targ, entity ignore, vector org, float checkcount) CanRadDamage =
 };
 
 // Quake style falloff
-float(entity targ, entity ignore, vector org, float amount, float radius, float checkcount) LinearRadDamage =
+float(entity targ, entity ignore, vector org, float radius, float checkcount) LinearRadDamage =
 {
 	local vector v, m1, m2;
 	local float b, dist;
-	//if (pointcontents(org) == CONTENT_SOLID)
-	//	return 0;
 	m1 = targ.mins + targ.origin;
 	m2 = targ.maxs + targ.origin;
-	b = -1;
 	// find nearest point and calc damage for that
 	v_x = bound(m1_x, org_x, m2_x);
 	v_y = bound(m1_y, org_y, m2_y);
 	v_z = bound(m1_z, org_z, m2_z);
 	dist = vlen(v - org);
+	// if really close, do full damage
 	if (dist < 2)
 	{
 		raddamage_lasthit = org;
-		return amount;
+		return 1;
 	}
+	// if outside radius, do no damage
 	if (dist >= radius)
-		return 0; // out of range
-	b = (amount/radius) * (radius - dist);
+		return 0;
+	// calculate distance-attenuated damage
+	b = 1 - dist/radius;
 	if (b < 1)
 		return 0; // no damage
 
 	raddamage_lasthit = v;
 
 	// direct hit
-	traceline(org, v, raddamage_tracetype, ignore);
+	traceline(org, v, MOVE_NOMONSTERS, ignore);
 	if (!trace_startsolid)
 	if (trace_fraction == 1 || trace_ent == targ)
 		return b;
 
 	// partial hit
-	b = b * CanRadDamage(targ, ignore, org, checkcount);
-	return b;
+	return b * CanRadDamage(targ, ignore, org, checkcount);
 };
 
