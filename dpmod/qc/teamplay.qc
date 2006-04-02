@@ -70,7 +70,7 @@ void(string modename, void() framethinkfunc, void() chooseteamfunc, void() playe
 
 void(float m) modeset =
 {
-	if (m ==  0) modecodeset("0?DarkPlaces - Coop", modecoopframe, modecoopteam, modecoopplayer);
+	     if (m ==  0) modecodeset("0?DarkPlaces - Coop", modecoopframe, modecoopteam, modecoopplayer);
 	else if (m ==  1) modecodeset("1?DarkPlaces - Deathmatch", modedmframe, modedmteam, modedmplayer);
 	else if (m ==  2) modecodeset("2?DarkPlaces - Deathmatch 2 (can only pickup gun once)", modedmframe, modedmteam, modedmplayer);
 	else if (m ==  3) modecodeset("3?DarkPlaces - Deathmatch 3 (quick ammo respawn)", modedmframe, modedmteam, modedmplayer);
@@ -82,7 +82,6 @@ void(float m) modeset =
 	else if (m == 10) modecodeset("10?DarkPlaces - Capture The Flag - 2 Team", modectfframe, modectfteam, modectfplayer);
 	else if (m == 11) modecodeset("11?DarkPlaces - Capture The Flag - 3 Team", modectfframe, modectfteam, modectfplayer);
 	else if (m == 12) modecodeset("12?DarkPlaces - Domination", modedomframe, modedomteam, modedomplayer);
-	else if (m == 13) modecodeset("13?DarkPlaces - Monster Capture The Flag - 2 Team", modectfframe, modectfteam, modectfplayer);
 	else              modecodeset("1?DarkPlaces - Deathmatch", modedmframe, modedmteam, modedmplayer);
 };
 
