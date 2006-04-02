@@ -23,15 +23,11 @@ inventory.qc
 
 think.qc        // the extrathink function, which lets you use multiple thinks
 
-footstep.qc
-
 playermovement.qc
 
 subs.qc
 fight.qc
 ai.qc
-
-stats.qc        // Dark Places stats system
 
 lag.qc          // lag for bots etc
 
@@ -80,10 +76,6 @@ item_backpacks.qc
 w_system.qc
 
 CTF.qc
-
-regen.qc
-
-impulse_main.qc
 
 // waypoint files for the bots go here
 waypoint_spawnformap.qc
