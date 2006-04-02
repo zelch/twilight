@@ -1,28 +1,3 @@
-.void() knockedloosefunc; // called when kinetically disturbed
-.float forcescale; // used for damage force calculations (shambler has lower forcescale than player for instance)
-
-// how much bleeding 'matters' to this entity, a percentage between
-// bodydamage (-1 = 0% as 0 doesn't work) and healthdamage (1.0 = 100%)
-// for instance a player is 100% and a zombie is 0% (bleeding doesn't matter)
-.float bleedratio;
-.float(entity e, float healthdamage, float damage, float damgtype, string dethtype) damagemodifier;
-
-.void() th_gib;
-
-.float health; // if this goes below 1 the thing is dead
-.float bodyhealth; // used for gibbing
-
-// adjustable monster damage settings
-float monsterdamagescale;
-float monsterresistancescale;
-// adjustable player damage settings
-float playerdamagescale;
-
-void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, entity a, string m, float dtyp) obitfunc) ClientObituary;
-
-void() monster_death_use;
-
-//============================================================================
 
 /*
 ============
