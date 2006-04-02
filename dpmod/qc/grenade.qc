@@ -2,7 +2,6 @@
 float GRENADE_IMPACT = 1;
 float GRENADE_PROXIMITY = 2;
 float GRENADE_IMMUNETODAMAGE = 4;
-float GRENADE_TENWARHEAD = 8;
 float GRENADE_DETONATABLE = 16;
 float GRENADE_DETONATEONCREATURE = 32;
 
@@ -10,23 +9,8 @@ float GRENADE_DETONATEONCREATURE = 32;
 
 void() GrenadeExplode =
 {
-	local vector v;
 	self.owner.activemines = self.owner.activemines - 1;
-	if (self.weapon & GRENADE_TENWARHEAD)
-	{
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		v = randomvec() * 200;LaunchGrenade(self.origin, self.velocity + v, self.owner, self.dmg, self.count2, self.dmg2, GRENADE_IMPACT + GRENADE_IMMUNETODAMAGE, 10, self.deathtype, self.obitfunc1);
-		remove(self);
-	}
-	else if (self.deathtype == "GRENADE")
+	if (self.deathtype == "GRENADE")
 	{
 		if (self.lefty)
 			T_RadiusDamage(self, self.owner, self.dmg, self.count2, self.dmg2, world, "GRENADEBOUNCED", DT_EXPLOSION, self.obitfunc1);
@@ -151,7 +135,6 @@ void() GrenadeTouch =
 void(vector org, vector vel, entity own, float damage, float force, float damage2, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchGrenade =
 {
 	local vector v;
-	DelayGibComment();      // make him wait before commenting on gibs so it's not drown out by explosions etc
 
 	own.activemines = own.activemines + 1;
 

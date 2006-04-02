@@ -1,12 +1,6 @@
 
-/*
-itemscore = (howmuchmoreIwant / howmuchIcanwant) / itemdistance
-waypointscore = 0.7 / waypointdistance
-*/
-
-// this is directly related to the number of names available, it can't be
-// increased without adding more names!  (causes a runaway loop)
-float MAXBOTS = 64;
+// itemscore = (howmuchmoreIwant / howmuchIcanwant) / itemdistance
+// waypointscore = 0.7 / waypointdistance
 
 float(entity e, vector start, vector m1, vector m2, vector end) tracewalk;
 float(vector m1, vector m2, vector m3, vector m4) boxesoverlap =
@@ -14,15 +8,7 @@ float(vector m1, vector m2, vector m3, vector m4) boxesoverlap =
 	return m2_x >= m3_x && m1_x <= m4_x && m2_y >= m3_y && m1_y <= m4_y && m2_z >= m3_z && m1_z <= m4_z;
 };
 
-//float WP_JUMP = 1;
-//float WP_LIFTWAIT = 2;
-//float WP_LIFTBOTTOM = 4;
-//float WP_NOUP = 8; // can't be reached from below
-//float WP_NODOWN = 16; // can't be reached from above
-//.float wpflags;
-
 .entity wp0, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12, wp13, wp14, wp15, wp16, wp17, wp18, wp19, wp20, wp21, wp22, wp23, wp24, wp25, wp26, wp27, wp28, wp29, wp30, wp31;
-//.float wpcost0, wpcost1, wpcost2, wpcost3, wpcost4, wpcost5, wpcost6, wpcost7, wpcost8, wpcost9, wpcost10, wpcost11, wpcost12, wpcost13, wpcost14, wpcost15, wpcost16, wpcost17, wpcost18, wpcost19, wpcost20, wpcost21, wpcost22, wpcost23, wpcost24, wpcost25, wpcost26, wpcost27, wpcost28, wpcost29, wpcost30, wpcost31;
 .float wpfire, wpcost;
 
 .entity goalcurrent, goalstack1, goalstack2, goalstack3, goalstack4, goalstack5, goalstack6, goalstack7, goalstack8, goalstack9;
@@ -216,10 +202,6 @@ void() waypoint_relinkall =
 		head.wp8 = head.wp9 = head.wp10 = head.wp11 = head.wp12 = head.wp13 = head.wp14 = head.wp15 = world;
 		head.wp16 = head.wp17 = head.wp18 = head.wp19 = head.wp20 = head.wp21 = head.wp22 = head.wp23 = world;
 		head.wp24 = head.wp25 = head.wp26 = head.wp27 = head.wp28 = head.wp29 = head.wp30 = head.wp31 = world;
-		//head.wpcost0 = head.wpcost1 = head.wpcost2 = head.wpcost3 = head.wpcost4 = head.wpcost5 = head.wpcost6 = head.wpcost7 = 0;
-		//head.wpcost8 = head.wpcost9 = head.wpcost10 = head.wpcost11 = head.wpcost12 = head.wpcost13 = head.wpcost14 = head.wpcost15 = 0;
-		//head.wpcost16 = head.wpcost17 = head.wpcost18 = head.wpcost19 = head.wpcost20 = head.wpcost21 = head.wpcost22 = head.wpcost23 = 0;
-		//head.wpcost24 = head.wpcost25 = head.wpcost26 = head.wpcost27 = head.wpcost28 = head.wpcost29 = head.wpcost30 = head.wpcost31 = 0;
 		head.think = waypoint_think;
 		head.nextthink = time + 0.1;
 		head = head.chain;
@@ -834,79 +816,99 @@ float havocbots;
 entity havocbot_list;
 .entity nextbot;
 
+float BOTNAMES = 64;
+string(float r) havocbot_namefornumber =
+{
+	if (r <  1) return "Thunderstorm";
+	if (r <  2) return "Deadly Dream";
+	if (r <  3) return "Darkness";
+	if (r <  4) return "Scorcher";
+	if (r <  5) return "57 Chevy";
+	if (r <  6) return "Dark Avenger";
+	if (r <  7) return "Dying Time";
+	if (r <  8) return "Paranoia";
+	if (r <  9) return "Eureka";
+	if (r < 10) return "Mystery";
+	if (r < 11) return "Toxic";
+	if (r < 12) return "Dominion";
+	if (r < 13) return "Pegasus";
+	if (r < 14) return "Sensible";
+	if (r < 15) return "I Love Gibs";
+	if (r < 16) return "The New Guy";
+	if (r < 17) return "Boy With A Gun";
+	if (r < 18) return "Universe Man";
+	if (r < 19) return "The Evil One";
+	if (r < 20) return "2MuchGibsMan";
+	if (r < 21) return "The Plasma man";
+	if (r < 22) return "Strange Brew";
+	if (r < 23) return "Potato Head";
+	if (r < 24) return "The Angel";
+	if (r < 25) return "Radioactive Man";
+	if (r < 26) return "Gator";
+	if (r < 27) return "Your Demise";
+	if (r < 28) return "The Gladiator";
+	if (r < 29) return "Spaceman Spiff";
+	if (r < 30) return "Johnny Dangerously";
+	if (r < 31) return "Elmer Fudd";
+	if (r < 32) return "Kangaroo";
+	if (r < 33) return "Thunder Hammer";
+	if (r < 34) return "Deadline";
+	if (r < 35) return "Light";
+	if (r < 36) return "Frosty";
+	if (r < 37) return "Roadkill";
+	if (r < 38) return "Holy Avenger";
+	if (r < 39) return "Death";
+	if (r < 40) return "Panic";
+	if (r < 41) return "Discovery";
+	if (r < 42) return "Shadow";
+	if (r < 43) return "Acidic";
+	if (r < 44) return "Dominator";
+	if (r < 45) return "Rocket Fiend";
+	if (r < 46) return "Hellfire";
+	if (r < 47) return "Necrotic";
+	if (r < 48) return "Newbie";
+	if (r < 49) return "Girl With A Gun";
+	if (r < 50) return "Particle Man";
+	if (r < 51) return "The Good One";
+	if (r < 52) return "Spellbinder";
+	if (r < 53) return "Lion";
+	if (r < 54) return "Controlled";
+	if (r < 55) return "Airhead";
+	if (r < 56) return "The Demon";
+	if (r < 57) return "Delirium";
+	if (r < 58) return "Crocodile";
+	if (r < 59) return "Resurrection";
+	if (r < 60) return "Dark Bringer";
+	if (r < 61) return "Calvin";
+	if (r < 62) return "Danger";
+	if (r < 63) return "Bugs";
+	return "Flatline";
+};
+
 string() havocbot_name =
 {
 	local string name;
 	local float r;
+
+	// first see if all names are taken
+	r = 0;
 	do
 	{
-		r = random() * MAXBOTS;
-		if (r <  1) name = "Thunderstorm";
-		else if (r <  2) name = "Deadly Dream";
-		else if (r <  3) name = "Darkness";
-		else if (r <  4) name = "Scorcher";
-		else if (r <  5) name = "57 Chevy";
-		else if (r <  6) name = "Dark Avenger";
-		else if (r <  7) name = "Dying Time";
-		else if (r <  8) name = "Paranoia";
-		else if (r <  9) name = "Eureka";
-		else if (r < 10) name = "Mystery";
-		else if (r < 11) name = "Toxic";
-		else if (r < 12) name = "Dominion";
-		else if (r < 13) name = "Pegasus";
-		else if (r < 14) name = "Sensible";
-		else if (r < 15) name = "I Love Gibs";
-		else if (r < 16) name = "The New Guy";
-		else if (r < 17) name = "Boy With A Gun";
-		else if (r < 18) name = "Universe Man";
-		else if (r < 19) name = "The Evil One";
-		else if (r < 20) name = "2MuchGibsMan";
-		else if (r < 21) name = "The Plasma man";
-		else if (r < 22) name = "Strange Brew";
-		else if (r < 23) name = "Potato Head";
-		else if (r < 24) name = "The Angel";
-		else if (r < 25) name = "Radioactive Man";
-		else if (r < 26) name = "Gator";
-		else if (r < 27) name = "Your Demise";
-		else if (r < 28) name = "The Gladiator";
-		else if (r < 29) name = "Spaceman Spiff";
-		else if (r < 30) name = "Johnny Dangerously";
-		else if (r < 31) name = "Elmer Fudd";
-		else if (r < 32) name = "Kangaroo";
-		else if (r < 33) name = "Thunder Hammer";
-		else if (r < 34) name = "Deadline";
-		else if (r < 35) name = "Light";
-		else if (r < 36) name = "Frosty";
-		else if (r < 37) name = "Roadkill";
-		else if (r < 38) name = "Holy Avenger";
-		else if (r < 39) name = "Death";
-		else if (r < 40) name = "Panic";
-		else if (r < 41) name = "Discovery";
-		else if (r < 42) name = "Shadow";
-		else if (r < 43) name = "Acidic";
-		else if (r < 44) name = "Dominator";
-		else if (r < 45) name = "Rocket Fiend";
-		else if (r < 46) name = "Hellfire";
-		else if (r < 47) name = "Necrotic";
-		else if (r < 48) name = "Newbie";
-		else if (r < 49) name = "Girl With A Gun";
-		else if (r < 50) name = "Particle Man";
-		else if (r < 51) name = "The Good One";
-		else if (r < 52) name = "Spellbinder";
-		else if (r < 53) name = "Lion";
-		else if (r < 54) name = "Controlled";
-		else if (r < 55) name = "Airhead";
-		else if (r < 56) name = "The Demon";
-		else if (r < 57) name = "Delirium";
-		else if (r < 58) name = "Crocodile";
-		else if (r < 59) name = "Resurrection";
-		else if (r < 60) name = "Dark Bringer";
-		else if (r < 61) name = "Calvin";
-		else if (r < 62) name = "Danger";
-		else if (r < 63) name = "Bugs";
-		else             name = "Flatline";
+		name = havocbot_namefornumber(r - BOTNAMES);
+		r = r + 1;
 	}
-	while (r < 64 && find(world, netname, name));
+	while (r < BOTNAMES && find(world, netname, name));
+
+	// all names are taken, so pick one at random
+	if (r == BOTNAMES)
+		return havocbot_namefornumber(random() * BOTNAMES);
+
+	// not all names are taken (yet), so randomly try names until we find one
+	// of the ones that isn't taken
+	do
+		name = havocbot_namefornumber(random() * BOTNAMES);
+	while (find(world, netname, name));
+
 	return name;
 };
 
@@ -948,9 +950,6 @@ void() havocbot_clientconnect =
 void() havocbot_new =
 {
 	local entity oldself;
-	// only a certain number of names available
-	if (havoccurrentbots >= MAXBOTS)
-		return;
 	oldself = self;
 	self = spawnclient();
 	if (!self)
@@ -1002,7 +1001,8 @@ void() havocbot_serverframe =
 		return;
 
 	havocbots = cvar("bots");
-	havocbots = bound(0, havocbots, MAXBOTS);
+	if (havocbots < 0)
+		havocbots = 0;
 	while (havoccurrentbots < havocbots)
 		havocbot_new();
 	while (havoccurrentbots > havocbots)
@@ -1020,23 +1020,8 @@ void() havocbot_serverframe =
 
 		maxspeed = cvar("sv_maxspeed"); // player movement speed
 		sv_accelerate = cvar("sv_accelerate"); // 10 normally
-		//havocbot_findentsandspawnwaypoints();
 
 		havocbot_updatedangerousobjects();
-		/*
-		// no longer needed with DP_SV_BOTCLIENT extension
-		saveself = self;
-		head = havocbot_list;
-		while (head)
-		{
-			self = head;
-			SV_PlayerPhysics();
-			PlayerPreThink();
-			PlayerPostThink();
-			head = head.nextbot;
-		}
-		self = saveself;
-		*/
 	}
 };
 
@@ -1107,20 +1092,6 @@ void(vector dodge) havocbot_movetogoal =
 		s = pointcontents(trace_endpos + '0 0 1');
 		if (s == CONTENT_LAVA || s == CONTENT_SLIME)
 			evadelava = normalize(self.velocity) * -1;
-
-		/*
-		if (self.goalcurrent.classname == "waypoint")
-		{
-			// check for obstacles and move around them
-			org = randompos(self.mins, self.maxs);
-			traceline(self.origin + org, destorg + org, FALSE, self);
-			if (trace_fraction < 1)
-			if (trace_plane_normal != self.goalcurrent.dest2)
-			if (trace_plane_dist != self.goalcurrent.count)
-				evadeobstacle = normalize(org) * -0.5;
-		}
-		*/
-		//te_lightning2(self, self.origin, destorg);
 
 		dir = flatdir;
 	}
@@ -1244,172 +1215,13 @@ void(float t, float f1, float f2, entity e1, vector v1, vector v2, vector v3, ve
 	self.aimtargvelocity = v4;
 };
 
-/*
-void() havocbot_doaim =
-{
-	local entity targ;
-	targ = self.aimtarg;
-};
-*/
-
-/*
-.float painintensity;
-void() havocbot_doaim =
-{
-	local vector ang, angdiff, originalangdiff, selfvel, selforigin, targvel, targorigin, v, aimdir;
-	local float angdistance, fire, latency, shotleadspeed, pain;
-	local entity targ, saveenemy;
-	//local string s;
-
-	fire = FALSE;
-	targ = self.aimtarg;
-	if (self.goalcurrent.origin)
-		aimdir = self.goalcurrent.origin - self.origin;
-	else
-	{
-		makevectors(self.v_angle);
-		aimdir = v_forward;
-	}
-	if (targ != world)
-	if (targ.takedamage)
-	if (self.weapon == self.switchweapon)
-	if (self.wstate == WS_ACTIVE)
-	{
-*/
-		/*
-		if (time > self.weaponchangetimeout || !setweapon(self.weapon, WR_SELECTABLE))
-		{
-			self.weaponchangetimeout = time + 0.5;
-			self.switchweapon = W_BestWeaponForTarget(targ); //W_BestWeapon(TRUE);
-		}
-		*/
-/*
-		selforigin = self.aimselforigin + self.aimselfvelocity * self.aimlatency;
-		targorigin = self.aimtargorigin + self.aimtargvelocity * self.aimlatency;
-		shotleadspeed = setweapon(self.weapon, WR_SHOTLEADSPEED);
-		latency = vlen(targorigin - selforigin) / shotleadspeed;
-		v = targorigin + self.aimtargvelocity * latency;
-		// this extra line compensates for momentum
-		//v = v - self.aimselfvelocity * latency;
-		tracebox(self.aimtargorigin, targ.mins, targ.maxs, v, FALSE, targ);
-		aimdir = trace_endpos - self.origin - '0 0 16';
-		saveenemy = self.enemy;
-		self.enemy = targ;
-		weaponaimtarget = trace_endpos;
-*/
-		/*
-		bprint("havocbot_doaim(");
-		s = etos(self.aimtarg);
-		bprint(s);
-		bprint(", ");
-		s = vtos(self.aimselforigin);
-		bprint(s);
-		bprint(", ");
-		s = vtos(self.aimselfvelocity);
-		bprint(s);
-		bprint(", ");
-		s = vtos(self.aimtargorigin);
-		bprint(s);
-		bprint(", ");
-		s = vtos(self.aimtargvelocity);
-		bprint(s);
-		bprint(")\nselforigin ");
-		s = vtos(selforigin);
-		bprint(s);
-		bprint(", targorigin ");
-		s = vtos(targorigin);
-		bprint(s);
-		bprint(", aimdir ");
-		s = vtos(aimdir);
-		bprint(s);
-		bprint(")\n");
-		*/
-/*
-		if (setweapon(self.weapon, WR_AIM))
-		{
-			if ((cvar("temp1") & 512) == 0)
-				self.button0 = 1;
-*/
-			/*
-			bprint("weaponaimdir ");
-			s = vtos(weaponaimdir);
-			bprint(s);
-			bprint("\n");
-			*/
-/*
-			aimdir = weaponaimdir;
-		}
-		self.enemy = saveenemy;
-	}
-
-	// LordHavoc: todo: deceleration aiming simulation
-
-	ang = vectoangles(aimdir);
-
-	// change to v_angle format
-	ang_x = 0 - ang_x;
-	ang_z = 0;
-	// a little chaos to reduce sniping accuracy in the distnace
-//	ang = ang + randomvec();
-
-	// add in shaking from pain
-	pain = self.painintensity * 0.2;
-	if (pain > 15)
-		pain = 15;
-	if (pain)
-		ang = ang + randomvec() * pain;
-
-	// this code makes it turn gradually, not instantly
-
-	// calculate the angle difference (taking into consideration yaw wrapping)
-	angdiff = ang - self.v_angle;
-	while (angdiff_y >= 180)
-		angdiff_y = angdiff_y - 360;
-	while (angdiff_y < -180)
-		angdiff_y = angdiff_y + 360;
-
-	// give it a bit of randomness to simulate pretty good but not perfect tracking
-	originalangdiff = angdiff;
-	angdistance = vlen(angdiff);
-	angdiff = (((angdiff * (random() * 0.4 + 0.8)) + (randomvec() * (angdistance * 0.1))) - originalangdiff) * ((3.5 - bound(0, skill, 3)) * 0.5) + originalangdiff;
-
-	// don't fire if shot would be too inaccurate
-	if (angdistance > 270 * frametime)
-		self.button0 = 0;
-
-	// limit maximum turning speed
-	if (vlen(angdiff) > 720 * frametime)
-		angdiff = normalize(angdiff) * 720 * frametime;
-
-	// apply change
-	self.v_angle = self.v_angle + angdiff;
-
-	angdiff = ang - self.v_angle;
-	while (angdiff_y >= 180)
-		angdiff_y = angdiff_y - 360;
-	while (angdiff_y < -180)
-		angdiff_y = angdiff_y + 360;
-	angdistance = vlen(angdiff);
-	if (angdistance > 10)
-		self.button0 = 0;
-
-	// compute model angles
-	self.angles = self.v_angle_y * '0 1 0';
-};
-*/
-
 //.float nextgoalcheck;
 .float oldhealth;
 void() havocbot_think =
 {
 	local vector dodge;
 	if (!self.havocbot_role)
-	{
 		objerror("no havocbot_role\n");
-		// FIXME: how is this happening??
-		//ClientConnect();
-		//PutClientInServer();
-	}
 
 	if (self.painintensity > 0)
 		self.painintensity = self.painintensity - (skill * 40 + 40) * frametime;
@@ -1440,12 +1252,8 @@ void() havocbot_think =
 	{
 		if (self.deadflag == DEAD_RESPAWNABLE)
 			self.button0 = 1;
-		//PlayerPreThink();
-		//PlayerPostThink();
 		return;
 	}
-//	if (self.flags & FL_ONGROUND)
-//		self.velocity = '0 0 0';
 	if (havocbot_goaltoken == self)
 		self.havocbot_role();
 	if (cvar("havocbot_nofire"))
@@ -1455,7 +1263,6 @@ void() havocbot_think =
 	havocbot_chooseweapon();
 	havocbot_aim();
 	lag_update();
-	//havocbot_doaim();
 	if (self.aimtarg && self.weaponclass)
 		self.weaponclass.w_func(WR_AIM);
 	else
@@ -1469,8 +1276,8 @@ void() havocbot_impulses =
 	local float f;
 	local string s;
 	local entity e;
-	if (self.impulse == 101) {f = cvar("bots") + 1;f = bound(0, f, MAXBOTS);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
-	else if (self.impulse == 102) {f = cvar("bots") - 1;f = bound(0, f, MAXBOTS);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
+	if (self.impulse == 101) {f = cvar("bots") + 1;f = max(0, f);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
+	else if (self.impulse == 102) {f = cvar("bots") - 1;f = max(0, f);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
 	if (cvar("havocbot_editwaypoints"))
 	{
 		if (self.impulse == 103) {waypoint_spawn(self.origin, 0);self.impulse = 0;}
@@ -1572,118 +1379,3 @@ void() havocbot_updatedangerousobjects =
 		dangerwaypoint = find(dangerwaypoint, classname, "waypoint");
 	}
 };
-
-/*
-// note: no rotation support (yet)
-void(entity e) havocbot_spawnwaypoints =
-{
-	local float surfnum, numpoints, pointnum;
-	local vector normal, v, m1, m2;
-	surfnum = 0;
-	while (1)
-	{
-		numpoints = getsurfacenumpoints(e, surfnum);
-		if (numpoints < 3)
-			break;
-		// we only want walkable floor surfaces
-		normal = getsurfacenormal(e, surfnum);
-		if (normal_z < 0.7)
-		{
-			surfnum = surfnum + 1;
-			continue;
-		}
-
-		newmis = spawn();
-		newmis.classname = "waypoint";
-		newmis.think = waypoint_think;
-		newmis.lefty = TRUE;
-		newmis.nextthink = time;// + surfnum * 0.01;
-		newmis.cnt = time + 1;
-		newmis.owner = e;
-		newmis.dmg2 = surfnum;
-
-		m1 = m2 = getsurfacepoint(e, surfnum, 0);
-		pointnum = 1;
-		while (pointnum < numpoints)
-		{
-			v = getsurfacepoint(e, surfnum, pointnum);
-			if (m1_x > v_x) m1_x = v_x;if (m2_x < v_x) m2_x = v_x;
-			if (m1_y > v_y) m1_y = v_y;if (m2_y < v_y) m2_y = v_y;
-			if (m1_z > v_z) m1_z = v_z;if (m2_z < v_z) m2_z = v_z;
-			pointnum = pointnum + 1;
-		}
-
-		setorigin(newmis, e.origin);
-		setsize(newmis, m1 + '-1 -1 -9' - e.origin, m2 + '1 1 9' - e.origin);
-		if (e != world)
-		{
-			newmis.movetype = MOVETYPE_FOLLOW;
-			newmis.solid = SOLID_NOT;
-			newmis.aiment = e; // entity being followed
-			newmis.punchangle = '0 0 0'; // angles of entity being followed at start position
-			newmis.view_ofs = '0 0 0'; // relative origin
-			newmis.v_angle = '0 0 0'; // relative angles
-		}
-
-*/
-		/*
-		newmis.dest1 = getsurfacepoint(e, surfnum, 0);
-		newmis.dest2 = getsurfacenormal(e, surfnum);
-		newmis.count = newmis.dest2 * (newmis.dest1 - e.origin);
-
-		// test 1 unit above surface so it has no chance of being in solid
-		newmis.dest5_x = 0 - (normal_x / normal_z);
-		newmis.dest5_y = 0 - (normal_y / normal_z);
-		newmis.dest5_z = newmis.dest1_z + 1 - (newmis.dest1_x * newmis.dest5_x + newmis.dest1_y * newmis.dest5_y);
-
-		newmis.dest1 = (m1 + m2) * 0.5;
-		newmis.dest1_z = newmis.dest1_x * newmis.dest5_x + newmis.dest1_y * newmis.dest5_y + newmis.dest5_z;
-		*/
-
-		/*
-		bprint("org ");
-		bprintvector(newmis.dest1);
-		bprint(" normal ");
-		bprintvector(newmis.dest2);
-		bprint(" dist ");
-		bprintfloat(newmis.count);
-		bprint(" slope ");
-		bprintvector(newmis.dest5);
-		bprint(" surfnum ");
-		bprintfloat(newmis.dmg2);
-		bprint("\n");
-		*/
-/*
-
-		//if (pointcontents(newmis.dest1 + '0 0 -2') != CONTENT_SOLID)
-		//	remove(newmis);
-
-		surfnum = surfnum + 1;
-	}
-};
-
-float spawnwaypoints;
-float worldspawnedwaypoints;
-.float spawnedwaypoints;
-void() havocbot_findentsandspawnwaypoints =
-{
-	local entity head;
-	if (time < spawnwaypoints)
-		return;
-	if (!worldspawnedwaypoints)
-	{
-		worldspawnedwaypoints = TRUE;
-		havocbot_spawnwaypoints(world);
-	}
-	head = findchainfloat(solid, SOLID_BSP);
-	while (head)
-	{
-		if (!head.spawnedwaypoints)
-		{
-			head.spawnedwaypoints = TRUE;
-			havocbot_spawnwaypoints(head);
-		}
-		head = head.chain;
-	}
-};
-*/

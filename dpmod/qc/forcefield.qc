@@ -7,17 +7,6 @@ float FORCEFIELD_WALL         = 16;
 
 void(vector org, float p) forcefieldflash =
 {
-	//local vector v;
-	//local float c, d;
-	/*
-	// great flash
-	while (p > 0)
-	{
-		v = randompos(self.absmin, self.absmax);
-		p = p - 10;
-		particle(v, '0 0 0', 13, 10);
-	}
-	*/
 	self.frame = 1;
 	if (time > self.fly_sound && !(self.spawnflags & FORCEFIELD_SILENT))
 	{
@@ -34,40 +23,8 @@ void(vector org, float p) forcefieldflash =
 void(entity attacker, float take) forcefieldpain =
 {
 	self.health = 99999999;
-//	forcefieldflash(self.damagepoint, take);
 	forcefieldflash(self.absmin + self.absmax * 0.5, take);
 };
-
-/*
-void() forcefieldgibcheck =
-{
-	local float c;
-	local vector v;
-	if (!self.enemy.takedamage) return;
-	if (!self.weapon) return;
-	if (self.enemy.absmax_x < (self.absmin_x + 4)) return;
-	if (self.enemy.absmin_x > (self.absmax_x - 4)) return;
-	if (self.enemy.absmax_y < (self.absmin_y + 4)) return;
-	if (self.enemy.absmin_y > (self.absmax_y - 4)) return;
-	if (self.enemy.absmax_z < (self.absmin_z + 4)) return;
-	if (self.enemy.absmin_z > (self.absmax_z - 4)) return;
-	// PLASMA FLASH :)
-*/
-	/*
-	c = 4;
-	while (c > 0)
-	{
-		c = c - 1;
-		v = randompos(self.enemy.absmin, self.enemy.absmax);
-		SpawnShock(v);
-	}
-	*/
-/*
-	T_Damage(self.enemy, self, self, 50000, 50000, self.deathtype, DT_LIGHTNING, self.enemy.origin, '0 0 0', Obituary_Generic);
-	// just to trigger a huge flash on the forcefield
-	T_Damage(self, self, self, 120, 0, "", DT_IMPACT, (self.absmin + self.absmax) * 0.5, '0 0 0', Obituary_Generic);
-};
-*/
 
 void() forcefieldtouch =
 {
@@ -96,7 +53,6 @@ void() forcefieldtouch =
 
 void() forcefieldthink =
 {
-	// self.nextthink = time + 0.1;
 	self.frame = 0;
 	if (!(self.spawnflags & FORCEFIELD_TOGGLE))
 	{
@@ -146,63 +102,6 @@ void() forcefieldthink =
 		self.alpha = 0.5;
 	else
 		self.alpha = 0.3;
-	/*
-	if (self.enemy != world)
-	if (self.spawnflags & FORCEFIELD_WALL)
-	if (self.enemy.takedamage)
-	if (self.enemy.solid == SOLID_BBOX || self.enemy.solid == SOLID_SLIDEBOX)
-		forcefieldgibcheck();
-	*/
-	/*
-	v1 = self.absmin;
-	v2 = self.absmax;
-	self.cnt = self.cnt + 8;
-	if (self.size_x > self.size_y && self.size_x > self.size_z)
-	{
-		v1_x = self.cnt + self.absmin_x;
-		while (v1_x > v2_x)
-		{
-			self.cnt = self.cnt - self.size_x;
-			v1_x = v1_x - self.size_x;
-		}
-		v2_x = v1_x + 8;
-	}
-	else if (self.size_y > self.size_x && self.size_y > self.size_z)
-	{
-		v1_y = self.cnt + self.absmin_y;
-		while (v1_y > v2_y)
-		{
-			self.cnt = self.cnt - self.size_y;
-			v1_y = v1_y - self.size_y;
-		}
-		v2_y = v1_y + 8;
-	}
-	else // (self.size_z > self.size_x && self.size_z > self.size_y)
-	{
-		v1_z = self.cnt + self.absmin_z;
-		while (v1_z > v2_z)
-		{
-			self.cnt = self.cnt - self.size_z;
-			v1_z = v1_z - self.size_z;
-		}
-		v2_z = v1_z + 8;
-	}
-	if (v1_x < self.absmin_x) v1_x = self.absmin_x;
-	if (v1_y < self.absmin_y) v1_y = self.absmin_y;
-	if (v1_z < self.absmin_z) v1_z = self.absmin_z;
-	if (v2_x > self.absmax_x) v2_x = self.absmax_x;
-	if (v2_y > self.absmax_y) v2_y = self.absmax_y;
-	if (v2_z > self.absmax_z) v2_z = self.absmax_z;
-	*/
-	/*
-	c = 5;
-	while (c > 0)
-	{
-		c = c - 1;
-		v = randompos(v1, v2);
-		particle(v, '0 0 0', 230, 10);
-	}
-	*/
 	force_retouch = 2;      // hit even non-moving objects
 };
 

@@ -372,23 +372,7 @@ void() tdeath_touch =
 	//if (other.solid == SOLID_TRIGGER) // big bug in quake engine...  crashs if other is removed during a collision
 	//	return;
 	if ((self.owner.classname == "player") && (self.owner.health >= 1))
-	{
-		/*
-		if (other.classname == "player")
-		{
-			if (self.dest2 != '0 0 0')
-			{
-				setorigin(self.owner, self.dest2);
-				self.owner.velocity = '0 0 0' - self.owner.velocity;
-				spawn_tfog(self.owner.origin);
-			}
-			else
-				T_Damage (self.owner, self, other, 0, 0, "TRIEDTOTELEFRAG", DT_TELEFRAG, self.owner.origin, '0 0 0', Obituary_TriedToTelefrag);
-		}
-		else
-		*/
-			T_Damage (other, self, self.owner, 0, 0, "TELEFRAG", DT_TELEFRAG, other.origin, '0 0 0', Obituary_Telefrag);
-	}
+		T_Damage (other, self, self.owner, 0, 0, "TELEFRAG", DT_TELEFRAG, other.origin, '0 0 0', Obituary_Telefrag);
 	else if (other.health < 1) // corpses gib
 		T_Damage (other, self, self.owner, 0, 0, "TELEFRAG", DT_TELEFRAG, other.origin, '0 0 0', Obituary_Telefrag);
 	else // dead bodies and monsters gib themselves instead of telefragging
@@ -496,13 +480,6 @@ void() teleport_touch =
 	{
 		other.fixangle = 1;		// turn this way immediately
 
-		/*
-		// clear the waypoint info (just useful for the bots)
-		other.enemy = world;
-		other.goalentity = world;
-		other.looktime = 0;
-		*/
-
 		other.teleport_time = time + 0.5;
 		//other.velocity = t.dest;
 	}
@@ -549,12 +526,6 @@ void() teleport_use =
 	self.nextthink = time + 0.2;
 	force_retouch = 2;              // make sure even still objects get hit
 	self.think = SUB_Null;
-	/*
-	self.solid = SOLID_BSP;
-	self.movetype = MOVETYPE_PUSH;
-	setmodel(self, self.mdl);
-	self.model = "";
-	*/
 };
 
 /*QUAKED trigger_teleport (.5 .5 .5) ? PLAYER_ONLY SILENT

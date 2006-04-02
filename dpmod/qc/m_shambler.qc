@@ -283,7 +283,7 @@ void() sham_glowingclawleft =
 	{
 		self.glow_size = 120;
 		// Thanks to SSJ4-Death (in #qc) for getting the shambler claw locations
-	if (o.frame == $magic1) self.view_ofs = '42.44 35.15 26.76';
+		if (o.frame == $magic1) self.view_ofs = '42.44 35.15 26.76';
 		else if (o.frame == $magic2) self.view_ofs = '30.55 3.3 73.36';
 		else if (o.frame == $magic3) self.view_ofs = '19.91 -3.63 80.49';
 		else if (o.frame == $magic4) self.view_ofs = '15.53 -4.32 81.58';
@@ -469,14 +469,6 @@ void() shambler_sightsound =
 	sound (self, CHAN_VOICE, "shambler/ssight.wav", 1, ATTN_NORM);
 };
 
-/* no longer necessary since I implemented generic resistance
-float(entity e, float healthdamage, float damage, float damgtype, string dethtype) shambler_damagemodifier =
-{
-	if (damgtype & DTF_EXPLOSION)
-		return 0.5; // explosives do half normal damage
-	return 1.0;
-};
-*/
 
 
 
@@ -513,18 +505,6 @@ void() monster_shambler =
 	if (!self.deathtype) // map makers can override this
 		self.deathtype = " was smashed by a shambler";
 
-	// localdamage stuff (headshots etc)
-	/*
-	self.localdamage = TRUE;
-	self.localdamage_head_z1 = 48;
-	self.localdamage_head_z2 = 1064;
-	self.localdamage_head_mul = 3.0; // no armor but tough
-	self.localdamage_body_z1 = -1024;
-	self.localdamage_body_z2 = 48;
-	self.localdamage_body_mul = 1.0;
-	self.localdamage_hit = LD_NORMAL;
-	*/
-
 	self.shoulddodge = TRUE;
 	self.dangerrating = 350;
 
@@ -547,8 +527,6 @@ void() monster_shambler =
 	self.bleedratio = 0; // shamblers are animated dead, no bleeding
 	// explosion resistance
 	self.resist_explosive = 0.5;
-	// no longer necessary since I implemented generic resistance
-	//	self.damagemodifier = shambler_damagemodifier;
 
 	self.th_stand = sham_stand1;
 	self.th_walk = sham_walk1;

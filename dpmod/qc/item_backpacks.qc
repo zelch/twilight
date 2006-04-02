@@ -45,12 +45,6 @@ void() BackpackTouch =
 	acount = 0;
 	self.items = self.items - (self.items & other.items);
 
-	/*
-	// if the player was using his best weapon, change up to the new one if better
-	self = other;
-	best = W_BestWeapon(TRUE);
-	self = oself;
-	*/
 	stemp = self;
 	self = other;
 	switchweapon = self.switchweaponclass == W_BestWeaponClass(TRUE);
@@ -130,14 +124,6 @@ void() BackpackTouch =
 		self.switchweaponclass = W_BestWeaponClass(TRUE);
 		self = stemp;
 	}
-	/*
-	self = other;
-	// change to the weapon
-	best = W_BestWeapon(TRUE);
-	if (best & new) // is the best weapon in the pack?
-		self.switchweapon = best; // yep, change to it.
-	self = oself;
-	*/
 
 	// remove the backpack
 	BackpackRemove();

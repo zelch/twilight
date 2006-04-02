@@ -18,7 +18,6 @@ void() spike_touch =
 	else if (self.weapon == 2) te_knightspike(self.origin);
 	else                       te_spike(self.origin);
 
-	weaponwakeup(self.origin, self.owner);
 	remove(self);
 };
 

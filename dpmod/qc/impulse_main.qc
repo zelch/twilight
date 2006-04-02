@@ -1,24 +1,4 @@
 
-/*
-// frikqcc field pointer test code
-var .float fieldpointertest;
-void() fieldpointertestfunc =
-{
-	fieldpointertest = ammo_shells;
-	self.fieldpointertest = 5;
-};
-*/
-
-/*
-// frikqcc field pointer field test code
-..float fieldpointertest;
-void() fieldpointertestfunc =
-{
-	self.fieldpointertest = ammo_shells;
-	self.(self.fieldpointertest) = 5;
-};
-*/
-
 // FRIK_FILE extension test code
 void () saveme =
 {
@@ -419,33 +399,6 @@ void() ImpulseCommands =
 			}
 		}
 	}
-	/*
-	if (self.impulse == 124)
-	{
-		havoc_createwaypoint(self.origin);
-	}
-	*/
-	/*
-	if (cvar("temp1") & 512) // waypoint placement mode
-	{
-		if (self.impulse == 124) // create normal waypoint
-			havoc_createwaypoint(self.origin); //, -1, 0, '0 0 0');
-		else if (self.impulse == 125) // create begin waypoint
-			havoc_createwaypoint(self.origin, -1, 1, '0 0 0');
-		else if (self.impulse == 126) // create end waypoint
-			havoc_createwaypoint(self.origin, -1, 2, '0 0 0');
-		else if (self.impulse == 127) // create jump waypoint
-			havoc_createwaypoint(self.origin, -1, 4, '0 0 0');
-		else if (self.impulse == 128) // remove the nearest waypoint
-			havoc_removenearestwaypoint();
-		else if (self.impulse == 129) // output .qc code for map (use with -condebug)
-			havoc_printwaypointqc();
-		else if (self.impulse == 130)
-			self.movetype = MOVETYPE_NOCLIP;
-		else if (self.impulse == 131)
-			self.movetype = MOVETYPE_WALK;
-	}
-	*/
 
 	if (self.impulse == 100) // stats alias
 		statshow();
@@ -481,24 +434,6 @@ void() ImpulseCommands =
 			listfile();
 		if (self.impulse == 43)
 			lhfp_test();
-		/*
-		if (self.impulse == 44)
-			lhradix_test();
-		if (self.impulse == 45)
-			lhradix3_test();
-		if (self.impulse == 46)
-			lhradixarrayparms_test();
-		if (self.impulse == 47)
-			lhfp2_test();
-		if (self.impulse == 48)
-			lhradixarrayparms2_test();
-		if (self.impulse == 49)
-			lhradixarrayparms3_test();
-		if (self.impulse == 50)
-			lhradixarrayparms4_test();
-		if (self.impulse == 51)
-			lhbitarrayparms_test();
-		*/
 		if (self.impulse == 52)
 			lhbitparms_test();
 		if (self.impulse >= 30 && self.impulse <= 39)
@@ -556,30 +491,6 @@ void() ImpulseCommands =
 			newmis.th_die = GibClone;
 			setorigin(newmis, self.origin);
 		}
-		/*
-		if (self.impulse == 27)
-		{
-			makevectors(self.v_angle);
-			self.oldorigin = self.origin + v_forward * 32;
-			setorigin(self, self.oldorigin);
-		}
-		if (self.impulse == 26)
-		{
-			newmis = spawn();
-			//newmis.viewmodelforclient = self;
-			//newmis.owner = self;
-			setmodel(newmis, "progs/player.mdl");
-			setsize(newmis, '-16 -16 -24', '16 16 24');
-			newmis.frame = 0;
-			newmis.angles = '0 0 0';
-			newmis.movetype = MOVETYPE_TOSS;
-			newmis.solid = SOLID_SLIDEBOX;
-			newmis.takedamage = DAMAGE_YES;
-			newmis.health = 100;
-			newmis.th_die = GibClone;
-			setorigin(newmis, self.origin);
-		}
-		*/
 		if (self.impulse == 26)
 		{
 			newmis = spawn();
@@ -601,31 +512,6 @@ void() ImpulseCommands =
 					trace_ent.effects = trace_ent.effects + EF_FULLBRIGHT;
 			}
 		}
-		/*
-		if (self.impulse == 22)
-		{
-			makevectors(self.v_angle);
-			weapontraceline(self.origin + self.view_ofs, self.origin + self.view_ofs + v_forward * 1024, FALSE, self);
-			if (trace_ent)
-			{
-				trace_ent.alpha = trace_ent.alpha - 1/8;
-				if (trace_ent.alpha < 0)
-					trace_ent.alpha = 7/8;
-			}
-		}
-		if (self.impulse == 17)
-		{
-			if (self.scale == 0)
-				self.scale = 1;
-			self.scale = self.scale - 0.0625;
-		}
-		if (self.impulse == 18)
-		{
-			if (self.scale == 0)
-				self.scale = 1;
-			self.scale = self.scale + 0.0625;
-		}
-		*/
 		if (self.impulse == 16)
 		{
 			makevectors(self.v_angle);
@@ -640,9 +526,26 @@ void() ImpulseCommands =
 			if (trace_fraction < 1)
 				printsurfaceinfo(trace_ent, trace_endpos);
 		}
-		if (self.impulse == 11) ServerflagsCommand ();
+		if (self.impulse == 11)
+		{
+			// cheat: give the players a rune
+			bprint (self.netname);
+			bprint (" activated rune cheat\n");
+			serverflags = serverflags * 2 + 1;
+			serverflags = serverflags & 15; // 15 = 8 + 4 + 2 + 1
+		}
 		if (self.impulse == 234) CheatCommand ();
-		if (self.impulse == 255) QuadCheat ();
+		if (self.impulse == 255)
+		{
+			// cheat: give the player a quad
+			if (self.health < 1)
+				return; // dead
+			self.super_time = 1;
+			self.super_damage_finished = time + 60;
+			self.items = self.items | IT_QUAD;
+			bprint (self.netname);
+			bprint (" activated quad cheat\n");
+		}
 	}
 	if ((self.impulse >= 1 && self.impulse <= 9) || (self.impulse >= 201 && self.impulse <= 220)) W_ChangeWeapon();
 	else if (self.impulse == 10) CycleWeaponCommand ();

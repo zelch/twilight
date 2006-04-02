@@ -147,7 +147,6 @@ void() hknightspike_touch =
 	T_Damage (other, self, self.owner, DMG_HELLKNIGHT_SPIKE, DMG_HELLKNIGHT_SPIKE, self.deathtype, DT_FIRE, self.origin, v * 10, Obituary_Generic);
 	v = self.origin - v * 8;
 	te_knightspike(v);
-	weaponwakeup(v, self.owner);
 	remove(self);
 };
 
@@ -768,18 +767,6 @@ void() monster_hell_knight =
 
 	self.shoulddodge = TRUE;
 	self.dangerrating = 40;
-
-	// localdamage stuff (headshots etc)
-	/*
-	self.localdamage = TRUE;
-	self.localdamage_head_z1 = 20;
-	self.localdamage_head_z2 = 1032;
-	self.localdamage_head_mul = 1.5; // heavy armor
-	self.localdamage_body_z1 = -1024;
-	self.localdamage_body_z2 = 24;
-	self.localdamage_body_mul = 1.0;
-	self.localdamage_hit = LD_NORMAL;
-	*/
 
 	if (!monsterspawn)
 		precachemonster_hell_knight();

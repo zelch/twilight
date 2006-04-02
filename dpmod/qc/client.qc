@@ -14,7 +14,7 @@ void (vector org, entity death_owner, vector org2) spawn_tdeath;
 void() GibPlayer;
 void() PlayerDead;
 
-float modelindex_eyes/*, modelindex_player*/;
+float modelindex_eyes, modelindex_player;
 //float modelindex_player_sg, modelindex_player_dbsg;
 //float modelindex_player_ng, modelindex_player_sng;
 //float modelindex_player_gl, modelindex_player_rl;
@@ -29,24 +29,6 @@ float modelindex_nogun;
 //used for killing sprees
 .float spree_amount;
 .float spree_count;
-
-/*
-void() speech_precache =
-{
-	gibcomment_precache();
-	// used by taunt code in weapons.qc impulse system
-	precache_sound("speech/camp/campgrnd.wav");
-	precache_sound("speech/camp/tentfire.wav");
-	precache_sound("speech/camp/view.wav");
-	precache_sound("speech/gib/lookbetr.wav");
-	precache_sound("speech/taunt/crawlfrm.wav");
-	precache_sound("speech/gib/niceday.wav");
-	precache_sound("speech/gib/cool.wav");
-	precache_sound("speech/gib/awesome.wav");
-	precache_sound("speech/gib/aisle12.wav");
-	precache_sound("speech/gib/scrapeof.wav");
-};
-*/
 
 /*
 =============================================================================
@@ -384,8 +366,7 @@ void() respawn =
 		// make a copy of the dead body for appearances sake
 		CopyToBodyQue (self);
 		// get the spawn parms as they were at level start
-		//if (self.flags & FL_CLIENT) // not needed with DP_SV_BOTCLIENT
-			setspawnparms (self);
+		setspawnparms (self);
 		// respawn
 		PutClientInServer ();
 	}
@@ -429,10 +410,6 @@ void() ClientKill =
 		T_Damage(self, self, self, 0, 0, " killed himself", DT_TELEFRAG, self.origin, '0 0 0', Obituary_Generic);
 	else
 		respawn ();
-//	bprint (self.netname);
-//	bprint (" killed himself\n");
-//	set_suicide_frame ();
-//	self.modelindex = modelindex_player;
 };
 
 /*
@@ -605,36 +582,20 @@ void() PutClientInServer =
 	self.iscreature = TRUE;
 	self.forcescale = 5; // for damage kick calculations
 	self.cantrigger = TRUE; // can trigger buttons etc
-	// self.lastwaypoint = world; // to avoid confusing the waypoint list
 	self.iscorpse = FALSE;
 	self.isdecor = FALSE;
 	self.bleedratio = 1; // 100% bleeding damage (see t_damage.qc)
 	// make self completely visible
 	self.alpha = 0;
 
-	// not needed with DP_SV_BOTCLIENT
-	//if (self.isbot)
-	//	self.flags = 0;
-	//else
-		self.flags = FL_CLIENT;
+	self.flags = FL_CLIENT;
 
 	self.th_pain = player_pain;
 	self.th_die = PlayerDie;
 	self.th_gib = GibPlayer;
 
-//	self.bleeddamagecount = 0; // just used for how much gore to do...
-
-//	self.bleedcount = 0; // clear the bleeding damage counter
 	self.bubble_count = 0;
 	self.candrown = TRUE;
-
-	/*
-	// localdamage stuff (headshots etc)
-	self.localdamage = TRUE;
-	self.localdamage_head_mul = 5.0;
-	self.localdamage_body_mul = 1.0;
-	self.localdamage_hit = LD_NORMAL;
-	*/
 
 	self.combo_amount = 0;
 	self.combo_time = 0;
@@ -719,7 +680,7 @@ void() PutClientInServer =
 		modelindex_nogun = self.modelindex;
 
 		setmodel (self, "progs/player.mdl");
-//		modelindex_player = self.modelindex;
+		modelindex_player = self.modelindex;
 	}
 	else
 		setmodel(self, "progs/player.mdl");
@@ -767,12 +728,11 @@ void() PutClientInServer =
 	}
 	*/
 
-//	if (deathmatch || coop)
-//	{
-//		makevectors(self.angles);
-//		spawn_tfog (self.origin + v_forward*20);
-//	}
-	spawn_tfog(self.origin);
+	if (deathmatch || coop)
+	{
+		makevectors(self.angles);
+		spawn_tfog (self.origin + v_forward*20);
+	}
 	spawn_tdeath (self.origin, self, '0 0 0');
 
 	if (self.isbot)
@@ -1078,13 +1038,6 @@ void() PlayerPreThink =
 		self.frame = 0;
 //		return;
 	}
-	/*
-	if (self.deadflag)
-	{
-		self.model = "";
-		self.modelindex = 0;
-	}
-	*/
 
 	if (cvar("temp1") & 4096)
 	{
@@ -1120,8 +1073,6 @@ void() PlayerPreThink =
 	{
 		if (self.deadflag >= DEAD_DEAD)
 			PlayerDeathThink ();
-		//self.model = "";
-		//self.modelindex = 0;
 		return; // dying or dead, so do nothing
 	}
 
@@ -1146,8 +1097,6 @@ void() CheckPowerups =
 {
 	if (self.deadflag) // dead
 	{
-		//self.model = "";
-		//self.modelindex = 0; // in DP players are invisible when dead
 		self.effects = 0;
 		return;
 	}
@@ -1174,7 +1123,7 @@ void() CheckPowerups =
 				if (self.flags & FL_CLIENT)
 				{
 					sprint (self, "Ring of Shadows magic is fading\n");
-					flashscreen(self);
+					stuffcmd (self, "bf\n");
 				}
 				if (game != GAME_NEXUIZ)
 					sound (self, CHAN_AUTO, "items/inv2.wav", 1, ATTN_NORM);
@@ -1184,7 +1133,7 @@ void() CheckPowerups =
 			if (self.invisible_time < time)
 			{
 				self.invisible_time = time + 1;
-				flashscreen(self);
+				stuffcmd (self, "bf\n");
 			}
 		}
 
@@ -1207,7 +1156,7 @@ void() CheckPowerups =
 				if (self.flags & FL_CLIENT)
 				{
 					sprint (self, "Protection is running out\n");
-					flashscreen(self);
+					stuffcmd (self, "bf\n");
 				}
 				if (game != GAME_NEXUIZ)
 					sound (self, CHAN_AUTO, "items/protect2.wav", 1, ATTN_NORM);
@@ -1217,7 +1166,7 @@ void() CheckPowerups =
 			if (self.invincible_time < time)
 			{
 				self.invincible_time = time + 1;
-				flashscreen(self);
+				stuffcmd (self, "bf\n");
 			}
 		}
 
@@ -1240,7 +1189,7 @@ void() CheckPowerups =
 				if (self.flags & FL_CLIENT)
 				{
 					sprint (self, "Quad Damage is fading\n");
-					flashscreen(self);
+					stuffcmd (self, "bf\n");
 				}
 				if (game != GAME_NEXUIZ)
 					sound (self, CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
@@ -1250,7 +1199,7 @@ void() CheckPowerups =
 			if (self.super_time < time)
 			{
 				self.super_time = time + 1;
-				flashscreen(self);
+				stuffcmd (self, "bf\n");
 			}
 		}
 
@@ -1276,7 +1225,7 @@ void() CheckPowerups =
 				if (self.flags & FL_CLIENT)
 				{
 					sprint (self, "Air supply in Biosuit expiring\n");
-					flashscreen(self);
+					stuffcmd (self, "bf\n");
 				}
 				if (game != GAME_NEXUIZ)
 					sound (self, CHAN_AUTO, "items/suit2.wav", 1, ATTN_NORM);
@@ -1286,7 +1235,7 @@ void() CheckPowerups =
 			if (self.rad_time < time)
 			{
 				self.rad_time = time + 1;
-				flashscreen(self);
+				stuffcmd (self, "bf\n");
 			}
 		}
 
@@ -1307,8 +1256,6 @@ void() CheckPowerups =
 };
 
 void() havoc_laywaypoints;
-
-void() player_updatebounds;
 
 /*
 ================
@@ -1348,8 +1295,6 @@ void() PlayerPostThink =
 			havoc_laywaypoints (); // teach the bots
 		W_WeaponFrame ();
 		CheckPowerups ();
-		player_updatebounds(); // for detecting headshots etc
-		GibCommentCheck();
 		playerfootstep();
 	}
 
@@ -1402,10 +1347,13 @@ void() ClientDisconnect =
 	self.adminattempts = 0;
 
 	// let everyone else know
-//	bprint(self.netname);
-//	bprint(" left with ");
-//	bprintfloat(self.frags);
-//	bprint(" frags\n");
+	if (deathmatch || coop)
+	{
+		bprint(self.netname);
+		bprint(" left with ");
+		bprintfloat(self.frags);
+		bprint(" frags\n");
+	}
 	if (game != GAME_NEXUIZ)
 		sound(self, CHAN_SPEECH, "player/tornoff2.wav", 1, ATTN_NONE);
 //	set_suicide_frame();

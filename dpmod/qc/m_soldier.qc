@@ -475,18 +475,6 @@ void() monster_army =
 	if (!monsterspawn)
 		precachemonster_army();
 
-	// localdamage stuff (headshots etc)
-	/*
-	self.localdamage = TRUE;
-	self.localdamage_head_z1 = 20;
-	self.localdamage_head_z2 = 1032;
-	self.localdamage_head_mul = 4.0; // they hardly need a brain
-	self.localdamage_body_z1 = -1024;
-	self.localdamage_body_z2 = 20;
-	self.localdamage_body_mul = 1.0;
-	self.localdamage_hit = LD_NORMAL;
-	*/
-
 	self.forcescale = 6;
 	self.netname = "a grunt";
 	// self.doobits = 1;

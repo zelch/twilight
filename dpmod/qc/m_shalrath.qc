@@ -162,7 +162,7 @@ void() ShalMissileTouch =
 void() ShalMissile =
 {
 	local vector dir;
-	local float dist/*, flytime*/;
+	local float dist;
 
 	// don't throw if it is blocked
 	traceline(self.origin + '0 0 10', self.enemy.origin + '0 0 10', FALSE, self);
@@ -171,9 +171,6 @@ void() ShalMissile =
 
 	dir = normalize((self.enemy.origin + '0 0 10') - self.origin);
 	dist = vlen (self.enemy.origin - self.origin);
-//	flytime = dist * 0.002;
-//	if (flytime < 0.1)
-//		flytime = 0.1;
 
 	self.effects = self.effects | EF_MUZZLEFLASH;
 	sound (self, CHAN_WEAPON, "shalrath/attack2.wav", 1, ATTN_NORM);
@@ -190,12 +187,11 @@ void() ShalMissile =
 	setorigin(newmis, self.origin + '0 0 10');
 	newmis.velocity = dir * 400;
 	newmis.avelocity = '300 300 300';
-	newmis.nextthink = /*flytime + */time;
+	newmis.nextthink = time;
 	newmis.think = ShalHome;
 	newmis.enemy = self.enemy;
 	newmis.touch = ShalMissileTouch;
 	newmis.deathtype = self.deathtype;
-	//newmis.effects = EF_ADDITIVE;
 	newmis.glow_color = 144;
 	newmis.glow_size = 200;
 	newmis.health = 50;
@@ -237,18 +233,6 @@ void() monster_shalrath =
 	}
 	if (!self.deathtype) // map makers can override this
 		self.deathtype = " was exploded by a shalrath";
-
-	// localdamage stuff (headshots etc)
-	/*
-	self.localdamage = TRUE;
-	self.localdamage_head_z1 = 32;
-	self.localdamage_head_z2 = 1048;
-	self.localdamage_head_mul = 4.0; // no armor
-	self.localdamage_body_z1 = -1024;
-	self.localdamage_body_z2 = 48;
-	self.localdamage_body_mul = 1.0;
-	self.localdamage_hit = LD_NORMAL;
-	*/
 
 	if (!monsterspawn)
 		precachemonster_shalrath();

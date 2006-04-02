@@ -81,39 +81,6 @@ void(entity targ, entity attacker, string dmsg, float dtype, void(entity t, enti
 	self = oself;
 };
 
-/*
-============
-T_MaxBodyDamage
-
-Returns how much damage is needed to gib this entity.
-If higher than bodydamage, return bodydamage.
-============
-*/
-/* FIXME: needs updating
-float(entity targ, float damage, float damgtype) T_MaxBodyDamage =
-{
-	local float save, take, d, ratio;
-
-	if (damage < 1)
-		return 0;
-
-	if (!targ.takedamage)
-		return 0;
-
-	// save damage based on the target's armor level
-	save = 0;
-	if (damgtype & DTF_ARMOR)
-		save = ceil(targ.armortype * damage);
-	if (save > targ.armorvalue)
-		save = targ.armorvalue;
-	take = ceil(damage-save); // body damage
-	if (take > targ.bodyhealth)
-		take = targ.bodyhealth;
-
-	return take+save;
-};
-*/
-
 .float frozen;
 .float thawtime;
 .float thawedeffects;
@@ -393,26 +360,8 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		if (targ.flags & FL_GODMODE)
 			return;
 
-		/*
-		if (attacker.items & IT_QUAD) // Fury is vampiric
-		if (attacker.classname == "player")
-		if (targ.iscreature)
-		if (targ != attacker)
-		if (targ.health > 0)
-		{
-			f = 0.1;
-			if (targ.classname == "player")
-				f = 0.5;
-			f = attacker.health + min(htake, targ.health) * f;
-			f = min(f, HEALTHMEGAMAX);
-			attacker.health = max(f, attacker.health);
-		}
-		*/
-
 		// do the damage
 		targ.health = targ.health - htake;
-//		if (damgtype & DTF_RESIST_EXPLOSIVE)
-//			targ.bodyhealth = targ.bodyhealth - take;
 		targ.bodyhealth = targ.bodyhealth - take;
 	}
 

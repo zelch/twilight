@@ -908,15 +908,6 @@ void() func_wall =
 	self.solid = SOLID_BSP;
 	self.use = func_wall_use;
 	setmodel (self, self.model);
-	/*
-	self.think = SUB_Null;
-	self.nextthink = 999999999;
-	if (self.avelocity)
-	{
-		self.mins = '-10000 -10000 -10000';
-		self.maxs = '10000 10000 10000';
-	}
-	*/
 };
 
 /*QUAKED func_vanishwall (0 .5 .8) ?

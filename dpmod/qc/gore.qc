@@ -44,17 +44,6 @@ void() debristhink =
 	//local float p;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.nextthink = time + 0.1;
-	/*
-	p = pointcontents(self.mins + self.maxs + self.origin);
-	if (p == CONTENT_SOLID || p == CONTENT_SKY || p == CONTENT_LAVA)
-	{
-		if (self.classname == "decor")
-			removedecor(self);
-		else
-			self.model = "";
-		return;
-	}
-	*/
 	if (time > self.cnt)
 	{
 		self.nextthink = time;
@@ -148,73 +137,6 @@ void(string gibname) ThrowHead =
 };
 
 /*
-void(vector org, vector vel) SpawnDust =
-{
-	local entity e;
-	if (cvar("temp1") & 2048)
-		return;
-	e = newdecor();
-	e.forcescale = 6;
-	e.createdtime = time;
-	e.movetype = MOVETYPE_BOUNCE;
-	e.solid = SOLID_NOT;
-	e.velocity = vel;
-	e.effects = EF_LOWPRECISION;
-	setmodel (e, "progs/dust.mdl");
-	setsize (e, '0 0 -1', '0 0 -1');
-	setorigin (e, org);
-};
-*/
-
-/*
-void() MeatSprayThink =
-{
-	self.nextthink = time;
-	self.flags = self.flags - (self.flags & FL_ONGROUND);
-	if (pointcontents(self.origin) != CONTENT_EMPTY)
-	{
-		remove(self);
-		return;
-	}
-
-	traceline(self.origin, self.origin + self.velocity * frametime, TRUE, world);
-	if (trace_fraction >= 1)
-	{
-		traceline(self.origin + '0 0 1', self.origin + '0 0 -20', FALSE, self);
-		if (trace_startsolid)
-			traceline(self.origin + '0 0 1', self.origin + '0 0 -20', TRUE, self);
-	}
-	if (trace_fraction < 1 && trace_ent.solid == SOLID_BSP)
-	{
-//		newbloodsplat(trace_endpos, trace_ent, trace_plane_normal, 0, 0.5);
-		remove(self);
-		return;
-	}
-};
-
-void(vector org, vector vel) SpawnMeatSpray =
-{
-	if (cvar("temp1") & 2048)
-		return;
-	if (pointcontents(org) != CONTENT_EMPTY)
-		return;
-
-	newmis = newdecor();
-	newmis.forcescale = 6;
-	newmis.createdtime = time + 0.5;
-	newmis.movetype = MOVETYPE_BOUNCE;
-	newmis.solid = SOLID_NOT;
-	newmis.velocity = vel;
-	newmis.nextthink = time;
-	newmis.think = MeatSprayThink;
-	setmodel (newmis, "progs/zom_gib.mdl");
-	setsize (newmis, '0 0 -1', '0 0 -1');
-	setorigin (newmis, org);
-	newmis.effects = EF_LOWPRECISION;
-};
-*/
-
-/*
 ==============================================================================
 
 CORPSES
@@ -278,8 +200,6 @@ void() bodyfirstthink =
 .float bubble_count;
 
 /*
-//.float flamecount, flametime, flamesoundtime;
-//.entity flameowner;
 // call this the moment the monster/player/bot etc dies,
 // it will do the anim you give it if not a gib, or immediately gib.
 // you should use BecomeCorpse2() for monsters, so the edicts are freed.
@@ -397,8 +317,6 @@ void(string headname, float gibs, string gibname1, float gibs1, string gibname2,
 	while (gibs2 > 0) {gibs2 = gibs2 - 1;ThrowGib(gibname2);}
 	// now become a head
 	if (headname) ThrowHead(headname);
-//	if (time >= 0.5) // no blood effects until game really begins
-//		bloodshower(self.origin + self.mins, self.origin + self.maxs, 100, 50);
 };
 
 void(string headname, float gibs, string gibname1, float gibs1, string gibname2, float gibs2) PlayerGibs =
@@ -418,22 +336,6 @@ void(vector org, float bodydamage, float armordamage, vector force, float damgty
 
 	if (cvar("temp1") & 2048)
 		return;
-
-	/*
-	if (bodydamage > 0)
-	{
-//		self.bleedcount = self.bleedcount + bodydamage;
-		self.bleeddamagecount = self.bleeddamagecount + bodydamage;
-		if (self.bleeddamagecount > 150)
-			self.bleeddamagecount = 150;
-		while (self.bleeddamagecount >= 10)
-		{
-			self.bleeddamagecount = self.bleeddamagecount - 10;
-			v = randomvec() * 150 + force;
-			SpawnMeatSpray(org, v);
-		}
-	}
-	*/
 };
 
 void() deadbodygib =
@@ -501,16 +403,7 @@ void() dead_gibs =
 
 void() dead_bloodarea_doit =
 {
-	//local vector v;
 	bloodshower(self.origin - '16 16 16', self.origin + '16 16 16', 200, self.count * 10);
-	/*
-	while (self.count > 0)
-	{
-		self.count = self.count - 1;
-		v = randomvec() * 150 + '0 0 160';
-		SpawnMeatSpray(self.origin, v);
-	}
-	*/
 	remove(self);
 };
 
@@ -535,641 +428,6 @@ void() dead_bloodarea =
 	dead_bloodarea_doit();
 };
 
-/*
-.float ragdoll_bounce;
-.float ragdoll_friction;
-.entity ragdoll_particlelist;
-.entity ragdoll_sticklist;
-.entity ragdoll_next;
-.vector neworg;
-.float newtime, currenttime, oldtime;
-void() RagDollThink =
-{
-	local float bump, ftime;
-	local vector offset, neworg;
-	local entity part, stick;
-	self.ragdoll_bounce = 1.2; // slight bounce
-	self.ragdoll_friction = 0.05; // slight friction
-	// maintain 64fps regardless of frametime for robustness
-	while (self.ltime < time)
-	{
-		self.ltime = self.ltime + (1.0 / 64.0); // 64fps
-		// allow up to 4 collisions per move step
-		// each move tries to reach self.ltime but may be cut short by a
-		// collision event, in which case the next move attempt will usually
-		// move it further (in another direction)
-		bump = 0;
-		while (bump < 4)
-		{
-			bump = bump + 1;
-			part = self.ragdoll_particlelist;
-			while (part)
-			{
-				ftime = self.ltime - part.newtime;
-				neworg = part.neworg + (part.neworg - part.origin) * (ftime / (part.newtime - part.currenttime)) + '0 0 -1' * sv_gravity * (ftime * ftime);
-				setorigin(part, part.neworg);
-				part.currenttime = part.newtime;
-				part.neworg = neworg;
-				part.newtime = self.ltime;
-				part = part.ragdoll_next;
-			}
-			stick = self.ragdoll_sticklist;
-			while (stick)
-			{
-				offset = (stick.p2.neworg - stick.p1.neworg);
-				offset = offset * (stick.ragdoll_preferredlength / vlen(offset));
-				stick.p1.neworg = stick.p1.neworg + offset;
-				stick.p2.neworg = stick.p2.neworg + offset;
-				stick = stick.ragdoll_next;
-			}
-			part = self.ragdoll_particlelist;
-			while (part)
-			{
-				traceline(part.origin, part.neworg, TRUE, part);
-				if (trace_fraction < 1)
-				{
-					part.neworg = trace_endpos;
-					part.newtime = part.currenttime + (part.newtime - part.currenttime) * trace_fraction;
-					// reflect the origin to the other side of the plane so that it will bounce/slide
-					part.origin = part.origin - trace_plane_normal * (trace_plane_normal * part.origin - trace_plane_normal * part.neworg) * bouncefactor;
-					// apply friction
-					part.origin = part.origin + (part.neworg - part.origin) * friction;
-				}
-				part = part.ragdoll_next;
-			}
-		}
-	}
-};
-
-// semi-implicit euler
-void() RagDollThink =
-{
-	local float bump, ftime;
-	local vector offset, voffset, dir;
-	local entity part, stick;
-	self.ragdoll_bounce = 1.2; // slight bounce
-	self.ragdoll_friction = 0.05; // slight friction
-	// maintain 64fps regardless of frametime for robustness
-	while (self.ltime < time)
-	{
-		ftime = (1.0 / 64.0); // 64fps
-		self.ltime = self.ltime + ftime;
-		// apply acceleration to the particles and calculate neworg values
-		part = self.ragdoll_particlelist;
-		while (part)
-		{
-			part.velocity_z = part.velocity_z - sv_gravity * ftime;
-			part.neworg = part.origin + part.velocity * ftime;
-			part = part.ragdoll_next;
-		}
-		// apply stick constraints to the neworg values
-		stick = self.ragdoll_sticklist;
-		while (stick)
-		{
-			dir = normalize(stick.p2.neworg - stick.p1.neworg);
-			offset = dir * 0.5 * (stick.ragdoll_preferredlength - dir * (stick.p2.neworg - stick.p1.neworg));
-			voffset = dir * 0.5 * (0 - dir * (stick.p2.velocity - stick.p1.velocity));
-			stick.p1.neworg = stick.p1.neworg + offset;
-			stick.p2.neworg = stick.p2.neworg - offset;
-			stick.p1.velocity = stick.p1.velocity + voffset;
-			stick.p2.velocity = stick.p2.velocity - voffset;
-			stick = stick.ragdoll_next;
-		}
-		part = self.ragdoll_particlelist;
-		while (part)
-		{
-			t = ftime;
-			bump = 0;
-			while (bump < 16 && t >= 0.0001)
-			{
-				bump = bump + 1;
-				traceline(part.origin, part.neworg, TRUE, part);
-				// check if there was an impact
-				if (trace_fraction == 1)
-				{
-					// no impact, update origin to the new position
-					setorigin(part.origin, trace_endpos);
-					// we're done!
-					break;
-				}
-				else
-				{
-					// impact detected
-					// reflect the velocity off the plane (bounce), and reduce velocity by a percentage (friction)
-					part.velocity = (part.velocity - trace_plane_normal * (trace_plane_normal * part.velocity) * part.ragdoll_bounce) * (1 - part.ragdoll_friction);
-					// if at least a little progress was made, update origin
-					if (trace_fraction >= 0.0001)
-					{
-						// reduce remaining time
-						t = t * (1 - trace_fraction);
-						// update origin to the new position
-						setorigin(part.origin, trace_endpos);
-					}
-					part.neworg = part.origin + part.velocity * t;
-				}
-			}
-			// go to the next particle
-			part = part.ragdoll_next;
-		}
-	}
-};
-*/
-
-/*
-.float ragdoll_bounce; // used on particles, recommended 1.2
-.float ragdoll_friction; // used on particles, recommended 0.05
-.entity ragdoll_next; // next particle/stick in list
-.entity ragdoll_particlelist; // first entity in particle list of this body
-.entity ragdoll_sticklist; // first entity in stick list of this body
-.entity ragdoll_p1; // particle 1 of this stick (start)
-.entity ragdoll_p2; // particle 2 of this stick (end)
-.entity ragdoll_p3; // particle 3 of this stick (rotation)
-.float ragdoll_preferredlength; // preferred length of this stick
-void(entity ragdoll) Ragdoll_Remove;
-// implicit euler/verlet hybrid
-void() Ragdoll_Think =
-{
-	local float move, bump, iftime, ftime, t, f, averagecount, c;
-	//local float step, sqrlength;
-	local vector offset, dir, averageorigin;
-	local entity part, stick, p1, p2;
-	self.nextthink = time;
-	if (time >= self.lefty)
-	{
-		Ragdoll_Remove(self);
-		return;
-	}
-	// run at least a certain framerate for robustness
-	//iftime = 32;
-	//ftime = 1 / iftime;
-	//if (ftime > frametime)
-	//{
-	//	ftime = frametime;
-	//	iftime = 1 / ftime;
-	//}
-	//while (self.ltime < time)
-	//{
-	//	//self.ltime = self.ltime + ftime;
-	ftime = frametime / 4;
-	iftime = 1 / ftime;
-	move = 0;
-	while (move < 4)
-	{
-		move = move + 1;
-		// apply acceleration to the particles and calculate dest values
-		part = self.ragdoll_particlelist;
-		while (part)
-		{
-			// integration method: implicit verlet/implicit euler hybrid
-			// calculate dest for constraints to alter
-			// (during tracing this will be converted back to velocity)
-			part.dest = part.origin + part.velocity * ftime + '0 0 -1' * sv_gravity * ftime * ftime;
-			part.velocity = (part.dest - part.origin) * iftime;
-			part = part.ragdoll_next;
-		}
-		c = 0;
-		while (c < 1)
-		{
-			c = c + 1;
-			// apply stick constraints to the dest values
-			stick = self.ragdoll_sticklist;
-			while (stick)
-			{
-				p1 = stick.ragdoll_p1;
-				p2 = stick.ragdoll_p2;
-				//sqrlength = stick.ragdoll_preferredlength * stick.ragdoll_preferredlength;
-				//dir = p2.dest - p1.dest;
-				//offset = dir * (sqrlength/((dir * dir)+sqrlength)-0.5);
-				dir = normalize(p2.dest - p1.dest);
-				offset = dir * 0.5 * (stick.ragdoll_preferredlength - dir * (p2.dest - p1.dest));
-				p1.dest = p1.dest - offset;
-				p2.dest = p2.dest + offset;
-				offset = dir * 0.5 * (0 - dir * (p2.velocity - p1.velocity));
-				p1.velocity = p1.velocity - offset;
-				p2.velocity = p2.velocity + offset;
-				stick = stick.ragdoll_next;
-			}
-		}
-		// move the particles to the new proposed locations, and bounce off any
-		// surfaces in the way
-		averageorigin = '0 0 0';
-		averagecount = 0;
-		part = self.ragdoll_particlelist;
-		while (part)
-		{
-			// integration method: implicit verlet/implicit euler hybrid
-			// convert dest back to velocity
-			part.velocity = ((part.dest - part.origin) * iftime);
-			//f = vlen(part.velocity);
-			//c = f - ftime * 10;
-			//if (c > 0)
-			//	part.velocity = part.velocity * (c / f);
-			//else
-			//	part.velocity = '0 0 0';
-			// perform moves until the end of the time slice
-			t = ftime;
-			bump = 0;
-			while (bump < 16)
-			{
-				bump = bump + 1;
-				// check if there was an impact
-				tracebox(part.origin, part.mins, part.maxs, part.origin + part.velocity * t, TRUE, part);
-				if (trace_fraction == 1)
-				{
-					// no impact, update origin to the new position
-					setorigin(part, trace_endpos);
-					// we're done!
-					break;
-				}
-				// impact detected
-				// reflect the velocity off the plane (bounce), and reduce velocity by a percentage (friction)
-				f = 1 - part.ragdoll_friction * 0.1;
-				part.velocity = (part.velocity - trace_plane_normal * (trace_plane_normal * part.velocity) * part.ragdoll_bounce) * f;
-				// if at least a little progress was made, update origin
-				if (trace_fraction >= 0.0001)
-				{
-					// reduce remaining time
-					t = t * (1 - trace_fraction);
-					// update origin to the new position
-					setorigin(part, trace_endpos);
-				}
-			}
-			part.dest = part.origin;
-			averageorigin = averageorigin + part.origin;
-			averagecount = averagecount + 1;
-			// go to the next particle
-			part = part.ragdoll_next;
-		}
-	}
-	// update stick models
-	stick = self.ragdoll_sticklist;
-	while (stick)
-	{
-		setorigin(stick, (stick.ragdoll_p1.origin + stick.ragdoll_p2.origin) * 0.5);
-		stick.angles = vectoangles(stick.ragdoll_p2.origin - stick.ragdoll_p1.origin);
-		if (stick.ragdoll_p3)
-		{
-			makevectors(stick.angles_x * '-1 0 0' + stick.angles_y * '0 1 0');
-			offset = (stick.ragdoll_p3.origin - stick.ragdoll_p1.origin);
-			stick.angles_z = vectoyaw((offset * v_right) * '-1 0 0' + (offset * v_up) * '0 1 0');
-		}
-		stick = stick.ragdoll_next;
-	}
-};
-*/
-/*
-.float ragdoll_bounce; // used on particles, recommended 1.2
-.float ragdoll_friction; // used on particles, recommended 0.05
-.entity ragdoll_next; // next particle/stick in list
-.entity ragdoll_particlelist; // first entity in particle list of this body
-.entity ragdoll_sticklist; // first entity in stick list of this body
-.entity ragdoll_p1; // particle 1 of this stick (start)
-.entity ragdoll_p2; // particle 2 of this stick (end)
-.entity ragdoll_p3; // particle 3 of this stick (rotation)
-.float ragdoll_preferredlength; // preferred length of this stick
-void(entity ragdoll) Ragdoll_Remove;
-// implicit euler/verlet hybrid
-void() Ragdoll_Think =
-{
-	//local float move;
-	local float bump;
-	local float iftime;
-	local float ftime;
-	local float t;
-	local float f;
-	local float step;
-	local float steps;
-	//local float stepiftime;
-	//local float steptolerance;
-	local vector org;
-	local vector vel;
-	//local float c;
-	//local float averagecount;
-	//local float step;
-	//local float sqrlength;
-	local vector offset;
-	//local vector dir;
-	//local vector averageorigin;
-	local entity part, stick, p1, p2;
-	self.nextthink = time;
-	if (time >= self.lefty)
-	{
-		Ragdoll_Remove(self);
-		return;
-	}
-	// run at least a certain framerate for robustness
-	//iftime = 20;
-	//ftime = 1 / iftime;
-	//if (ftime > frametime)
-	//{
-		ftime = frametime;
-		iftime = 1 / ftime;
-	//}
-	//while (self.ltime < time)
-	{
-		//self.ltime = self.ltime + ftime;
-		// apply acceleration to the particles
-		// integration method: semi-implicit euler
-		//part = self.ragdoll_particlelist;
-		//while (part)
-		//{
-		//	part.velocity = part.velocity + '0 0 -1' * sv_gravity * ftime;
-		//	part = part.ragdoll_next;
-		//}
-
-		// apply stick constraints to the origins
-		part = self.ragdoll_particlelist;
-		while (part)
-		{
-			part.dest = part.origin;
-			// go to the next particle
-			part = part.ragdoll_next;
-		}
-		// apply stick constraints to the velocities
-		stick = self.ragdoll_sticklist;
-		while (stick)
-		{
-			p1 = stick.ragdoll_p1;
-			p2 = stick.ragdoll_p2;
-			offset = (normalize(p2.dest - p1.dest) * stick.ragdoll_preferredlength - (p2.dest - p1.dest)) * 0.5;
-			p1.dest = p1.dest - offset;
-			p2.dest = p2.dest + offset;
-			stick = stick.ragdoll_next;
-		}
-
-		// move the particles to the new proposed locations, and bounce off any
-		// surfaces in the way
-		part = self.ragdoll_particlelist;
-		while (part)
-		{
-			// apply acceleration to the particles
-			// integration method: semi-implicit euler
-			part.velocity = part.velocity + '0 0 -1' * sv_gravity * ftime;
-			org = part.origin;
-			vel = part.velocity;
-			steps = floor(vlen(part.velocity * ftime) * 0.125 + 1);
-			step = 0;
-			while (step < steps)
-			{
-				// perform moves until the end of the time slice
-				step = step + 1;
-				t = ftime / steps;
-				bump = 0;
-				while (bump < 16)
-				{
-					bump = bump + 1;
-					// check if there was an impact
-					tracebox(part.origin, part.mins, part.maxs, part.dest + part.velocity * t, TRUE, part);
-					if (trace_fraction == 1)
-					{
-						// ignore successful moves over short distances after the
-						// first bump, as they tend to destabilize the constraints
-						//if (bump == 0 || vlen(part.velocity) >= 10)
-						{
-							// no impact, update origin to the new position
-							setorigin(part, trace_endpos);
-							part.dest = part.origin;
-						}
-						// we're done!
-						break;
-					}
-					// impact detected
-					if (part.velocity * trace_plane_normal < 0)
-					{
-						// reflect the velocity off the plane (bounce), and reduce velocity by a percentage (friction)
-						f = 1 - part.ragdoll_friction * 0.1;
-						if (f < 0)
-							f = 0;
-						// BUG: ragdoll_bounce occurs in addition to the natural spring back of the sticks when flattened against a surface...
-						part.velocity = (part.velocity - trace_plane_normal * (trace_plane_normal * part.velocity) * part.ragdoll_bounce) * f;
-						//c = vlen(part.velocity);
-						//f = c - ftime * 50;
-						//if (f > 0)
-						//	part.velocity = part.velocity * (f / c);
-						//else
-						//	part.velocity = '0 0 0';
-					}
-					// if at least a little progress was made, update origin
-					if (trace_fraction >= 0.0001)
-					{
-						// reduce remaining time
-						t = t * (1 - trace_fraction);
-						// update origin to the new position
-						setorigin(part, trace_endpos);
-						part.dest = part.origin;
-					}
-				}
-			}
-			// go to the next particle
-			part = part.ragdoll_next;
-		}
-		// apply stick constraints to the velocities
-		stick = self.ragdoll_sticklist;
-		while (stick)
-		{
-			p1 = stick.ragdoll_p1;
-			p2 = stick.ragdoll_p2;
-			//offset = p2.origin - p1.origin + (p2.velocity - p1.velocity) * ftime;
-			//offset = normalize(offset) * stick.ragdoll_preferredlength - offset;
-			//offset = offset * iftime * 0.5;
-			//offset = p2.origin - p1.origin + (p2.velocity - p1.velocity) * 0.0625;
-			//offset = normalize(offset) * stick.ragdoll_preferredlength - offset;
-			//offset = offset * 16 * 0.5;
-			//offset = (p2.origin - p1.origin) * iftime + (p2.velocity - p1.velocity);
-			//offset = normalize(offset) * stick.ragdoll_preferredlength * iftime - offset;
-			//offset = offset * 0.5;
-			//offset = ((normalize(p2.origin - p1.origin) * stick.ragdoll_preferredlength - (p2.origin - p1.origin)) * iftime - (p2.velocity - p1.velocity)) * 0.5;
-			//offset = ((normalize((p2.origin - p1.origin) * iftime + (p2.velocity - p1.velocity)) * stick.ragdoll_preferredlength - (p2.origin - p1.origin)) * iftime - (p2.velocity - p1.velocity)) * 0.5;
-			offset = (p2.velocity - p1.velocity) * 0.5;
-			p1.velocity = p1.velocity - offset;
-			p2.velocity = p2.velocity + offset;
-			stick = stick.ragdoll_next;
-		}
-		//averageorigin = '0 0 0';
-		//averagecount = 0;
-		//	averageorigin = averageorigin + part.origin;
-		//	averagecount = averagecount + 1;
-	}
-	// update stick models
-	stick = self.ragdoll_sticklist;
-	while (stick)
-	{
-		if (stick.modelindex)
-		{
-			setorigin(stick, (stick.ragdoll_p1.origin + stick.ragdoll_p2.origin) * 0.5);
-			stick.angles = vectoangles(stick.ragdoll_p2.origin - stick.ragdoll_p1.origin);
-			if (stick.ragdoll_p3)
-			{
-				makevectors(stick.angles_x * '-1 0 0' + stick.angles_y * '0 1 0');
-				offset = (stick.ragdoll_p3.origin - stick.ragdoll_p1.origin);
-				stick.angles_z = vectoyaw((offset * v_right) * '-1 0 0' + (offset * v_up) * '0 1 0');
-			}
-		}
-		stick = stick.ragdoll_next;
-	}
-};
-*/
-/*
-.float ragdoll_bounce; // used on particles, recommended 1.2
-.float ragdoll_friction; // used on particles, recommended 0.05
-.entity ragdoll_next; // next particle/stick in list
-.entity ragdoll_particlelist; // first entity in particle list of this body
-.entity ragdoll_sticklist; // first entity in stick list of this body
-.entity ragdoll_p1; // particle 1 of this stick (start)
-.entity ragdoll_p2; // particle 2 of this stick (end)
-.entity ragdoll_p3; // particle 3 of this stick (rotation)
-.float ragdoll_preferredlength; // preferred length of this stick
-void(entity ragdoll) Ragdoll_Remove;
-// implicit euler/verlet hybrid
-void() Ragdoll_Think =
-{
-	//local float move;
-	local float bump;
-	local float iftime;
-	local float ftime;
-	local float t;
-	local float f;
-	//local float step;
-	//local float steps;
-	//local float stepiftime;
-	//local float steptolerance;
-	//local vector org;
-	//local vector vel;
-	//local float c;
-	//local float averagecount;
-	//local float step;
-	//local float sqrlength;
-	local vector offset;
-	//local vector dir;
-	//local vector averageorigin;
-	local entity part, stick, p1, p2;
-	self.nextthink = time;
-	if (time >= self.lefty)
-	{
-		Ragdoll_Remove(self);
-		return;
-	}
-	// run at least a certain framerate for robustness
-	//iftime = 20;
-	//ftime = 1 / iftime;
-	//if (ftime > frametime)
-	//{
-		ftime = frametime;
-		iftime = 1 / ftime;
-	//}
-	//while (self.ltime < time)
-	{
-		//self.ltime = self.ltime + ftime;
-		// apply acceleration to the particles
-		// integration method: semi-implicit euler
-		//part = self.ragdoll_particlelist;
-		//while (part)
-		//{
-		//	part.velocity = part.velocity + '0 0 -1' * sv_gravity * ftime;
-		//	part = part.ragdoll_next;
-		//}
-
-		// move the particles to the new proposed locations, and bounce off any
-		// surfaces in the way
-		part = self.ragdoll_particlelist;
-		while (part)
-		{
-			// apply acceleration to the particles
-			// integration method: semi-implicit euler
-			part.velocity = part.velocity + '0 0 -1' * sv_gravity * ftime;
-			t = ftime;
-			bump = 0;
-			while (bump < 16)
-			{
-				bump = bump + 1;
-				// check if there was an impact
-				tracebox(part.origin, part.mins, part.maxs, part.origin + part.velocity * t, TRUE, part);
-				if (trace_fraction == 1)
-				{
-					// ignore successful moves over short distances after the
-					// first bump, as they tend to destabilize the constraints
-					//if (bump == 0 || vlen(part.velocity) >= 10)
-					{
-						// no impact, update origin to the new position
-						setorigin(part, trace_endpos);
-					}
-					// we're done!
-					break;
-				}
-				// impact detected
-				if (part.velocity * trace_plane_normal < 0)
-				{
-					// reflect the velocity off the plane (bounce), and reduce velocity by a percentage (friction)
-					f = 1 - part.ragdoll_friction * 0.1;
-					if (f < 0)
-						f = 0;
-					// BUG: ragdoll_bounce occurs in addition to the natural spring back of the sticks when flattened against a surface...
-					part.velocity = (part.velocity - trace_plane_normal * (trace_plane_normal * part.velocity) * part.ragdoll_bounce) * f;
-					//c = vlen(part.velocity);
-					//f = c - ftime * 50;
-					//if (f > 0)
-					//	part.velocity = part.velocity * (f / c);
-					//else
-					//	part.velocity = '0 0 0';
-				}
-				// if at least a little progress was made, update origin
-				if (trace_fraction >= 0.0001)
-				{
-					// reduce remaining time
-					t = t * (1 - trace_fraction);
-					// update origin to the new position
-					setorigin(part, trace_endpos);
-				}
-			}
-			// apply stick constraints to the velocities
-			stick = self.ragdoll_sticklist;
-			while (stick)
-			{
-				p1 = stick.ragdoll_p1;
-				p2 = stick.ragdoll_p2;
-				//offset = p2.origin - p1.origin + (p2.velocity - p1.velocity) * ftime;
-				//offset = normalize(offset) * stick.ragdoll_preferredlength - offset;
-				//offset = offset * iftime * 0.5;
-				//offset = p2.origin - p1.origin + (p2.velocity - p1.velocity) * 0.0625;
-				//offset = normalize(offset) * stick.ragdoll_preferredlength - offset;
-				//offset = offset * 16 * 0.5;
-				//offset = (p2.origin - p1.origin) * iftime + (p2.velocity - p1.velocity);
-				//offset = normalize(offset) * stick.ragdoll_preferredlength * iftime - offset;
-				//offset = offset * 0.5;
-				//offset = ((normalize(p2.origin - p1.origin) * stick.ragdoll_preferredlength - (p2.origin - p1.origin)) * iftime - (p2.velocity - p1.velocity)) * 0.5;
-				offset = ((normalize((p2.origin - p1.origin) * iftime + (p2.velocity - p1.velocity)) * stick.ragdoll_preferredlength - (p2.origin - p1.origin)) * iftime - (p2.velocity - p1.velocity)) * 0.5;
-				p1.velocity = p1.velocity - offset;
-				p2.velocity = p2.velocity + offset;
-				stick = stick.ragdoll_next;
-			}
-			// go to the next particle
-			part = part.ragdoll_next;
-		}
-		//averageorigin = '0 0 0';
-		//averagecount = 0;
-		//	averageorigin = averageorigin + part.origin;
-		//	averagecount = averagecount + 1;
-	}
-	// update stick models
-	stick = self.ragdoll_sticklist;
-	while (stick)
-	{
-		if (stick.modelindex)
-		{
-			setorigin(stick, (stick.ragdoll_p1.origin + stick.ragdoll_p2.origin) * 0.5);
-			stick.angles = vectoangles(stick.ragdoll_p2.origin - stick.ragdoll_p1.origin);
-			if (stick.ragdoll_p3)
-			{
-				makevectors(stick.angles_x * '-1 0 0' + stick.angles_y * '0 1 0');
-				offset = (stick.ragdoll_p3.origin - stick.ragdoll_p1.origin);
-				stick.angles_z = vectoyaw((offset * v_right) * '-1 0 0' + (offset * v_up) * '0 1 0');
-			}
-		}
-		stick = stick.ragdoll_next;
-	}
-};
-*/
-
 .float ragdoll_bounce; // used on particles, recommended 1.2
 .float ragdoll_friction; // used on particles, recommended 0.05
 .entity ragdoll_next; // next particle/stick in list
@@ -1185,26 +443,14 @@ void(entity ragdoll) Ragdoll_Remove;
 // implicit euler/verlet hybrid
 void() Ragdoll_Think =
 {
-	//local float move;
 	local float bump;
 	local float iftime;
 	local float ftime;
 	local float t;
 	local float f;
 	local vector force;
-	//local float step;
-	//local float steps;
-	//local float stepiftime;
-	//local float steptolerance;
-	//local vector org;
-	//local vector vel;
-	//local float c;
-	//local float averagecount;
-	//local float sqrlength;
 	local vector offset;
 	local vector org1, org2, org3;
-	//local vector dir;
-	//local vector averageorigin;
 	local entity part, stick, p1, p2;
 	self.nextthink = time;
 	if (time >= self.lefty)
@@ -1213,30 +459,9 @@ void() Ragdoll_Think =
 		return;
 	}
 
-	//steps = 1;
-	//part = self.ragdoll_particlelist;
-	//while (part)
-	//{
-	//	f = floor(vlen(part.velocity * frametime + '0 0 -1' * sv_gravity * frametime * frametime) / 4 + 1);
-	//	if (steps < f)
-	//		steps = f;
-	//	// go to the next particle
-	//	part = part.ragdoll_next;
-	//}
-	//ftime = frametime / steps;
-	//iftime = 1 / ftime;
-	//step = 0;
-	//while (step < steps)
-	//{
-	//	step = step + 1;
 	// run at least a certain framerate for robustness
 	iftime = 100;
 	ftime = 1 / iftime;
-	//if (ftime > frametime)
-	//{
-	//	ftime = frametime;
-	//	iftime = 1 / ftime;
-	//}
 	while (self.ltime < time)
 	{
 		self.ltime = self.ltime + ftime;
@@ -1246,22 +471,9 @@ void() Ragdoll_Think =
 		{
 			p1 = stick.ragdoll_p1;
 			p2 = stick.ragdoll_p2;
-			//offset = p2.origin - p1.origin + (p2.velocity - p1.velocity) * ftime;
-			//offset = normalize(offset) * stick.ragdoll_preferredlength - offset;
-			//offset = offset * iftime * 0.5;
-			//offset = p2.origin - p1.origin + (p2.velocity - p1.velocity) * 0.0625;
-			//offset = normalize(offset) * stick.ragdoll_preferredlength - offset;
-			//offset = offset * 16 * 0.5;
-			//offset = (p2.origin - p1.origin) * iftime + (p2.velocity - p1.velocity);
-			//offset = normalize(offset) * stick.ragdoll_preferredlength * iftime - offset;
-			//offset = offset * 0.5;
-			//offset = ((normalize(p2.origin - p1.origin) * stick.ragdoll_preferredlength - (p2.origin - p1.origin)) * iftime - (p2.velocity - p1.velocity)) * 0.5;
-			//if (p1 == part || p2 == part)
-			{
-				offset = ((normalize((p2.origin - p1.origin) * iftime + (p2.velocity - p1.velocity)) * stick.ragdoll_preferredlength - (p2.origin - p1.origin)) * iftime - (p2.velocity - p1.velocity)) * 0.5;
-				p1.velocity = p1.velocity - offset;
-				p2.velocity = p2.velocity + offset;
-			}
+			offset = ((normalize((p2.origin - p1.origin) * iftime + (p2.velocity - p1.velocity)) * stick.ragdoll_preferredlength - (p2.origin - p1.origin)) * iftime - (p2.velocity - p1.velocity)) * 0.5;
+			p1.velocity = p1.velocity - offset;
+			p2.velocity = p2.velocity + offset;
 			stick = stick.ragdoll_next;
 		}
 		// move the particles to the new proposed locations, and bounce off any
@@ -1313,12 +525,6 @@ void() Ragdoll_Think =
 					}
 					else
 						part.velocity = (part.velocity - (trace_plane_normal * (trace_plane_normal * part.velocity)) * part.ragdoll_bounce) * f;
-					//c = vlen(part.velocity);
-					//f = c - ftime * 50;
-					//if (f > 0)
-					//	part.velocity = part.velocity * (f / c);
-					//else
-					//	part.velocity = '0 0 0';
 				}
 				// if at least a little progress was made, update origin
 				if (trace_fraction >= 0.0001)
@@ -1334,11 +540,6 @@ void() Ragdoll_Think =
 			// go to the next particle
 			part = part.ragdoll_next;
 		}
-
-		//averageorigin = '0 0 0';
-		//averagecount = 0;
-		//	averageorigin = averageorigin + part.origin;
-		//	averagecount = averagecount + 1;
 	}
 	// update stick models
 	stick = self.ragdoll_sticklist;
@@ -1434,7 +635,6 @@ entity(entity ragdoll, entity p1, entity p2, entity p3, string modelname) Ragdol
 	e.ragdoll_preferredlength = vlen(p2.origin - p1.origin);
 	if (modelname != "")
 		setmodel(e, modelname);
-	//eprint(e);
 	return e;
 };
 

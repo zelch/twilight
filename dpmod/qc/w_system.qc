@@ -19,18 +19,6 @@ void(vector muzzleorg, float kickback) w_muzzleflash =
 	self.punchangle_z = 0; // don't want roll
 };
 
-/*
-vector(vector srcvec, vector dstvec) w_axeaim =
-{
-	if (vlen(dstvec - srcvec) > 80)
-		return '0 0 0';
-	traceline(srcvec, dstvec, FALSE, self);
-	if (trace_fraction < 1 && trace_ent != self.enemy)
-		return '0 0 0';
-	return dstvec - srcvec;
-};
-*/
-
 vector(vector srcvec, vector dstvec, vector dstvel, float shotspeed) w_directaim =
 {
 	dstvec = dstvec + dstvel * (vlen(dstvec - srcvec) / shotspeed);
@@ -128,21 +116,6 @@ float(vector v, float maxfiredeviation) w_aimdir =
 	dist = vlen(diffang);
 	//diffang = diffang + randomvec() * (dist * 0.05 * (3.5 - bound(0, skill, 3)));
 
-	/*
-	// simulate slight 'stickyness' of mouse on small moves
-	if (vlen(diffang) < 0.1)
-	{
-		//bprint("c\n");
-		if (time >= self.mousesticktime)
-		if (random() < 0.5)
-		{
-			//bprint("d\n");
-			self.mousesticktime = time + 0.2;
-		}
-		return vlen(diffang) < maxfiredeviation;
-	}
-	*/
-
 	// turn
 	self.v_angle = self.v_angle + diffang * min(1, (3 * (skill + 1)) * frametime);
 	while (self.v_angle_y < -180)
@@ -207,7 +180,6 @@ void() W_Hostile =
 {
 	// wake up monsters
 	self.show_hostile = time + 1;
-	weaponwakeup(self.origin, self);
 	fightdone = time + 1; // delay stuff until fighting is over
 	SuperDamageSound();
 };
@@ -462,6 +434,26 @@ entity(float dangerous) W_BestWeaponClass =
 };
 
 /*
+========
+SuperDamageSound
+
+Plays sound if needed
+========
+*/
+void() SuperDamageSound =
+{
+	if (self.items & IT_QUAD)
+	{
+		if (self.super_sound < time)
+		{
+			self.super_sound = time + 1;
+			sound (self, CHAN_BODY, "items/damage3.wav", 1, ATTN_NORM);
+		}
+	}
+	return;
+};
+
+/*
 ============
 CheatCommand
 ============
@@ -492,17 +484,6 @@ void() CheatCommand =
 
 void() W_SetupShot =
 {
-	/*
-	realvangle = self.v_angle;
-	makevectors (self.v_angle);
-	traceline(self.origin + self.view_ofs, self.origin + self.view_ofs + v_forward * 65536, FALSE, self);
-	shotorg = self.origin + self.view_ofs + v_right * 6 - v_up * 6 + v_forward * 15;
-	//shotorg = self.origin + '0 0 16' + v_forward * 15;
-	shotdir = normalize(trace_endpos - shotorg);
-	self.v_angle = vectoangles(shotdir);
-	self.v_angle_z = realvangle_z;
-	self.v_angle_x = 0 - self.v_angle_x;
-	*/
 	makevectors(self.v_angle + self.punchangle);
 	shotorg = self.origin + self.view_ofs + v_right * 6 - v_up * 6 + v_forward * 15;
 	shotdir = v_forward;
@@ -521,7 +502,6 @@ void() W_WeaponFrame =
 	local vector v;
 	local float f;
 	local string s;
-	//local vector v, realvangle;
 
 	updateammodisplay(self);
 
@@ -562,24 +542,6 @@ void() W_WeaponFrame =
 		self.button0 = self.button3 = self.button4 = self.button5 = self.button6 = self.button7 = self.button8 = 0;
 
 	W_SetupShot();
-
-	/*
-	// DP_QC_TRACE_MOVETYPE_HITMODEL test code
-	traceline(shotorg, shotorg + shotdir * 1000, MOVE_NORMAL, self);
-	if (trace_fraction < 1)
-	if (trace_ent.solid == SOLID_SLIDEBOX)
-	{
-		sprint(self, "aiming at slidebox entity ");
-		s = etos(trace_ent);
-		sprint(self, s);
-		sprint(self, " box");
-		traceline(shotorg, shotorg + shotdir * 1000, MOVE_HITMODEL, self);
-		if (trace_fraction < 1)
-		if (trace_ent.solid == SOLID_SLIDEBOX)
-			sprint(self, " model");
-		sprint(self, \n");
-	}
-	*/
 
 	self.idealzoom = 1;
 	if (self.button4)
@@ -767,7 +729,8 @@ float(float request) w_axe =
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_axe.mdl");
-		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AMMO_AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
+		// the * 0.1 is because the axe has limited range
+		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AMMO_AXE_DAMAGE / AXE_REFIRE * 0.1, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -5197,28 +5160,6 @@ void() w_frame_grapple =
 					self.velocity = vdir * 1000;
 					//self.velocity = self.velocity + vdir * 10 * self.forcescale;
 					self.flags = self.flags - (self.flags & FL_ONGROUND);
-					/*
-					if (time > self.grapplesoundtime)
-					{
-						self.grapplesoundtime = time + 0.2;
-						sound(self, CHAN_WEAPON2, "weapons/lhit.wav", 1, ATTN_STATIC);
-					}
-					*/
-					if (time > self.grappletime)
-					{
-						self.grappletime = time + 0.1;
-						W_BeamDamage(self, self, vstart, vend, 5, 5, "LIGHTNINGGRAPPLE", DT_LIGHTNING, Obituary_LightningGrapple);
-
-						/*
-						weapontraceline(vstart, vend, FALSE, self);
-
-						if (trace_fraction < 1)
-						if (trace_ent != self.grappletarget)
-							T_Damage(trace_ent, self, self, 5, 5, "LIGHTNINGGRAPPLE", DT_LIGHTNING, trace_endpos, vdir * -10, Obituary_LightningGrapple);
-
-						T_Damage(self.grappletarget, self, self, 5, 5, "LIGHTNINGGRAPPLE", DT_LIGHTNING, vend, vdir * -10, Obituary_LightningGrapple);
-						*/
-					}
 				}
 				else // unable to use grapple again until button is released
 					self.grappletime = time + 999999999;
@@ -5237,59 +5178,6 @@ void() w_frame_grapple =
 		self.grappleactive = FALSE;
 	}
 };
-
-/*
-void() w_grappledrop1;
-void() w_grappledrop2;
-void() w_grappleraise1;
-void() w_grappleraise2;
-void() w_grapple =
-{
-	if (widle(w_grappledrop1))
-		return;
-
-	if (self.button0) // fire
-	{
-		if (!self.grapple)
-		if (W_ShotsToFire(0.5))
-			W_GrappleFireCode();
-	}
-	// else if (self.button3)
-		// FIXME: add chainsaw
-
-	if (self.wfiretime)
-	{
-		self.weaponframe = (time - self.wfiretime) * 10 + 1;
-		if (self.weaponframe >= 7)
-			self.weaponframe = self.wfiretime = 0;
-	}
-	else
-		self.weaponframe = 0;
-
-	havoc_shotanimupdate(self.weaponframe);
-};
-
-void() w_grappleprecache =
-{
-	precache_model("progs/v_dpshot.mdl");
-	precache_model("progs/star.mdl");
-	precache_sound("weapons/sgun1.wav");
-	precache_sound("player/axhit2.wav");
-	precache_sound("weapons/chain1.wav");
-	precache_sound("weapons/chain2.wav");
-	precache_sound("weapons/chain3.wav");
-	precache_sound("weapons/bounce2.wav");
-};
-
-void() w_grapplesetup = {wset("grapple", 0, 0, VWEP_GENERIC, "progs/v_dpshot.mdl");};
-float(float request) setupweapon_grapple = {return weapongeneric("grapple", TRUE, request, w_grapplesetup, w_grapple, w_grappleraise1, "Grapple", 0, 500, 50, w_grappleprecache);};
-
-void() w_grappleraise1 = {wraise(8, w_grappleraise2, 0.1);};
-void() w_grappleraise2 = {wraise(7, w_grapple, 0.1);};
-
-void() w_grappledrop1 = {wdrop(7, w_grappledrop2, 0.1);};
-void() w_grappledrop2 = {wdropped(8, 0.1);};
-*/
 
 void() mctf_precache;
 void() W_Precache =

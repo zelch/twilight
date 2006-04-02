@@ -6,9 +6,6 @@ FIRE
 ==============================================================================
 */
 
-//float(entity bomb, entity attacker, float damage, float mburn, entity ignore, string dt) T_BurnRadius;
-//void(vector org, vector vel, entity own, float damg, string dt) ThrowFlame;
-
 void() fire_precache =
 {
 	if (game != GAME_NEXUIZ)

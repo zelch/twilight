@@ -13,7 +13,6 @@ modedefs.qc     // deathmatch and teamplay settings
 sprintnumdigits.qc
 
 damagetype.qc   // deathtype, damagetype, etcetera...
-//localdamage.qc  // head/chest/foot/whatever shots
 damage.qc       // max ammo amounts, how much damage, starting health, etc
 
 w_defs.qc
@@ -32,15 +31,11 @@ subs.qc
 fight.qc
 ai.qc
 
-gibcomments.qc
-
 stats.qc        // Dark Places stats system
 
 lag.qc          // lag for bots etc
 
 fog.qc
-
-flash.qc
 
 t_damage.qc
 raddamage.qc
@@ -84,32 +79,12 @@ item_backpacks.qc
 
 w_system.qc
 
-//w_common.qc
-
-////w_fake1.qc // 1
-//w_pistol.qc // 1
-//w_shotgun.qc // 2
-//w_dbshotgun.qc // 3
-//w_nailgun.qc // 4
-//w_supernailgun.qc // 5
-//w_grenade.qc // 6
-//w_rocket.qc // 7
-//w_lightning.qc // 8
-//w_plasmarifle.qc // 9
-//w_plasmawave.qc // 10
-
-//w_info.qc   // must be after the weapons themselves
-
-
 CTF.qc
 mctf.qc
 
 regen.qc
 
-superdamagesound.qc
-cheatcode.qc
 impulse_main.qc
-//w_frame.qc
 
 // waypoint files for the bots go here
 waypoint_spawnformap.qc

@@ -6,7 +6,7 @@
 // The models were ripped from the Quake Done Quick movies,
 // but I did all this code.
 
-float modelindex_eyes/*, modelindex_player*/;
+float modelindex_eyes, modelindex_player;
 //float modelindex_player_sg, modelindex_player_dbsg;
 //float modelindex_player_ng, modelindex_player_sng;
 //float modelindex_player_gl, modelindex_player_rl;

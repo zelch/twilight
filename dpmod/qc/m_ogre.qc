@@ -490,18 +490,6 @@ void() monster_ogre =
 
 	setmodel (self, "progs/ogre.mdl");
 
-	// localdamage stuff (headshots etc)
-	/*
-	self.localdamage = TRUE;
-	self.localdamage_head_z1 = 32;
-	self.localdamage_head_z2 = 1048;
-	self.localdamage_head_mul = 5.0;
-	self.localdamage_body_z1 = -1024;
-	self.localdamage_body_z2 = 32;
-	self.localdamage_body_mul = 1;
-	self.localdamage_hit = LD_NORMAL;
-	*/
-
 	setsize (self, '-32 -32 -24', '32 32 32');
 	if (self.health < 1)
 		self.health = MH_OGRE;

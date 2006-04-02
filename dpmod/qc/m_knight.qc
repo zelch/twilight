@@ -274,18 +274,6 @@ void() monster_knight =
 	self.shoulddodge = TRUE;
 	self.dangerrating = 30;
 
-	// localdamage stuff (headshots etc)
-	/*
-	self.localdamage = TRUE;
-	self.localdamage_head_z1 = 20;
-	self.localdamage_head_z2 = 1032;
-	self.localdamage_head_mul = 2.0; // weaker than hell knight armor
-	self.localdamage_body_z1 = -1024;
-	self.localdamage_body_z2 = 20;
-	self.localdamage_body_mul = 1.0;
-	self.localdamage_hit = LD_NORMAL;
-	*/
-
 	if (!monsterspawn)
 		precachemonster_knight();
 

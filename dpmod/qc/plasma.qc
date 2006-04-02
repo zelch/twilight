@@ -99,14 +99,6 @@ void() plasmaball_touch =
 	remove(self);
 };
 
-/*
-void() plasmaball_burn =
-{
-	local entity head;
-	head = findradius(self.origin, self.dmg2);
-};
-*/
-
 void() plasmaball_think =
 {
 	local float damage, step, steps;
@@ -131,7 +123,6 @@ void() plasmaball_think =
 		{
 			step = step + 1;
 			self.origin = (backup - self.dest) * (step / steps) + self.dest;
-			//plasmaball_burn();
 			T_RadiusDamage(self, self.realowner, damage, 0, self.dmg2, self.owner, self.deathtype, DT_PLASMA, self.obitfunc1);
 		}
 		// the above loop leaves self.origin restored to what it should be

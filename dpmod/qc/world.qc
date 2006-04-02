@@ -27,11 +27,6 @@ void() havocbot_serverframe;
 
 float serverinactive;
 
-/*
-// used by players and monsters
-.float nextbleed;
-.float bleedcount;
-*/
 .float bubble_time;
 
 /*
@@ -762,35 +757,11 @@ void(entity e) WaterMove =
 {
 	local float wl, wt;
 	//dprint (ftos(e.waterlevel));
-	/*
-	if (e.movetype == MOVETYPE_NOCLIP)
-		return;
-	if (e.watertype >= CONTENT_EMPTY)
-	{
-		e.air_finished = time + 12;
-		if (!(e.flags & FL_INWATER))
-			return;
-	}
-	*/
 	wl = e.waterlevel;
 	wt = e.watertype;
 	if (wt < CONTENT_EMPTY)
 	if (e.movetype != MOVETYPE_WALK) // non-walk creatures have depth 1
 		wl = 3;
-
-	/*
-	if (wt >= CONTENT_EMPTY)
-	{
-		if (e.flags & FL_INWATER)
-		{
-			// play leave water sound
-			if (e.solid) // ignore observers
-				sound (e, CHAN_BODY, "misc/outwater.wav", 1, ATTN_NORM);
-			e.flags = e.flags - FL_INWATER;
-		}
-		return;
-	}
-	*/
 
 	if (!(e.flags & FL_INWATER))
 	{
@@ -906,16 +877,6 @@ void() damagescaleupdate =
 
 	// damage multiplier
 	playerdamagescale = cvar("damagescale_playerdamage");
-
-	/*
-	bprint("monsterdamagescale ");
-	bprintfloat(monsterdamagescale);
-	bprint(", monsterresistancescale ");
-	bprintfloat(monsterresistancescale);
-	bprint(", playerdamagescale ");
-	bprintfloat(playerdamagescale);
-	bprint("\n");
-	*/
 };
 
 .float findtarget;
@@ -943,18 +904,6 @@ void() startframe_creaturecode =
 					self.findtarget = FALSE;
 					FindTarget();
 				}
-				/*
-				if (self.bleedcount > 0)
-				if (time >= self.nextbleed)
-				if (self.velocity != '0 0 0')
-				{
-					self.nextbleed = time + 0.2;
-					self.bleedcount = self.bleedcount - 5;
-					v = (self.absmin + self.absmax) * 0.5 + randomvec() * 8;
-					vel = randomvec() * 20;
-					SpawnMeatSpray(v, vel);
-				}
-				*/
 				if (self.watertype >= CONTENT_EMPTY)
 				{
 					if (self.flags & FL_INWATER)
@@ -967,8 +916,6 @@ void() startframe_creaturecode =
 				}
 				else
 				{
-					//if (self.watertype == CONTENT_WATER || self.watertype == CONTENT_SLIME)
-					//	self.flamecount = 0;
 					if (self.movetype != MOVETYPE_NOCLIP)
 						WaterMove(self);
 				}
@@ -982,22 +929,6 @@ void() startframe_creaturecode =
 					if (self.bubble_count < 1)
 						self.bubble_count = 0;
 				}
-				/*
-				f = vlen(self.velocity - self.creaturecode_oldvelocity);
-				if (f >= 200)
-				{
-					f = (f - 1000) * 0.05;
-					if (f > 0)
-					{
-						T_Damage (self, world, world, 5, 5, " met a flat world", DT_FALL, self.origin, '0 0 0', Obituary_Generic);
-						if (self.health > 0)
-							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
-					}
-					else if (self.health > 0)
-						sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
-				}
-				self.creaturecode_oldvelocity = self.velocity;
-				*/
 				if (self.jump_flag < -200)
 				if (self.flags & FL_ONGROUND)
 				if (self.solid) // ignore observers
@@ -1028,28 +959,6 @@ void() startframe_creaturecode =
 						sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
 				}
 				self.jump_flag = self.velocity_z;
-				/*
-				if (self.flamecount > 0)
-				{
-					self.effects = self.effects | EF_FLAME;
-					if (time > self.flametime)
-					{
-						self.flametime = time + 0.1;
-						if (time > self.flamesoundtime)
-						{
-							sound (self, CHAN_AUTO, "fire/burn.wav", 1, ATTN_NORM);
-							self.flamesoundtime = time + 0.5;
-						}
-						f = self.flamecount;
-						if (f > 5)
-							f = 5;
-						self.flamecount = self.flamecount - f;
-						T_Damage(self, self.flameowner, self.flameowner, f, f, "FIRE", DT_FIRE, self.origin, '0 0 0', Obituary_Fire);
-					}
-				}
-				else if (self.effects & EF_FLAME)
-					self.effects = self.effects - EF_FLAME;
-				*/
 				if (self.movetype == MOVETYPE_STEP || self.movetype == MOVETYPE_WALK)
 				if (pointcontents(self.origin) == CONTENT_SOLID)
 					T_Damage(self, world, world, 0, 0, " was in solid", DT_TELEFRAG, self.origin, '0 0 0', Obituary_Generic);

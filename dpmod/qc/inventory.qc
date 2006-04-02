@@ -34,13 +34,6 @@ float(entity character, string name) Inventory_Quantity;
 float(entity character, string name, float adjust) Inventory_AdjustQuantity;
 float(entity character, string name, float n) Inventory_SetQuantity;
 
-/*
-entity(entity character, string name, float chooseempty) Inventory_ItemWithMostCapacity;
-entity(entity character, string name, float choosefull) Inventory_ItemWithLeastCapacity;
-entity(entity character, string name, float choosefull) Inventory_ItemWithMostQuantity;
-entity(entity character, string name, float chooseempty) Inventory_ItemWithLeastQuantity;
-*/
-
 void(entity character) updateammodisplay;
 
 .float bulkbase;

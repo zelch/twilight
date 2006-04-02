@@ -20,49 +20,6 @@ void() weapon_touch =
 		return;
 	if (other.health < 1)
 		return;
-	/*
-	new = self.items;
-	if (other.items & self.items == self.items) // has it already
-	if ((Inventory_Quantity(other, "shells") >= AMMOMAX_SHELLS ) || (Inventory_Quantity(self, "shells") < 1))
-	if ((Inventory_Quantity(other, "nails") >= AMMOMAX_NAILS  ) || (Inventory_Quantity(self, "nails") < 1))
-	if ((Inventory_Quantity(other, "rockets") >= AMMOMAX_ROCKETS) || (Inventory_Quantity(self, "rockets") < 1))
-	if ((Inventory_Quantity(other, "cells") >= AMMOMAX_CELLS  ) || (Inventory_Quantity(self, "cells") < 1))
-		return; // would gain no ammo or weapon
-
-	// if the player was using their best weapon, change up to the new one if better
-	stemp = self;
-	self = other;
-	best = W_BestWeapon(TRUE);
-	self = stemp;
-
-	if (itemrespawn && AMMOWEAPONOVERFLOW)
-	{
-		if (Inventory_Quantity(self, "shells")) if (Inventory_Quantity(other, "shells") < Inventory_Quantity(self, "shells")) Inventory_SetQuantity(other, "shells", Inventory_Quantity(self, "shells")); else Inventory_AdjustQuantity(other, "shells", AMMOWEAPONOVERFLOW_SHELLS);
-		if (Inventory_Quantity(self, "nails")) if (Inventory_Quantity(other, "nails") < Inventory_Quantity(self, "nails")) Inventory_SetQuantity(other, "nails", Inventory_Quantity(self, "nails")); else Inventory_AdjustQuantity(other, "nails", AMMOWEAPONOVERFLOW_NAILS);
-		if (Inventory_Quantity(self, "rockets")) if (Inventory_Quantity(other, "rockets") < Inventory_Quantity(self, "rockets")) Inventory_SetQuantity(other, "rockets", Inventory_Quantity(self, "rockets")); else Inventory_AdjustQuantity(other, "rockets", AMMOWEAPONOVERFLOW_ROCKETS);
-		if (Inventory_Quantity(self, "cells")) if (Inventory_Quantity(other, "cells") < Inventory_Quantity(self, "cells")) Inventory_SetQuantity(other, "cells", Inventory_Quantity(self, "cells")); else Inventory_AdjustQuantity(other, "cells", AMMOWEAPONOVERFLOW_CELLS);
-	}
-	else
-	{
-		Inventory_AdjustQuantity(other, "shells", Inventory_Quantity(self, "shells"));
-		Inventory_AdjustQuantity(other, "nails", Inventory_Quantity(self, "nails"));
-		Inventory_AdjustQuantity(other, "rockets", Inventory_Quantity(self, "rockets"));
-		Inventory_AdjustQuantity(other, "cells", Inventory_Quantity(self, "cells"));
-	}
-
-	// change to the weapon
-	old = other.items;
-	other.items = other.items | new;
-
-	stemp = self;
-	self = other;
-
-	if (self.switchweapon == best)
-		self.switchweapon = W_BestWeapon(TRUE);
-//	Deathmatch_Weapon (old, new);
-
-	self = stemp;
-	*/
 	stemp = self;
 	self = other;
 	switchweapon = self.switchweaponclass == W_BestWeaponClass(TRUE);

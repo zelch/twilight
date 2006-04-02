@@ -350,18 +350,6 @@ void() monster_wizard =
 	if (!monsterspawn)
 		precachemonster_wizard();
 
-	// localdamage stuff (headshots etc)
-	/*
-	self.localdamage = TRUE;
-	self.localdamage_head_z1 = 20;
-	self.localdamage_head_z2 = 1032;
-	self.localdamage_head_mul = 3.0;
-	self.localdamage_body_z1 = -100;
-	self.localdamage_body_z2 = 20;
-	self.localdamage_body_mul = 1.0;
-	self.localdamage_hit = LD_NORMAL;
-	*/
-
 	self.forcescale = 6;
 	self.netname = "a scrag";
 	// self.doobits = 1;

@@ -107,15 +107,5 @@ void(entity e, vector explosioncolor, float quad) BecomeExplosion =
 	e.think = explosionanimate;
 	e.nextthink = time;
 	e.velocity = '0 0 0';
-
-	/*
-	// LordHavoc: HACKY HACKY, experimental!!
-	WriteByte(MSG_BROADCAST, svc_cgame);
-	WriteShort(MSG_BROADCAST, 13);
-	WriteByte(MSG_BROADCAST, 1); // explosion rubble
-	WriteCoord(MSG_BROADCAST, v_x);
-	WriteCoord(MSG_BROADCAST, v_y);
-	WriteCoord(MSG_BROADCAST, v_z);
-	*/
 };
 

@@ -18,11 +18,9 @@ void() key_touch =
 
 	if (other.flags & FL_CLIENT)
 	{
-		/*
 		sprint (other, "You got a ");
 		sprint (other, self.netname);
 		sprint (other, "\n");
-		*/
 		stuffcmd(other, "bf\n");
 	}
 

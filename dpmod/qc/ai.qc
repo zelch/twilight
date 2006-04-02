@@ -18,57 +18,6 @@ float MONSTER_APPEAR = 128; // spawn invisible, and appear when triggered
 entity sight_entity;
 float sight_entity_time;
 
-//float lastweaponwakeup; // ignores any more than 1 per time value
-//float weaponwakeupcount;
-
-// wake up monsters that see the weapon impact
-// (unless their AMBUSH flag is set)
-void(vector org, entity own) weaponwakeup =
-{
-	// disabled
-	/*
-	local float dist;
-	local entity head, saveself;
-	if (own.health < 1)
-		return;
-	if (own.classname != "player")
-		return;
-	if (time != lastweaponwakeup)
-		weaponwakeupcount = 0;
-	if (weaponwakeupcount >= 5) // ignore it
-		return;
-	weaponwakeupcount = weaponwakeupcount + 1;
-	lastweaponwakeup = time;
-	saveself = self;
-	head = findfloat(world, ismonster, TRUE);
-	while (head != world)
-	{
-		if (head.health >= 1)
-		if (!head.monsterawaitingteleport)
-		if (head.enemy != own)
-		if ((head.spawnflags & 3) == 0) // see elsewhere for the reason it's & 3 instead of & 1
-		{
-			dist = vlen(head.origin - org);
-			if (dist < 1000)
-			if (head.enemy.classname != "player")
-			{
-				traceline(org, head.origin, TRUE, own);
-				if ((trace_fraction == 1.0) || (dist < 500)) // sound
-				{
-					head.oldenemy = head.enemy;
-					head.enemy = own;
-					self = head;
-					FoundTarget();
-				}
-			}
-		}
-		head = findfloat(head, ismonster, TRUE);
-	}
-	self = saveself;
-	*/
-};
-
-
 /*
 
 .enemy
@@ -564,15 +513,11 @@ float() FindTarget =
 
 void(float dist) ai_forward =
 {
-//	if (self.health < 1)
-//		return;
 	walkmove (self.angles_y, dist);
 };
 
 void(float dist) ai_back =
 {
-//	if (self.health < 1) // used in some death animations
-//		return;
 	walkmove ( (self.angles_y+180), dist);
 };
 
@@ -589,14 +534,6 @@ void(float dist) ai_pain =
 	if (self.health < 1)
 		return;
 	ai_back (dist);
-/*
-	local float away;
-
-	away = anglemod (vectoyaw (self.origin - self.enemy.origin)
-	+ 180*(random()- 0.5) );
-
-	walkmove (away, dist);
-*/
 };
 
 /*
@@ -627,12 +564,6 @@ void(float dist) ai_walk =
 
 	movedist = dist;
 
-//	if (self.classname == "monster_dragon")
-//	{
-//		movetogoal (dist);
-//		return;
-//	}
-
 	// check for noticing a player
 	if (self.oldenemy.takedamage)
 	if (self.oldenemy.health >= 1)
@@ -659,8 +590,6 @@ void(float dist) ai_walk =
 	}
 
 	self.findtarget = TRUE;
-	//if (FindTarget ())
-	//	return;
 
 	movetogoal (dist);
 };
@@ -693,8 +622,6 @@ void() ai_stand =
 			self.enemy = world;
 	}
 	self.findtarget = TRUE;
-	//if (FindTarget ())
-	//	return;
 
 	if (time > self.pausetime)
 	{
@@ -731,8 +658,6 @@ void() ai_turn =
 			self.enemy = world;
 	}
 	self.findtarget = TRUE;
-	//if (FindTarget ())
-	//	return;
 
 	ChangeYaw ();
 };
@@ -866,11 +791,7 @@ void(float dist) ai_run =
 	{
 		// look for other coop players
 		if (self.search_time < time)
-		{
 			self.findtarget = TRUE;
-			//if (FindTarget ())
-			//	return;
-		}
 	}
 
 	if (self.attack_state == AS_SLIDING)

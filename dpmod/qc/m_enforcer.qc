@@ -534,18 +534,6 @@ void() monster_enforcer =
 
 	setmodel (self, "progs/enforcer.mdl");
 
-	// localdamage stuff (headshots etc)
-	/*
-	self.localdamage = TRUE;
-	self.localdamage_head_z1 = 20;
-	self.localdamage_head_z2 = 1032;
-	self.localdamage_head_mul = 1.5; // Enforcers have a helmet
-	self.localdamage_body_z1 = -1024;
-	self.localdamage_body_z2 = 20;
-	self.localdamage_body_mul = 1.0;
-	self.localdamage_hit = LD_NORMAL;
-	*/
-
 	setsize (self, '-16 -16 -24', '16 16 24');
 	if (!self.health)
 		self.health = MH_ENFORCER;

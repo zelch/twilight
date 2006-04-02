@@ -3,26 +3,7 @@
 void() item_armor1 = {item_armor_green();};
 void() item_armor2 = {item_armor_yellow();};
 void() item_armorInv = {item_armor_red();};
-// pentagram replaced by 'glow armor', have to adjust position
-//void() item_artifact_invulnerability = {self.origin_z = self.origin_z - 24;item_armor_glow();};
 
-
-/*
-void() weapon_supershotgun = {remove(self);}; //weapon_chainshotgun ();};
-void() weapon_nailgun = {remove(self);}; //weapon_chaingun ();};
-void() weapon_supernailgun = {remove(self);}; //weapon_turbochaingun ();};
-void() weapon_grenadelauncher = {remove(self);}; //weapon_proxmine ();};
-void() weapon_rocketlauncher = {remove(self);}; //weapon_rocket ();};
-void() weapon_lightning = {remove(self);}; //weapon_plasma ();};
-*/
-
-// reenabled weapon pickups
-//void() weapon_supershotgun = {weapon_supershotgun();};
-//void() weapon_nailgun = {weapon_machinegun();};
-//void() weapon_supernailgun = {weapon_chaingun();};
-//void() weapon_grenadelauncher = {weapon_proximitygrenade();};
-//void() weapon_rocketlauncher = {weapon_rocket();};
-//void() weapon_lightning = {weapon_rifle();};
 
 /*QUAKED item_weapon (0 .5 .8) (0 0 0) (32 32 32) shotgun rocket spikes big
 DO NOT USE THIS!!!! IT WILL BE REMOVED!
