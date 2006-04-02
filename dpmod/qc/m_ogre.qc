@@ -80,7 +80,7 @@ float() OgreCheckAttack =
 		return FALSE;
 
 	// see if any entities are in the way of the shot
-	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 1000, 5, 0, self))
+	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 800, 2.5, 0, self))
 		return FALSE;
 
 	self.attack_state = AS_MISSILE;
@@ -115,7 +115,7 @@ float() OgreFireGrenade =
 	local vector v;
 	if (Inventory_Quantity(self, "rockets") < 1)
 		return FALSE;
-	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 1000, 2.5, 0, self))
+	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 800, 2.5, 0, self))
 		return FALSE;
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
@@ -124,7 +124,7 @@ float() OgreFireGrenade =
 	f = (5 - bound(0, skill, 3));
 	f = f * vlen(findtrajectory_velocity) * 0.1;
 	v = f * randomvec();
-	LaunchGrenade(self.origin, findtrajectory_velocity + v, self, DMG_OGRE_GRENADE_DAMAGE, DMG_OGRE_GRENADE_FORCE, DMG_OGRE_GRENADE_RADIUS, GRENADE_DETONATEONCREATURE, 5, self.deathtype, Obituary_Generic);
+	LaunchGrenade(self.origin, findtrajectory_velocity + v, self, DMG_OGRE_GRENADE_DAMAGE, DMG_OGRE_GRENADE_FORCE, DMG_OGRE_GRENADE_RADIUS, GRENADE_DETONATEONCREATURE, DMG_OGRE_GRENADE_TIME, self.deathtype, Obituary_Generic);
 
 	return TRUE;
 };
@@ -154,10 +154,9 @@ void(float side) chainsaw =
 	if (vlen(delta) > 100)
 		return;
 
-	ldmg =        random();
-	ldmg = ldmg + random();
-	ldmg = ldmg + random();
-	ldmg = ldmg * 12;
+	ldmg = DMG_OGRE_MELEE_BASE + DMG_OGRE_MELEE_RANDOM1 * random();
+	ldmg = ldmg + DMG_OGRE_MELEE_RANDOM2 * random();
+	ldmg = ldmg + DMG_OGRE_MELEE_RANDOM3 * random();
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, raddamage_lasthit, '0 0 0', Obituary_Generic);
 };
 
@@ -473,7 +472,7 @@ void() monster_ogre =
 		self.deathtype = " was destroyed by an ogre";
 	if (!metroidmode)
 	{
-		Inventory_SetQuantity(self, "rockets", AMMO_OGRE_GRENADES);
+		Inventory_SetQuantity(self, "rockets", AMMO_OGRE_GRENADELAUNCHER);
 		Inventory_SetQuantity(self, "grenadelauncher", 1);
 		//Inventory_SetQuantity(self, "nails", 0);
 	}

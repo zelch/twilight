@@ -58,10 +58,9 @@ void() dog_bite =
 	if (vlen(delta) > 100)
 		return;
 
-	ldmg = random();
-	ldmg = ldmg + random();
-	ldmg = ldmg + random();
-	ldmg = ldmg * 8;
+	ldmg = DMG_DOG_BITE_BASE + DMG_DOG_BITE_RANDOM1 * random();
+	ldmg = ldmg + DMG_DOG_BITE_RANDOM2 * random();
+	ldmg = ldmg + DMG_DOG_BITE_RANDOM3 * random();
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, self.origin, '0 0 0', Obituary_Generic);
 };
 

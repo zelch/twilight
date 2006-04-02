@@ -41,7 +41,7 @@ Returns FALSE if movement should continue
 */
 float() GenericCheckAttack =
 {
-	local vector	spot1, spot2;	
+	local vector	spot1, spot2;
 	local entity	targ;
 	local float		chance;
 
@@ -141,7 +141,7 @@ void(float d) ai_charge =
 {
         if (self.health < 1)
                 return;
-	ai_face ();	
+	ai_face ();
 	movetogoal (d);		// done in C code...
 };
 
@@ -151,7 +151,7 @@ void() ai_charge_side =
                 return;
 	local	vector	dtemp;
 	local	float	heading;
-	
+
 // aim to the left of the enemy for a flyby
 
 	self.ideal_yaw = vectoyaw(self.enemy.origin - self.origin);
@@ -160,7 +160,7 @@ void() ai_charge_side =
 	makevectors (self.angles);
 	dtemp = self.enemy.origin - 30*v_right;
 	heading = vectoyaw(dtemp - self.origin);
-	
+
 	walkmove(heading, 20);
 };
 
@@ -186,10 +186,9 @@ void() ai_melee =
 	if (vlen(delta) > 60)
 		return;
 
-	ldmg =        random();
-	ldmg = ldmg + random();
-	ldmg = ldmg + random();
-	ldmg = ldmg * 9;
+	ldmg = DMG_KNIGHT_MELEE_BASE + DMG_KNIGHT_MELEE_RANDOM1 * random();
+	ldmg = ldmg + DMG_KNIGHT_MELEE_RANDOM2 * random();
+	ldmg = ldmg + DMG_KNIGHT_MELEE_RANDOM3 * random();
 	traceline(self.origin, self.enemy.origin, FALSE, self);
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, trace_endpos, '0 0 0', Obituary_Generic);
 };
@@ -213,10 +212,9 @@ void() ai_melee_side =
 		return;
 	if (!CanDamage (self.enemy, self))
 		return;
-	ldmg =        random();
-	ldmg = ldmg + random();
-	ldmg = ldmg + random();
-	ldmg = ldmg * 3;
+	ldmg = DMG_KNIGHT_MELEE_BASE + DMG_KNIGHT_MELEE_RANDOM1 * random();
+	ldmg = ldmg + DMG_KNIGHT_MELEE_RANDOM2 * random();
+	ldmg = ldmg + DMG_KNIGHT_MELEE_RANDOM3 * random();
 	traceline(self.origin, self.enemy.origin, FALSE, self);
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, trace_endpos, '0 0 0', Obituary_Generic);
 };

@@ -101,7 +101,7 @@ void()	Tar_JumpTouch =
 		{
 			//if (other.classname == "player")
 			//	eprint(self);
-			ldmg = 10 + 20*random();
+			ldmg = DMG_TARBABY_JUMP_BASE + DMG_TARBABY_JUMP_RANDOM*random();
 			T_Damage (other, self, self, ldmg, ldmg, self.deathtype, DT_IMPACT, self.origin, self.velocity * 0.05, Obituary_Generic);
 			sound (self, CHAN_WEAPON, "blob/hit1.wav", 1, ATTN_NORM);
 		}
@@ -198,7 +198,7 @@ void()  tbaby_die2      =[      $exp,           tbaby_die2      ]
 	MonsterGibs("", 0, "progs/tar_gib.mdl", 4, "", 0);
 	self.skin = 0;
 	self.owner = self;
-	T_RadiusDamage(self, self.owner, DMG_TARBABY_DAMAGE, DMG_TARBABY_FORCE, DMG_TARBABY_RADIUS, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+	T_RadiusDamage(self, self.owner, DMG_TARBABY_DIE_DAMAGE, DMG_TARBABY_DIE_FORCE, DMG_TARBABY_DIE_RADIUS, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
 	BecomeExplosion(self, '-2 0 0', FALSE);
 };
 

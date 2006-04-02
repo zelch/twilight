@@ -88,10 +88,9 @@ void() fish_melee =
 		return;
 
 	sound (self, CHAN_VOICE, "fish/bite.wav", 1, ATTN_NORM);
-	ldmg = random();
-	ldmg = ldmg + random();
-	ldmg = ldmg + random();
-	ldmg = ldmg * 15;
+	ldmg = DMG_FISH_BITE_BASE + DMG_FISH_BITE_RANDOM1 * random();
+	ldmg = ldmg + DMG_FISH_BITE_RANDOM2 * random();
+	ldmg = ldmg + DMG_FISH_BITE_RANDOM3 * random();
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, raddamage_lasthit, '0 0 0', Obituary_Generic);
 };
 

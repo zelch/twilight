@@ -160,10 +160,9 @@ void() sham_smash10    =[      $smash10,      sham_smash11   ] {monster_setalpha
 	if (!CanDamage (self.enemy, self))
 		return;
 
-	ldmg =        random();
-	ldmg = ldmg + random();
-	ldmg = ldmg + random();
-	ldmg = ldmg * 30;
+	ldmg = DMG_SHAMBLER_SMASH_BASE + DMG_SHAMBLER_SMASH_RANDOM1 * random();
+	ldmg = ldmg + DMG_SHAMBLER_SMASH_RANDOM2 * random();
+	ldmg = ldmg + DMG_SHAMBLER_SMASH_RANDOM3 * random();
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, self.origin, '0 0 0', Obituary_Generic);
 	sound (self, CHAN_VOICE, "shambler/smack.wav", 1, ATTN_NORM);
 
@@ -189,10 +188,9 @@ void(float side) ShamClaw =
 	if (vlen(delta) > 100)
 		return;
 
-	ldmg =        random();
-	ldmg = ldmg + random();
-	ldmg = ldmg + random();
-	ldmg = ldmg * 15;
+	ldmg = DMG_SHAMBLER_CLAW_BASE + DMG_SHAMBLER_CLAW_RANDOM1 * random();
+	ldmg = ldmg + DMG_SHAMBLER_CLAW_RANDOM2 * random();
+	ldmg = ldmg + DMG_SHAMBLER_CLAW_RANDOM3 * random();
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, self.origin, '0 0 0', Obituary_Generic);
 	sound (self, CHAN_VOICE, "shambler/smack.wav", 1, ATTN_NORM);
 
@@ -240,7 +238,7 @@ void() sham_melee =
 	local float chance;
 
 	chance = random();
-        if (chance > 0.6 || self.health == self.max_health)
+	if (chance > 0.6 || self.health == self.max_health)
 		sham_smash1 ();
 	else if (chance > 0.3)
 		sham_swingr1 ();

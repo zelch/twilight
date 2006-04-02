@@ -138,7 +138,7 @@ void() weapon_supershotgun =
 	}
 	weapon_spawnhandler("progs/g_shot.mdl", 2000, "You got the Super Shotgun!\n");
 	Inventory_SetQuantity(self, "supershotgun", 1);
-	Inventory_SetQuantity(self, "shells", 30);
+	Inventory_SetQuantity(self, "shells", AMMO_SHELLS);
 };
 
 /*QUAKED weapon_nailgun (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -153,7 +153,7 @@ void() weapon_nailgun =
 	}
 	weapon_spawnhandler("progs/g_nail.mdl", 2000, "You got the Nailgun!\n");
 	Inventory_SetQuantity(self, "nailgun", 1);
-	Inventory_SetQuantity(self, "nails", 50);
+	Inventory_SetQuantity(self, "nails", AMMO_NAILS);
 };
 
 /*QUAKED weapon_supernailgun (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -168,7 +168,7 @@ void() weapon_supernailgun =
 	}
 	weapon_spawnhandler("progs/g_nail2.mdl", 2000, "You got the Super Nailgun!\n");
 	Inventory_SetQuantity(self, "supernailgun", 1);
-	Inventory_SetQuantity(self, "nails", 50);
+	Inventory_SetQuantity(self, "nails", AMMO_NAILS);
 };
 
 /*QUAKED weapon_grenadelauncher (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -183,7 +183,7 @@ void() weapon_grenadelauncher =
 	}
 	weapon_spawnhandler("progs/g_rock.mdl", 2000, "You got the Proximity Grenade Launcher!\n");
 	Inventory_SetQuantity(self, "grenadelauncher", 1);
-	Inventory_SetQuantity(self, "rockets", 10);
+	Inventory_SetQuantity(self, "rockets", AMMO_ROCKETS);
 };
 
 /*QUAKED weapon_rocketlauncher (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -199,7 +199,7 @@ void() weapon_rocketlauncher =
 	}
 	weapon_spawnhandler("progs/g_rock2.mdl", 2000, "You got the Rocket Launcher!\n");
 	Inventory_SetQuantity(self, "rocketlauncher", 1);
-	Inventory_SetQuantity(self, "rockets", 10);
+	Inventory_SetQuantity(self, "rockets", AMMO_ROCKETS);
 };
 
 /*QUAKED weapon_lightning (0 .5 .8) (-16 -16 0) (16 16 32)
@@ -216,6 +216,6 @@ void() weapon_lightning =
 	Inventory_SetQuantity(self, "thunderbolt", 1);
 	Inventory_SetQuantity(self, "plasmarifle", 1);
 	Inventory_SetQuantity(self, "plasmawave", 1);
-	Inventory_SetQuantity(self, "cells", 20);
+	Inventory_SetQuantity(self, "cells", AMMO_CELLS);
 };
 

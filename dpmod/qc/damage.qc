@@ -57,21 +57,64 @@ float   AMMOWEAPONOVERFLOW_NAILS        =    5;
 float   AMMOWEAPONOVERFLOW_ROCKETS      =    1;
 float   AMMOWEAPONOVERFLOW_CELLS        =    5;
 
-float   AMMO_SHELLS                     =   50; // double if big box (was 20)
-float   AMMO_NAILS                      =   50; // double if big box (was 25)
-float   AMMO_ROCKETS                    =   10; // double if big box (was 5)
-float   AMMO_CELLS                      =   30; // double if big box (was 14)
-
-float   AMMO_GRUNT_PISTOL_ROUNDS        =   10;
-float   AMMO_GRUNT_SHOTGUN_SHELLS       =   10; // 5
-float   AMMO_GRUNT_NAILGUN_ROUNDS       =   20;
-float   AMMO_ENFORCER_SHELLS            =   10;
-float   AMMO_ENFORCER_NAILS             =   25;
-float   AMMO_ENFORCER_ROCKETS           =    5;
-float   AMMO_ENFORCER_PLASMACELLS       =   20;
-float   AMMO_ENFORCER_LASERCELLS        =   10;
-float   AMMO_ENFORCER_FLAMERCELLS       =   10;
-float   AMMO_OGRE_GRENADES              =    5;
+/*
+// quake values (roughly)
+float AMMO_AXE_DAMAGE                   =   20;
+float AMMO_AXE_BODYDAMAGE               =   20;
+float AMMO_SHELL_DAMAGE                 =   28;
+float AMMO_SHELL_BODYDAMAGE             =   28;
+float AMMO_NAIL_DAMAGE                  =    9;
+float AMMO_NAIL_BODYDAMAGE              =    9;
+float AMMO_ROCKET_DAMAGE                =  110;
+float AMMO_ROCKET_FORCE                 =  110;
+float AMMO_ROCKET_RADIUS                =  110;
+float AMMO_CELL_DAMAGE                  =   30;
+float AMMO_CELL_BODYDAMAGE              =   30;
+// ammo boxes (double if big box)
+float AMMO_SHELLS                       =   20;
+float AMMO_NAILS                        =   25;
+float AMMO_ROCKETS                      =    5;
+float AMMO_CELLS                        =   14;
+// ammo dropped by monsters
+float AMMO_GRUNT_PISTOL                 =    5;
+float AMMO_GRUNT_SHOTGUN                =    5;
+float AMMO_GRUNT_NAILGUN                =   10;
+float AMMO_ENFORCER_DBSHOTGUN           =   10;
+float AMMO_ENFORCER_SUPERNAILGUN        =   20;
+float AMMO_ENFORCER_ROCKETLAUNCHER      =    5;
+float AMMO_ENFORCER_PLASMARIFLE         =    5;
+float AMMO_ENFORCER_LASERRIFLE          =    5;
+float AMMO_ENFORCER_FLAMER              =    5;
+float AMMO_OGRE_GRENADELAUNCHER         =    5;
+*/
+// darkplaces mod values
+float AMMO_AXE_DAMAGE                   =   80;
+float AMMO_AXE_BODYDAMAGE               =   80;
+float AMMO_SHELL_DAMAGE                 =   56;
+float AMMO_SHELL_BODYDAMAGE             =   56;
+float AMMO_NAIL_DAMAGE                  =   15;
+float AMMO_NAIL_BODYDAMAGE              =   15;
+float AMMO_ROCKET_DAMAGE                =  150;
+float AMMO_ROCKET_FORCE                 =  200;
+float AMMO_ROCKET_RADIUS                =  200;
+float AMMO_CELL_DAMAGE                  =   30;
+float AMMO_CELL_BODYDAMAGE              =   30;
+// ammo boxes (double if big box)
+float AMMO_SHELLS                       =   40;
+float AMMO_NAILS                        =   50;
+float AMMO_ROCKETS                      =   10;
+float AMMO_CELLS                        =   30;
+// ammo dropped by monsters
+float AMMO_GRUNT_PISTOL                 =   10;
+float AMMO_GRUNT_SHOTGUN                =   10;
+float AMMO_GRUNT_NAILGUN                =   25;
+float AMMO_ENFORCER_DBSHOTGUN           =   20;
+float AMMO_ENFORCER_SUPERNAILGUN        =   50;
+float AMMO_ENFORCER_ROCKETLAUNCHER      =   10;
+float AMMO_ENFORCER_PLASMARIFLE         =   10;
+float AMMO_ENFORCER_LASERRIFLE          =   10;
+float AMMO_ENFORCER_FLAMER              =   10;
+float AMMO_OGRE_GRENADELAUNCHER         =   10;
 
 // respawn times
 float   RESPAWNTIME_AMMO = 20;
@@ -104,42 +147,77 @@ float   GLOWARMOR_TYPE          = 0.8;
 
 float	SKILL4_MINALPHA			= 0.2;
 
-float   DMG_SOLDIER_PISTOL_DAMAGE       =   30;
-float   DMG_SOLDIER_PISTOL_BDAMAGE      =   30;
-float   DMG_SOLDIER_MACHINEGUN_DAMAGE   =   15;
-float   DMG_SOLDIER_MACHINEGUN_BDAMAGE  =   15;
-float   DMG_SOLDIER_SHOTGUN_PELLETS     =    3;
-float   DMG_SOLDIER_SHOTGUN_DAMAGE      =   15;
-float   DMG_SOLDIER_SHOTGUN_BDAMAGE     =   15;
-float   DMG_OGRE_GRENADE_DAMAGE         =   60;
-float   DMG_OGRE_GRENADE_FORCE          =   60;
-float   DMG_OGRE_GRENADE_RADIUS         =  100;
-float   DMG_SHALRATH_MISSILE_DAMAGE     =   60;
-float   DMG_SHALRATH_MISSILE_FORCE      =   60;
-float   DMG_SHALRATH_MISSILE_RADIUS     =  100;
-float   DMG_SHAMBLER_LIGHTNING          =   20;
-float   DMG_ENFORCER_LASER              =   25;
-float   DMG_ENFORCER_DBSHOTGUN_DAMAGE   =   90;
+float   DMG_CHTHON_LAVABALL_DAMAGE      =  110;
+float   DMG_CHTHON_LAVABALL_FORCE       =  110;
+float   DMG_CHTHON_LAVABALL_RADIUS      =  102;
+float   DMG_DOG_BITE_BASE               =    0;
+float   DMG_DOG_BITE_RANDOM1            =    8;
+float   DMG_DOG_BITE_RANDOM2            =    8;
+float   DMG_DOG_BITE_RANDOM3            =    8;
+float   DMG_DOG_JUMP_BASE               =   10;
+float   DMG_DOG_JUMP_RANDOM             =   10;
+float   DMG_ENFORCER_DBSHOTGUN_DAMAGE   =   28;
 float   DMG_ENFORCER_DBSHOTGUN_RANGE    =  500;
-float   DMG_ENFORCER_SUPERNAIL_DAMAGE   =    9; // fires 20 per second
-float   DMG_ENFORCER_PLASMA_DAMAGE      =   20;
-float   DMG_ENFORCER_PLASMA_FORCE       =   20;
+float   DMG_ENFORCER_FLAMER_BURNDAMAGE  =   15;
+float   DMG_ENFORCER_FLAMER_BURNLIMIT   =   90;
+float   DMG_ENFORCER_FLAMER_DAMAGE      =    0;
+float   DMG_ENFORCER_FLAMER_FORCE       =    0;
+float   DMG_ENFORCER_FLAMER_RADIUS      =   40;
+float   DMG_ENFORCER_LASER              =   15;
+float   DMG_ENFORCER_PLASMA_DAMAGE      =   15;
+float   DMG_ENFORCER_PLASMA_FORCE       =    0;
 float   DMG_ENFORCER_PLASMA_RADIUS      =   20;
 float   DMG_ENFORCER_ROCKET_DAMAGE      =   60;
 float   DMG_ENFORCER_ROCKET_FORCE       =   60;
-float   DMG_ENFORCER_ROCKET_RADIUS      =  100;
-float   DMG_ENFORCER_FLAMER_DAMAGE      =   20;
-float   DMG_ENFORCER_FLAMER_FORCE       =   20;
-float   DMG_ENFORCER_FLAMER_BURNDAMAGE  =   70;
-float   DMG_ENFORCER_FLAMER_BURNLIMIT   =   90;
-float   DMG_ENFORCER_FLAMER_RADIUS      =  100;
-float   DMG_TARBABY_DAMAGE              =   90;
-float   DMG_TARBABY_FORCE               =   90;
-float   DMG_TARBABY_RADIUS              =  200;
-float   DMG_CHTHON_LAVABALL_DAMAGE      =   60;
-float   DMG_CHTHON_LAVABALL_FORCE       =   60;
-float   DMG_CHTHON_LAVABALL_RADIUS      =  100;
-float   DMG_ZOMBIE_CHUNK                =   20;
+float   DMG_ENFORCER_ROCKET_RADIUS      =  102;
+float   DMG_ENFORCER_SUPERNAIL_DAMAGE   =    9; // fires 20 per second
+float   DMG_FIEND_JUMP_BASE             =   40;
+float   DMG_FIEND_JUMP_RANDOM           =   10;
+float   DMG_FIEND_MELEE_BASE            =   10;
+float   DMG_FIEND_MELEE_RANDOM          =    5;
+float   DMG_FISH_BITE_BASE              =    0;
+float   DMG_FISH_BITE_RANDOM1           =    3;
+float   DMG_FISH_BITE_RANDOM2           =    3;
+float   DMG_FISH_BITE_RANDOM3           =    0;
+float   DMG_HELLKNIGHT_SPIKE            =    9;
+float   DMG_KNIGHT_MELEE_BASE           =    0;
+float   DMG_KNIGHT_MELEE_RANDOM1        =    3;
+float   DMG_KNIGHT_MELEE_RANDOM2        =    3;
+float   DMG_KNIGHT_MELEE_RANDOM3        =    3;
+float   DMG_OGRE_GRENADE_DAMAGE         =   40;
+float   DMG_OGRE_GRENADE_FORCE          =   40;
+float   DMG_OGRE_GRENADE_RADIUS         =  102;
+float   DMG_OGRE_GRENADE_TIME           =    2.5;
+float   DMG_OGRE_MELEE_BASE             =    0;
+float   DMG_OGRE_MELEE_RANDOM1          =    4;
+float   DMG_OGRE_MELEE_RANDOM2          =    4;
+float   DMG_OGRE_MELEE_RANDOM3          =    4;
+float   DMG_SHALRATH_MISSILE_DAMAGE     =   40;
+float   DMG_SHALRATH_MISSILE_FORCE      =   40;
+float   DMG_SHALRATH_MISSILE_RADIUS     =  102;
+float   DMG_SHAMBLER_CLAW_BASE          =    0;
+float   DMG_SHAMBLER_CLAW_RANDOM1       =   20;
+float   DMG_SHAMBLER_CLAW_RANDOM2       =   20;
+float   DMG_SHAMBLER_CLAW_RANDOM3       =   20;
+float   DMG_SHAMBLER_LIGHTNING          =   10;
+float   DMG_SHAMBLER_SMASH_BASE         =    0;
+float   DMG_SHAMBLER_SMASH_RANDOM1      =   40;
+float   DMG_SHAMBLER_SMASH_RANDOM2      =   40;
+float   DMG_SHAMBLER_SMASH_RANDOM3      =   40;
+float   DMG_SOLDIER_MACHINEGUN_BDAMAGE  =    6;
+float   DMG_SOLDIER_MACHINEGUN_DAMAGE   =    6;
+float   DMG_SOLDIER_PISTOL_BDAMAGE      =   10;
+float   DMG_SOLDIER_PISTOL_DAMAGE       =   10;
+float   DMG_SOLDIER_SHOTGUN_BDAMAGE     =    4;
+float   DMG_SOLDIER_SHOTGUN_DAMAGE      =    4;
+float   DMG_SOLDIER_SHOTGUN_PELLETS     =    4;
+float   DMG_TARBABY_DIE_DAMAGE          =  102;
+float   DMG_TARBABY_DIE_FORCE           =  102;
+float   DMG_TARBABY_DIE_RADIUS          =  102;
+float   DMG_TARBABY_JUMP_BASE           =   10;
+float   DMG_TARBABY_JUMP_RANDOM         =   10;
+float   DMG_WIZARD_SPIT                 =    9;
+float   DMG_ZOMBIE_CHUNK                =   10;
 
 // MH = health, MB = extra body health (bodyhealth = MH_DOG + MB_DOG)
 float MH_ENFORCER  =    80;float MB_ENFORCER  =   200;
@@ -151,8 +229,8 @@ float MH_KNIGHT    =    75;float MB_KNIGHT    =   150;
 float MH_OGRE      =   200;float MB_OGRE      =   250;
 float MH_ROTFISH   =    25;float MB_ROTFISH   =    50;
 float MH_SHALRATH  =   400;float MB_SHALRATH  =   400;
-float MH_SHAMBLER  =  1200;float MB_SHAMBLER  =  1200;
-float MH_TARBABY   =    20;
+float MH_SHAMBLER  =   600;float MB_SHAMBLER  =   600;
+float MH_TARBABY   =    80;
 float MH_WIZARD    =    80;float MB_WIZARD    =    70;
 float MH_ZOMBIE    =   200; // explosives do more damage than normal
 

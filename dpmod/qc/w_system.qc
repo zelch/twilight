@@ -707,77 +707,50 @@ void() W_WeaponFrame =
 	}
 };
 
-float AXE_DAMAGE = 20;
 float AXE_REFIRE = 0.5;
-float SHOTGUN_SHELL = 60;
-float SHOTGUN_SHELLS = 1;
 float SHOTGUN_REFIRE = 0.5;
-float DBSHOTGUN_SHELL = 70;
-float DBSHOTGUN_SHELLS = 2;
+float DBSHOTGUN_AMMO = 2;
 float DBSHOTGUN_REFIRE = 0.7;
-float NAILGUN_NAIL = 15;
-float NAILGUN_NAILS = 1;
 float NAILGUN_REFIRE = 0.1;
-float SUPERNAILGUN_NAIL = 15;
-float SUPERNAILGUN_NAILS = 1;
+float NAILGUN_MINE_IMPACT = 10;
+float NAILGUN_MINE_IMPACTBODY = 5;
+float NAILGUN_MINE_TIME = 60;
+float NAILGUN_MINE_ARMDELAY = 3;
 float SUPERNAILGUN_REFIRE = 0.05;
-float GRENADELAUNCHER_DAMAGE = 150;
-float GRENADELAUNCHER_FORCE = 150;
-float GRENADELAUNCHER_RADIUS = 120;
-float GRENADELAUNCHER_REFIRE = 0.8;
-float ROCKETLAUNCHER_DAMAGE = 150;
-float ROCKETLAUNCHER_FORCE = 150;
-float ROCKETLAUNCHER_RADIUS = 200;
+float SUPERNAILGUN_GRENADE_TIME = 60;
+float GRENADELAUNCHER_REFIRE = 0.6;
 float ROCKETLAUNCHER_REFIRE = 0.8;
 float ROCKETLAUNCHER_LOADTIME = 0.2;
 float ROCKETLAUNCHER_MAXLOAD = 2;
 float ROCKETLAUNCHER_VELOCITY = 3000;
 float ROCKETLAUNCHER_MULTI_VELOCITY = 3000;
-float THUNDERBOLT_CELL_HEALTH = 30;
-float THUNDERBOLT_CELL_BODY = 15;
-float THUNDERBOLT_CELLSPERSECOND = 10;
-float PLASMARIFLE_NORMAL_CELL = 30;
-float PLASMARIFLE_NORMAL_CELLS = 1;
+float THUNDERBOLT_REFIRE = 0.1;
+float PLASMARIFLE_NORMAL_AMMO = 1;
 float PLASMARIFLE_NORMAL_RADIUS = 80;
 float PLASMARIFLE_NORMAL_VELOCITY = 5000;
 float PLASMARIFLE_NORMAL_REFIRE = 0.1;
-float PLASMARIFLE_SUPER_CELL = 30;
-float PLASMARIFLE_SUPER_CELLS = 4;
+float PLASMARIFLE_SUPER_AMMO = 4;
 float PLASMARIFLE_SUPER_RADIUS = 80;
 float PLASMARIFLE_SUPER_VELOCITY = 5000;
 float PLASMARIFLE_SUPER_REFIRE = 0.5;
-/*
-float PLASMARIFLE_NORMAL_CELL = 30;
-float PLASMARIFLE_NORMAL_CELLS = 1;
-float PLASMARIFLE_NORMAL_RADIUS = 50;
-float PLASMARIFLE_NORMAL_VELOCITY = 25000;
-float PLASMARIFLE_NORMAL_REFIRE = 0.1;
-float PLASMARIFLE_SUPER_CELL = 30;
-float PLASMARIFLE_SUPER_CELLS = 3;
-float PLASMARIFLE_SUPER_RADIUS = 80;
-float PLASMARIFLE_SUPER_VELOCITY = 25000;
-float PLASMARIFLE_SUPER_REFIRE = 0.1;
-*/
-float PLASMAWAVE_SINGLE_CELL = 30;
-float PLASMAWAVE_SINGLE_CELLS = 10;
+float PLASMAWAVE_SINGLE_AMMO = 10;
 float PLASMAWAVE_SINGLE_REFIRE = 0.6;
 float PLASMAWAVE_SINGLE_BURNRADIUS = 120;
 float PLASMAWAVE_WAVE_CELL = 30;
-float PLASMAWAVE_WAVE_MAXCELLS = 50;
-float PLASMAWAVE_WAVE_CELLSPERSHOT = 5;
+float PLASMAWAVE_WAVE_MAXAMMO = 50;
+float PLASMAWAVE_WAVE_AMMOPERSHOT = 5;
 float PLASMAWAVE_WAVE_MAXSHOTS = 10;
 float PLASMAWAVE_WAVE_CHARGETIME = 0.5;
 float PLASMAWAVE_WAVE_REFIRE = 1.1;
 float PLASMAWAVE_WAVE_BURNRADIUS = 120;
 float PLASMAWAVE_WAVE_SPREADANGLEPERSHOT = 6;
-float LASERRIFLE_CELL = 30;
 float LASERRIFLE_BURST = 3;
 float LASERRIFLE_BURSTREFIRE = 0.1;
 float LASERRIFLE_BETWEENBURSTREFIRE = 0.3;
 /*
 float FLAMER_SHOT_VELOCITY = 1200;
 float FLAMER_SHOT_TIME = 1;
-float FLAMER_SHOT_CELLS = 3;
+float FLAMER_SHOT_AMMO = 3;
 float FLAMER_SHOT_DAMAGE = 30;
 float FLAMER_SHOT_BURN = 90;
 float FLAMER_SHOT_BURNLIMIT = 2000;
@@ -789,7 +762,7 @@ float FLAMER_DROP_VELOCITY = 600;
 float FLAMER_DROP_UPVELOCITY = 200;
 float FLAMER_DROP_SPREAD = 0.1;
 float FLAMER_DROP_TIME = 15;
-float FLAMER_DROP_CELLS = 3;
+float FLAMER_DROP_AMMO = 3;
 float FLAMER_DROP_COUNT = 3;
 float FLAMER_DROP_DAMAGE = 90;
 float FLAMER_DROP_FORCE = 120;
@@ -817,7 +790,7 @@ float(float request) w_axe =
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_axe.mdl");
-		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AMMO_AXE_DAMAGE / AXE_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -881,7 +854,7 @@ float(float request) w_axe =
 					sound (self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
 					te_gunshot(trace_endpos - shotdir * 4);
 				}
-				T_Damage (trace_ent, self, self, AXE_DAMAGE, AXE_DAMAGE, "AXE", DT_CUT, trace_endpos - shotdir * 4, '0 0 0', Obituary_Axe);
+				T_Damage (trace_ent, self, self, AMMO_AXE_DAMAGE, AMMO_AXE_BODYDAMAGE, "AXE", DT_CUT, trace_endpos - shotdir * 4, '0 0 0', Obituary_Axe);
 			}
 		}
 		return TRUE;
@@ -910,7 +883,7 @@ float(float request) w_shotgun =
 		precache_sound("weapons/shotgn2.wav");
 		precache_sound("weapons/bsgnoammo.wav");
 		precache_sound("weapons/bsgload.wav");
-		registerweapon(2, "Shotgun", w_shotgun, "shotgun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_SHELLS, 0, 2000, SHOTGUN_SHELL / SHOTGUN_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(2, "Shotgun", w_shotgun, "shotgun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_SHELLS, 0, 2000, AMMO_SHELL_DAMAGE / SHOTGUN_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -971,7 +944,7 @@ float(float request) w_shotgun =
 			sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 			Inventory_AdjustQuantity(self, "shells", -1);
 			w_muzzleflash(shotorg, 2);
-			FireBullets(self, self, 1, 10, SHOTGUN_SHELL * 0.1, SHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.03, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+			FireBullets(self, self, 1, 10, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_BODYDAMAGE * 0.1, 0, 0, shotdir * 10000, 0.03, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
 			wsetanim(WANIM_FIRE1, 1, 6, SHOTGUN_REFIRE);
 		}
 		return TRUE;
@@ -1001,7 +974,7 @@ float(float request) w_dbshotgun =
 		precache_sound("weapons/shotgn2.wav");
 		precache_sound("weapons/bsgnoammo.wav");
 		precache_sound("weapons/bsgload.wav");
-		registerweapon(3, "Double Barreled Shotgun", w_dbshotgun, "supershotgun", VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl", IT_SHELLS, 0, 500, DBSHOTGUN_SHELL * DBSHOTGUN_SHELLS / DBSHOTGUN_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(3, "Double Barreled Shotgun", w_dbshotgun, "supershotgun", VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl", IT_SHELLS, 0, 500, AMMO_SHELL_DAMAGE * DBSHOTGUN_AMMO / DBSHOTGUN_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1079,13 +1052,13 @@ float(float request) w_dbshotgun =
 			{
 				self.shotgunshells = self.shotgunshells | 1;
 				Inventory_AdjustQuantity(self, "shells", -1);
-				FireBullets(self, self, 1, 10, DBSHOTGUN_SHELL * 0.1, DBSHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.1, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
+				FireBullets(self, self, 1, 10, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_BODYDAMAGE * 0.1, 0, 0, shotdir * 10000, 0.1, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
 			}
 			if (Inventory_Quantity(self, "shells") >= 1)
 			{
 				self.shotgunshells = self.shotgunshells | 2;
 				Inventory_AdjustQuantity(self, "shells", -1);
-				FireBullets(self, self, 1, 10, DBSHOTGUN_SHELL * 0.1, DBSHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.1, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
+				FireBullets(self, self, 1, 10, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_BODYDAMAGE * 0.1, 0, 0, shotdir * 10000, 0.1, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
 			}
 			wsetanim(WANIM_FIRE1, 1, 7, DBSHOTGUN_REFIRE);
 		}
@@ -1144,7 +1117,7 @@ float(float request) w_nailgun =
 		precache_model("progs/v_dpnail.mdl");
 		precache_sound("weapons/rocket1i.wav");
 		precache_sound("weapons/bomb/trigger.wav");
-		registerweapon(4, "Nailgun", w_nailgun, "nailgun", VWEP_NAILGUN, "progs/v_dpnail.mdl", IT_NAILS, 0, 4000, NAILGUN_NAIL / NAILGUN_REFIRE, WANIMTYPE_NAILGUN);
+		registerweapon(4, "Nailgun", w_nailgun, "nailgun", VWEP_NAILGUN, "progs/v_dpnail.mdl", IT_NAILS, 0, 4000, AMMO_NAIL_DAMAGE / NAILGUN_REFIRE, WANIMTYPE_NAILGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1174,13 +1147,13 @@ float(float request) w_nailgun =
 				if (self.weaponframe & 1)
 				{
 					shotorg = shotorg + v_right;
-					FireBullets(self, self, 4, 1, NAILGUN_NAIL, NAILGUN_NAIL, 0, 0, shotdir * 10000, 0.01, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+					FireBullets(self, self, 4, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_BODYDAMAGE, 0, 0, shotdir * 10000, 0.01, "NAILGUN", DT_NAIL, Obituary_Nailgun);
 					//ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				}
 				else
 				{
 					shotorg = shotorg - v_right;
-					FireBullets(self, self, 4, 1, NAILGUN_NAIL, NAILGUN_NAIL, 0, 0, shotdir * 10000, 0.01, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+					FireBullets(self, self, 4, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_BODYDAMAGE, 0, 0, shotdir * 10000, 0.01, "NAILGUN", DT_NAIL, Obituary_Nailgun);
 					//ejectcasing(shotorg + v_forward * -5, v_right * -150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 0);
 				}
 				shotorg = v;
@@ -1231,7 +1204,7 @@ float(float request) w_nailgun =
 			w_muzzleflash(shotorg, 1);
 			//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80, 80, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
 			//LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 200, 70, 20, 10, MINE_LASERTRIP, 60, 2, "LASERTRIPMINE", Obituary_NailgunMine);
-			LaunchMine(shotorg, shotdir * 600 + v_up * 200, self, 100, 100, 250, 20, 10, MINE_PROXIMITY, 60, 3, "PROXIMITYMINE", Obituary_NailgunMine);
+			LaunchMine(shotorg, shotdir * 600 + v_up * 200, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, NAILGUN_MINE_IMPACT, NAILGUN_MINE_IMPACTBODY, MINE_PROXIMITY, NAILGUN_MINE_TIME, NAILGUN_MINE_ARMDELAY, "PROXIMITYMINE", Obituary_NailgunMine);
 			wsetanim(WANIM_FIRE2, 0, 0, 0.6);
 		}
 		return TRUE;
@@ -1326,13 +1299,12 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_SuperNailg
 
 float(float request) w_supernailgun =
 {
-	local float a;
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_dpnail2.mdl");
 		precache_sound("weapons/spike2.wav");
 		precache_sound("weapons/bomb/trigger.wav");
-		registerweapon(5, "Super Nailgun", w_supernailgun, "supernailgun", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_NAILS, 0, 1500, SUPERNAILGUN_NAIL / SUPERNAILGUN_REFIRE, WANIMTYPE_NAILGUN);
+		registerweapon(5, "Super Nailgun", w_supernailgun, "supernailgun", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_NAILS, 0, 1500, AMMO_NAIL_DAMAGE / SUPERNAILGUN_REFIRE, WANIMTYPE_NAILGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1358,7 +1330,7 @@ float(float request) w_supernailgun =
 				sound(self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
 				w_muzzleflash(shotorg, 0);//2);
 				Inventory_AdjustQuantity(self, "nails", -1);
-				FireBullets(self, self, 4, 1, SUPERNAILGUN_NAIL, SUPERNAILGUN_NAIL, 0, 0, shotdir * 10000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
+				FireBullets(self, self, 4, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_BODYDAMAGE, 0, 0, shotdir * 10000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
 				if (cvar("dpmod_qcphysics_casings"))
 					Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 200 + v_up * 75, shotorg + v_forward * -3, v_right * 150 + v_up * 50, "progs/casing_bronze.mdl");
 				else
@@ -1405,13 +1377,10 @@ float(float request) w_supernailgun =
 			W_Hostile();
 			sound(self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 			self.wfiretime = time;
-			a = 1;
-			if (a > Inventory_Quantity(self, "rockets"))
-				a = Inventory_Quantity(self, "rockets");
-			Inventory_AdjustQuantity(self, "rockets", 0 - a);
+			Inventory_AdjustQuantity(self, "rockets", -1);
 			w_muzzleflash(shotorg, 3);
 			//LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100, a * 100, 350, 20, 10, MINE_PROXIMITY, 60, 2, "PROXIMITYMINE", Obituary_ProximityMine);
-			LaunchGrenade(shotorg, shotdir * 600 + v_up * 200, self, a * 150, a * 150, 200, GRENADE_IMPACT, 60, "SUPERNAILGUNGRENADE", Obituary_SuperNailgunGrenade);
+			LaunchGrenade(shotorg, shotdir * 600 + v_up * 200, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, GRENADE_IMPACT, SUPERNAILGUN_GRENADE_TIME, "SUPERNAILGUNGRENADE", Obituary_SuperNailgunGrenade);
 			wsetanim(WANIM_FIRE2, 0, 0, 0.6);
 		}
 		return TRUE;
@@ -1440,7 +1409,7 @@ float(float request) w_grenadelauncher =
 		precache_model("progs/grenade.mdl");
 		precache_sound("weapons/grenade.wav");
 		precache_sound("weapons/bounce.wav");
-		registerweapon(6, "Grenade Launcher", w_grenadelauncher, "grenadelauncher", VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl", IT_ROCKETS, 0, 2000, GRENADELAUNCHER_DAMAGE / GRENADELAUNCHER_REFIRE, WANIMTYPE_ROCKET);
+		registerweapon(6, "Grenade Launcher", w_grenadelauncher, "grenadelauncher", VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl", IT_ROCKETS, 0, 2000, AMMO_ROCKET_DAMAGE / GRENADELAUNCHER_REFIRE, WANIMTYPE_ROCKET);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1486,9 +1455,9 @@ float(float request) w_grenadelauncher =
 			Inventory_AdjustQuantity(self, "rockets", -1);
 			w_muzzleflash(shotorg, 2);
 			if (self.button0)
-				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, GRENADELAUNCHER_DAMAGE, GRENADELAUNCHER_FORCE, GRENADELAUNCHER_RADIUS, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
+				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, GRENADE_IMPACT | GRENADE_IMMUNETODAMAGE, 25, "GRENADE", Obituary_Grenade);
 			else
-				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, GRENADELAUNCHER_DAMAGE, GRENADELAUNCHER_FORCE, GRENADELAUNCHER_RADIUS, GRENADE_IMMUNETODAMAGE, 3, "GRENADE", Obituary_Grenade);
+				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, GRENADE_IMMUNETODAMAGE, 3, "GRENADE", Obituary_Grenade);
 			wsetanim(WANIM_FIRE1, 1, 6, GRENADELAUNCHER_REFIRE);
 		}
 		return TRUE;
@@ -1518,7 +1487,7 @@ float(float request) w_rocketlauncher =
 		precache_model("progs/missile.mdl");
 		precache_sound("weapons/sgun1.wav");
 		precache_sound("weapons/lock4.wav");
-		registerweapon(7, "Rocket Launcher", w_rocketlauncher, "rocketlauncher", VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl", IT_ROCKETS, 0, 2000, ROCKETLAUNCHER_DAMAGE / ROCKETLAUNCHER_REFIRE, WANIMTYPE_ROCKET);
+		registerweapon(7, "Rocket Launcher", w_rocketlauncher, "rocketlauncher", VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl", IT_ROCKETS, 0, 2000, AMMO_ROCKET_DAMAGE / ROCKETLAUNCHER_REFIRE, WANIMTYPE_ROCKET);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1589,7 +1558,7 @@ float(float request) w_rocketlauncher =
 			if (self.wburst == 1)
 			{
 				self.wburst = self.wburst - 1;
-				LaunchMissile(shotorg, shotdir * ROCKETLAUNCHER_VELOCITY, self, ROCKETLAUNCHER_DAMAGE, ROCKETLAUNCHER_FORCE, ROCKETLAUNCHER_RADIUS, "ROCKET", Obituary_Rocket);
+				LaunchMissile(shotorg, shotdir * ROCKETLAUNCHER_VELOCITY, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, "ROCKET", Obituary_Rocket);
 			}
 			else
 			{
@@ -1597,7 +1566,7 @@ float(float request) w_rocketlauncher =
 				while (self.wburst > 0)
 				{
 					self.wburst = self.wburst - 1;
-					LaunchMissile(shotorg, shotdir * ROCKETLAUNCHER_MULTI_VELOCITY, self, ROCKETLAUNCHER_DAMAGE, ROCKETLAUNCHER_FORCE, ROCKETLAUNCHER_RADIUS, "ROCKET", Obituary_Rocket);
+					LaunchMissile(shotorg, shotdir * ROCKETLAUNCHER_MULTI_VELOCITY, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, "ROCKET", Obituary_Rocket);
 					//newmis.angles_z = step * self.wburst;
 					newmis.dest3_z = step * self.wburst;
 					newmis.dest2 = '0 8 0';
@@ -1635,7 +1604,7 @@ float(float request) w_plasmarifle =
 		precache_model("progs/plasmashot.spr32");
 		precache_sound("plasma/plasma.wav");
 		precache_sound("plasma/plasexpl.wav");
-		registerweapon(9, "Plasma Rifle", w_plasmarifle, "plasmarifle", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_CELLS, 0, 1500, PLASMARIFLE_NORMAL_CELL * PLASMARIFLE_NORMAL_CELLS / PLASMARIFLE_NORMAL_REFIRE, WANIMTYPE_NAILGUN);
+		registerweapon(9, "Plasma Rifle", w_plasmarifle, "plasmarifle", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_CELLS, 0, 1500, AMMO_CELL_DAMAGE * PLASMARIFLE_NORMAL_AMMO / PLASMARIFLE_NORMAL_REFIRE, WANIMTYPE_NAILGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1661,9 +1630,9 @@ float(float request) w_plasmarifle =
 				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
 				w_muzzleflash(shotorg, 0);
 				cells = Inventory_Quantity(self, "cells");
-				if (cells > PLASMARIFLE_NORMAL_CELLS)
-					cells = PLASMARIFLE_NORMAL_CELLS;
-				FirePlasma(self, self, shotorg, shotdir * PLASMARIFLE_NORMAL_VELOCITY, PLASMARIFLE_NORMAL_CELL * cells, 0, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
+				if (cells > PLASMARIFLE_NORMAL_AMMO)
+					cells = PLASMARIFLE_NORMAL_AMMO;
+				FirePlasma(self, self, shotorg, shotdir * PLASMARIFLE_NORMAL_VELOCITY, AMMO_CELL_DAMAGE * cells, 0, PLASMARIFLE_NORMAL_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
 				//while (cells > 0)
 				//{
@@ -1708,9 +1677,9 @@ float(float request) w_plasmarifle =
 			sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
 			w_muzzleflash(shotorg, 2);
 			cells = Inventory_Quantity(self, "cells");
-			if (cells > PLASMARIFLE_SUPER_CELLS)
-				cells = PLASMARIFLE_SUPER_CELLS;
-			FirePlasma(self, self, shotorg, shotdir * PLASMARIFLE_SUPER_VELOCITY, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_CELL * cells, PLASMARIFLE_SUPER_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
+			if (cells > PLASMARIFLE_SUPER_AMMO)
+				cells = PLASMARIFLE_SUPER_AMMO;
+			FirePlasma(self, self, shotorg, shotdir * PLASMARIFLE_SUPER_VELOCITY, AMMO_CELL_DAMAGE * cells, AMMO_CELL_DAMAGE * cells, PLASMARIFLE_SUPER_RADIUS, "PLASMARIFLE", Obituary_PlasmaRifle);
 			Inventory_AdjustQuantity(self, "cells", 0 - cells);
 			//while (cells > 0)
 			//{
@@ -1806,7 +1775,7 @@ float(float request) w_thunderbolt =
 		precache_model("progs/bolt2.mdl");
 		precache_sound("weapons/lstart.wav");
 		precache_sound("weapons/lhit.wav");
-		registerweapon(8, "Thunderbolt", w_thunderbolt, "thunderbolt", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_CELLS, 0, 1500, THUNDERBOLT_CELL_HEALTH * THUNDERBOLT_CELLSPERSECOND, WANIMTYPE_LIGHTNING);
+		registerweapon(8, "Thunderbolt", w_thunderbolt, "thunderbolt", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_CELLS, 0, 1500, AMMO_CELL_DAMAGE / THUNDERBOLT_REFIRE, WANIMTYPE_LIGHTNING);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1836,7 +1805,7 @@ float(float request) w_thunderbolt =
 				self.wfiretime = time;
 				W_Hostile();
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
-				v = W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, THUNDERBOLT_CELL_HEALTH * cells, THUNDERBOLT_CELL_BODY * cells, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
+				v = W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, AMMO_CELL_DAMAGE * cells, AMMO_CELL_BODYDAMAGE * cells, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
 				te_lightning2(self, shotorg, v);
 				return TRUE;
 			}
@@ -1850,7 +1819,7 @@ float(float request) w_thunderbolt =
 		if (self.wanim_id == WANIM_LOWER)
 			wswitch();
 		else if (self.wanim_id == WANIM_FIRE1)
-			wsetanim(WANIM_FIRE1, 1, 4, 4 / THUNDERBOLT_CELLSPERSECOND);
+			wsetanim(WANIM_FIRE1, 1, 4, 4 * THUNDERBOLT_REFIRE);
 		else
 			wsetanim(WANIM_READY, 0, 0, 0);
 		return TRUE;
@@ -1877,7 +1846,7 @@ float(float request) w_thunderbolt =
 		{
 			sound(self, CHAN_AUTO, "weapons/lstart.wav", 1, ATTN_NORM);
 			self.wfiretime = time;
-			wsetanim(WANIM_FIRE1, 1, 4, 4 / THUNDERBOLT_CELLSPERSECOND);
+			wsetanim(WANIM_FIRE1, 1, 4, 4 * THUNDERBOLT_REFIRE);
 		}
 		return TRUE;
 	}
@@ -1962,12 +1931,12 @@ float(float request) w_plasmawave =
 			W_Hostile();
 			sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
 			cells = Inventory_Quantity(self, "cells");
-			if (cells > PLASMAWAVE_WAVE_MAXCELLS)
-				cells = PLASMAWAVE_WAVE_MAXCELLS;
+			if (cells > PLASMAWAVE_WAVE_MAXAMMO)
+				cells = PLASMAWAVE_WAVE_MAXAMMO;
 			self.wfiretime = time;
 			Inventory_AdjustQuantity(self, "cells", 0 - cells);
 			w_muzzleflash(shotorg, 4);
-			shots = ceil(cells / PLASMAWAVE_WAVE_CELLSPERSHOT);
+			shots = ceil(cells / PLASMAWAVE_WAVE_AMMOPERSHOT);
 			if (shots > PLASMAWAVE_WAVE_MAXSHOTS)
 				shots = PLASMAWAVE_WAVE_MAXSHOTS;
 			damage = cells * PLASMAWAVE_WAVE_CELL / shots;
@@ -2017,12 +1986,12 @@ float(float request) w_plasmawave =
 			W_Hostile();
 			sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
 			cells = Inventory_Quantity(self, "cells");
-			if (cells > PLASMAWAVE_SINGLE_CELLS)
-				cells = PLASMAWAVE_SINGLE_CELLS;
+			if (cells > PLASMAWAVE_SINGLE_AMMO)
+				cells = PLASMAWAVE_SINGLE_AMMO;
 			self.wfiretime = time;
 			Inventory_AdjustQuantity(self, "cells", 0 - cells);
 			w_muzzleflash(shotorg, 4);
-			FirePlasmaBall(self, self, shotorg, shotdir * 1000, cells * PLASMAWAVE_SINGLE_CELL, cells * PLASMAWAVE_SINGLE_CELL, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
+			FirePlasmaBall(self, self, shotorg, shotdir * 1000, cells * AMMO_CELL_DAMAGE, cells * AMMO_CELL_DAMAGE, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 			wsetanim(WANIM_FIRE1, 0, 0, PLASMAWAVE_SINGLE_REFIRE);
 			return TRUE;
 		}
@@ -2052,7 +2021,7 @@ float(float request) w_laserrifle =
 		precache_model("progs/laser.mdl");
 		precache_sound("enforcer/enfire.wav");
 		precache_sound("enforcer/enfstop.wav");
-		registerweapon(10, "Laser Rifle", w_laserrifle, "laserrifle", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_CELLS, 0, 2000, LASERRIFLE_CELL * LASERRIFLE_BURST / (LASERRIFLE_BURST * LASERRIFLE_BURSTREFIRE + LASERRIFLE_BETWEENBURSTREFIRE), WANIMTYPE_SHOTGUN);
+		registerweapon(10, "Laser Rifle", w_laserrifle, "laserrifle", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_CELLS, 0, 2000, AMMO_CELL_DAMAGE * LASERRIFLE_BURST / (LASERRIFLE_BURST * LASERRIFLE_BURSTREFIRE + LASERRIFLE_BETWEENBURSTREFIRE), WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -2081,7 +2050,7 @@ float(float request) w_laserrifle =
 				sound(self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
 				Inventory_AdjustQuantity(self, "cells", -1);
 				w_muzzleflash(shotorg, 0.5);
-				LaunchLaser(self, shotorg, shotdir * 10000, LASERRIFLE_CELL, "LASERRIFLE", Obituary_LaserRifle);
+				LaunchLaser(self, shotorg, shotdir * 10000, AMMO_CELL_DAMAGE, "LASERRIFLE", Obituary_LaserRifle);
 				wsetanim(WANIM_FIRE1, 1, 0, LASERRIFLE_BURSTREFIRE);
 				return TRUE;
 			}
@@ -2182,7 +2151,7 @@ float(float request) w_flamer =
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
-				Inventory_AdjustQuantity(self, "cells", 0 - FLAMER_SHOT_CELLS);
+				Inventory_AdjustQuantity(self, "cells", 0 - FLAMER_SHOT_AMMO);
 				w_muzzleflash(shotorg, 1);
 				//LaunchFlamer(self, shotorg, shotdir * FLAMER_SHOT_VELOCITY, FLAMER_SHOT_TIME, FLAMER_SHOT_DAMAGE, FLAMER_SHOT_FORCE, FLAMER_SHOT_RADIUS, "FLAMER", Obituary_Flamer);
 				LaunchFireball(shotorg, shotdir * FLAMER_SHOT_VELOCITY, self, FLAMER_SHOT_DAMAGE, FLAMER_SHOT_FORCE, FLAMER_SHOT_RADIUS, FLAMER_SHOT_BURN, FLAMER_SHOT_BURNLIMIT, "FLAMER", Obituary_Flamer);
@@ -2212,16 +2181,16 @@ float(float request) w_flamer =
 		}
 		if (self.button0)
 		{
-			if (Inventory_Quantity(self, "cells") >= FLAMER_SHOT_CELLS)
+			if (Inventory_Quantity(self, "cells") >= FLAMER_SHOT_AMMO)
 				wsetanim(WANIM_FIRE1, 1, 0, FLAMER_SHOT_REFIRE);
 		}
 		else if (self.button3)
 		{
-			if (Inventory_Quantity(self, "cells") >= FLAMER_DROP_CELLS)
+			if (Inventory_Quantity(self, "cells") >= FLAMER_DROP_AMMO)
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
-				Inventory_AdjustQuantity(self, "cells", 0 - FLAMER_DROP_CELLS);
+				Inventory_AdjustQuantity(self, "cells", 0 - FLAMER_DROP_AMMO);
 				w_muzzleflash(shotorg, 1);
 				f = 0;
 				while (f < FLAMER_DROP_COUNT)
@@ -2241,9 +2210,7 @@ float(float request) w_flamer =
 */
 
 /*
-float PLASMASHOTGUN_SHELL = 150;
-float PLASMASHOTGUN_CELL = 30;
-float PLASMASHOTGUN_CELLS = 3;
+float PLASMASHOTGUN_AMMO = 3;
 float PLASMASHOTGUN_RADIUS = 60;
 float PLASMASHOTGUN_REFIRE = 0.9;
 
@@ -2270,11 +2237,11 @@ float(float request) w_plasmashotgun =
 		precache_sound("weapons/shotgn2.wav");
 		precache_sound("weapons/bsgnoammo.wav");
 		precache_sound("weapons/bsgload.wav");
-		registerweapon(2, "Plasma Shotgun", w_plasmashotgun, "shotgun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_SHELLS, 0, 2000, (PLASMASHOTGUN_SHELL + PLASMASHOTGUN_CELL * PLASMASHOTGUN_CELLS) / PLASMASHOTGUN_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(2, "Plasma Shotgun", w_plasmashotgun, "shotgun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_SHELLS, 0, 2000, (AMMO_SHELL_DAMAGE + AMMO_CELL_DAMAGE * PLASMASHOTGUN_AMMO) / PLASMASHOTGUN_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
-		return Inventory_Quantity(self, "shells") >= 1 && Inventory_Quantity(self, "cells") >= PLASMASHOTGUN_CELLS;
+		return Inventory_Quantity(self, "shells") >= 1 && Inventory_Quantity(self, "cells") >= PLASMASHOTGUN_AMMO;
 	if (request == WR_SETUP)
 	{
 		wsetanim(WANIM_RAISE, 8, -2, 0.2);
@@ -2316,7 +2283,7 @@ float(float request) w_plasmashotgun =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	self.currentammo = Inventory_Quantity(self, "cells") / PLASMASHOTGUN_CELLS;
+	self.currentammo = Inventory_Quantity(self, "cells") / PLASMASHOTGUN_AMMO;
 	f = Inventory_Quantity(self, "shells");
 	if (self.currentammo > f)
 		self.currentammo = f;
@@ -2329,33 +2296,33 @@ float(float request) w_plasmashotgun =
 		}
 		if (self.button0)
 		if (Inventory_Quantity(self, "shells") >= 1)
-		if (Inventory_Quantity(self, "cells") >= PLASMASHOTGUN_CELLS)
+		if (Inventory_Quantity(self, "cells") >= PLASMASHOTGUN_AMMO)
 		{
 			W_Hostile();
 			sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 			Inventory_AdjustQuantity(self, "shells", -1);
-			Inventory_AdjustQuantity(self, "cells", 0 - PLASMASHOTGUN_CELLS);
+			Inventory_AdjustQuantity(self, "cells", 0 - PLASMASHOTGUN_AMMO);
 			w_muzzleflash(shotorg, 2);
-			//FireBullets(self, self, 1, 5, PLASMASHOTGUN_SHELL * 0.1, PLASMASHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
-			//FireBullets(self, self, 0, 5, PLASMASHOTGUN_SHELL * 0.1, PLASMASHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
-			FirePlasma(self, self, shotorg, shotdir * 10000, PLASMASHOTGUN_SHELL + PLASMASHOTGUN_CELL * PLASMASHOTGUN_CELLS, PLASMASHOTGUN_SHELL + PLASMASHOTGUN_CELL * PLASMASHOTGUN_CELLS, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			//FireBullets(self, self, 1, 5, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_BODYDAMAGE * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
+			//FireBullets(self, self, 0, 5, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_BODYDAMAGE * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, shotdir * 10000, AMMO_SHELL_DAMAGE + AMMO_CELL_DAMAGE * PLASMASHOTGUN_AMMO, AMMO_SHELL_DAMAGE + AMMO_CELL_DAMAGE * PLASMASHOTGUN_AMMO, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 */
 			/*
 			f = 0.2;
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, AMMO_SHELL_DAMAGE * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, AMMO_SHELL_DAMAGE * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, AMMO_SHELL_DAMAGE * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, AMMO_SHELL_DAMAGE * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			v = shotdir * 10000 + randomvec() * 500;
-			FirePlasma(self, self, shotorg, v, PLASMASHOTGUN_SHELL * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
+			FirePlasma(self, self, shotorg, v, AMMO_SHELL_DAMAGE * f, PLASMASHOTGUN_RADIUS, "PLASMASHOTGUN", Obituary_PlasmaShotgun);
 			*/
 /*
-			//FireBullets(self, self, 1, 5, PLASMASHOTGUN_SHELL * 0.1, PLASMASHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
-			//FireBullets(self, self, 0, 5, PLASMASHOTGUN_SHELL * 0.1, PLASMASHOTGUN_SHELL * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
+			//FireBullets(self, self, 1, 5, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_DAMAGE * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
+			//FireBullets(self, self, 0, 5, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_DAMAGE * 0.1, 0, 0, shotdir * 10000, 0.05, "PLASMASHOTGUN", DT_SHOTGUN, Obituary_PlasmaShotgun);
 			wsetanim(WANIM_FIRE1, 1, 6, PLASMASHOTGUN_REFIRE);
 		}
 		return TRUE;
@@ -2365,9 +2332,7 @@ float(float request) w_plasmashotgun =
 */
 
 /*
-float PISTOL_NAIL = 30;
-float PISTOL_NAILS = 1;
-float PISTOL_EMPTY = 15; // damage pistol does when empty (0 = disable)
+float PISTOL_EMPTY = 6; // damage pistol does when empty
 float PISTOL_REFIRE = 0.7;
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Pistol =
@@ -2389,7 +2354,7 @@ float(float request) w_pistol =
 	{
 		precache_model("progs/v_dpshot.mdl");
 		precache_sound("weapons/rocket1i.wav");
-		registerweapon(1, "Pistol", w_pistol, "pistol", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_NAILS, 0, 4000, PISTOL_NAIL / PISTOL_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(1, "Pistol", w_pistol, "pistol", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_NAILS, 0, 4000, AMMO_NAIL_DAMAGE / PISTOL_REFIRE, WANIMTYPE_SHOTGUN);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -2436,7 +2401,7 @@ float(float request) w_pistol =
 			if (Inventory_Quantity(self, "nails") >= 1)
 			{
 				Inventory_AdjustQuantity(self, "nails", -1);
-				FireBullets(self, self, 1, 1, PISTOL_NAIL, PISTOL_NAIL, 0, 0, shotdir * 10000, 0.025, "PISTOL", DT_NAIL, Obituary_Pistol);
+				FireBullets(self, self, 1, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_DAMAGE, 0, 0, shotdir * 10000, 0.025, "PISTOL", DT_NAIL, Obituary_Pistol);
 				//ejectcasing(shotorg + v_forward * -5, v_right * 150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 			}
 			else
@@ -4497,9 +4462,9 @@ float(float request) w_mplasmacannon =
 	return TRUE;
 };
 
-float ICECANNON_STARTFREECELLS = 0;
-float ICECANNON_FREECELLS = 0;
-float ICECANNON_CELLS = 10;
+float ICECANNON_STARTFREEAMMO = 0;
+float ICECANNON_FREEAMMO = 0;
+float ICECANNON_AMMO = 10;
 float ICECANNON_CELLTIME = 0.1;
 
 float ICECANNON_BASEDAMAGE = 50;
@@ -4568,7 +4533,7 @@ float(float request) w_micecannon =
 	{
 		if (self.wanim_id == WANIM_FIRE1)
 		{
-			cells = ICECANNON_CELLS;
+			cells = ICECANNON_AMMO;
 			if (!Inventory_Quantity(self, "supershotgun"))
 				cells = 1;
 			if (self.wburst < cells)
@@ -4615,10 +4580,10 @@ float(float request) w_micecannon =
 			// begin charging (but only if you have the charge cannon)
 			if (Inventory_Quantity(self, "supershotgun"))
 			{
-				self.wburst = ICECANNON_STARTFREECELLS;
+				self.wburst = ICECANNON_STARTFREEAMMO;
 				wsetanim(WANIM_FIRE1, 1, 4, 4 * ICECANNON_CELLTIME);
 			}
-			self.wburst = ICECANNON_STARTFREECELLS;
+			self.wburst = ICECANNON_STARTFREEAMMO;
 			wsetanim(WANIM_FIRE1, 1, 4, 4 * ICECANNON_CELLTIME);
 			return TRUE;
 		}
@@ -4646,9 +4611,9 @@ float(float request) w_micecannon =
 	return TRUE;
 };
 
-float PLASMABEAM_STARTFREECELLS = 0;
-float PLASMABEAM_FREECELLS = 0;
-float PLASMABEAM_CELLS = 10;
+float PLASMABEAM_STARTFREEAMMO = 0;
+float PLASMABEAM_FREEAMMO = 0;
+float PLASMABEAM_AMMO = 10;
 float PLASMABEAM_CELLTIME = 0.1;
 
 float PLASMABEAM_BASEDAMAGE = 40;
@@ -4716,7 +4681,7 @@ float(float request) w_mplasmabeam =
 	{
 		if (self.wanim_id == WANIM_FIRE1)
 		{
-			if (self.wburst < PLASMABEAM_CELLS)
+			if (self.wburst < PLASMABEAM_AMMO)
 			{
 				self.wburst = self.wburst + 1;
 				sound(self, CHAN_WEAPON, "plasma/plasexpl.wav", 0.5, ATTN_STATIC);
@@ -4760,7 +4725,7 @@ float(float request) w_mplasmabeam =
 			// begin charging (but only if you have the charge cannon)
 			if (Inventory_Quantity(self, "supershotgun"))
 			{
-				self.wburst = PLASMABEAM_STARTFREECELLS;
+				self.wburst = PLASMABEAM_STARTFREEAMMO;
 				wsetanim(WANIM_FIRE1, 1, 4, 4 * PLASMABEAM_CELLTIME);
 			}
 			return TRUE;
@@ -4991,7 +4956,7 @@ void() grapplereturnthink =
 		self.count2 = time + 0.05;
 		te_lightning2(self.owner, self.owner.origin + '0 0 16', self.origin);
 	}
-	self.velocity = normalize(self.owner.origin - self.origin) * 1500;
+	self.velocity = normalize(self.owner.origin - self.origin) * 3000;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	traceline(self.origin, self.owner.origin + '0 0 16', TRUE, self);
 	if (trace_fraction < 1)
@@ -5056,21 +5021,15 @@ void() grapplepull =
 	if (self.enemy.solid == SOLID_BSP) // pull owner to wall
 	{
 		setorigin(self, self.dest + self.enemy.origin);
-		self.owner.velocity = normalize(self.origin - (self.owner.origin + '0 0 16')) * 500;
-		self.owner.flags = self.owner.flags - (self.owner.flags & FL_ONGROUND);
-		if (vlen(self.origin - (self.owner.origin + '0 0 16')) < 30)
-			self.owner.velocity = normalize(self.origin - (self.owner.origin + '0 0 16')) * 200;
 	}
 	else // pull owner to object
 	{
 		setorigin(self, (self.enemy.absmin + self.enemy.absmax) * 0.5);
 		//self.enemy.velocity = normalize(self.owner.origin - self.origin) * 600;
 		//self.enemy.flags = self.enemy.flags - (self.enemy.flags & FL_ONGROUND);
-		self.owner.velocity = normalize(self.origin - (self.owner.origin + '0 0 16')) * 500;
-		self.owner.flags = self.owner.flags - (self.owner.flags & FL_ONGROUND);
-		if (vlen(self.origin - (self.owner.origin + '0 0 16')) < 30)
-			self.owner.velocity = normalize(self.origin - (self.owner.origin + '0 0 16')) * 200;
 	}
+	self.owner.velocity = normalize(self.origin - self.owner.origin) * 1000;
+	self.owner.flags = self.owner.flags - (self.owner.flags & FL_ONGROUND);
 	if (vlen(self.origin - (self.owner.origin + '0 0 16')) < 30)
 	{
 		if (self.dmg != 0)
@@ -5174,7 +5133,7 @@ void(entity own, vector org, vector dir) FireGrapple =
 	setmodel(grapplebolt, "progs/star.mdl");
 	setsize(grapplebolt, '0 0 0', '0 0 0');
 	grapplebolt.angles = vectoangles(dir);
-	grapplebolt.velocity = dir * 1500;
+	grapplebolt.velocity = dir * 3000;
 	grapplebolt.think = grappleflythink;
 	grapplebolt.nextthink = time;
 	grapplebolt.cnt = time + 3;

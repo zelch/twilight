@@ -291,7 +291,7 @@ void(float side)	Demon_Melee =
 		return;
 
 	sound (self, CHAN_WEAPON, "demon/dhit2.wav", 1, ATTN_NORM);
-	ldmg = 10 + 15*random();
+	ldmg = DMG_FIEND_MELEE_BASE + DMG_FIEND_MELEE_RANDOM*random();
 	T_Damage (self.enemy, self, self, ldmg, ldmg * 0.5, self.deathtype, DT_CUT, self.origin, '0 0 0', Obituary_Generic);
 
 	//makevectors (self.angles);
@@ -310,7 +310,7 @@ void()	Demon_JumpTouch =
 	{
 		if ( vlen(self.velocity) > 400 )
 		{
-			ldmg = 20 + 20*random();
+			ldmg = DMG_FIEND_JUMP_BASE + DMG_FIEND_JUMP_RANDOM*random();
 			T_Damage (other, self, self, ldmg, ldmg * 0.25, self.deathtype, DT_IMPACT, self.origin, self.velocity * 0.1, Obituary_Generic);
 		}
 	}

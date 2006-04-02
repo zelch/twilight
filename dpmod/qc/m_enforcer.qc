@@ -560,7 +560,7 @@ void() monster_enforcer =
 	if (r < 0.20)
 	{
 		self.th_missile = enf_missile_rocket;
-		Inventory_SetQuantity(self, "rockets", AMMO_ENFORCER_ROCKETS);
+		Inventory_SetQuantity(self, "rockets", AMMO_ENFORCER_ROCKETLAUNCHER);
 		Inventory_SetQuantity(self, "rocketlauncher", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was blasted by an enforcer";
@@ -568,7 +568,7 @@ void() monster_enforcer =
 	else if (r < 0.40)
 	{
 		self.th_missile = enf_missile_plasma;
-		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_PLASMACELLS);
+		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_PLASMARIFLE);
 		Inventory_SetQuantity(self, "plasmarifle", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was scorched by an enforcer";
@@ -576,7 +576,7 @@ void() monster_enforcer =
 	else if (r < 0.60)
 	{
 		self.th_missile = enf_missile_dbshotgun;
-		Inventory_SetQuantity(self, "shells", AMMO_ENFORCER_SHELLS);
+		Inventory_SetQuantity(self, "shells", AMMO_ENFORCER_DBSHOTGUN);
 		Inventory_SetQuantity(self, "dbshotgun", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was scorched by an enforcer";
@@ -584,7 +584,7 @@ void() monster_enforcer =
 	else if (r < 0.80)
 	{
 		self.th_missile = enf_missile_supernailgun;
-		Inventory_SetQuantity(self, "nails", AMMO_ENFORCER_NAILS);
+		Inventory_SetQuantity(self, "nails", AMMO_ENFORCER_SUPERNAILGUN);
 		Inventory_SetQuantity(self, "supernailgun", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was scorched by an enforcer";
@@ -593,7 +593,7 @@ void() monster_enforcer =
 	else if (r < 0.60)
 	{
 		self.th_missile = enf_missile_flamer;
-		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_FLAMERCELLS);
+		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_FLAMER);
 		Inventory_SetQuantity(self, "flamer", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was cremated by an enforcer";
@@ -602,7 +602,7 @@ void() monster_enforcer =
 	else
 	{
 		self.th_missile = enf_missile_laser;
-		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_LASERCELLS);
+		Inventory_SetQuantity(self, "cells", AMMO_ENFORCER_LASERRIFLE);
 		Inventory_SetQuantity(self, "laserrifle", 1);
 		self.items = 0;
 		if (!self.deathtype) // map makers can override this

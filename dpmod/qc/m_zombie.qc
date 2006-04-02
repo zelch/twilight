@@ -188,19 +188,22 @@ ZombieFireGrenade
 */
 void(vector st) ZombieFireGrenade =
 {
+	local float f;
 	local vector org, vel;
 
 	makevectors (self.angles);
 	org = self.origin + st_x * v_forward + st_y * v_right + (st_z - 24) * v_up;
-	if (findtrajectorywithleading(org, '0 0 0', '0 0 0', self.enemy, 800, 2.5, 0, self))
-		vel = findtrajectory_velocity;
-	else
+	if (!findtrajectorywithleading(org, '0 0 0', '0 0 0', self.enemy, 800, 2.5, 0, self))
 		return;
 	/*
 	self.dest = monster_shotlead(0, 600);
 	vel = normalize(self.dest - org) * 600 + '0 0 200';
 	vel = normalize(self.enemy.origin - org) * 500 + '0 0 200';
 	*/
+
+	f = (5 - bound(0, skill, 3));
+	f = f * vlen(findtrajectory_velocity) * 0.1;
+	vel = findtrajectory_velocity + f * randomvec();
 
 	sound (self, CHAN_WEAPON, "zombie/z_shot1.wav", 1, ATTN_NORM);
 
@@ -522,7 +525,7 @@ void(entity attacker, float take) zombie_pain =
 		return;
 	}
 
-	// gp into one of the fast pain animations	
+	// gp into one of the fast pain animations
 	self.count = 1;
 
 	r = random();

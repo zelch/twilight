@@ -146,6 +146,7 @@ float() SoldierCheckAttack =
 		SUB_AttackFinished (1 + random());
 		return TRUE;
 	}
+	return FALSE;
 };
 
 void(vector hit) army_pistol =
@@ -507,7 +508,7 @@ void() monster_army =
 	if (r < 0.30)
 	{
 		self.th_missile = army_missile_nail;
-		Inventory_SetQuantity(self, "nails", 15);
+		Inventory_SetQuantity(self, "nails", AMMO_GRUNT_NAILGUN);
 		Inventory_SetQuantity(self, "nailgun", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was nailed by a grunt";
@@ -515,7 +516,7 @@ void() monster_army =
 	else if (r < 0.70)
 	{
 		self.th_missile = army_missile_shotgun;
-		Inventory_SetQuantity(self, "shells", 5);
+		Inventory_SetQuantity(self, "shells", AMMO_GRUNT_SHOTGUN);
 		Inventory_SetQuantity(self, "shotgun", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was gunned down by a grunt";
@@ -524,7 +525,7 @@ void() monster_army =
 	{
 		self.items = 0;
 		self.th_missile = army_missile_pistol;
-		Inventory_SetQuantity(self, "nails", 5);
+		Inventory_SetQuantity(self, "nails", AMMO_GRUNT_PISTOL);
 		Inventory_SetQuantity(self, "pistol", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " lays down for a grunt";

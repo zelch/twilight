@@ -144,7 +144,7 @@ void() hknightspike_touch =
 	}
 
 	v = normalize(self.velocity);
-	T_Damage (other, self, self.owner, 10, 10, self.deathtype, DT_FIRE, self.origin, v * 10, Obituary_Generic);
+	T_Damage (other, self, self.owner, DMG_HELLKNIGHT_SPIKE, DMG_HELLKNIGHT_SPIKE, self.deathtype, DT_FIRE, self.origin, v * 10, Obituary_Generic);
 	v = self.origin - v * 8;
 	te_knightspike(v);
 	weaponwakeup(v, self.owner);

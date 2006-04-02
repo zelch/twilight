@@ -148,7 +148,7 @@ void() Wiz_FastFire =
 
 		vec = normalize(dst - self.origin);
 		sound (self, CHAN_WEAPON, "wizard/wattack.wav", 1, ATTN_NORM);
-		launch_spike (self.origin, vec * 750, self.owner, 9, 1, self.deathtype, Obituary_Generic);
+		launch_spike (self.origin, vec * 750, self.owner, DMG_WIZARD_SPIT, 1, self.deathtype, Obituary_Generic);
 	}
 
 	remove (self);
