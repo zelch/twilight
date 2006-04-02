@@ -1,7 +1,7 @@
 
 void() plasma_touch =
 {
-	local   vector  v;
+	local vector v;
 	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
 	{
 		remove(self);
@@ -41,8 +41,6 @@ void() plasma_think =
 
 void(entity own, entity realown, vector org, vector vel, float damg, float force, float damg2, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasma =
 {
-	local   vector  a;
-
 	//sound (own, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
 	//sound (own, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 
@@ -82,7 +80,7 @@ void(entity own, entity realown, vector org, vector vel, float damg, float force
 
 void() plasmaball_touch =
 {
-	local   vector  v;
+	local vector v;
 	if (other == self.owner)
 		return;
 	if (pointcontents(self.origin) == CONTENT_SKY)
@@ -144,8 +142,6 @@ void() plasmaball_think =
 
 void(entity own, entity realown, vector org, vector vel, float damg, float force, float damg2, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) FirePlasmaBall =
 {
-	local   vector  a;
-
 	//sound (own, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
 	//sound (own, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
 

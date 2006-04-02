@@ -17,13 +17,13 @@ void() finale_3;
 void() finale_4;
 
 
-entity	shub;
+entity shub;
 
-$frame old1 old2 old3 old4 old5 old6 old7 old8 old9 
-$frame old10 old11 old12 old13 old14 old15 old16 old17 old18 old19 
-$frame old20 old21 old22 old23 old24 old25 old26 old27 old28 old29 
-$frame old30 old31 old32 old33 old34 old35 old36 old37 old38 old39 
-$frame old40 old41 old42 old43 old44 old45 old46 
+$frame old1 old2 old3 old4 old5 old6 old7 old8 old9
+$frame old10 old11 old12 old13 old14 old15 old16 old17 old18 old19
+$frame old20 old21 old22 old23 old24 old25 old26 old27 old28 old29
+$frame old30 old31 old32 old33 old34 old35 old36 old37 old38 old39
+$frame old40 old41 old42 old43 old44 old45 old46
 
 $frame shake1 shake2 shake3 shake4 shake5 shake6 shake7 shake8
 $frame shake9 shake10 shake11 shake12 shake12 shake13 shake14
@@ -108,8 +108,8 @@ void() old_thrash20       =[      $shake20, old_thrash20      ] {finale_4();};
 
 void() finale_1 =
 {
-	local entity	pos, pl;
-	local entity	timer;
+	local entity pos, pl;
+	local entity timer;
 
 	//intermission_exittime = time + 10000000;        // never allow exit
 	intermission_exittime = time + 5; // LordHavoc: allows exit now :)
@@ -156,7 +156,7 @@ void() finale_1 =
 	// wait for 1 second
 	timer = spawn();
 	timer.nextthink = time + 1;
-	timer.think = finale_2;	
+	timer.think = finale_2;
 };
 
 void() finale_2 =
@@ -183,7 +183,7 @@ void() finale_3 =
 
 void() finale_4 =
 {
-	// throw tons of meat chunks	
+	// throw tons of meat chunks
 	local vector oldo;
 	local float x, y, z;
 	local float r;
@@ -219,7 +219,7 @@ void() finale_4 =
 				self.origin_z = oldo_z + z;
 
 				r = random();
-				if (r < 0.3)				
+				if (r < 0.3)
 					ThrowGib ("progs/gib1.mdl");
 				else if (r < 0.6)
 					ThrowGib ("progs/gib2.mdl");
@@ -249,14 +249,14 @@ void() finale_4 =
 	WriteByte (MSG_ALL, SVC_CDTRACK);
 	WriteByte (MSG_ALL, 3);
 	WriteByte (MSG_ALL, 3);
-	lightstyle(0, "m");	
+	lightstyle(0, "m");
 };
 
 //============================================================================
 
 void () nopain =
 {
-        self.health = 20000;
+	self.health = 20000;
 };
 
 //============================================================================

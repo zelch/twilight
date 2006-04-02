@@ -47,7 +47,7 @@ void(entity door) rotate_door_group_reversedirection;
 void() rotate_door_stateupdate;
 
 void() rotate_touch =
-{ 
+{
 	if (time < self.attack_finished)
 		return;
 
@@ -80,7 +80,7 @@ void() rotate_blocked =
 
 void(float notsolid) rotate_setup =
 {
-	local   entity  e;
+	local entity e;
 
 	if (notsolid)
 		self.solid = SOLID_NOT;
@@ -115,7 +115,7 @@ void(vector destangles) rotate_calculatemove =
 
 void() rotate_door_stateupdate =
 {
-	local   float   s;
+	local float s;
 	s = 0;
 	if (self.state == STATE_OPENING)
 	{
@@ -209,15 +209,15 @@ void() rotate_door_reversedirection =
 
 void(entity door) rotate_door_group_reversedirection =
 {
-	local   string  n;
-	local   entity  eself;
+	local string n;
+	local entity eself;
 
 	eself = self;
 	self = door;
 
 	// reverse all in group
 	if (self.group)
-	{	 
+	{
 		n = self.group;
 		self = find(world, group, n);
 		while(self != world)
@@ -231,7 +231,7 @@ void(entity door) rotate_door_group_reversedirection =
 	self = eself;
 };
 
-/*QUAKED func_rotatingdoor (.6 0 .9) ? TOUCHDMG CRUSH TOGGLE 
+/*QUAKED func_rotatingdoor (.6 0 .9) ? TOUCHDMG CRUSH TOGGLE
 rotating door.
 
 Flags:

@@ -41,9 +41,9 @@ void() xwall_hidethink;
 
 void() xwall_breakthink =
 {
-	local   float   t, r, t2, t3;
-	local   vector  v, v2;
-	local   entity  e, ts;
+	local float t, r, t2, t3;
+	local vector v, v2;
+	local entity ts;
 	self.think = xwall_breakthink;
 	self.nextthink = time + self.owner.delay;
 	t = 0; // give up the search after 20 failures
@@ -119,7 +119,7 @@ void() xwall_hidethink =
 
 void() xwall_break =
 {
-	local   entity  e;
+	local entity e;
 	if (self.use == SUB_Null)
 		return;
 	e = spawn();

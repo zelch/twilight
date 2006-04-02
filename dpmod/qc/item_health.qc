@@ -1,13 +1,13 @@
 /*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) rotten megahealth
 Health box. Normally gives 25 points.
 Rotten box heals 10 points,
-megahealth will add 100 health, then 
-rot you down to your maximum health limit, 
+megahealth will add 100 health, then
+rot you down to your maximum health limit,
 one point per second.
 */
 
-float	H_ROTTEN = 1;
-float	H_MEGA = 2;
+float H_ROTTEN = 1;
+float H_MEGA = 2;
 void() health_touch;
 
 // TODO: Nexuiz items
@@ -16,7 +16,7 @@ float(entity player, entity item) item_health_pickupeval = {if (player.health >=
 float(entity player, entity item) item_megahealth_pickupeval = {if (player.health >= (HEALTHMEGAMAX + player.max_health) * 0.5) return -1;return (HEALTHMEGAMAX - player.health) * (HEALTHMEGAMAX - player.health) * item.dmg / (HEALTHMEGAMAX * HEALTHMEGAMAX);};
 
 void() item_health =
-{	
+{
 	self.touch = health_touch;
 
 	if (game == GAME_NEXUIZ)
@@ -107,7 +107,7 @@ void() item_health =
 
 // T_Heal: add health to an entity, limiting health to max_health
 // "ignore" will ignore max_health limit
-.float  rotthink; // used in regen.qc
+.float rotthink; // used in regen.qc
 float (entity e, float amount, float ignore) T_Heal =
 {
 	local float m;

@@ -5,8 +5,8 @@ void() knight_bow6;
 void() knight_bow1;
 void() FoundTarget;
 
-float   MONSTER_WANDER = 64; // disable wandering around
-float   MONSTER_APPEAR = 128; // spawn invisible, and appear when triggered
+float MONSTER_WANDER = 64; // disable wandering around
+float MONSTER_APPEAR = 128; // spawn invisible, and appear when triggered
 
 .float ismonster;
 .float monsterawaitingteleport; // avoid awaking monsters in teleport rooms
@@ -15,11 +15,11 @@ float   MONSTER_APPEAR = 128; // spawn invisible, and appear when triggered
 // as the sight target the next frame so that monsters near that one
 // will wake up even if they wouldn't have noticed the player
 //
-entity	sight_entity;
-float	sight_entity_time;
+entity sight_entity;
+float sight_entity_time;
 
-float   lastweaponwakeup; // ignores any more than 1 per time value
-float   weaponwakeupcount;
+//float lastweaponwakeup; // ignores any more than 1 per time value
+//float weaponwakeupcount;
 
 // wake up monsters that see the weapon impact
 // (unless their AMBUSH flag is set)
@@ -99,7 +99,7 @@ walkmove(angle, speed) primitive is all or nothing
 //
 // globals
 //
-float	current_yaw;
+//float current_yaw;
 
 float(float v) anglemod =
 {
@@ -161,7 +161,7 @@ void() t_movetarget =
 		return;
 	if (other.movetarget != self)
 		return;
- 
+
 	if (other.enemy)
 		return;		// fighting, not following a path
 
@@ -185,8 +185,8 @@ void() t_movetarget =
 
 void() monster_wanderpaththink =
 {
-	local   vector  v, v1;
-	local   float   b, c;
+	local vector v, v1;
+	local float b, c;
 	self.nextthink = time + random() * 10 + 1;
 	if (self.owner.health < 1) // dead, also handled in death code
 	{
@@ -297,7 +297,7 @@ returns 1 if the entity is in front (in sight) of self
 */
 float(entity targ) infront =
 {
-	local   float   dot;
+	local float dot;
 
 	makevectors (self.angles);
 	dot = normalize (targ.origin - self.origin) * v_forward;
@@ -307,7 +307,7 @@ float(entity targ) infront =
 // returns 0 if not infront, or the dotproduct if infront
 float(vector dir, entity targ) infront2 =
 {
-	local   float   dot;
+	local float dot;
 
 	dir = normalize(dir);
 	dot = normalize (targ.origin - self.origin) * dir;
@@ -332,16 +332,16 @@ Called every 0.1 sec by monsters
 
 void() ChangeYaw =
 {
-	local float		ideal, move;
+	local float ideal, move;
 
 //current_yaw = self.ideal_yaw;
 // mod down the current angle
 	current_yaw = anglemod( self.angles_y );
 	ideal = self.ideal_yaw;
-	
+
 	if (current_yaw == ideal)
 		return;
-	
+
 	move = ideal - current_yaw;
 	if (ideal > current_yaw)
 	{
@@ -353,7 +353,7 @@ void() ChangeYaw =
 		if (move < -180)
 			move = move + 360;
 	}
-		
+
 	if (move > 0)
 	{
 		if (move > self.yaw_speed)
@@ -586,15 +586,15 @@ stagger back a bit
 */
 void(float dist) ai_pain =
 {
-        if (self.health < 1)
-                return;
+	if (self.health < 1)
+		return;
 	ai_back (dist);
 /*
-	local float	away;
-	
-	away = anglemod (vectoyaw (self.origin - self.enemy.origin) 
+	local float away;
+
+	away = anglemod (vectoyaw (self.origin - self.enemy.origin)
 	+ 180*(random()- 0.5) );
-	
+
 	walkmove (away, dist);
 */
 };
@@ -746,14 +746,14 @@ ChooseTurn
 */
 void(vector destvec) ChooseTurn =
 {
-	local vector	dir, newdir;
-	
-        dir = self.origin - destvec;
+	local vector dir, newdir;
+
+	dir = self.origin - destvec;
 
 	newdir_x = trace_plane_normal_y;
 	newdir_y = 0 - trace_plane_normal_x;
 	newdir_z = 0;
-	
+
 	if (dir * newdir > 0)
 	{
 		dir_x = 0 - trace_plane_normal_y;
@@ -766,7 +766,7 @@ void(vector destvec) ChooseTurn =
 	}
 
 	dir_z = 0;
-	self.ideal_yaw = vectoyaw(dir);	
+	self.ideal_yaw = vectoyaw(dir);
 };
 
 /*
@@ -777,8 +777,8 @@ FacingIdeal
 */
 float() FacingIdeal =
 {
-	local	float	delta;
-	
+	local float delta;
+
 	delta = anglemod(self.angles_y - self.ideal_yaw);
 	if (delta > 45 && delta < 315)
 		return FALSE;
@@ -801,7 +801,7 @@ The monster has an enemy it is trying to kill
 */
 void(float dist) ai_run =
 {
-	local float	ofs;
+	local float ofs;
 	if (self.health < 1)
 		return;
 	movedist = dist;

@@ -187,7 +187,7 @@ void() flameanimloop =
 /*
 void(vector org, vector ang) flamepoly =
 {
-	local   entity  e;
+	local entity e;
 	e = spawn();
 	setorigin(e, org);
 	setmodel(e, "progs/torchflametop3.spr32");
@@ -299,7 +299,7 @@ void() light_flame_small_white =
 	//makestatic (self);
 };
 
-.float  count1, count2, count3, count4, count5, count6, cnt1, cnt2;
+.float count1, count2, count3, count4, count5, count6, cnt1, cnt2;
 
 void() thunderthink =
 {
@@ -331,7 +331,7 @@ void() thunderthink =
 	if (self.lefty != c)
 	{
 		self.lefty = c;
-		     if (c <  1) lightstyle(self.style, "a");
+	if (c <  1) lightstyle(self.style, "a");
 		else if (c <  2) lightstyle(self.style, "b");
 		else if (c <  3) lightstyle(self.style, "c");
 		else if (c <  4) lightstyle(self.style, "d");
@@ -562,7 +562,7 @@ float TRAP_LASER        = 2;
 float TRAP_LIGHTNING    = 4;
 float TRAP_ONLYSTRIKE   = 128;
 
-.float  strikedist;
+.float strikedist;
 
 void() trapspike_shootthink =
 {
@@ -612,9 +612,9 @@ void() traplightning_shootthink =
 
 void() spikeshooter_use =
 {
-	local   entity  targ, head;
-	local   vector  dir;
-	local   float   a, b;
+	local entity targ, head;
+	local vector dir;
+	local float a, b;
 	targ = world;
 	dir = self.movedir;
 	if (self.target)

@@ -35,7 +35,7 @@ void() key_touch =
 
 	/*
 	if (coop)
-	{	
+	{
 		self.solid = SOLID_NOT;
 		self.model = "";
 		self.think = SUB_regen;
@@ -52,7 +52,7 @@ void() key_touch =
 
 void() key_setsounds =
 {
-        // normal quake maps
+	// normal quake maps
 	if (world.worldtype == 0)
 	{
 		precache_sound ("misc/medkey.wav");
@@ -68,18 +68,18 @@ void() key_setsounds =
 		precache_sound2 ("misc/basekey.wav");
 		self.noise = "misc/basekey.wav";
 	}
-        // Dark Places maps
-        if (world.worldtype == 3)
+	// Dark Places maps
+	if (world.worldtype == 3)
 	{
 		precache_sound ("misc/medkey.wav");
 		self.noise = "misc/medkey.wav";
 	}
-        if (world.worldtype == 4)
+	if (world.worldtype == 4)
 	{
 		precache_sound ("misc/runekey.wav");
 		self.noise = "misc/runekey.wav";
 	}
-        if (world.worldtype == 5)
+	if (world.worldtype == 5)
 	{
 		precache_sound2 ("misc/basekey.wav");
 		self.noise = "misc/basekey.wav";
@@ -99,44 +99,44 @@ following:
 
 void() item_key1 =
 {
-        if (deathmatch)
-        {
-                remove(self);
-                return;
-        }
-        // normal quake maps
-        if (world.worldtype == 0)
+	if (deathmatch)
+	{
+		remove(self);
+		return;
+	}
+	// normal quake maps
+	if (world.worldtype == 0)
 	{
 		precache_model ("progs/w_s_key.mdl");
 		setmodel (self, "progs/w_s_key.mdl");
 		self.netname = "silver key";
 	}
-        if (world.worldtype == 1)
+	if (world.worldtype == 1)
 	{
 		precache_model ("progs/m_s_key.mdl");
 		setmodel (self, "progs/m_s_key.mdl");
 		self.netname = "silver runekey";
 	}
-        if (world.worldtype == 2)
+	if (world.worldtype == 2)
 	{
 		precache_model2 ("progs/b_s_key.mdl");
 		setmodel (self, "progs/b_s_key.mdl");
 		self.netname = "silver keycard";
 	}
-        // Dark Places maps
-        if (world.worldtype == 3)
+	// Dark Places maps
+	if (world.worldtype == 3)
 	{
 		precache_model ("progs/w_s_key.mdl");
 		setmodel (self, "progs/w_s_key.mdl");
 		self.netname = "silver key";
 	}
-        if (world.worldtype == 4)
+	if (world.worldtype == 4)
 	{
 		precache_model ("progs/m_s_key.mdl");
 		setmodel (self, "progs/m_s_key.mdl");
 		self.netname = "silver runekey";
 	}
-        if (world.worldtype == 5)
+	if (world.worldtype == 5)
 	{
 		precache_model2 ("progs/b_s_key.mdl");
 		setmodel (self, "progs/b_s_key.mdl");
@@ -162,13 +162,13 @@ following:
 
 void() item_key2 =
 {
-        if (deathmatch)
-        {
-                remove(self);
-                return;
-        }
-        // normal quake maps
-        if (world.worldtype == 0)
+	if (deathmatch)
+	{
+		remove(self);
+		return;
+	}
+	// normal quake maps
+	if (world.worldtype == 0)
 	{
 		precache_model ("progs/w_g_key.mdl");
 		setmodel (self, "progs/w_g_key.mdl");
@@ -186,20 +186,20 @@ void() item_key2 =
 		setmodel (self, "progs/b_g_key.mdl");
 		self.netname = "gold keycard";
 	}
-        // Dark Places maps
-        if (world.worldtype == 3)
+	// Dark Places maps
+	if (world.worldtype == 3)
 	{
 		precache_model ("progs/w_g_key.mdl");
 		setmodel (self, "progs/w_g_key.mdl");
 		self.netname = "gold key";
 	}
-        if (world.worldtype == 4)
+	if (world.worldtype == 4)
 	{
 		precache_model ("progs/m_g_key.mdl");
 		setmodel (self, "progs/m_g_key.mdl");
 		self.netname = "gold runekey";
 	}
-        if (world.worldtype == 5)
+	if (world.worldtype == 5)
 	{
 		precache_model2 ("progs/b_g_key.mdl");
 		setmodel (self, "progs/b_g_key.mdl");

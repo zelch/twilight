@@ -13,8 +13,8 @@ weapon_touch
 */
 void() weapon_touch =
 {
-	local   float   best, new, old, switchweapon;
-	local	entity	stemp;
+	local float switchweapon;
+	local entity stemp;
 
 	if (other.classname != "player")
 		return;

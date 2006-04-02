@@ -12,9 +12,9 @@ T_RadiusDamage
 */
 void(entity inflictor, entity attacker, float damage, float force, float radius, entity ignore, string dethtype, float damgtype, void(entity t, entity a, string m, float dtyp) obitfunc) T_RadiusDamage =
 {
-	local   float   damagepoints, forcepoints, wt, d, ownerdamagescale;
-	local   vector  v, l;
-	local   entity  head;
+	local float damagepoints, forcepoints, wt, d, ownerdamagescale;
+	local vector v, l;
+	local entity head;
 
 	/*
 	traceline(inflictor.origin, inflictor.origin, TRUE, world);

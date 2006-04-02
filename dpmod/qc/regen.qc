@@ -1,9 +1,8 @@
-.float  regenthink;
-.float  rotthink; // rot down megahealth
+.float regenthink;
+.float rotthink; // rot down megahealth
 
 void() RegenStuff =
 {
-	local float b;
 	if (!self.deadflag)
 	{
 		if (time > self.rotthink)

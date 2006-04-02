@@ -18,13 +18,13 @@ void() dom_spawnteams;
 
 void() dompointthink =
 {
-	local entity head;
 	self.nextthink = time + 3;
 	if (!self.goalentity.netname)
 		return;
 	// DPMOD
 	ChangeTeamFrags2(self.goalentity.team, 1);
 	/* QUAKE
+	local entity head;
 	head = find(head, classname, "player");
 	while (head)
 	{

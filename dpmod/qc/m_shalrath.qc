@@ -102,7 +102,7 @@ void() shalrath_pain =
 	if (self.pain_finished > time)
 		return;
 
-        sound (self, CHAN_VOICE, "shalrath/pain.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "shalrath/pain.wav", 1, ATTN_NORM);
 	shal_pain1();
 	self.pain_finished = time + 3;
 };
@@ -136,7 +136,7 @@ void() ShalMissileDie =
 
 void() ShalHome =
 {
-	local vector	dir, vtemp;
+	local vector dir, vtemp;
 	vtemp = self.enemy.origin + '0 0 10';
 	if (self.enemy.health < 1 || self.enemy.deadflag)
 	{

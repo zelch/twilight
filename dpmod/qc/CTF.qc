@@ -18,7 +18,6 @@ void(entity e, float f, float tf) ChangeTeamFrags;
 
 void() place_flag =
 {
-	local string s;
 	self.mdl = self.model;
 	self.flags = FL_ITEM;
 	self.solid = SOLID_TRIGGER;
@@ -171,13 +170,12 @@ void() FlagThink =
 	self.nextthink = time + 0.01;
 };
 
-float   flagcaptimerecord;
-.float  flagpickuptime;
+float flagcaptimerecord;
+.float flagpickuptime;
 
 void() FlagTouch =
 {
-	local   float   t;
-	local string s;
+	local float t;
 	if (other.classname != "player")
 		return;
 	if (other.health < 1) // ignore dead players

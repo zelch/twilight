@@ -298,7 +298,7 @@ void() MineTouch =
 
 void(vector org, vector vel, entity own, float damage, float force, float damage2, float impactdamage, float impactbodydamage, float type, float lifetime, float armdelay, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchMine =
 {
-	local   vector  v;
+	local vector v;
 	DelayGibComment();      // make him wait before commenting on gibs so it's not drown out by explosions etc
 
 	own.activemines = own.activemines + 1;

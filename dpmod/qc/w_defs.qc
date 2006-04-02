@@ -1,13 +1,12 @@
 
-.float  wfiretime, wframe, wburst; // weapon variables
-.float  dmg2;
+.float wfiretime, wburst; // weapon variables
+.float dmg2;
 
-float   fightdone, nofire;
+float fightdone, nofire;
 
-.float  isadmin;
+.float isadmin;
 .float iscreature;
 
-entity modechecker;
 .entity aimtarg;
 
 void() SuperDamageSound;
@@ -37,12 +36,8 @@ entity w_chain;
 .entity weaponclass; // current weapon
 .entity switchweaponclass; // desired weapon (current weapon will switch to it when idle)
 
-vector  shotorg, shotdir;
+vector shotorg, shotdir;
 void() W_Hostile;
-
-// used by bot ai in some weapons to decide if it should use altfire
-.float altfiretimeout;
-.float altfirechecktimeout;
 
 float WR_REGISTER = 1;
 float WR_HASAMMO = 2;
@@ -72,7 +67,7 @@ entity(float dangerous) W_BestWeaponClass;
 /*
 float weaponrange;
 .void() weaponframecode;
-float   stopfiring; // used by W_GenericRapidFireCode system
+float stopfiring; // used by W_GenericRapidFireCode system
 
 float(float nextshotdelay) W_ShotsToFire;
 float(float minrange, float preferredrange, float baserating) genericweaponrating;

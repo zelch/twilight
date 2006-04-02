@@ -41,7 +41,7 @@ void() debristouch =
 
 void() debristhink =
 {
-	//local   float   p;
+	//local float p;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	self.nextthink = time + 0.1;
 	/*
@@ -150,7 +150,7 @@ void(string gibname) ThrowHead =
 /*
 void(vector org, vector vel) SpawnDust =
 {
-	local   entity  e;
+	local entity e;
 	if (cvar("temp1") & 2048)
 		return;
 	e = newdecor();
@@ -409,7 +409,7 @@ void(string headname, float gibs, string gibname1, float gibs1, string gibname2,
 //.float bleeddamagecount;
 void(vector org, float bodydamage, float armordamage, vector force, float damgtype) genericbleedfunc =
 {
-	local   vector  v;
+	local vector v;
 	v = '0 0 0' - force * 0.05;
 	if (armordamage > 0)
 		spark(org, v, armordamage * 3);
@@ -501,7 +501,7 @@ void() dead_gibs =
 
 void() dead_bloodarea_doit =
 {
-	//local   vector  v;
+	//local vector v;
 	bloodshower(self.origin - '16 16 16', self.origin + '16 16 16', 200, self.count * 10);
 	/*
 	while (self.count > 0)

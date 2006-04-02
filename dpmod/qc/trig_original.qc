@@ -6,8 +6,8 @@ void() trigger_reactivate =
 
 //=============================================================================
 
-float	SPAWNFLAG_NOMESSAGE = 1;
-float	SPAWNFLAG_NOTOUCH = 1;
+float SPAWNFLAG_NOMESSAGE = 1;
+float SPAWNFLAG_NOTOUCH = 1;
 
 // the wait time has passed, so set back up for another activation
 void() multi_wait =
@@ -282,13 +282,13 @@ TELEPORT TRIGGERS
 ==============================================================================
 */
 
-float	PLAYER_ONLY	= 1;
-float	SILENT = 2;
+float PLAYER_ONLY	= 1;
+float SILENT = 2;
 
 void() play_teleport =
 {
-	local	float v;
-	local	string tmpstr;
+	local float v;
+	local string tmpstr;
 
 	v = random() * 5;
 	if (v < 1)
@@ -308,7 +308,7 @@ void() play_teleport =
 
 void(vector org) spawn_tfog =
 {
-	local   entity  s;
+	local entity s;
 	s = spawn ();
 	s.nextthink = time + 0.2;
 	s.think = play_teleport;
@@ -416,9 +416,7 @@ void(vector org, entity death_owner, vector org2) spawn_tdeath =
 	force_retouch = 2;		// make sure even still objects get hit
 };
 
-.float  looktime;
-
-.float  monsterawaitingteleport;
+.float monsterawaitingteleport;
 
 void() teleport_changevelocityent =
 {
@@ -429,8 +427,7 @@ void() teleport_changevelocityent =
 
 void() teleport_touch =
 {
-	local entity	t;
-	local vector	org;
+	local entity t;
 
 	//if (!other.takedamage)
 	//        return;
@@ -762,7 +759,7 @@ void() target_position = {};
 
 void() trigger_push_touch =
 {
-	local float flighttime, dist, grav, t;
+	local float flighttime, dist, grav;
 	local vector org, v;
 	if (other.movetype == MOVETYPE_NONE || other.movetype == MOVETYPE_PUSH)
 		return;

@@ -109,8 +109,8 @@ ACTIVATION FUNCTIONS
 
 void() door_fire =
 {
-	local entity 	oself;
-	local entity	starte;
+	local entity oself;
+	local entity starte;
 
 	if (self.owner != self)
 		objerror ("door_fire: self.owner != self");
@@ -353,8 +353,8 @@ SPAWNING FUNCTIONS
 
 entity(vector fmins, vector fmaxs) spawn_field =
 {
-	local entity	trigger;
-	local	vector	t1, t2;
+	local entity trigger;
+	local vector t1, t2;
 
 	trigger = spawn();
 	trigger.classname = "doortriggerfield";
@@ -397,8 +397,8 @@ LinkDoors
 */
 void() LinkDoors =
 {
-	local entity	t, starte;
-	local vector	cmins, cmaxs;
+	local entity t, starte;
+	local vector cmins, cmaxs;
 
 	if (self.enemy)
 		return;		// already linked by another door

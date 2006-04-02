@@ -1,9 +1,9 @@
 
-float   FORCEFIELD_PLAYERONLY   = 1;
-float   FORCEFIELD_SILENT       = 2;
-float   FORCEFIELD_STARTOFF     = 4;
-float   FORCEFIELD_TOGGLE       = 8;
-float   FORCEFIELD_WALL         = 16;
+float FORCEFIELD_PLAYERONLY   = 1;
+float FORCEFIELD_SILENT       = 2;
+float FORCEFIELD_STARTOFF     = 4;
+float FORCEFIELD_TOGGLE       = 8;
+float FORCEFIELD_WALL         = 16;
 
 void(vector org, float p) forcefieldflash =
 {
@@ -96,8 +96,6 @@ void() forcefieldtouch =
 
 void() forcefieldthink =
 {
-	local vector v, v1, v2;
-	local float c;
 	// self.nextthink = time + 0.1;
 	self.frame = 0;
 	if (!(self.spawnflags & FORCEFIELD_TOGGLE))
@@ -267,7 +265,7 @@ keys:
 */
 void() trigger_forcefield =
 {
-	local   vector  o;
+	local vector o;
 	if (!self.deathtype) // map makers can override this
 		self.deathtype = " walked into a rather painful forcefield";
 	if (self.speed < 30)

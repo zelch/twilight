@@ -1,5 +1,5 @@
 
-float   INVISIBLEWALL_STARTOFF  =       1;
+float INVISIBLEWALL_STARTOFF  =       1;
 
 void() invisiblewall_use =
 {

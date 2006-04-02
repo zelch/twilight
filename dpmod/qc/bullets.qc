@@ -4,7 +4,7 @@
 
 void() bullet_touch =
 {
-	local   vector  dir;
+	local vector dir;
 	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
 	{
 		remove(self);
@@ -103,9 +103,9 @@ note that it starts at the last hit position.
 /*
 void(vector src, float damage, float bdamage, vector dir, string dethtype) FireRailgunBullet =
 {
-	local   vector  v, lastpos;
-	local   entity  saveself, last;
-	local   float   damageratio, s, d, dt;
+	local vector v, lastpos;
+	local entity saveself, last;
+	local float damageratio, s, d, dt;
 	if (bdamage < 1)
 		return;
 	damageratio = damage / bdamage;

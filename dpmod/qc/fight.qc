@@ -41,9 +41,9 @@ Returns FALSE if movement should continue
 */
 float() GenericCheckAttack =
 {
-	local vector	spot1, spot2;
-	local entity	targ;
-	local float		chance;
+	local vector spot1, spot2;
+	local entity targ;
+	local float chance;
 
 	if (self.health < 1)
 		return FALSE;
@@ -56,16 +56,16 @@ float() GenericCheckAttack =
 	traceline (spot1, spot2, FALSE, self);
 
 	if (trace_ent != targ)
-                return FALSE; // don't have a clear shot
+		return FALSE; // don't have a clear shot
 
 	if (trace_inopen && trace_inwater)
-                return FALSE; // sight line crossed contents
+		return FALSE; // sight line crossed contents
 
 	if (enemy_range == RANGE_MELEE)
 	{	// melee attack
 		if (self.th_melee)
 		{
-                        self.th_melee ();
+			self.th_melee ();
 			return TRUE;
 		}
 	}
@@ -139,18 +139,18 @@ float(entity targ) range;
 
 void(float d) ai_charge =
 {
-        if (self.health < 1)
-                return;
+	if (self.health < 1)
+		return;
 	ai_face ();
 	movetogoal (d);		// done in C code...
 };
 
 void() ai_charge_side =
 {
-        if (self.health < 1)
-                return;
-	local	vector	dtemp;
-	local	float	heading;
+	if (self.health < 1)
+		return;
+	local vector dtemp;
+	local float heading;
 
 // aim to the left of the enemy for a flyby
 
@@ -196,8 +196,8 @@ void() ai_melee =
 
 void() ai_melee_side =
 {
-	local vector	delta;
-	local float 	ldmg;
+	local vector delta;
+	local float ldmg;
 
 	if (self.health < 1)
 		return;

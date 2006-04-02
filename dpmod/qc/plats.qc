@@ -10,24 +10,24 @@ float PLAT_LOW_TRIGGER = 1;
 
 void() plat_spawn_inside_trigger =
 {
-	local entity	trigger;
-	local vector	tmin, tmax;
+	local entity trigger;
+	local vector tmin, tmax;
 
 //
 // middle trigger
-//	
+//
 	trigger = spawn();
 	trigger.touch = plat_center_touch;
 	trigger.movetype = MOVETYPE_NONE;
 	trigger.solid = SOLID_TRIGGER;
 	trigger.enemy = self;
-	
+
 	tmin = self.mins + '25 25 0';
 	tmax = self.maxs - '25 25 -8';
 	tmin_z = tmax_z - (self.pos1_z - self.pos2_z + 8);
 	if (self.spawnflags & PLAT_LOW_TRIGGER)
 		tmax_z = tmin_z + 8;
-	
+
 	if (self.size_x <= 50)
 	{
 		tmin_x = (self.mins_x + self.maxs_x) / 2;
@@ -38,7 +38,7 @@ void() plat_spawn_inside_trigger =
 		tmin_y = (self.mins_y + self.maxs_y) / 2;
 		tmax_y = tmin_y + 1;
 	}
-	
+
 	setsize (trigger, tmin, tmax);
 };
 
@@ -79,10 +79,10 @@ void() plat_center_touch =
 	//if (other.classname != "player")
 	if (!other.cantrigger)
 		return;
-	
+
 	if (other.health < 1)
 		return;
-	
+
 	self = self.enemy;
 	if (self.state == STATE_BOTTOM)
 		plat_go_up ();
@@ -95,10 +95,10 @@ void() plat_outside_touch =
 	//if (other.classname != "player")
 	if (!other.cantrigger)
 		return;
-	
+
 	if (other.health < 1)
 		return;
-	
+
 	//dprint ("plat_outside_touch\n");
 	self = self.enemy;
 	if (self.state == STATE_TOP)
@@ -193,7 +193,7 @@ void() func_plat =
 
 	self.solid = SOLID_BSP;
 	self.movetype = MOVETYPE_PUSH;
-	setorigin (self, self.origin);	
+	setorigin (self, self.origin);
 	setmodel (self, self.model);
 	setsize (self, self.mins , self.maxs);
 
@@ -211,7 +211,7 @@ void() func_plat =
 
 	self.use = plat_trigger_use;
 
-	plat_spawn_inside_trigger ();	// the "start moving" trigger	
+	plat_spawn_inside_trigger ();	// the "start moving" trigger
 
 	if (self.targetname)
 	{
@@ -261,9 +261,9 @@ void() train_wait =
 
 void() train_next =
 {
-	local entity	targ;
+	local entity targ;
 
-        targ = find(world, targetname, self.target);
+	targ = find(world, targetname, self.target);
 	self.target = targ.target;
 	if (!self.target)
 		objerror ("train_next: no next target");
@@ -279,7 +279,7 @@ void() train_next =
 void() func_train_find =
 {
 	local entity targ;
-	
+
 	targ = find(world, targetname, self.target);
 	self.target = targ.target;
 	setorigin (self, targ.origin - self.mins);
@@ -289,7 +289,7 @@ void() func_train_find =
 	if (!self.targetname)
 	{
 		// not triggered, so start immediately
-		self.nextthink = self.ltime + 1; 
+		self.nextthink = self.ltime + 1;
 		self.think = train_next;
 	}
 };
@@ -307,8 +307,8 @@ sounds
 */
 void() func_train =
 {
-        if (!self.deathtype) // map makers can override this
-                self.deathtype = " was crushed";
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " was crushed";
 	if (!self.speed)
 		self.speed = 100;
 	if (!self.target)
@@ -332,7 +332,7 @@ void() func_train =
 	self.movetype = MOVETYPE_PUSH;
 	self.blocked = train_blocked;
 	self.use = train_use;
-        // self.classname = "train";
+	// self.classname = "train";
 
 	setmodel (self, self.model);
 	setsize (self, self.mins , self.maxs);

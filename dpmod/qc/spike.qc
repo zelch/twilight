@@ -14,7 +14,7 @@ void() spike_touch =
 	setorigin(self, self.origin - 8*self.dest);
 	T_Damage (other, self, self.owner, self.health, self.health, self.deathtype, DT_NAIL, self.origin, self.dest * self.health, self.obitfunc1);
 
-	     if (self.weapon == 1) te_wizspike(self.origin);
+	if (self.weapon == 1) te_wizspike(self.origin);
 	else if (self.weapon == 2) te_knightspike(self.origin);
 	else                       te_spike(self.origin);
 

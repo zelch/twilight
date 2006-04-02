@@ -98,7 +98,7 @@ void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 
 	if (tdest == self.origin)
 	{
-                self.velocity = '0 0 0';
+		self.velocity = '0 0 0';
 		self.nextthink = self.ltime + 0.1;
 		return;
 	}
@@ -114,7 +114,7 @@ void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 
 	if (traveltime < 0.1)
 	{
-                self.velocity = '0 0 0';
+		self.velocity = '0 0 0';
 		self.nextthink = self.ltime + 0.1;
 		return;
 	}
@@ -125,8 +125,8 @@ void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 // scale the destdelta vector by the time spent traveling to get velocity
 	self.velocity = vdestdelta * (1/traveltime);	// qcc won't take vec/float
 // LordHavoc - why does MOVETYPE_NOCLIP use per frame deltas???
-        if (self.movetype == MOVETYPE_NOCLIP)
-                self.velocity = self.velocity * 0.1;
+	if (self.movetype == MOVETYPE_NOCLIP)
+		self.velocity = self.velocity * 0.1;
 };
 
 /*
@@ -134,7 +134,7 @@ void(vector tdest, float tspeed, void() func) SUB_CalcMove =
 After moving, set origin to exact final destination
 ============
 */
-void()  SUB_CalcMoveDone =
+void() SUB_CalcMoveDone =
 {
 	setorigin(self, self.dest3);
 	self.velocity = '0 0 0';
@@ -254,8 +254,8 @@ void() SUB_UseTargets =
 		t.target = self.target;
 		return;
 	}
-	
-	
+
+
 //
 // print the message
 //
@@ -275,13 +275,13 @@ void() SUB_UseTargets =
 		t = world;
 		do
 		{
-                        t = find(t, targetname, self.killtarget);
+			t = find(t, targetname, self.killtarget);
 			if (!t)
 				return;
 			remove (t);
 		} while ( 1 );
 	}
-	
+
 //
 // fire targets
 //
@@ -291,22 +291,22 @@ void() SUB_UseTargets =
 		t = world;
 		do
 		{
-                        t = find(t, targetname, self.target);
+			t = find(t, targetname, self.target);
 			if (!t)
-                                return;
-                        stemp = self;
+				return;
+			stemp = self;
 			otemp = other;
 			self = t;
 			other = stemp;
-                        if (self.use)
+			if (self.use)
 			if (self.use != SUB_Null)
-                                self.use ();
-                        self = stemp;
+				self.use ();
+			self = stemp;
 			other = otemp;
 			activator = act;
 		} while ( 1 );
 	}
-	
+
 
 };
 
@@ -345,12 +345,12 @@ void (void() thinkst) SUB_CheckRefire =
 //=========================
 vector (vector ang) SUB_NormalizeAngles =
 {
-        while(ang_x > 360) ang_x = ang_x - 360;
-        while(ang_x <   0) ang_x = ang_x + 360;
-        while(ang_y > 360) ang_y = ang_y - 360;
-        while(ang_y <   0) ang_y = ang_y + 360;
-        while(ang_z > 360) ang_z = ang_z - 360;
-        while(ang_z <   0) ang_z = ang_z + 360;
-        return ang;
+	while(ang_x > 360) ang_x = ang_x - 360;
+	while(ang_x <   0) ang_x = ang_x + 360;
+	while(ang_y > 360) ang_y = ang_y - 360;
+	while(ang_y <   0) ang_y = ang_y + 360;
+	while(ang_z > 360) ang_z = ang_z - 360;
+	while(ang_z <   0) ang_z = ang_z + 360;
+	return ang;
 };
 

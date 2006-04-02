@@ -1,15 +1,15 @@
 
-float	nofire; // weapon code pays attention to this
-float	fightdone; // weapons update this
-float	matchmode;
+float nofire; // weapon code pays attention to this
+float fightdone; // weapons update this
+float matchmode;
 
-float   serverinactive;
+float serverinactive;
 
 void() respawn;
 
 void(entity e) respawnplayer =
 {
-	local	entity	saveself;
+	local entity saveself;
 	saveself = self;
 	self = e;
 	respawn();
@@ -18,7 +18,7 @@ void(entity e) respawnplayer =
 
 void() respawnplayers =
 {
-	local	entity	head;
+	local entity head;
 	head = find(world, classname, "player");
 	while(head)
 	{
@@ -34,11 +34,11 @@ void(entity e) updateteament =
 };
 
 // setup in world.qc
-entity	team1, team2, team3, team4, team5, team6, team7, team8, team9, team10, team11, team12, team13, team14;
+entity team1, team2, team3, team4, team5, team6, team7, team8, team9, team10, team11, team12, team13, team14;
 
 // set only by various team changing code
-.float	currentteam, desiredteam;
-.entity	teament; // the team entity that matchs the current .currentteam
+.float currentteam, desiredteam;
+.entity teament; // the team entity that matchs the current .currentteam
 
 entity modecode;
 .void() framethink;
@@ -70,7 +70,7 @@ void(string modename, void() framethinkfunc, void() chooseteamfunc, void() playe
 
 void(float m) modeset =
 {
-	     if (m ==  0) modecodeset("0?DarkPlaces - Coop", modecoopframe, modecoopteam, modecoopplayer);
+	if (m ==  0) modecodeset("0?DarkPlaces - Coop", modecoopframe, modecoopteam, modecoopplayer);
 	else if (m ==  1) modecodeset("1?DarkPlaces - Deathmatch", modedmframe, modedmteam, modedmplayer);
 	else if (m ==  2) modecodeset("2?DarkPlaces - Deathmatch 2 (can only pickup gun once)", modedmframe, modedmteam, modedmplayer);
 	else if (m ==  3) modecodeset("3?DarkPlaces - Deathmatch 3 (quick ammo respawn)", modedmframe, modedmteam, modedmplayer);

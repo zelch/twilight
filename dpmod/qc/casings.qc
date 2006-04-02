@@ -39,7 +39,7 @@ void() casingtouch =
 
 void() casingthink =
 {
-	local   float   p;
+	local float p;
 	self.nextthink = time + 0.1;
 	if (self.flags & FL_ONGROUND)
 	if (!self.lefty)

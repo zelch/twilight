@@ -1,61 +1,56 @@
 
-.float  ammo_shells;
-.float  ammo_nails;
-.float  ammo_rockets;
-.float  ammo_cells;
-
-float   AMMOMAX_SHELLS          =  100;
-float   AMMOMAX_NAILS           =  500;
-float   AMMOMAX_ROCKETS         =  100;
-float   AMMOMAX_CELLS           =  300;
+float AMMOMAX_SHELLS          =  100;
+float AMMOMAX_NAILS           =  500;
+float AMMOMAX_ROCKETS         =  100;
+float AMMOMAX_CELLS           =  300;
 
 // LordHavoc: since constants can't have math in them, the ITEMS are inlined in client.qc :(
-float   STARTPARMSDM_AMMO_SHELLS     =   50; // 20
-float   STARTPARMSDM_AMMO_NAILS      =    0;
-float   STARTPARMSDM_AMMO_ROCKETS    =    0;
-float   STARTPARMSDM_AMMO_CELLS      =    0;
-//float   STARTPARMSDM_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
-float   STARTPARMSDM_HEALTH          =  125;
-float   STARTPARMSDM_MAXHEALTH       =  100;
-float   STARTPARMSDM_ARMORVALUE      =    0;
-float   STARTPARMSDM_ARMORTYPE       =    0;
+float STARTPARMSDM_AMMO_SHELLS     =   50; // 20
+float STARTPARMSDM_AMMO_NAILS      =    0;
+float STARTPARMSDM_AMMO_ROCKETS    =    0;
+float STARTPARMSDM_AMMO_CELLS      =    0;
+//float STARTPARMSDM_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
+float STARTPARMSDM_HEALTH          =  125;
+float STARTPARMSDM_MAXHEALTH       =  100;
+float STARTPARMSDM_ARMORVALUE      =    0;
+float STARTPARMSDM_ARMORTYPE       =    0;
 
-float   STARTPARMSMCTF_AMMO_SHELLS     =    0;
-float   STARTPARMSMCTF_AMMO_NAILS      =    0;
-float   STARTPARMSMCTF_AMMO_ROCKETS    =    0;
-float   STARTPARMSMCTF_AMMO_CELLS      =    0;
-//float   STARTPARMSMCTF_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
-float   STARTPARMSMCTF_HEALTH          =  100;
-float   STARTPARMSMCTF_MAXHEALTH       =  100;
-float   STARTPARMSMCTF_ARMORVALUE      =    0;
-float   STARTPARMSMCTF_ARMORTYPE       =    0;
+float STARTPARMSMCTF_AMMO_SHELLS     =    0;
+float STARTPARMSMCTF_AMMO_NAILS      =    0;
+float STARTPARMSMCTF_AMMO_ROCKETS    =    0;
+float STARTPARMSMCTF_AMMO_CELLS      =    0;
+//float STARTPARMSMCTF_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
+float STARTPARMSMCTF_HEALTH          =  100;
+float STARTPARMSMCTF_MAXHEALTH       =  100;
+float STARTPARMSMCTF_ARMORVALUE      =    0;
+float STARTPARMSMCTF_ARMORTYPE       =    0;
 
-float   STARTPARMSSP_AMMO_SHELLS     =   50; // 20
-float   STARTPARMSSP_AMMO_NAILS      =    0;
-float   STARTPARMSSP_AMMO_ROCKETS    =    0;
-float   STARTPARMSSP_AMMO_CELLS      =    0;
-//float   STARTPARMSSP_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
-float   STARTPARMSSP_HEALTH          =  100;
-float   STARTPARMSSP_MAXHEALTH       =  100;
-float   STARTPARMSSP_ARMORVALUE      =    0;
-float   STARTPARMSSP_ARMORTYPE       =    0;
+float STARTPARMSSP_AMMO_SHELLS     =   50; // 20
+float STARTPARMSSP_AMMO_NAILS      =    0;
+float STARTPARMSSP_AMMO_ROCKETS    =    0;
+float STARTPARMSSP_AMMO_CELLS      =    0;
+//float STARTPARMSSP_ITEMS           = IT_WEAPON1 | IT_WEAPON2;
+float STARTPARMSSP_HEALTH          =  100;
+float STARTPARMSSP_MAXHEALTH       =  100;
+float STARTPARMSSP_ARMORVALUE      =    0;
+float STARTPARMSSP_ARMORTYPE       =    0;
 
-float   STARTPARMSELIM_AMMO_SHELLS   =  100;
-float   STARTPARMSELIM_AMMO_NAILS    =  200;
-float   STARTPARMSELIM_AMMO_ROCKETS  =  100;
-float   STARTPARMSELIM_AMMO_CELLS    =  200;
-//float   STARTPARMSELIM_ITEMS         = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
-float   STARTPARMSELIM_HEALTH        =  400;
-float   STARTPARMSELIM_MAXHEALTH     =  400;
-float   STARTPARMSELIM_ARMORVALUE    =    0;
-float   STARTPARMSELIM_ARMORTYPE     =    0;
+float STARTPARMSELIM_AMMO_SHELLS   =  100;
+float STARTPARMSELIM_AMMO_NAILS    =  200;
+float STARTPARMSELIM_AMMO_ROCKETS  =  100;
+float STARTPARMSELIM_AMMO_CELLS    =  200;
+//float STARTPARMSELIM_ITEMS         = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON3 | IT_WEAPON4 | IT_WEAPON5 | IT_WEAPON6 | IT_WEAPON7 | IT_WEAPON8 | IT_WEAPON9 | IT_WEAPON10;
+float STARTPARMSELIM_HEALTH        =  400;
+float STARTPARMSELIM_MAXHEALTH     =  400;
+float STARTPARMSELIM_ARMORVALUE    =    0;
+float STARTPARMSELIM_ARMORTYPE     =    0;
 
 // ammo given by collecting weapons when already at weapon's fill-up limit
-float   AMMOWEAPONOVERFLOW              =    0; // false, thus it will give normal ammo
-float   AMMOWEAPONOVERFLOW_SHELLS       =    3;
-float   AMMOWEAPONOVERFLOW_NAILS        =    5;
-float   AMMOWEAPONOVERFLOW_ROCKETS      =    1;
-float   AMMOWEAPONOVERFLOW_CELLS        =    5;
+float AMMOWEAPONOVERFLOW              =    0; // false, thus it will give normal ammo
+float AMMOWEAPONOVERFLOW_SHELLS       =    3;
+float AMMOWEAPONOVERFLOW_NAILS        =    5;
+float AMMOWEAPONOVERFLOW_ROCKETS      =    1;
+float AMMOWEAPONOVERFLOW_CELLS        =    5;
 
 /*
 // quake values (roughly)
@@ -117,107 +112,107 @@ float AMMO_ENFORCER_FLAMER              =   10;
 float AMMO_OGRE_GRENADELAUNCHER         =   10;
 
 // respawn times
-float   RESPAWNTIME_AMMO = 20;
-float   RESPAWNTIME_WEAPON = 5;
-float   RESPAWNTIME_ARMOR = 15;
-float   RESPAWNTIME_HEALTH = 20;
-float   RESPAWNTIME_MEGAHEALTH = 30;
-float   RESPAWNTIME_ARTIFACT = 60;
+float RESPAWNTIME_AMMO        =  20;
+float RESPAWNTIME_WEAPON      =   5;
+float RESPAWNTIME_ARMOR       =  15;
+float RESPAWNTIME_HEALTH      =  20;
+float RESPAWNTIME_MEGAHEALTH  =  30;
+float RESPAWNTIME_ARTIFACT    =  60;
 
-float   HEALTHSTART             = 125;
-float   HEALTHMAX               = 100;
-float   HEALTHBODY              = 200; // body health limit
-float   HEALTHMEGAMAX           = 250; // max megahealth
-float   HEALTHELIMINATION       = 400; // 400 + 200 armor
+float HEALTHSTART             = 125;
+float HEALTHMAX               = 100;
+float HEALTHBODY              = 200; // body health limit
+float HEALTHMEGAMAX           = 250; // max megahealth
+float HEALTHELIMINATION       = 400; // 400 + 200 armor
 
-float   ARMORSTART              = 0;
-float   ARMORMAX                = 100;
+float ARMORSTART              = 0;
+float ARMORMAX                = 100;
 
-float   GREENARMOR_VALUE        = 100;
-float   GREENARMOR_TYPE         = 0.3;
+float GREENARMOR_VALUE        = 100;
+float GREENARMOR_TYPE         = 0.3;
 
-float   YELLOWARMOR_VALUE       = 150;
-float   YELLOWARMOR_TYPE        = 0.6;
+float YELLOWARMOR_VALUE       = 150;
+float YELLOWARMOR_TYPE        = 0.6;
 
-float   REDARMOR_VALUE          = 200;
-float   REDARMOR_TYPE           = 0.8;
+float REDARMOR_VALUE          = 200;
+float REDARMOR_TYPE           = 0.8;
 
-float   GLOWARMOR_VALUE         = 250;
-float   GLOWARMOR_TYPE          = 0.8;
+float GLOWARMOR_VALUE         = 250;
+float GLOWARMOR_TYPE          = 0.8;
 
-float	SKILL4_MINALPHA			= 0.2;
+float SKILL4_MINALPHA         = 0.2;
 
-float   DMG_CHTHON_LAVABALL_DAMAGE      =  110;
-float   DMG_CHTHON_LAVABALL_FORCE       =  110;
-float   DMG_CHTHON_LAVABALL_RADIUS      =  102;
-float   DMG_DOG_BITE_BASE               =    0;
-float   DMG_DOG_BITE_RANDOM1            =    8;
-float   DMG_DOG_BITE_RANDOM2            =    8;
-float   DMG_DOG_BITE_RANDOM3            =    8;
-float   DMG_DOG_JUMP_BASE               =   10;
-float   DMG_DOG_JUMP_RANDOM             =   10;
-float   DMG_ENFORCER_DBSHOTGUN_DAMAGE   =   28;
-float   DMG_ENFORCER_DBSHOTGUN_RANGE    =  500;
-float   DMG_ENFORCER_FLAMER_BURNDAMAGE  =   15;
-float   DMG_ENFORCER_FLAMER_BURNLIMIT   =   90;
-float   DMG_ENFORCER_FLAMER_DAMAGE      =    0;
-float   DMG_ENFORCER_FLAMER_FORCE       =    0;
-float   DMG_ENFORCER_FLAMER_RADIUS      =   40;
-float   DMG_ENFORCER_LASER              =   15;
-float   DMG_ENFORCER_PLASMA_DAMAGE      =   15;
-float   DMG_ENFORCER_PLASMA_FORCE       =    0;
-float   DMG_ENFORCER_PLASMA_RADIUS      =   20;
-float   DMG_ENFORCER_ROCKET_DAMAGE      =   60;
-float   DMG_ENFORCER_ROCKET_FORCE       =   60;
-float   DMG_ENFORCER_ROCKET_RADIUS      =  102;
-float   DMG_ENFORCER_SUPERNAIL_DAMAGE   =    9; // fires 20 per second
-float   DMG_FIEND_JUMP_BASE             =   40;
-float   DMG_FIEND_JUMP_RANDOM           =   10;
-float   DMG_FIEND_MELEE_BASE            =   10;
-float   DMG_FIEND_MELEE_RANDOM          =    5;
-float   DMG_FISH_BITE_BASE              =    0;
-float   DMG_FISH_BITE_RANDOM1           =    3;
-float   DMG_FISH_BITE_RANDOM2           =    3;
-float   DMG_FISH_BITE_RANDOM3           =    0;
-float   DMG_HELLKNIGHT_SPIKE            =    9;
-float   DMG_KNIGHT_MELEE_BASE           =    0;
-float   DMG_KNIGHT_MELEE_RANDOM1        =    3;
-float   DMG_KNIGHT_MELEE_RANDOM2        =    3;
-float   DMG_KNIGHT_MELEE_RANDOM3        =    3;
-float   DMG_OGRE_GRENADE_DAMAGE         =   40;
-float   DMG_OGRE_GRENADE_FORCE          =   40;
-float   DMG_OGRE_GRENADE_RADIUS         =  102;
-float   DMG_OGRE_GRENADE_TIME           =    2.5;
-float   DMG_OGRE_MELEE_BASE             =    0;
-float   DMG_OGRE_MELEE_RANDOM1          =    4;
-float   DMG_OGRE_MELEE_RANDOM2          =    4;
-float   DMG_OGRE_MELEE_RANDOM3          =    4;
-float   DMG_SHALRATH_MISSILE_DAMAGE     =   40;
-float   DMG_SHALRATH_MISSILE_FORCE      =   40;
-float   DMG_SHALRATH_MISSILE_RADIUS     =  102;
-float   DMG_SHAMBLER_CLAW_BASE          =    0;
-float   DMG_SHAMBLER_CLAW_RANDOM1       =   20;
-float   DMG_SHAMBLER_CLAW_RANDOM2       =   20;
-float   DMG_SHAMBLER_CLAW_RANDOM3       =   20;
-float   DMG_SHAMBLER_LIGHTNING          =   10;
-float   DMG_SHAMBLER_SMASH_BASE         =    0;
-float   DMG_SHAMBLER_SMASH_RANDOM1      =   40;
-float   DMG_SHAMBLER_SMASH_RANDOM2      =   40;
-float   DMG_SHAMBLER_SMASH_RANDOM3      =   40;
-float   DMG_SOLDIER_MACHINEGUN_BDAMAGE  =    6;
-float   DMG_SOLDIER_MACHINEGUN_DAMAGE   =    6;
-float   DMG_SOLDIER_PISTOL_BDAMAGE      =   10;
-float   DMG_SOLDIER_PISTOL_DAMAGE       =   10;
-float   DMG_SOLDIER_SHOTGUN_BDAMAGE     =    4;
-float   DMG_SOLDIER_SHOTGUN_DAMAGE      =    4;
-float   DMG_SOLDIER_SHOTGUN_PELLETS     =    4;
-float   DMG_TARBABY_DIE_DAMAGE          =  102;
-float   DMG_TARBABY_DIE_FORCE           =  102;
-float   DMG_TARBABY_DIE_RADIUS          =  102;
-float   DMG_TARBABY_JUMP_BASE           =   10;
-float   DMG_TARBABY_JUMP_RANDOM         =   10;
-float   DMG_WIZARD_SPIT                 =    9;
-float   DMG_ZOMBIE_CHUNK                =   10;
+float DMG_CHTHON_LAVABALL_DAMAGE      =  110;
+float DMG_CHTHON_LAVABALL_FORCE       =  110;
+float DMG_CHTHON_LAVABALL_RADIUS      =  102;
+float DMG_DOG_BITE_BASE               =    0;
+float DMG_DOG_BITE_RANDOM1            =    8;
+float DMG_DOG_BITE_RANDOM2            =    8;
+float DMG_DOG_BITE_RANDOM3            =    8;
+float DMG_DOG_JUMP_BASE               =   10;
+float DMG_DOG_JUMP_RANDOM             =   10;
+float DMG_ENFORCER_DBSHOTGUN_DAMAGE   =   28;
+float DMG_ENFORCER_DBSHOTGUN_RANGE    =  500;
+float DMG_ENFORCER_FLAMER_BURNDAMAGE  =   15;
+float DMG_ENFORCER_FLAMER_BURNLIMIT   =   90;
+float DMG_ENFORCER_FLAMER_DAMAGE      =    0;
+float DMG_ENFORCER_FLAMER_FORCE       =    0;
+float DMG_ENFORCER_FLAMER_RADIUS      =   40;
+float DMG_ENFORCER_LASER              =   15;
+float DMG_ENFORCER_PLASMA_DAMAGE      =   15;
+float DMG_ENFORCER_PLASMA_FORCE       =    0;
+float DMG_ENFORCER_PLASMA_RADIUS      =   20;
+float DMG_ENFORCER_ROCKET_DAMAGE      =   60;
+float DMG_ENFORCER_ROCKET_FORCE       =   60;
+float DMG_ENFORCER_ROCKET_RADIUS      =  102;
+float DMG_ENFORCER_SUPERNAIL_DAMAGE   =    9; // fires 20 per second
+float DMG_FIEND_JUMP_BASE             =   40;
+float DMG_FIEND_JUMP_RANDOM           =   10;
+float DMG_FIEND_MELEE_BASE            =   10;
+float DMG_FIEND_MELEE_RANDOM          =    5;
+float DMG_FISH_BITE_BASE              =    0;
+float DMG_FISH_BITE_RANDOM1           =    3;
+float DMG_FISH_BITE_RANDOM2           =    3;
+float DMG_FISH_BITE_RANDOM3           =    0;
+float DMG_HELLKNIGHT_SPIKE            =    9;
+float DMG_KNIGHT_MELEE_BASE           =    0;
+float DMG_KNIGHT_MELEE_RANDOM1        =    3;
+float DMG_KNIGHT_MELEE_RANDOM2        =    3;
+float DMG_KNIGHT_MELEE_RANDOM3        =    3;
+float DMG_OGRE_GRENADE_DAMAGE         =   40;
+float DMG_OGRE_GRENADE_FORCE          =   40;
+float DMG_OGRE_GRENADE_RADIUS         =  102;
+float DMG_OGRE_GRENADE_TIME           =    2.5;
+float DMG_OGRE_MELEE_BASE             =    0;
+float DMG_OGRE_MELEE_RANDOM1          =    4;
+float DMG_OGRE_MELEE_RANDOM2          =    4;
+float DMG_OGRE_MELEE_RANDOM3          =    4;
+float DMG_SHALRATH_MISSILE_DAMAGE     =   40;
+float DMG_SHALRATH_MISSILE_FORCE      =   40;
+float DMG_SHALRATH_MISSILE_RADIUS     =  102;
+float DMG_SHAMBLER_CLAW_BASE          =    0;
+float DMG_SHAMBLER_CLAW_RANDOM1       =   20;
+float DMG_SHAMBLER_CLAW_RANDOM2       =   20;
+float DMG_SHAMBLER_CLAW_RANDOM3       =   20;
+float DMG_SHAMBLER_LIGHTNING          =   10;
+float DMG_SHAMBLER_SMASH_BASE         =    0;
+float DMG_SHAMBLER_SMASH_RANDOM1      =   40;
+float DMG_SHAMBLER_SMASH_RANDOM2      =   40;
+float DMG_SHAMBLER_SMASH_RANDOM3      =   40;
+float DMG_SOLDIER_MACHINEGUN_BDAMAGE  =    6;
+float DMG_SOLDIER_MACHINEGUN_DAMAGE   =    6;
+float DMG_SOLDIER_PISTOL_BDAMAGE      =   10;
+float DMG_SOLDIER_PISTOL_DAMAGE       =   10;
+float DMG_SOLDIER_SHOTGUN_BDAMAGE     =    4;
+float DMG_SOLDIER_SHOTGUN_DAMAGE      =    4;
+float DMG_SOLDIER_SHOTGUN_PELLETS     =    4;
+float DMG_TARBABY_DIE_DAMAGE          =  102;
+float DMG_TARBABY_DIE_FORCE           =  102;
+float DMG_TARBABY_DIE_RADIUS          =  102;
+float DMG_TARBABY_JUMP_BASE           =   10;
+float DMG_TARBABY_JUMP_RANDOM         =   10;
+float DMG_WIZARD_SPIT                 =    9;
+float DMG_ZOMBIE_CHUNK                =   10;
 
 // MH = health, MB = extra body health (bodyhealth = MH_DOG + MB_DOG)
 float MH_ENFORCER  =    80;float MB_ENFORCER  =   200;

@@ -1,5 +1,5 @@
-entity  xplo;
-float   maxdecors;
+entity xplo;
+float maxdecors;
 
 void() explosionfx_precache =
 {
@@ -59,7 +59,7 @@ void() explosionanimate =
 
 void(entity e, vector explosioncolor, float quad) BecomeExplosion =
 {
-	local vector org, v, v2;
+	local vector org, v;
 	if (e.solid == SOLID_BSP)
 		setorigin(e, (e.absmin + e.absmax) * 0.5);
 	e.model = "";

@@ -96,7 +96,7 @@ void() MissileDet =
 
 void() MissileTouch =
 {
-	local   vector  v;
+	local vector v;
 	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
 	{
 		remove(self);

@@ -342,11 +342,11 @@ void() army_painc11 = [$painc11, army_painc12] {ai_painforward(6);};
 void() army_painc12 = [$painc12, army_painc13] {ai_painforward(8);};
 void() army_painc13 = [$painc13, army_run1   ] {};
 
-void(entity attacker, float damage)	army_pain =
+void(entity attacker, float damage) army_pain =
 {
 	local float r;
 
-        if (self.pain_finished > time || random() < 0.75)
+	if (self.pain_finished > time || random() < 0.75)
 		return;
 
 	r = random();

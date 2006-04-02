@@ -2,7 +2,6 @@
 float darkmode;
 
 float maxclients; // how many player slots there actually are
-entity modechecker;
 
 float monsterwander;
 
@@ -30,8 +29,8 @@ float serverinactive;
 
 /*
 // used by players and monsters
-.float  nextbleed;
-.float  bleedcount;
+.float nextbleed;
+.float bleedcount;
 */
 .float bubble_time;
 
@@ -122,11 +121,11 @@ Exit deathmatch games upon conditions
 */
 void() CheckRules =
 {
-	local   float   timelimit;
-	local   float   fraglimit;
-	local   entity  head;
+	local float timelimit;
+	local float fraglimit;
+	local entity head;
 
-	if (gameover)	// someone else quit the game already
+	if (gameover) // someone else quit the game already
 		return;
 
 	timelimit = cvar("timelimit") * 60;
@@ -719,7 +718,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Water =
 	deathstring3 = "";
 	deathstring4 = "";
 	r = random()*9;
-	     if (r < 1) deathstring2 = " entered davey jones's locker";
+	if (r < 1) deathstring2 = " entered davey jones's locker";
 	else if (r < 2) deathstring2 = " joined the fishies";
 	else if (r < 3) deathstring2 = " stayed under a bit too long";
 	else if (r < 4) deathstring2 = " forgot his diving gear";
@@ -737,7 +736,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Slime =
 	deathstring3 = "";
 	deathstring4 = "";
 	r = random()*4;
-	     if (r < 0) deathstring2 = " went for a swim in the slime";
+	if (r < 0) deathstring2 = " went for a swim in the slime";
 	else if (r < 1) deathstring2 = " forgot his biosuit";
 	else if (r < 2) deathstring2 = " got too close to the goo";
 	else            deathstring2 = " found the secret sauce";
@@ -920,13 +919,12 @@ void() damagescaleupdate =
 };
 
 .float findtarget;
-.vector creaturecode_oldvelocity;
 entity creaturetocheck;
 void() startframe_creaturecode =
 {
 	local entity oldself;
-	local vector b, v, vel;
-	local float c, f, monster_count, iterations;
+	local vector b, v;
+	local float iterations;
 	oldself = self;
 	self = creaturetocheck;
 	if (self == world)

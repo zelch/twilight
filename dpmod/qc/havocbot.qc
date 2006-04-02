@@ -14,12 +14,12 @@ float(vector m1, vector m2, vector m3, vector m4) boxesoverlap =
 	return m2_x >= m3_x && m1_x <= m4_x && m2_y >= m3_y && m1_y <= m4_y && m2_z >= m3_z && m1_z <= m4_z;
 };
 
-//float   WP_JUMP = 1;
-//float   WP_LIFTWAIT = 2;
-//float   WP_LIFTBOTTOM = 4;
-//float   WP_NOUP = 8; // can't be reached from below
-//float   WP_NODOWN = 16; // can't be reached from above
-//.float  wpflags;
+//float WP_JUMP = 1;
+//float WP_LIFTWAIT = 2;
+//float WP_LIFTBOTTOM = 4;
+//float WP_NOUP = 8; // can't be reached from below
+//float WP_NODOWN = 16; // can't be reached from above
+//.float wpflags;
 
 .entity wp0, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12, wp13, wp14, wp15, wp16, wp17, wp18, wp19, wp20, wp21, wp22, wp23, wp24, wp25, wp26, wp27, wp28, wp29, wp30, wp31;
 //.float wpcost0, wpcost1, wpcost2, wpcost3, wpcost4, wpcost5, wpcost6, wpcost7, wpcost8, wpcost9, wpcost10, wpcost11, wpcost12, wpcost13, wpcost14, wpcost15, wpcost16, wpcost17, wpcost18, wpcost19, wpcost20, wpcost21, wpcost22, wpcost23, wpcost24, wpcost25, wpcost26, wpcost27, wpcost28, wpcost29, wpcost30, wpcost31;
@@ -841,7 +841,7 @@ string() havocbot_name =
 	do
 	{
 		r = random() * MAXBOTS;
-		     if (r <  1) name = "Thunderstorm";
+		if (r <  1) name = "Thunderstorm";
 		else if (r <  2) name = "Deadly Dream";
 		else if (r <  3) name = "Darkness";
 		else if (r <  4) name = "Scorcher";
@@ -972,8 +972,8 @@ void() havocbot_new =
 
 void() havocbot_removenewest =
 {
-	local   float   besttime;
-	local   entity  best, head;
+	local float besttime;
+	local entity best, head;
 	head = havocbot_list;
 	if (!head)
 		return;
@@ -1181,8 +1181,8 @@ vector() havocbot_dodge =
 
 void() havocbot_chooseenemy =
 {
-	local   entity  head, best;
-	local   float   rating, bestrating;
+	local entity head, best;
+	local float rating, bestrating;
 	best = world;
 	bestrating = 100000000;
 	head = findchainfloat(havocattack, TRUE);
@@ -1469,7 +1469,7 @@ void() havocbot_impulses =
 	local float f;
 	local string s;
 	local entity e;
-	     if (self.impulse == 101) {f = cvar("bots") + 1;f = bound(0, f, MAXBOTS);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
+	if (self.impulse == 101) {f = cvar("bots") + 1;f = bound(0, f, MAXBOTS);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
 	else if (self.impulse == 102) {f = cvar("bots") - 1;f = bound(0, f, MAXBOTS);s = ftos(f);cvar_set("bots", s);self.impulse = 0;}
 	if (cvar("havocbot_editwaypoints"))
 	{

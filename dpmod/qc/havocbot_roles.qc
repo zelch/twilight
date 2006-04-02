@@ -24,7 +24,6 @@ void(float ratingscale, vector org, float sradius) havocbot_goalrating_items =
 {
 	local entity head;
 	local float t;
-	local string s;
 	head = findchainfloat(havocpickup, TRUE);
 	while (head)
 	{
@@ -48,7 +47,6 @@ void(float ratingscale, vector org, float sradius) havocbot_goalrating_items =
 void(float ratingscale, vector org, float sradius) havocbot_goalrating_monsters =
 {
 	local entity head;
-	local float t;
 	head = findchainfloat(ismonster, TRUE);
 	while (head)
 	{
@@ -210,9 +208,7 @@ void() havocbot_chooserole =
 		havocbot_chooserole_coop();
 	if (deathmatch == DM_ELIM)
 		havocbot_chooserole_elimination();
-	if (deathmatch == DM_CTF_2TEAM
-	 || deathmatch == DM_CTF_3TEAM
-	 || deathmatch == DM_MCTF_2TEAM)
+	if (deathmatch == DM_CTF_2TEAM || deathmatch == DM_CTF_3TEAM || deathmatch == DM_MCTF_2TEAM)
 		havocbot_chooserole_ctf();
 	// assume anything else is deathmatch
 	if (self.havocbot_role == SUB_Null)
@@ -282,7 +278,6 @@ pick up items and dropped flags (with big rating boost to dropped flags)
 
 void() havocbot_role_ctf_rogue =
 {
-	local entity f;
 	if (self.goaltime < time)
 	{
 		self.goaltime = time + 0.5;
@@ -385,7 +380,6 @@ go to least recently visited area
 
 void() havocbot_role_ctf_middle =
 {
-	local entity f;
 	if (self.flagcarried)
 	{
 		bprint("changing role to carrier\n");
@@ -450,7 +444,6 @@ move to nearest unclaimed defense spot
 void() havocbot_role_ctf_defense =
 {
 	local entity f;
-	local entity head;
 	if (self.flagcarried)
 	{
 		bprint("changing role to carrier\n");

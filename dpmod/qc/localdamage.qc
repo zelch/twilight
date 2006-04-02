@@ -1,25 +1,25 @@
 // localdamage stuff (headshots etc)
 
-.float  localdamage;
-.float  localdamage_hit;
-.float  localdamage_head_z1;
-.float  localdamage_head_z2;
-.float  localdamage_head_mul;
-.float  localdamage_body_z1;
-.float  localdamage_body_z2;
-.float  localdamage_body_mul;
+.float localdamage;
+.float localdamage_hit;
+.float localdamage_head_z1;
+.float localdamage_head_z2;
+.float localdamage_head_mul;
+.float localdamage_body_z1;
+.float localdamage_body_z2;
+.float localdamage_body_mul;
 // codes for this
-.float  localdamage_hit;
+.float localdamage_hit;
 
 .vector bodymins, bodymaxs, headmins, headmaxs;
 
-float   LD_NORMAL       = 0;
-float   LD_BODY         = 1;
-float   LD_HEAD         = 2;
+float LD_NORMAL       = 0;
+float LD_BODY         = 1;
+float LD_HEAD         = 2;
 
 float(vector hitpos, vector direction, entity victim, float damage) localdamage_getdamage =
 {
-	local   float   z, tf;
+	local float z, tf;
 	victim.localdamage_hit = LD_NORMAL;
 	// detect local damage?
 	if (victim.localdamage)

@@ -55,8 +55,8 @@ void() GrenadeDet =
 
 void() GrenadeThink =
 {
-	local   entity  head;
-	local   float   p;
+	local entity head;
+	local float p;
 	self.nextthink = time;
 	fightdone = time + 1; // delay stuff until fighting is over
 	p = pointcontents(self.origin);
@@ -150,7 +150,7 @@ void() GrenadeTouch =
 
 void(vector org, vector vel, entity own, float damage, float force, float damage2, float type, float lifetime, string dethtype, void(entity t, entity a, string m, float dtyp) obitfunc) LaunchGrenade =
 {
-	local   vector  v;
+	local vector v;
 	DelayGibComment();      // make him wait before commenting on gibs so it's not drown out by explosions etc
 
 	own.activemines = own.activemines + 1;

@@ -64,9 +64,9 @@ void() dog_bite =
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, self.origin, '0 0 0', Obituary_Generic);
 };
 
-void()	Dog_JumpTouch =
+void() Dog_JumpTouch =
 {
-	local	float	ldmg;
+	local float ldmg;
 
 	if (self.health < 1)
 		return;
@@ -266,7 +266,7 @@ CheckDogMelee
 Returns TRUE if a melee attack would hit right now
 ==============
 */
-float()	CheckDogMelee =
+float() CheckDogMelee =
 {
 	if (enemy_range == RANGE_MELEE)
 	{	// FIXME: check canreach
@@ -282,10 +282,9 @@ CheckDogJump
 
 ==============
 */
-float()	CheckDogJump =
+float() CheckDogJump =
 {
-	local vector dist, old;
-	local float d;
+	local vector old;
 
 	/*
 	if (self.origin_z + self.mins_z > self.enemy.origin_z + self.enemy.mins_z + 0.75 * self.enemy.size_z)
@@ -317,7 +316,7 @@ float()	CheckDogJump =
 	return TRUE;
 };
 
-float()	DogCheckAttack =
+float() DogCheckAttack =
 {
 // if close enough for slashing, go for it
 	if (CheckDogMelee ())

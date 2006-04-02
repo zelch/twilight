@@ -100,8 +100,6 @@ enemy as activator.
 */
 void() monster_death_use =
 {
-	local entity 	ent, otemp, stemp;
-
 // fall to ground
 	if (self.flags & FL_FLY)
 		self.flags = self.flags - FL_FLY;
@@ -118,7 +116,7 @@ void() monster_death_use =
 
 void() monsterinwall =
 {
-	local   entity  e;
+	local entity e;
 	if (!cvar("developer"))
 		return;
 	// this is handy for level designers,
@@ -136,9 +134,6 @@ void() monsterinwall =
 
 void() walkmonster_start_go =
 {
-	local string	stemp;
-	local entity	etemp;
-
 	//self.origin_z = self.origin_z + 1;
 	//droptofloor();
 	setorigin(self, self.origin + '0 0 1');      // raise off floor a bit

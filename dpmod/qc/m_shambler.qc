@@ -91,8 +91,8 @@ Returns FALSE if movement should continue
 */
 float() ShamCheckAttack =
 {
-	local vector	spot1, spot2;
-	local entity	targ;
+	local vector spot1, spot2;
+	local entity targ;
 
 	if (self.health < 1)
 		return FALSE;
@@ -146,8 +146,8 @@ void() sham_smash7     =[      $smash7,       sham_smash8    ] {ai_charge(0);};
 void() sham_smash8     =[      $smash8,       sham_smash9    ] {ai_charge(0);};
 void() sham_smash9     =[      $smash9,       sham_smash10   ] {monster_setalpha(0.5);ai_charge(0);};
 void() sham_smash10    =[      $smash10,      sham_smash11   ] {monster_setalpha(1.0);
-	local vector	delta;
-	local float 	ldmg;
+	local vector delta;
+	local float ldmg;
 
 	if (!self.enemy)
 		return;
@@ -170,14 +170,14 @@ void() sham_smash10    =[      $smash10,      sham_smash11   ] {monster_setalpha
 	//SpawnMeatSpray (self.origin + v_forward*16, crandom() * 100 * v_right);
 };
 void() sham_smash11    =[      $smash11,      sham_smash12   ] {monster_setalpha(0.5);ai_charge(5);};
-void() sham_smash12    =[      $smash12,      sham_run1	   ] {monster_setalpha(0.0);ai_charge(4);};
+void() sham_smash12    =[      $smash12,      sham_run1   ] {monster_setalpha(0.0);ai_charge(4);};
 
 void() sham_swingr1;
 
 void(float side) ShamClaw =
 {
-	local vector	delta;
-	local float 	ldmg;
+	local vector delta;
+	local float ldmg;
 
 	if (!self.enemy)
 		return;
@@ -251,7 +251,7 @@ void() sham_melee =
 
 void() CastLightning =
 {
-	local	vector	org, dir;
+	local vector org, dir;
 
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
@@ -283,7 +283,7 @@ void() sham_glowingclawleft =
 	{
 		self.glow_size = 120;
 		// Thanks to SSJ4-Death (in #qc) for getting the shambler claw locations
-		     if (o.frame == $magic1) self.view_ofs = '42.44 35.15 26.76';
+	if (o.frame == $magic1) self.view_ofs = '42.44 35.15 26.76';
 		else if (o.frame == $magic2) self.view_ofs = '30.55 3.3 73.36';
 		else if (o.frame == $magic3) self.view_ofs = '19.91 -3.63 80.49';
 		else if (o.frame == $magic4) self.view_ofs = '15.53 -4.32 81.58';
@@ -314,7 +314,7 @@ void() sham_glowingclawright =
 	{
 		self.glow_size = 120;
 		// Thanks to SSJ4-Death (in #qc) for getting the shambler claw locations
-		     if (o.frame == $magic1) self.view_ofs = '28.67 -43.79 13.6';
+	if (o.frame == $magic1) self.view_ofs = '28.67 -43.79 13.6';
 		else if (o.frame == $magic2) self.view_ofs = '11.15 -41.71 60.75';
 		else if (o.frame == $magic3) self.view_ofs = '-1.37 -37.56 70.62';
 		else if (o.frame == $magic4) self.view_ofs = '-9.5 -24.09 75';
@@ -400,7 +400,7 @@ void() sham_magic11    =[      $magic11,      sham_magic12   ]
 	if (skill >= 3)
 		CastLightning();
 };
-void() sham_magic12    =[      $magic12,      sham_run1	   ] {monster_setalpha(0.0);};
+void() sham_magic12    =[      $magic12,      sham_run1   ] {monster_setalpha(0.0);};
 
 float() sham_missile =
 {
@@ -417,11 +417,11 @@ void() sham_pain4       =[      $pain4, sham_pain5      ] {monster_setalpha(0.25
 void() sham_pain5       =[      $pain5, sham_pain6      ] {monster_setalpha(0.00);};
 void() sham_pain6       =[      $pain6, sham_run1      ] {};
 
-void(entity attacker, float damage)	sham_pain =
+void(entity attacker, float damage) sham_pain =
 {
 	sound (self, CHAN_VOICE, "shambler/shurt2.wav", 1, ATTN_NORM);
 
-        if (self.health < 1)
+	if (self.health < 1)
 		return;		// allready dying, don't go into pain frame
 
 	if (random()*400 > damage)

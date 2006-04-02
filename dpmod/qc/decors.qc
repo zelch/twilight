@@ -190,7 +190,7 @@ void(entity e) removedecor =
 };
 
 /*
-void()  s_animthink =
+void() s_animthink =
 {
 	self.nextthink = time + 0.1;
 	self.frame = self.frame + 1;
@@ -301,7 +301,7 @@ void() DecorThink =
 		removedecor(self);
 };
 
-.float  createdtime;
+.float createdtime;
 
 void() InitCasings;
 void() InitGore;

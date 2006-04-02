@@ -53,7 +53,6 @@ vector(vector srcvec, vector dstvec, vector dstvel, float shotspeed) w_rocketaim
 
 vector(vector srcvec, vector dstvec, vector dstvel, float shotspeed) w_grenadeaim =
 {
-	local   vector  v;
 	dstvec = dstvec + dstvel * (vlen(dstvec - srcvec) / shotspeed);
 	if (vlen(dstvec - srcvec) < 150)
 		return '0 0 0';
@@ -88,7 +87,6 @@ float(entity e) w_shouldattack =
 .float aimlatency;
 .vector aimtargorigin;
 .vector aimtargvelocity;
-.float mousesticktime;
 .float firetimer;
 float(vector v, float maxfiredeviation) w_aimdir =
 {
@@ -449,7 +447,6 @@ entity(entity targ) BestWeaponForTarget =
 entity(float dangerous) W_BestWeaponClass =
 {
 	local entity wclass, best;
-	local float bestrating, rating;
 	best = w_chain;
 	wclass = w_chain.w_next;
 	while (wclass != w_chain)
@@ -479,21 +476,6 @@ void() CheatCommand =
 	Inventory_SetQuantity(self, "nails", 9999);
 	Inventory_SetQuantity(self, "rockets", 9999);
 	Inventory_SetQuantity(self, "cells", 9999);
-	/*
-	self.items = self.items
-	 | IT_WEAPON1
-	 | IT_WEAPON2
-	 | IT_WEAPON3
-	 | IT_WEAPON4
-	 | IT_WEAPON5
-	 | IT_WEAPON6
-	 | IT_WEAPON7
-	 | IT_WEAPON8
-	 | IT_WEAPON9
-	 | IT_WEAPON10
-	// | IT_KEY1 | IT_KEY2
-	;
-	*/
 	wclass = w_chain;
 	do
 	{
@@ -504,9 +486,6 @@ void() CheatCommand =
 
 	self.impulse = 0;
 };
-
-.float character_nextsave;
-.float character_loaded;
 
 .float seenhelp;
 .float idealzoom;
@@ -536,7 +515,6 @@ W_WeaponFrame
 Called every frame so impulse events can be handled as well as possible
 ============
 */
-.float notfiringcountdown;
 void() w_frame_grapple;
 void() W_WeaponFrame =
 {
@@ -786,7 +764,6 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Axe =
 float(float request) w_axe =
 {
 	local float f;
-	local vector v;
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_axe.mdl");
@@ -1597,7 +1574,6 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaRifl
 float(float request) w_plasmarifle =
 {
 	local float cells;
-	local vector v;
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_dpnail2.mdl");
@@ -1767,7 +1743,7 @@ vector(entity inflictor, entity attacker, vector start, vector end, float hdamag
 .float wtime;
 float(float request) w_thunderbolt =
 {
-	local float cells, f, wframetime;
+	local float cells;
 	local vector v;
 	if (request == WR_REGISTER)
 	{
@@ -1831,8 +1807,6 @@ float(float request) w_thunderbolt =
 	}
 	if (request != WR_FRAME)
 		return FALSE;
-	wframetime = time - self.wtime;
-	self.wtime = time;
 	self.currentammo = Inventory_Quantity(self, "cells");
 	if (self.wanim_id == WANIM_READY)
 	{
@@ -4504,8 +4478,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_IceCannon 
 
 float(float request) w_micecannon =
 {
-	local float cells, shots, damage;
-	local vector ang;
+	local float cells;
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_dplight.mdl");
@@ -4652,8 +4625,6 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_PlasmaBeam
 
 float(float request) w_mplasmabeam =
 {
-	local float cells, shots, damage;
-	local vector ang;
 	if (request == WR_REGISTER)
 	{
 		precache_model("progs/v_dplight.mdl");
@@ -5053,7 +5024,7 @@ void() grappleflycontinue =
 
 void() grappleflytouch =
 {
-	local   float   p;
+	local float p;
 	p = pointcontents(self.origin);
 	if (p == CONTENT_SKY || p == CONTENT_LAVA)
 	{
@@ -5190,7 +5161,6 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_LightningG
 };
 
 .float grappletime;
-.float grapplesoundtime;
 .float grappleactive;
 .entity grappletarget;
 .vector grappledest;

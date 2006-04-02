@@ -50,18 +50,20 @@ $frame paine29 paine30
 
 $frame cruc_1 cruc_2 cruc_3 cruc_4 cruc_5 cruc_6
 
-float	SPAWN_CRUCIFIED	= 1;
+float SPAWN_CRUCIFIED	= 1;
 
 //=============================================================================
 
 void() zombie_heal =
 {
-        if (time < self.ltime)
-                return;
-        self.ltime = time + 0.1;
-        self.health = self.health + 5;
-        if (self.health > self.max_health)
-                self.health = self.max_health;
+	/*
+	if (time < self.ltime)
+		return;
+	self.ltime = time + 0.1;
+	self.health = self.health + 5;
+	if (self.health > self.max_health)
+		self.health = self.max_health;
+	*/
 };
 
 void() zombie_stand1  =[$stand1 , zombie_stand2 ] {zombie_heal();ai_stand();};
@@ -120,10 +122,10 @@ void() zombie_walk17 =[$walk17, zombie_walk18] {zombie_heal();ai_walk(0);};
 void() zombie_walk18 =[$walk18, zombie_walk19] {zombie_heal();ai_walk(0);};
 void() zombie_walk19 =[$walk19, zombie_walk1 ]
 {
-        zombie_heal();
-        ai_walk(0);
-        if (random() < 0.2)
-                sound (self, CHAN_VOICE, "zombie/z_idle.wav", 1, ATTN_IDLE);
+	zombie_heal();
+	ai_walk(0);
+	if (random() < 0.2)
+		sound (self, CHAN_VOICE, "zombie/z_idle.wav", 1, ATTN_IDLE);
 };
 
 void() zombie_run1  =[$run1 , zombie_run2 ] {zombie_heal();ai_run(1);self.count = 0;};
@@ -289,7 +291,7 @@ void() zombie_attc12 =[$attc12, zombie_run1  ] {monster_setalpha(0.0);zombie_hea
 
 float() zombie_missile =
 {
-	local float	r;
+	local float r;
 
 	if (vlen(self.enemy.origin - self.origin) >= 600)
 		return FALSE;

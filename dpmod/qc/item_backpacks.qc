@@ -34,7 +34,7 @@ void() BackpackTouch =
 {
 	local entity stemp, item;
 	local string s;
-	local float best, old, new, switchweapon;
+	local float old, new, switchweapon;
 	local float acount, d;
 
 	if (other.classname != "player")

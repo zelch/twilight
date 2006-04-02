@@ -687,7 +687,7 @@ void(entity wclass, float instantswitch) wsetweapon;
 float metroidmode;
 void(entity player) Inventory_FromParms =
 {
-	local entity aitemclass, wclass, oldself;
+	local entity aitemclass, oldself;
 	local float c, valid;
 	oldself = self;
 	self = player;

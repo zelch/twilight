@@ -1,46 +1,46 @@
 
 float() trigger_playercount_check =
 {
-        local   entity  head;
-        local   float   c;
-        c = 0;
-        head = findchain(classname, "player");
-        while (head != world)
-        {
-                c = c + 1;
-                head = head.chain;
-        }
-        return c;
+	local entity head;
+	local float c;
+	c = 0;
+	head = findchain(classname, "player");
+	while (head != world)
+	{
+		c = c + 1;
+		head = head.chain;
+	}
+	return c;
 };
 
 void() trigger_playercount_think =
 {
-        self.nextthink = time + 1;
-        if (trigger_playercount_check() >= self.count)
-        {
-                activator = world;
-                SUB_UseTargets();
-                remove(self);
-        }
+	self.nextthink = time + 1;
+	if (trigger_playercount_check() >= self.count)
+	{
+		activator = world;
+		SUB_UseTargets();
+		remove(self);
+	}
 };
 
 void() trigger_playercount_activate =
 {
-        self.use = SUB_Null;
-        if (self.count > 0)
-        {
-                self.think = trigger_playercount_think;
-                self.nextthink = time + 1;
-        }
-        if (self.count2 > 0)
-        {
-                if (cvar("maxplayers") >= self.count2)
-                {
-                        activator = world;
-                        SUB_UseTargets();
-                        remove(self);
-                }
-        }
+	self.use = SUB_Null;
+	if (self.count > 0)
+	{
+		self.think = trigger_playercount_think;
+		self.nextthink = time + 1;
+	}
+	if (self.count2 > 0)
+	{
+		if (cvar("maxplayers") >= self.count2)
+		{
+			activator = world;
+			SUB_UseTargets();
+			remove(self);
+		}
+	}
 };
 
 /*QUAKED trigger_playercount (0 .6 .8) (-8 -8 -8) (8 8 8)
@@ -75,16 +75,16 @@ Keys:
 */
 void() trigger_playercount =
 {
-        if (!self.target)
-                objerror("trigger_playercount: no targets to trigger\n");
-        if (self.count <= 0)
-        if (self.count2 <= 0)
-                objerror("trigger_playercount: no count or count2 specified\n");
-        if (self.targetname)
-        {
-                self.use = trigger_playercount_activate;
-                return;
-        }
-        self.nextthink = time + 2;
-        self.think = trigger_playercount_activate;
+	if (!self.target)
+		objerror("trigger_playercount: no targets to trigger\n");
+	if (self.count <= 0)
+	if (self.count2 <= 0)
+		objerror("trigger_playercount: no count or count2 specified\n");
+	if (self.targetname)
+	{
+		self.use = trigger_playercount_activate;
+		return;
+	}
+	self.nextthink = time + 2;
+	self.think = trigger_playercount_activate;
 };

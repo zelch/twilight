@@ -6,26 +6,25 @@
 // The models were ripped from the Quake Done Quick movies,
 // but I did all this code.
 
-float	modelindex_eyes/*, modelindex_player*/;
-//float   modelindex_player_sg, modelindex_player_dbsg;
-//float   modelindex_player_ng, modelindex_player_sng;
-//float   modelindex_player_gl, modelindex_player_rl;
-//float   modelindex_player_lg;
-float   modelindex_nogun;
+float modelindex_eyes/*, modelindex_player*/;
+//float modelindex_player_sg, modelindex_player_dbsg;
+//float modelindex_player_ng, modelindex_player_sng;
+//float modelindex_player_gl, modelindex_player_rl;
+//float modelindex_player_lg;
+float modelindex_nogun;
 
-float   VWEP_GENERIC = 0;
-float   VWEP_AXE = 1;
-float   VWEP_SHOTGUN = 2;
-float   VWEP_SUPER_SHOTGUN = 3;
-float   VWEP_NAILGUN = 4;
-float   VWEP_SUPER_NAILGUN = 5;
-float   VWEP_GRENADE_LAUNCHER = 6;
-float   VWEP_ROCKET_LAUNCHER = 7;
-float   VWEP_LIGHTNING = 8;
+float VWEP_GENERIC = 0;
+float VWEP_AXE = 1;
+float VWEP_SHOTGUN = 2;
+float VWEP_SUPER_SHOTGUN = 3;
+float VWEP_NAILGUN = 4;
+float VWEP_SUPER_NAILGUN = 5;
+float VWEP_GRENADE_LAUNCHER = 6;
+float VWEP_ROCKET_LAUNCHER = 7;
+float VWEP_LIGHTNING = 8;
 
-//.float  lastframe;
+//.float lastframe;
 .entity weaponent;
-.float  visibleweapon;
 
 void() weaponentthink =
 {
@@ -95,7 +94,7 @@ void() dovisibleweapon =
 		if (self.frame != self.lastframe) // FIXME: quite a hack
 		{
 			self.modelindex = modelindex_player;
-			     if (self.visibleweapon == VWEP_GENERIC)
+	if (self.visibleweapon == VWEP_GENERIC)
 				self.modelindex = modelindex_player;
 			else if (self.visibleweapon == VWEP_SHOTGUN)
 				self.modelindex = modelindex_player_sg;
@@ -114,7 +113,7 @@ void() dovisibleweapon =
 			if (self.modelindex != modelindex_player)
 			{
 				// remap to the visible weapon player model
-				     if (self.frame >= 6 && self.frame < 12) // run
+	if (self.frame >= 6 && self.frame < 12) // run
 					self.frame = self.frame - 6;
 				else if (self.frame >= 12 && self.frame < 17) // stand
 					self.frame = self.frame - 6;
@@ -122,7 +121,7 @@ void() dovisibleweapon =
 					self.frame = self.frame - 24;
 				else if (self.frame >= 102) // firing anims
 				{
-					     if (self.frame < 105)
+	if (self.frame < 105)
 						self.frame = self.frame + 17 - 103;
 					else if (self.frame < 107)
 						self.frame = self.frame + 17 - 105;

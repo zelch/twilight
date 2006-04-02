@@ -73,8 +73,8 @@ void() f_run9  =[      $swim17, f_run1 ] {ai_run(12);};
 
 void() fish_melee =
 {
-	local vector	delta;
-	local float 	ldmg;
+	local vector delta;
+	local float ldmg;
 
 	if (!self.enemy)
 		return;		// removed before stroke
@@ -145,7 +145,7 @@ void() f_pain7  =[      $pain7, f_pain8 ] {ai_pain(6);};
 void() f_pain8  =[      $pain8, f_pain9 ] {ai_pain(6);};
 void() f_pain9  =[      $pain9, f_run1 ] {ai_pain(6);};
 
-void(entity attacker, float damage)	fish_pain =
+void(entity attacker, float damage) fish_pain =
 {
 
 // fish allways do pain frames
@@ -224,6 +224,6 @@ void() monster_fish =
 */
 void() dead_fish =
 {
-        deadmonstersetup("progs/fish.mdl", "", f_death21, 3, 3, MB_ROTFISH);
+	deadmonstersetup("progs/fish.mdl", "", f_death21, 3, 3, MB_ROTFISH);
 };
 

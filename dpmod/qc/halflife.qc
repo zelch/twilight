@@ -1,10 +1,10 @@
 
-.float  roomtype;
-.float  radius;
-.float  pitch;
-.float  renderamt;
-.float  rendermode;
-.vector rendercolor;
+//.float roomtype;
+//.float radius;
+//.float pitch;
+//.float renderamt;
+//.float rendermode;
+//.vector rendercolor;
 
 void() info_node = {};
 void() env_sound = {};

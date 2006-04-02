@@ -8,8 +8,8 @@ END OF LEVEL RUNES
 
 void() sigil_touch =
 {
-	// local entity    stemp, head;
-	// local float             best;
+	// local entity stemp, head;
+	// local float best;
 
 	if (other.classname != "player")
 		return;

@@ -22,71 +22,71 @@
 // if dethtype is "" it will add it to the totals only
 void(entity targ, entity attacker, string dethtype) statkill =
 {
-        if (targ.classname != "player")
-        if (attacker.classname != "player")
-                return; // neither is a player
-        if (!targ.doobits)
-                return; // corpse perhaps?
+	if (targ.classname != "player")
+	if (attacker.classname != "player")
+		return; // neither is a player
+	if (!targ.doobits)
+		return; // corpse perhaps?
 
-        if (targ.classname == "player") // a player died
-        {
-                                                                targ.deaths_total               = targ.deaths_total + 1;
-                if (targ == attacker) // suicide
-                {
-                        targ.suicides_total = targ.suicides_total + 1;
-                        if (dethtype == "GRENADE")              targ.suicides_grenade           = targ.suicides_grenade + 1;
-                        if (dethtype == "ROCKET")               targ.suicides_rocket            = targ.suicides_rocket + 1;
-                }
-                else if (attacker.classname == "player")
-                {
-                                                                targ.deaths_player              = targ.deaths_player + 1;
-                        if (attacker.team == targ.team && attacker.team != 0 && teamplay != 0)
-                                                                targ.deaths_team                = targ.deaths_team + 1;
-                        else if (dethtype == "AXE")             targ.deaths_axe                 = targ.deaths_axe + 1;
-                        else if (dethtype == "SHOTGUN")         targ.deaths_shotgun             = targ.deaths_shotgun + 1;
-                        else if (dethtype == "SUPERSHOTGUN")    targ.deaths_supershotgun        = targ.deaths_supershotgun + 1;
-                        else if (dethtype == "NAILGUN")         targ.deaths_nailgun             = targ.deaths_nailgun + 1;
-                        else if (dethtype == "SUPERNAILGUN")    targ.deaths_supernailgun        = targ.deaths_supernailgun + 1;
-                        else if (dethtype == "GRENADE")         targ.deaths_grenade             = targ.deaths_grenade + 1;
-                        else if (dethtype == "ROCKET")          targ.deaths_rocket              = targ.deaths_rocket + 1;
-                        else if (dethtype == "LIGHTNING")       targ.deaths_lightning           = targ.deaths_lightning + 1;
-                        else if (dethtype == "GRAPPLE")         targ.deaths_grapple             = targ.deaths_grapple + 1;
-                        else if (dethtype == "PLASMA")          targ.deaths_plasma              = targ.deaths_plasma + 1;
-                }
-                else if (attacker.flags & FL_MONSTER)
-                                                                targ.deaths_monster             = targ.deaths_monster + 1;
-                else if (attacker == world) // physics stuff
-                {
-                                                                targ.deaths_world               = targ.deaths_world + 1;
-                        if (dethtype == "WATER")                targ.deaths_water               = targ.deaths_water + 1;
-                        if (dethtype == "SLIME")                targ.deaths_slime               = targ.deaths_slime + 1;
-                        if (dethtype == "LAVA")                 targ.deaths_lava                = targ.deaths_lava + 1;
-                        if (dethtype == " met a flat world")    targ.deaths_fall                = targ.deaths_fall + 1;
-                }
-        }
-        if (attacker.classname == "player") // a player killed
-        if (attacker != targ) // suicides aren't counted as kills
-        {
-                                                                attacker.kills_total            = attacker.kills_total + 1;
-                if (targ.classname == "player")
-                {
-                                                                attacker.kills_player           = attacker.kills_player + 1;
-                        if (attacker.team == targ.team && attacker.team != 0 && teamplay != 0)
-                                                                attacker.kills_team             = attacker.kills_team + 1;
-                        else if (dethtype == "AXE")             attacker.kills_axe              = attacker.kills_axe + 1;
-                        else if (dethtype == "SHOTGUN")         attacker.kills_shotgun          = attacker.kills_shotgun + 1;
-                        else if (dethtype == "SUPERSHOTGUN")    attacker.kills_supershotgun     = attacker.kills_supershotgun + 1;
-                        else if (dethtype == "NAILGUN")         attacker.kills_nailgun          = attacker.kills_nailgun + 1;
-                        else if (dethtype == "SUPERNAILGUN")    attacker.kills_supernailgun     = attacker.kills_supernailgun + 1;
-                        else if (dethtype == "GRENADE")         attacker.kills_grenade          = attacker.kills_grenade + 1;
-                        else if (dethtype == "ROCKET")          attacker.kills_rocket           = attacker.kills_rocket + 1;
-                        else if (dethtype == "LIGHTNING")       attacker.kills_lightning        = attacker.kills_lightning + 1;
-                        else if (dethtype == "GRAPPLE")         attacker.kills_grapple          = attacker.kills_grapple + 1;
-                        else if (dethtype == "PLASMA")          attacker.kills_plasma           = attacker.kills_plasma + 1;
-                }
-                else if (targ.flags & FL_MONSTER)
-                                                                attacker.kills_monster          = attacker.kills_monster + 1;
-        }
+	if (targ.classname == "player") // a player died
+	{
+		targ.deaths_total = targ.deaths_total + 1;
+		if (targ == attacker) // suicide
+		{
+			targ.suicides_total = targ.suicides_total + 1;
+			if (dethtype == "GRENADE")              targ.suicides_grenade           = targ.suicides_grenade + 1;
+			if (dethtype == "ROCKET")               targ.suicides_rocket            = targ.suicides_rocket + 1;
+		}
+		else if (attacker.classname == "player")
+		{
+			targ.deaths_player = targ.deaths_player + 1;
+			if (attacker.team == targ.team && attacker.team != 0 && teamplay != 0)
+				targ.deaths_team = targ.deaths_team + 1;
+			else if (dethtype == "AXE")             targ.deaths_axe                 = targ.deaths_axe + 1;
+			else if (dethtype == "SHOTGUN")         targ.deaths_shotgun             = targ.deaths_shotgun + 1;
+			else if (dethtype == "SUPERSHOTGUN")    targ.deaths_supershotgun        = targ.deaths_supershotgun + 1;
+			else if (dethtype == "NAILGUN")         targ.deaths_nailgun             = targ.deaths_nailgun + 1;
+			else if (dethtype == "SUPERNAILGUN")    targ.deaths_supernailgun        = targ.deaths_supernailgun + 1;
+			else if (dethtype == "GRENADE")         targ.deaths_grenade             = targ.deaths_grenade + 1;
+			else if (dethtype == "ROCKET")          targ.deaths_rocket              = targ.deaths_rocket + 1;
+			else if (dethtype == "LIGHTNING")       targ.deaths_lightning           = targ.deaths_lightning + 1;
+			else if (dethtype == "GRAPPLE")         targ.deaths_grapple             = targ.deaths_grapple + 1;
+			else if (dethtype == "PLASMA")          targ.deaths_plasma              = targ.deaths_plasma + 1;
+		}
+		else if (attacker.flags & FL_MONSTER)
+			targ.deaths_monster = targ.deaths_monster + 1;
+		else if (attacker == world) // physics stuff
+		{
+			targ.deaths_world = targ.deaths_world + 1;
+			if (dethtype == "WATER")                targ.deaths_water               = targ.deaths_water + 1;
+			if (dethtype == "SLIME")                targ.deaths_slime               = targ.deaths_slime + 1;
+			if (dethtype == "LAVA")                 targ.deaths_lava                = targ.deaths_lava + 1;
+			if (dethtype == " met a flat world")    targ.deaths_fall                = targ.deaths_fall + 1;
+		}
+	}
+	if (attacker.classname == "player") // a player killed
+	if (attacker != targ) // suicides aren't counted as kills
+	{
+		attacker.kills_total = attacker.kills_total + 1;
+		if (targ.classname == "player")
+		{
+			attacker.kills_player = attacker.kills_player + 1;
+			if (attacker.team == targ.team && attacker.team != 0 && teamplay != 0)
+				attacker.kills_team = attacker.kills_team + 1;
+			else if (dethtype == "AXE")             attacker.kills_axe              = attacker.kills_axe + 1;
+			else if (dethtype == "SHOTGUN")         attacker.kills_shotgun          = attacker.kills_shotgun + 1;
+			else if (dethtype == "SUPERSHOTGUN")    attacker.kills_supershotgun     = attacker.kills_supershotgun + 1;
+			else if (dethtype == "NAILGUN")         attacker.kills_nailgun          = attacker.kills_nailgun + 1;
+			else if (dethtype == "SUPERNAILGUN")    attacker.kills_supernailgun     = attacker.kills_supernailgun + 1;
+			else if (dethtype == "GRENADE")         attacker.kills_grenade          = attacker.kills_grenade + 1;
+			else if (dethtype == "ROCKET")          attacker.kills_rocket           = attacker.kills_rocket + 1;
+			else if (dethtype == "LIGHTNING")       attacker.kills_lightning        = attacker.kills_lightning + 1;
+			else if (dethtype == "GRAPPLE")         attacker.kills_grapple          = attacker.kills_grapple + 1;
+			else if (dethtype == "PLASMA")          attacker.kills_plasma           = attacker.kills_plasma + 1;
+		}
+		else if (targ.flags & FL_MONSTER)
+			attacker.kills_monster = attacker.kills_monster + 1;
+	}
 };
 
 float(float kills, float deaths) statkd =
@@ -101,7 +101,7 @@ float(float kills, float deaths) statkd =
 
 void(float kills, float deaths, float suicides, string title) statprint =
 {
-	local   float   kd;
+	local float kd;
 //	if (!kills)
 //	if (!deaths)
 //	if (!suicides)

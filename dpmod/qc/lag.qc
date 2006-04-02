@@ -2,45 +2,45 @@
 .void(float t, float f1, float f2, entity e1, vector v1, vector v2, vector v3, vector v4) lag_func;
 
 // upto 5 queued messages
-.float  lag1_time;
-.float  lag1_float1;
-.float  lag1_float2;
+.float lag1_time;
+.float lag1_float1;
+.float lag1_float2;
 .entity lag1_entity1;
 .vector lag1_vec1;
 .vector lag1_vec2;
 .vector lag1_vec3;
 .vector lag1_vec4;
 
-.float  lag2_time;
-.float  lag2_float1;
-.float  lag2_float2;
+.float lag2_time;
+.float lag2_float1;
+.float lag2_float2;
 .entity lag2_entity1;
 .vector lag2_vec1;
 .vector lag2_vec2;
 .vector lag2_vec3;
 .vector lag2_vec4;
 
-.float  lag3_time;
-.float  lag3_float1;
-.float  lag3_float2;
+.float lag3_time;
+.float lag3_float1;
+.float lag3_float2;
 .entity lag3_entity1;
 .vector lag3_vec1;
 .vector lag3_vec2;
 .vector lag3_vec3;
 .vector lag3_vec4;
 
-.float  lag4_time;
-.float  lag4_float1;
-.float  lag4_float2;
+.float lag4_time;
+.float lag4_float1;
+.float lag4_float2;
 .entity lag4_entity1;
 .vector lag4_vec1;
 .vector lag4_vec2;
 .vector lag4_vec3;
 .vector lag4_vec4;
 
-.float  lag5_time;
-.float  lag5_float1;
-.float  lag5_float2;
+.float lag5_time;
+.float lag5_float1;
+.float lag5_float2;
 .entity lag5_entity1;
 .vector lag5_vec1;
 .vector lag5_vec2;

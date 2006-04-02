@@ -40,8 +40,7 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Fire =
 
 void() Fire_burnthink =
 {
-	// local   vector  neworg, v;
-	local   float   a, b;
+	local float a;
 	self.nextthink = time;
 	if (self.enemy != world)
 	if (!self.enemy.takedamage || (time <= self.enemy.radsuit_finished) || (self.enemy.solid == SOLID_BSP) || (self.enemy.flame != self))
@@ -174,8 +173,8 @@ T_BurnRadius
 */
 float(entity inflictor, entity attacker, float damage, float radius, float mburn, entity ignore, string dt) T_BurnRadius =
 {
-	local   float   points, p, c, dist, totalpoints;
-	local   entity  head;
+	local float points, totalpoints;
+	local entity head;
 
 	traceline(inflictor.origin, inflictor.origin, TRUE, world);
 	if (trace_startsolid)

@@ -37,13 +37,13 @@ float WEAPON_ROCKET = 2;
 float WEAPON_SPIKES = 4;
 float WEAPON_BIG = 8;
 void() item_weapon =
-{       
-        self.weapon = self.spawnflags;
-        self.spawnflags = self.weapon - (self.weapon & (WEAPON_SHOTGUN | WEAPON_ROCKET | WEAPON_SPIKES | WEAPON_BIG));
-             if (self.weapon & WEAPON_BIG    ) self.spawnflags = self.spawnflags | WEAPON_BIG2;
-             if (self.weapon & WEAPON_SHOTGUN) item_shells();
-        else if (self.weapon & WEAPON_SPIKES ) item_spikes();
-        else if (self.weapon & WEAPON_ROCKET ) item_rockets();
+{
+	self.weapon = self.spawnflags;
+	self.spawnflags = self.weapon - (self.weapon & (WEAPON_SHOTGUN | WEAPON_ROCKET | WEAPON_SPIKES | WEAPON_BIG));
+	if (self.weapon & WEAPON_BIG    ) self.spawnflags = self.spawnflags | WEAPON_BIG2;
+	if (self.weapon & WEAPON_SHOTGUN) item_shells();
+	else if (self.weapon & WEAPON_SPIKES ) item_spikes();
+	else if (self.weapon & WEAPON_ROCKET ) item_rockets();
 };
 
 void() havoc_waypoint = {remove(self);};

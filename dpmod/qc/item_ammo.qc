@@ -12,10 +12,8 @@ AMMO
 void() ammo_touch =
 {
 	local entity stemp;
-	local float best;
 	local float used;
 	local float switchweapon;
-	local string s;
 
 	if (other.classname != "player")
 		return;

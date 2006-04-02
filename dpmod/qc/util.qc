@@ -88,7 +88,6 @@ float(float code0, float code1, float code2) lhfp_encode =
 
 float(float code) lhfp_decode =
 {
-	local float f;
 	// code == 0 never occurs on a valid encoded value, we'll just assume it's garbage here.
 	if (code == 0)
 	{
@@ -120,7 +119,7 @@ float(float code) lhfp_decode =
 
 void() lhfp_test =
 {
-	local float c, f0, f1, f2, f, n, n2, r0, r1, r2, spew;
+	local float c, f0, f1, f2, n, n2, r0, r1, r2, spew;
 	local string t;
 	if (!cvar("developer"))
 		bprint("lhfp_test called without developer on, the dprints won't be seen.\n");
@@ -229,7 +228,7 @@ void(float index, vector v) lhbitparms_storeparm =
 	if (index >= 16)
 		v = v + '0 140 0';
 	code = lhfp_encode(v_x, v_y, v_z);
-		 if (index <  1) parm1 = code;
+	if (index <  1) parm1 = code;
 	else if (index <  2) parm2 = code;
 	else if (index <  3) parm3 = code;
 	else if (index <  4) parm4 = code;
@@ -259,7 +258,7 @@ vector(float index) lhbitparms_loadparm =
 {
 	local float code;
 	local vector v;
-	     if (index <  1) code = parm1;
+	if (index <  1) code = parm1;
 	else if (index <  2) code = parm2;
 	else if (index <  3) code = parm3;
 	else if (index <  4) code = parm4;
@@ -316,7 +315,7 @@ void(float startindex, float endindex) lhbitparms_decode_begin =
 // returns how many bits of space are left, when encoding
 float(float index, float endindex) lhbitparms_totalspace =
 {
-	local float current, total, remaining;
+	local float total;
 	local vector s;
 	total = 0;
 	while (index < endindex)
@@ -527,7 +526,7 @@ float(float radix) lhbitparms_decodebits =
 
 void() lhbitparms_test =
 {
-	local float c, c2, n0, n1, n2, l;
+	local float c, c2, l;
 	local float c0c, c0r, c0s;
 	local float c1c, c1r, c1s;
 	local float c2c, c2r, c2s;
@@ -544,7 +543,6 @@ void() lhbitparms_test =
 	local float cdc, cdr, cds;
 	local float cec, cer, ces;
 	local float cfc, cfr, cfs;
-	local string t;
 	if (!cvar("developer"))
 		bprint("lhbitparms_test called without developer on, the dprints won't be seen.\n");
 	lhbitparms_encode_begin(0, 16);
@@ -1142,7 +1140,7 @@ float lhradixarray_code63, lhradixarray_scale63;
 
 void(float parmindex, float n) lhparms_storeparm =
 {
-	     if (parmindex <  1) parm1 = n;
+	if (parmindex <  1) parm1 = n;
 	else if (parmindex <  2) parm2 = n;
 	else if (parmindex <  3) parm3 = n;
 	else if (parmindex <  4) parm4 = n;
@@ -1162,7 +1160,7 @@ void(float parmindex, float n) lhparms_storeparm =
 
 float(float parmindex) lhparms_loadparm =
 {
-	     if (parmindex <  1) return parm1;
+	if (parmindex <  1) return parm1;
 	else if (parmindex <  2) return parm2;
 	else if (parmindex <  3) return parm3;
 	else if (parmindex <  4) return parm4;
@@ -1185,7 +1183,7 @@ void(float index) lhradixarray_load =
 	if (index < 16)
 	{
 		// 0-16
-			 if (index <  1) {lhradixarray_code = lhradixarray_code00;lhradixarray_scale = lhradixarray_scale00;return;}
+		if (index <  1) {lhradixarray_code = lhradixarray_code00;lhradixarray_scale = lhradixarray_scale00;return;}
 		else if (index <  2) {lhradixarray_code = lhradixarray_code01;lhradixarray_scale = lhradixarray_scale01;return;}
 		else if (index <  3) {lhradixarray_code = lhradixarray_code02;lhradixarray_scale = lhradixarray_scale02;return;}
 		else if (index <  4) {lhradixarray_code = lhradixarray_code03;lhradixarray_scale = lhradixarray_scale03;return;}
@@ -1205,7 +1203,7 @@ void(float index) lhradixarray_load =
 	else if (index < 32)
 	{
 		// 16-32
-			 if (index < 17) {lhradixarray_code = lhradixarray_code16;lhradixarray_scale = lhradixarray_scale16;return;}
+		if (index < 17) {lhradixarray_code = lhradixarray_code16;lhradixarray_scale = lhradixarray_scale16;return;}
 		else if (index < 18) {lhradixarray_code = lhradixarray_code17;lhradixarray_scale = lhradixarray_scale17;return;}
 		else if (index < 19) {lhradixarray_code = lhradixarray_code18;lhradixarray_scale = lhradixarray_scale18;return;}
 		else if (index < 20) {lhradixarray_code = lhradixarray_code19;lhradixarray_scale = lhradixarray_scale19;return;}
@@ -1225,7 +1223,7 @@ void(float index) lhradixarray_load =
 	else if (index < 48)
 	{
 		// 32-48
-			 if (index < 33) {lhradixarray_code = lhradixarray_code32;lhradixarray_scale = lhradixarray_scale32;return;}
+		if (index < 33) {lhradixarray_code = lhradixarray_code32;lhradixarray_scale = lhradixarray_scale32;return;}
 		else if (index < 34) {lhradixarray_code = lhradixarray_code33;lhradixarray_scale = lhradixarray_scale33;return;}
 		else if (index < 35) {lhradixarray_code = lhradixarray_code34;lhradixarray_scale = lhradixarray_scale34;return;}
 		else if (index < 36) {lhradixarray_code = lhradixarray_code35;lhradixarray_scale = lhradixarray_scale35;return;}
@@ -1245,7 +1243,7 @@ void(float index) lhradixarray_load =
 	else if (index < 64)
 	{
 		// 48-64
-			 if (index < 49) {lhradixarray_code = lhradixarray_code48;lhradixarray_scale = lhradixarray_scale48;return;}
+		if (index < 49) {lhradixarray_code = lhradixarray_code48;lhradixarray_scale = lhradixarray_scale48;return;}
 		else if (index < 50) {lhradixarray_code = lhradixarray_code49;lhradixarray_scale = lhradixarray_scale49;return;}
 		else if (index < 51) {lhradixarray_code = lhradixarray_code50;lhradixarray_scale = lhradixarray_scale50;return;}
 		else if (index < 52) {lhradixarray_code = lhradixarray_code51;lhradixarray_scale = lhradixarray_scale51;return;}
@@ -1269,7 +1267,7 @@ void(float index) lhradixarray_store =
 	if (index < 16)
 	{
 		// 0-16
-			 if (index <  1) {lhradixarray_code00 = lhradixarray_code;lhradixarray_scale00 = lhradixarray_scale;return;}
+		if (index <  1) {lhradixarray_code00 = lhradixarray_code;lhradixarray_scale00 = lhradixarray_scale;return;}
 		else if (index <  2) {lhradixarray_code01 = lhradixarray_code;lhradixarray_scale01 = lhradixarray_scale;return;}
 		else if (index <  3) {lhradixarray_code02 = lhradixarray_code;lhradixarray_scale02 = lhradixarray_scale;return;}
 		else if (index <  4) {lhradixarray_code03 = lhradixarray_code;lhradixarray_scale03 = lhradixarray_scale;return;}
@@ -1289,7 +1287,7 @@ void(float index) lhradixarray_store =
 	else if (index < 32)
 	{
 		// 16-32
-			 if (index < 17) {lhradixarray_code16 = lhradixarray_code;lhradixarray_scale16 = lhradixarray_scale;return;}
+		if (index < 17) {lhradixarray_code16 = lhradixarray_code;lhradixarray_scale16 = lhradixarray_scale;return;}
 		else if (index < 18) {lhradixarray_code17 = lhradixarray_code;lhradixarray_scale17 = lhradixarray_scale;return;}
 		else if (index < 19) {lhradixarray_code18 = lhradixarray_code;lhradixarray_scale18 = lhradixarray_scale;return;}
 		else if (index < 20) {lhradixarray_code19 = lhradixarray_code;lhradixarray_scale19 = lhradixarray_scale;return;}
@@ -1309,7 +1307,7 @@ void(float index) lhradixarray_store =
 	else if (index < 48)
 	{
 		// 32-48
-			 if (index < 33) {lhradixarray_code32 = lhradixarray_code;lhradixarray_scale32 = lhradixarray_scale;return;}
+		if (index < 33) {lhradixarray_code32 = lhradixarray_code;lhradixarray_scale32 = lhradixarray_scale;return;}
 		else if (index < 34) {lhradixarray_code33 = lhradixarray_code;lhradixarray_scale33 = lhradixarray_scale;return;}
 		else if (index < 35) {lhradixarray_code34 = lhradixarray_code;lhradixarray_scale34 = lhradixarray_scale;return;}
 		else if (index < 36) {lhradixarray_code35 = lhradixarray_code;lhradixarray_scale35 = lhradixarray_scale;return;}
@@ -1329,7 +1327,7 @@ void(float index) lhradixarray_store =
 	else if (index < 64)
 	{
 		// 48-64
-			 if (index < 49) {lhradixarray_code48 = lhradixarray_code;lhradixarray_scale48 = lhradixarray_scale;return;}
+		if (index < 49) {lhradixarray_code48 = lhradixarray_code;lhradixarray_scale48 = lhradixarray_scale;return;}
 		else if (index < 50) {lhradixarray_code49 = lhradixarray_code;lhradixarray_scale49 = lhradixarray_scale;return;}
 		else if (index < 51) {lhradixarray_code50 = lhradixarray_code;lhradixarray_scale50 = lhradixarray_scale;return;}
 		else if (index < 52) {lhradixarray_code51 = lhradixarray_code;lhradixarray_scale51 = lhradixarray_scale;return;}
@@ -2292,7 +2290,7 @@ void(float index) lhbitarray_load =
 	if (index < 16)
 	{
 		// 0-16
-			 if (index <  1) {lhbitarray_code = lhbitarray_code00;lhbitarray_scale = lhbitarray_scale00;return;}
+		if (index <  1) {lhbitarray_code = lhbitarray_code00;lhbitarray_scale = lhbitarray_scale00;return;}
 		else if (index <  2) {lhbitarray_code = lhbitarray_code01;lhbitarray_scale = lhbitarray_scale01;return;}
 		else if (index <  3) {lhbitarray_code = lhbitarray_code02;lhbitarray_scale = lhbitarray_scale02;return;}
 		else if (index <  4) {lhbitarray_code = lhbitarray_code03;lhbitarray_scale = lhbitarray_scale03;return;}
@@ -2312,7 +2310,7 @@ void(float index) lhbitarray_load =
 	else if (index < 32)
 	{
 		// 16-32
-			 if (index < 17) {lhbitarray_code = lhbitarray_code16;lhbitarray_scale = lhbitarray_scale16;return;}
+		if (index < 17) {lhbitarray_code = lhbitarray_code16;lhbitarray_scale = lhbitarray_scale16;return;}
 		else if (index < 18) {lhbitarray_code = lhbitarray_code17;lhbitarray_scale = lhbitarray_scale17;return;}
 		else if (index < 19) {lhbitarray_code = lhbitarray_code18;lhbitarray_scale = lhbitarray_scale18;return;}
 		else if (index < 20) {lhbitarray_code = lhbitarray_code19;lhbitarray_scale = lhbitarray_scale19;return;}
@@ -2336,7 +2334,7 @@ void(float index) lhbitarray_store =
 	if (index < 16)
 	{
 		// 0-16
-			 if (index <  1) {lhbitarray_code00 = lhbitarray_code;lhbitarray_scale00 = lhbitarray_scale;return;}
+		if (index <  1) {lhbitarray_code00 = lhbitarray_code;lhbitarray_scale00 = lhbitarray_scale;return;}
 		else if (index <  2) {lhbitarray_code01 = lhbitarray_code;lhbitarray_scale01 = lhbitarray_scale;return;}
 		else if (index <  3) {lhbitarray_code02 = lhbitarray_code;lhbitarray_scale02 = lhbitarray_scale;return;}
 		else if (index <  4) {lhbitarray_code03 = lhbitarray_code;lhbitarray_scale03 = lhbitarray_scale;return;}
@@ -2356,7 +2354,7 @@ void(float index) lhbitarray_store =
 	else if (index < 32)
 	{
 		// 16-32
-			 if (index < 17) {lhbitarray_code16 = lhbitarray_code;lhbitarray_scale16 = lhbitarray_scale;return;}
+		if (index < 17) {lhbitarray_code16 = lhbitarray_code;lhbitarray_scale16 = lhbitarray_scale;return;}
 		else if (index < 18) {lhbitarray_code17 = lhbitarray_code;lhbitarray_scale17 = lhbitarray_scale;return;}
 		else if (index < 19) {lhbitarray_code18 = lhbitarray_code;lhbitarray_scale18 = lhbitarray_scale;return;}
 		else if (index < 20) {lhbitarray_code19 = lhbitarray_code;lhbitarray_scale19 = lhbitarray_scale;return;}
@@ -2692,8 +2690,8 @@ void() lhbitarrayparms_test =
 // and returns the flight time upto the impact
 float(vector org, vector vel, float maxtime, float nomonsters, entity ignore) oldtracetoss =
 {
-	local   float   c, grav;
-	local   vector  v, vel2;
+	local float c, grav;
+	local vector v, vel2;
 	grav = cvar("sv_gravity") * 0.1; // only reads the cvar once
 	c = 0;v = org;vel2 = vel;
 	while (c < maxtime)
@@ -2742,11 +2740,11 @@ void(vector org, vector m1, vector m2, vector vel, entity ignore) tracetossnoent
 // traces multiple trajectories to find one that will impact the target
 // 'end' vector is the place it aims for,
 // returns TRUE only if it hit targ (don't target non-solid entities)
-vector  findtrajectory_velocity; // calculated direction
+vector findtrajectory_velocity; // calculated direction
 float(vector org, vector end, entity targ, float shotspeed, float maxtime, float nomonsters, entity ignore) oldfindtrajectory =
 {
-	local   float   c;
-	local   vector  dir;
+	local float c;
+	local vector dir;
 	if (shotspeed < 1)
 		return FALSE; // could cause division by zero if calculated
 	if (nomonsters)
@@ -2783,8 +2781,8 @@ float(vector org, vector end, entity targ, float shotspeed, float maxtime, float
 // FALSE if not
 float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxtime, entity ignore) findtrajectory =
 {
-	local   float   c;
-	local   vector  dir, end;
+	local float c;
+	local vector dir, end;
 	if (shotspeed < 1)
 		return FALSE; // could cause division by zero if calculated
 	if (targ.solid < SOLID_BBOX) // SOLID_NOT and SOLID_TRIGGER
@@ -2948,8 +2946,8 @@ if self.enemy maintains it's current velocity
 */
 void(entity missile, float mspeed, float accuracy) WizardLaunchMissile =
 {
-	local	vector	vec, move;
-	local	float	fly;
+	local vector vec, move;
+	local float fly;
 
 	makevectors (self.angles);
 
@@ -3019,7 +3017,7 @@ vector(float shotdelay, float shotspeed) monster_shotlead =
 //  desirable for visibility checking but not for weapons fire)
 void(vector start, vector end, float noents, entity attacker) weapontraceline =
 {
-	local   float   s;
+	local float s;
 	s = attacker.solid;
 	if (attacker.solid == SOLID_SLIDEBOX)
 		attacker.solid = SOLID_BBOX;

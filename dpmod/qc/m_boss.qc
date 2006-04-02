@@ -56,10 +56,10 @@ void() boss_face =
 };
 
 void() boss_rise1	=[	$rise1, boss_rise2 ] {
-	sound (self, CHAN_WEAPON, "boss1/out1.wav", 1, ATTN_NORM);
+sound (self, CHAN_WEAPON, "boss1/out1.wav", 1, ATTN_NORM);
 };
 void() boss_rise2	=[	$rise2, boss_rise3 ] {
-	sound (self, CHAN_VOICE, "boss1/sight1.wav", 1, ATTN_NORM);
+sound (self, CHAN_VOICE, "boss1/sight1.wav", 1, ATTN_NORM);
 };
 void() boss_rise3	=[	$rise3, boss_rise4 ] {};
 void() boss_rise4	=[	$rise4, boss_rise5 ] {};
@@ -79,7 +79,7 @@ void() boss_rise17	=[	$rise17, boss_missile1 ] {};
 
 void() boss_idle1	=[	$walk1, boss_idle2 ]
 {
-	// look for other players
+// look for other players
 };
 void() boss_idle2	=[	$walk2, boss_idle3 ] {boss_face();};
 void() boss_idle3	=[	$walk3, boss_idle4 ] {boss_face();};
@@ -167,7 +167,7 @@ void() boss_shockc6 =[	$shockc6, boss_shockc7 ] {};
 void() boss_shockc7 =[	$shockc7, boss_shockc8 ] {};
 void() boss_shockc8 =[	$shockc8, boss_shockc9 ] {};
 void() boss_shockc9 =[	$shockc9, boss_shockc10 ] {};
-void() boss_shockc10 =[ $shockc10, boss_death1 ] {};
+void() boss_shockc10 =[	$shockc10, boss_death1 ] {};
 
 void() boss_death1 = [$death1, boss_death2]
 {
@@ -307,8 +307,8 @@ void() monster_boss =
 
 //===========================================================================
 
-entity	le1, le2;
-float	lightning_end;
+entity le1, le2;
+float lightning_end;
 
 void() lightning_fire =
 {
@@ -351,9 +351,7 @@ void() lightning_use =
 		return;
 	}
 
-	if ((le1.state != STATE_TOP && le1.state != STATE_BOTTOM)
-	 || (le2.state != STATE_TOP && le2.state != STATE_BOTTOM)
-	 || (le1.state != le2.state) )
+	if ((le1.state != STATE_TOP && le1.state != STATE_BOTTOM) || (le2.state != STATE_TOP && le2.state != STATE_BOTTOM) || (le1.state != le2.state) )
 	{
 //		dprint ("not aligned\n");
 		return;

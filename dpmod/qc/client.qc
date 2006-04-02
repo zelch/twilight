@@ -1,5 +1,5 @@
 
-.float  isbot;
+.float isbot;
 
 .float isadmin, adminnumber, admindigits, adminattempts;
 
@@ -56,8 +56,8 @@ void() speech_precache =
 =============================================================================
 */
 
-float	intermission_running;
-float	intermission_exittime;
+float intermission_running;
+float intermission_exittime;
 
 /*QUAKED info_intermission (1 0.5 0.5) (-16 -16 -16) (16 16 16)
 This is the camera point for the intermission.
@@ -108,8 +108,8 @@ Returns the entity to view from
 */
 entity() FindIntermission =
 {
-	local	entity spot;
-	local	float cyc;
+	local entity spot;
+	local float cyc;
 
 // look for info_intermission first
 	spot = find(world, classname, "info_intermission");
@@ -147,7 +147,7 @@ void() GotoNextMap =
 {
 	local float c, nummaps;
 	local string s;
-	if (cvar("samelevel"))	// if samelevel is set, stay on same level
+	if (cvar("samelevel")) // if samelevel is set, stay on same level
 		changelevel (mapname);
 	else
 	{
@@ -281,7 +281,7 @@ void() IntermissionThink =
 
 void() execute_changelevel =
 {
-	local entity	pos;
+	local entity pos;
 
 	intermission_running = 1;
 
@@ -411,7 +411,7 @@ ClientKill
 Player entered the suicide command
 ============
 */
-.float  nextsuicide;
+.float nextsuicide;
 void() ClientKill =
 {
 	if (time < self.nextsuicide)
@@ -444,10 +444,10 @@ Returns the entity to spawn at
 */
 entity() SelectSpawnPoint =
 {
-	local   entity  spot;
-	local   entity  thing;
-	local   float   pcount;
-	local   string  cname;
+	local entity spot;
+	local entity thing;
+	local float pcount;
+	local string cname;
 
 	// testinfo_player_start is only found in regioned levels
 	spot = find(world, classname, "testplayerstart");
@@ -597,7 +597,7 @@ void() PlayerDie;
 void() havocbot_chooserole;
 void() PutClientInServer =
 {
-	local	entity spot;
+	local entity spot;
 
 	self.classname = "player";
 
@@ -644,7 +644,7 @@ void() PutClientInServer =
 
 	self.show_hostile = 0;
 	self.air_finished = time + 12;
-	self.dmg = 2;   		// initial water damage
+	self.dmg = 2;   // initial water damage
 	self.super_damage_finished = 0;
 	self.radsuit_finished = 0;
 	self.invisible_finished = 0;
@@ -1001,7 +1001,7 @@ void() PlayerJump =
 		self.velocity_z = self.velocity_z + 270;
 };
 
-// .float  steamtime;
+// .float steamtime;
 
 void() CheckWaterJump =
 {
@@ -1045,7 +1045,7 @@ Called every frame before physics are run
 */
 void() PlayerPreThink =
 {
-	local   float   r, r1, r2, r3, t, a;
+	local float r, a;
 
 	/*
 	bprint("pre : ");
@@ -1415,7 +1415,6 @@ void() ClientDisconnect =
 void(entity e, float f) ChangeFrags =
 {
 	local entity head;
-	local string s;
 	e.frags = e.frags + f; // update frags
 	// now update the info on the team
 	head = findchain(classname, "teamscore");
@@ -1441,8 +1440,8 @@ void(entity e, float f) ChangeFrags =
 
 void(entity e, float f, float tf) ChangeTeamFrags =
 {
-	local   entity  head;
-	local   float   tp, tf1, tf2;
+	local entity head;
+	local float tp, tf1, tf2;
 	e.frags = e.frags + f; // bonus for this player
 	// now spread out 'tf' frags among his team (including himself)
 	tp = 0;
@@ -1489,8 +1488,8 @@ void(entity e, float f, float tf) ChangeTeamFrags =
 
 void(float teamnum, float tf) ChangeTeamFrags2 =
 {
-	local   entity  head;
-	local   float   tt;
+	local entity head;
+	local float tt;
 	tt = 0;
 	head = findchain(classname, "player");
 	while (head != world)

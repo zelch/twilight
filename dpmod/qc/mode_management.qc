@@ -1,5 +1,4 @@
 
-float teamsinuse;
 float mode_shirtmustmatchpants;
 
 entity team0, team1, team2, team3, team4, team5, team6, team7, team8, team9, team10, team11, team12, team13, team14, team15;
@@ -14,7 +13,7 @@ string(float c) colorname =
 	// that 'pink' is hard to classify
 	// I think 'biege' is a fairly good name for color 10
 	// oh well, gotta do all the color names...
-	     if (c ==  0) return "white";
+	if (c ==  0) return "white";
 	else if (c ==  1) return "brown";
 	else if (c ==  2) return "lightblue";
 	else if (c ==  3) return "green";
@@ -140,8 +139,8 @@ void() resetteams =
 
 float(float t) countteammembers =
 {
-	local   entity  head;
-	local   float   c;
+	local entity head;
+	local float c;
 	c = 0;
 	head = findchain(classname, "player");
 	while (head != world)
@@ -233,7 +232,7 @@ void(string m) setteamplay =
 
 void() mode_updatecvars =
 {
-	     if (cvar("deathmatch") ==  0) setdm("0?Dark Places - Coop");
+	if (cvar("deathmatch") ==  0) setdm("0?Dark Places - Coop");
 	else if (cvar("deathmatch") ==  1) setdm("1?Dark Places - Deathmatch");
 	else if (cvar("deathmatch") ==  2) setdm("2?Dark Places - Deathmatch 2 (can only pickup gun once)");
 	else if (cvar("deathmatch") ==  3) setdm("3?Dark Places - Deathmatch 3 (quick ammo respawn)");
@@ -258,7 +257,7 @@ void() mode_updatecvars =
 	else if (deathmatch == 13) setteamplay("3?Dark Places - Monster Capture The Flag - 2 Team");
 	else
 	{
-		     if (cvar("teamplay") == 0) setteamplay("0?Dark Places - No Teamplay");
+	if (cvar("teamplay") == 0) setteamplay("0?Dark Places - No Teamplay");
 		else if (cvar("teamplay") == 1) setteamplay("1?Dark Places - No team damage");
 		else if (cvar("teamplay") == 2) setteamplay("2?Dark Places - Can hurt anyone");
 		else if (cvar("teamplay") == 3) setteamplay("3?Dark Places - No team damage, but can hurt self");
@@ -451,7 +450,7 @@ void() spawnmonsters =
 		return;
 
 	r = random() * 13;
-	     if (r <  1) spawnmonster( 5, 10, "monster_army"       , monster_army       , '-16 -16 -24', '16 16 32');
+	if (r <  1) spawnmonster( 5, 10, "monster_army"       , monster_army       , '-16 -16 -24', '16 16 32');
 	else if (r <  2) spawnmonster( 3,  6, "monster_demon1"     , monster_demon1     , '-32 -32 -24', '32 32 64');
 	else if (r <  3) spawnmonster( 6, 12, "monster_dog"        , monster_dog        , '-16 -16 -24', '16 16 32');
 	else if (r <  4) spawnmonster( 4,  8, "monster_enforcer"   , monster_enforcer   , '-16 -16 -24', '16 16 32');

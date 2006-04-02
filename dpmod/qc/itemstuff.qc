@@ -44,7 +44,7 @@ void() monsterinwall;
 void(entity e) waypointspawnforitem;
 void() PlaceItem =
 {
-	// local   float   c;
+	// local float c;
 	if (deathmatch == DM_FRAGFEST || deathmatch == DM_ELIM)
 	{
 		activator = world;

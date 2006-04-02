@@ -95,7 +95,7 @@ OgreFireNailgun
 */
 void() OgreFireNailgun =
 {
-	local   vector  v;
+	local vector v;
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
 	sound (self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
@@ -275,63 +275,63 @@ float() ogre_missile =
 	return TRUE;
 }
 
-void()	ogre_pain1	=[	$pain1,		ogre_pain2	] {monster_setalpha(1.00);};
-void()	ogre_pain2	=[	$pain2,		ogre_pain3	] {monster_setalpha(0.75);};
-void()	ogre_pain3	=[	$pain3,		ogre_pain4	] {monster_setalpha(0.50);};
-void()	ogre_pain4	=[	$pain4,		ogre_pain5	] {monster_setalpha(0.25);};
-void()	ogre_pain5	=[	$pain5,		ogre_run1	] {monster_setalpha(0.00);};
+void() ogre_pain1	=[	$pain1,		ogre_pain2	] {monster_setalpha(1.00);};
+void() ogre_pain2	=[	$pain2,		ogre_pain3	] {monster_setalpha(0.75);};
+void() ogre_pain3	=[	$pain3,		ogre_pain4	] {monster_setalpha(0.50);};
+void() ogre_pain4	=[	$pain4,		ogre_pain5	] {monster_setalpha(0.25);};
+void() ogre_pain5	=[	$pain5,		ogre_run1	] {monster_setalpha(0.00);};
 
 
-void()	ogre_painb1	=[	$painb1,	ogre_painb2	] {monster_setalpha(1.00);};
-void()	ogre_painb2	=[	$painb2,	ogre_painb3	] {monster_setalpha(0.50);};
-void()	ogre_painb3	=[	$painb3,	ogre_run1	] {monster_setalpha(0.00);};
+void() ogre_painb1	=[	$painb1,	ogre_painb2	] {monster_setalpha(1.00);};
+void() ogre_painb2	=[	$painb2,	ogre_painb3	] {monster_setalpha(0.50);};
+void() ogre_painb3	=[	$painb3,	ogre_run1	] {monster_setalpha(0.00);};
 
 
-void()	ogre_painc1	=[	$painc1,	ogre_painc2	] {monster_setalpha(1.00);};
-void()	ogre_painc2	=[	$painc2,	ogre_painc3	] {monster_setalpha(0.75);};
-void()	ogre_painc3	=[	$painc3,	ogre_painc4	] {monster_setalpha(0.50);};
-void()	ogre_painc4	=[	$painc4,	ogre_painc5	] {monster_setalpha(0.25);};
-void()	ogre_painc5	=[	$painc5,	ogre_painc6	] {monster_setalpha(0.00);};
-void()	ogre_painc6	=[	$painc6,	ogre_run1	] {};
+void() ogre_painc1	=[	$painc1,	ogre_painc2	] {monster_setalpha(1.00);};
+void() ogre_painc2	=[	$painc2,	ogre_painc3	] {monster_setalpha(0.75);};
+void() ogre_painc3	=[	$painc3,	ogre_painc4	] {monster_setalpha(0.50);};
+void() ogre_painc4	=[	$painc4,	ogre_painc5	] {monster_setalpha(0.25);};
+void() ogre_painc5	=[	$painc5,	ogre_painc6	] {monster_setalpha(0.00);};
+void() ogre_painc6	=[	$painc6,	ogre_run1	] {};
 
 
-void()	ogre_paind1	=[	$paind1,	ogre_paind2	] {monster_setalpha(1.00);};
-void()	ogre_paind2	=[	$paind2,	ogre_paind3	] {monster_setalpha(0.75);ai_pain(10);};
-void()	ogre_paind3	=[	$paind3,	ogre_paind4	] {monster_setalpha(0.50);ai_pain(9);};
-void()	ogre_paind4	=[	$paind4,	ogre_paind5	] {monster_setalpha(0.25);ai_pain(4);};
-void()	ogre_paind5	=[	$paind5,	ogre_paind6	] {monster_setalpha(0.00);};
-void()	ogre_paind6	=[	$paind6,	ogre_paind7	] {};
-void()	ogre_paind7	=[	$paind7,	ogre_paind8	] {};
-void()	ogre_paind8	=[	$paind8,	ogre_paind9	] {};
-void()	ogre_paind9	=[	$paind9,	ogre_paind10	] {};
-void()	ogre_paind10=[	$paind10,	ogre_paind11	] {};
-void()	ogre_paind11=[	$paind11,	ogre_paind12	] {};
-void()	ogre_paind12=[	$paind12,	ogre_paind13	] {};
-void()	ogre_paind13=[	$paind13,	ogre_paind14	] {};
-void()	ogre_paind14=[	$paind14,	ogre_paind15	] {};
-void()	ogre_paind15=[	$paind15,	ogre_paind16	] {};
-void()	ogre_paind16=[	$paind16,	ogre_run1	] {};
+void() ogre_paind1	=[	$paind1,	ogre_paind2	] {monster_setalpha(1.00);};
+void() ogre_paind2	=[	$paind2,	ogre_paind3	] {monster_setalpha(0.75);ai_pain(10);};
+void() ogre_paind3	=[	$paind3,	ogre_paind4	] {monster_setalpha(0.50);ai_pain(9);};
+void() ogre_paind4	=[	$paind4,	ogre_paind5	] {monster_setalpha(0.25);ai_pain(4);};
+void() ogre_paind5	=[	$paind5,	ogre_paind6	] {monster_setalpha(0.00);};
+void() ogre_paind6	=[	$paind6,	ogre_paind7	] {};
+void() ogre_paind7	=[	$paind7,	ogre_paind8	] {};
+void() ogre_paind8	=[	$paind8,	ogre_paind9	] {};
+void() ogre_paind9	=[	$paind9,	ogre_paind10	] {};
+void() ogre_paind10=[	$paind10,	ogre_paind11	] {};
+void() ogre_paind11=[	$paind11,	ogre_paind12	] {};
+void() ogre_paind12=[	$paind12,	ogre_paind13	] {};
+void() ogre_paind13=[	$paind13,	ogre_paind14	] {};
+void() ogre_paind14=[	$paind14,	ogre_paind15	] {};
+void() ogre_paind15=[	$paind15,	ogre_paind16	] {};
+void() ogre_paind16=[	$paind16,	ogre_run1	] {};
 
-void()	ogre_paine1	=[	$paine1,	ogre_paine2	] {monster_setalpha(1.00);};
-void()	ogre_paine2	=[	$paine2,	ogre_paine3	] {monster_setalpha(0.75);ai_pain(10);};
-void()	ogre_paine3	=[	$paine3,	ogre_paine4	] {monster_setalpha(0.50);ai_pain(9);};
-void()	ogre_paine4	=[	$paine4,	ogre_paine5	] {monster_setalpha(0.25);ai_pain(4);};
-void()	ogre_paine5	=[	$paine5,	ogre_paine6	] {monster_setalpha(0.00);};
-void()	ogre_paine6	=[	$paine6,	ogre_paine7	] {};
-void()	ogre_paine7	=[	$paine7,	ogre_paine8	] {};
-void()	ogre_paine8	=[	$paine8,	ogre_paine9	] {};
-void()	ogre_paine9	=[	$paine9,	ogre_paine10	] {};
-void()	ogre_paine10=[	$paine10,	ogre_paine11	] {};
-void()	ogre_paine11=[	$paine11,	ogre_paine12	] {};
-void()	ogre_paine12=[	$paine12,	ogre_paine13	] {};
-void()	ogre_paine13=[	$paine13,	ogre_paine14	] {};
-void()	ogre_paine14=[	$paine14,	ogre_paine15	] {};
-void()	ogre_paine15=[	$paine15,	ogre_run1	] {};
+void() ogre_paine1	=[	$paine1,	ogre_paine2	] {monster_setalpha(1.00);};
+void() ogre_paine2	=[	$paine2,	ogre_paine3	] {monster_setalpha(0.75);ai_pain(10);};
+void() ogre_paine3	=[	$paine3,	ogre_paine4	] {monster_setalpha(0.50);ai_pain(9);};
+void() ogre_paine4	=[	$paine4,	ogre_paine5	] {monster_setalpha(0.25);ai_pain(4);};
+void() ogre_paine5	=[	$paine5,	ogre_paine6	] {monster_setalpha(0.00);};
+void() ogre_paine6	=[	$paine6,	ogre_paine7	] {};
+void() ogre_paine7	=[	$paine7,	ogre_paine8	] {};
+void() ogre_paine8	=[	$paine8,	ogre_paine9	] {};
+void() ogre_paine9	=[	$paine9,	ogre_paine10	] {};
+void() ogre_paine10=[	$paine10,	ogre_paine11	] {};
+void() ogre_paine11=[	$paine11,	ogre_paine12	] {};
+void() ogre_paine12=[	$paine12,	ogre_paine13	] {};
+void() ogre_paine13=[	$paine13,	ogre_paine14	] {};
+void() ogre_paine14=[	$paine14,	ogre_paine15	] {};
+void() ogre_paine15=[	$paine15,	ogre_run1	] {};
 
 
-void(entity attacker, float damage)	ogre_pain =
+void(entity attacker, float damage) ogre_pain =
 {
-	local float	r;
+	local float r;
 
 // don't make multiple pain sounds right after each other
 	if (self.pain_finished > time)
@@ -375,31 +375,31 @@ void(entity attacker, float damage)	ogre_pain =
 	}
 };
 
-void()  ogre_die1       =[      $death1,        ogre_die2       ] {body_solid('-32 -32 -24', '32 32 32');};
-void()  ogre_die2       =[      $death2,        ogre_die3       ] {body_solid('-32 -32 -24', '32 32 32');};
-void()  ogre_die3       =[      $death3,        ogre_die4       ] {body_solid('-32 -32 -24', '32 32 32');};
-void()  ogre_die4       =[      $death4,        ogre_die5       ] {body_solid('-32 -32 -24', '32 32 32');};
-void()  ogre_die5       =[      $death5,        ogre_die6       ] {body_solid('-32 -32 -24', '32 32 32');};
-void()  ogre_die6       =[      $death6,        ogre_die7       ] {body_solid('-32 -32 -24', '32 32 28');};
-void()  ogre_die7       =[      $death7,        ogre_die8       ] {body_solid('-32 -32 -24', '32 32 24');};
-void()  ogre_die8       =[      $death8,        ogre_die9       ] {body_solid('-32 -32 -24', '32 32 19');};
-void()  ogre_die9       =[      $death9,        ogre_die10      ] {body_nonsolid('-32 -32 -24', '32 32 17');};
-void()  ogre_die10      =[      $death10,       ogre_die11      ] {body_nonsolid('-32 -32 -24', '32 32 11');};
-void()  ogre_die11      =[      $death11,       ogre_die12      ] {body_nonsolid('-32 -32 -24', '32 32  3');};
-void()  ogre_die12      =[      $death12,       ogre_die13      ] {body_nonsolid('-32 -32 -24', '32 32 -6');};
-void()  ogre_die13      =[      $death13,       ogre_die14      ] {body_nonsolid('-32 -32 -24', '32 32 -6');};
-void()  ogre_die14      =[      $death14,       ogre_die14      ] {body_nonsolid('-32 -32 -24', '32 32 -12');}; // -6
+void()	ogre_die1	=[	$death1,	ogre_die2	] {body_solid('-32 -32 -24', '32 32 32');};
+void()	ogre_die2	=[	$death2,	ogre_die3	] {body_solid('-32 -32 -24', '32 32 32');};
+void()	ogre_die3	=[	$death3,	ogre_die4	] {body_solid('-32 -32 -24', '32 32 32');};
+void()	ogre_die4	=[	$death4,	ogre_die5	] {body_solid('-32 -32 -24', '32 32 32');};
+void()	ogre_die5	=[	$death5,	ogre_die6	] {body_solid('-32 -32 -24', '32 32 32');};
+void()	ogre_die6	=[	$death6,	ogre_die7	] {body_solid('-32 -32 -24', '32 32 28');};
+void()	ogre_die7	=[	$death7,	ogre_die8	] {body_solid('-32 -32 -24', '32 32 24');};
+void()	ogre_die8	=[	$death8,	ogre_die9	] {body_solid('-32 -32 -24', '32 32 19');};
+void()	ogre_die9	=[	$death9,	ogre_die10	] {body_nonsolid('-32 -32 -24', '32 32 17');};
+void()	ogre_die10	=[	$death10,	ogre_die11	] {body_nonsolid('-32 -32 -24', '32 32 11');};
+void()	ogre_die11	=[	$death11,	ogre_die12	] {body_nonsolid('-32 -32 -24', '32 32  3');};
+void()	ogre_die12	=[	$death12,	ogre_die13	] {body_nonsolid('-32 -32 -24', '32 32 -6');};
+void()	ogre_die13	=[	$death13,	ogre_die14	] {body_nonsolid('-32 -32 -24', '32 32 -6');};
+void()	ogre_die14	=[	$death14,	ogre_die14	] {body_nonsolid('-32 -32 -24', '32 32 -12');}; // -6
 
-void()  ogre_bdie1      =[      $bdeath1,       ogre_bdie2      ] {body_solid('-32 -32 -24', '32 32  32');};
-void()  ogre_bdie2      =[      $bdeath2,       ogre_bdie3      ] {body_solid('-32 -32 -24', '32 32  32');ai_forward(5);};
-void()  ogre_bdie3      =[      $bdeath3,       ogre_bdie4      ] {body_solid('-32 -32 -24', '32 32  32');};
-void()  ogre_bdie4      =[      $bdeath4,       ogre_bdie5      ] {body_solid('-32 -32 -24', '32 32  32');ai_forward(1);};
-void()  ogre_bdie5      =[      $bdeath5,       ogre_bdie6      ] {body_solid('-32 -32 -24', '32 32  32');ai_forward(3);};
-void()  ogre_bdie6      =[      $bdeath6,       ogre_bdie7      ] {body_nonsolid('-32 -32 -24', '32 32  27');ai_forward(7);};
-void()  ogre_bdie7      =[      $bdeath7,       ogre_bdie8      ] {body_nonsolid('-32 -32 -24', '32 32  -1');ai_forward(25);};
-void()  ogre_bdie8      =[      $bdeath8,       ogre_bdie9      ] {body_nonsolid('-32 -32 -24', '32 32  -2');};
-void()  ogre_bdie9      =[      $bdeath9,       ogre_bdie10     ] {body_nonsolid('-32 -32 -24', '32 32  -9');};
-void()  ogre_bdie10     =[      $bdeath10,      ogre_bdie10     ] {body_nonsolid('-32 -32 -24', '32 32 -12');}; // -10
+void()	ogre_bdie1	=[	$bdeath1,	ogre_bdie2	] {body_solid('-32 -32 -24', '32 32  32');};
+void()	ogre_bdie2	=[	$bdeath2,	ogre_bdie3	] {body_solid('-32 -32 -24', '32 32  32');ai_forward(5);};
+void()	ogre_bdie3	=[	$bdeath3,	ogre_bdie4	] {body_solid('-32 -32 -24', '32 32  32');};
+void()	ogre_bdie4	=[	$bdeath4,	ogre_bdie5	] {body_solid('-32 -32 -24', '32 32  32');ai_forward(1);};
+void()	ogre_bdie5	=[	$bdeath5,	ogre_bdie6	] {body_solid('-32 -32 -24', '32 32  32');ai_forward(3);};
+void()	ogre_bdie6	=[	$bdeath6,	ogre_bdie7	] {body_nonsolid('-32 -32 -24', '32 32  27');ai_forward(7);};
+void()	ogre_bdie7	=[	$bdeath7,	ogre_bdie8	] {body_nonsolid('-32 -32 -24', '32 32  -1');ai_forward(25);};
+void()	ogre_bdie8	=[	$bdeath8,	ogre_bdie9	] {body_nonsolid('-32 -32 -24', '32 32  -2');};
+void()	ogre_bdie9	=[	$bdeath9,	ogre_bdie10	] {body_nonsolid('-32 -32 -24', '32 32  -9');};
+void()	ogre_bdie10	=[	$bdeath10,	ogre_bdie10	] {body_nonsolid('-32 -32 -24', '32 32 -12');}; // -10
 
 void() ogre_gib =
 {
@@ -460,7 +460,6 @@ void() precachemonster_ogre =
 */
 void() monster_ogre =
 {
-	local float r;
 	if (deathmatch)
 	if (!monsterspawn)
 	{

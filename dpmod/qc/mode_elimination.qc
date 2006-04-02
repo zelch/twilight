@@ -1,16 +1,16 @@
 
 // states
-float	ELIM_EMPTY = 0;
-float	ELIM_PREMATCH = 1;
-float	ELIM_BEGIN = 2;
-float	ELIM_MATCH = 3;
+float ELIM_EMPTY = 0;
+float ELIM_PREMATCH = 1;
+float ELIM_BEGIN = 2;
+float ELIM_MATCH = 3;
 
 // settings
-float	ELIMROUNDS = 5; // rounds to win (best 5 out of 9)
+float ELIMROUNDS = 5; // rounds to win (best 5 out of 9)
 
-float	elimstate, elimrallytime, elimmessage, elimround;
+float elimstate, elimrallytime, elimmessage, elimround;
 
-.float	teamupdatetime;
+.float teamupdatetime;
 
 void() modeelimframe = {};
 
@@ -28,38 +28,38 @@ void() modeelimplayer = {};
 
 void() elim_chooseteams =
 {
-        local   entity  head;
-        head = find(world, classname, "player");
-        while (head)
-        {
-                if (head.desiredteam < 0)
-                        head.desiredteam = 0;
-                if (head.chosenteam != head.desiredteam)
-                {
-                        head.chosenteam = head.desiredteam;
-                        //head.desiredteam = 0; // clear it
-                        respawnplayer(head);
-                }
-                head = find(head, classname, "player");
-        }
+	local entity head;
+	head = find(world, classname, "player");
+	while (head)
+	{
+		if (head.desiredteam < 0)
+			head.desiredteam = 0;
+		if (head.chosenteam != head.desiredteam)
+		{
+			head.chosenteam = head.desiredteam;
+			//head.desiredteam = 0; // clear it
+			respawnplayer(head);
+		}
+		head = find(head, classname, "player");
+	}
 };
 
 void() elim_clearteamchoices =
 {
-        local   entity  head;
-        head = findchain(classname, "player");
-        while (head)
-        {
-                head.desiredteam = 0;
-                head = head.chain;
-        }
+	local entity head;
+	head = findchain(classname, "player");
+	while (head)
+	{
+		head.desiredteam = 0;
+		head = head.chain;
+	}
 };
 
 void() DM_Elimination =
 {
-	local   float   teamsdefined, teamsactive, /*teamswrong, */n;
-	local   entity  head/*, head2*/, winner;
-	local   string  s;
+	local float teamsdefined, teamsactive, /*teamswrong, */n;
+	local entity head/*, head2*/, winner;
+	local string s;
 	matchmode = TRUE; // like nofire but checks team first
 	teamsdefined = 0;
 	if (team2.cnt ) teamsdefined = teamsdefined + 1;
@@ -172,9 +172,9 @@ void() DM_Elimination =
 				if (head.flags & FL_CLIENT)
 				{
 					if (head.chosenteam >= 2)
-						centerprint3(head, "Dark Places\nElimination Mode\n------\n", s, " sec until match");
+						centerprint(head, "Dark Places\nElimination Mode\n------\n", s, " sec until match");
 					else
-						centerprint3(head, "Dark Places\nElimination Mode\n------\n", s, " sec until match, join now or watch");
+						centerprint(head, "Dark Places\nElimination Mode\n------\n", s, " sec until match, join now or watch");
 				}
 				head = head.chain;
 			}
@@ -300,79 +300,79 @@ void() DM_Elimination =
 		elimmessage = time + 1;
 };
 
-float   nextcvarupdate;
+float nextcvarupdate;
 void() modeupdate =
 {
-        local   entity  head;
-        nofire = FALSE;
-        matchmode = FALSE; // changed by DM_ code
-        if (deathmatch == DM_ELIM)
-        {
-                head = findchain(classname, "player");
-                while (head)
-                {
-                        if (head.deadflag)
-                                head.lastteam = 1; // white
-                        else
-                                head.lastteam = head.chosenteam;
-                        head = head.chain;
-                }
-        }
-        team1.count  = team1.cnt  = 0;team2.count  = team2.cnt  = 0;team3.count  = team3.cnt  = 0;team4.count  = team4.cnt  = 0;
-        team5.count  = team5.cnt  = 0;team6.count  = team6.cnt  = 0;team7.count  = team7.cnt  = 0;team8.count  = team8.cnt  = 0;
-        team9.count  = team9.cnt  = 0;team10.count = team10.cnt = 0;team11.count = team11.cnt = 0;team12.count = team12.cnt = 0;
-        team13.count = team13.cnt = 0;team14.count = team14.cnt = 0;
-        head = findchain(classname, "player");
-        if (head)
-        {
-                while(head)
-                {
-                        if (head.lastteam)
-                        {
-                                     if (head.lastteam ==  1) team1.count  = team1.count  + 1;
-                                else if (head.lastteam ==  2) team2.count  = team2.count  + 1;
-                                else if (head.lastteam ==  3) team3.count  = team3.count  + 1;
-                                else if (head.lastteam ==  4) team4.count  = team4.count  + 1;
-                                else if (head.lastteam ==  5) team5.count  = team5.count  + 1;
-                                else if (head.lastteam ==  6) team6.count  = team6.count  + 1;
-                                else if (head.lastteam ==  7) team7.count  = team7.count  + 1;
-                                else if (head.lastteam ==  8) team8.count  = team8.count  + 1;
-                                else if (head.lastteam ==  9) team9.count  = team9.count  + 1;
-                                else if (head.lastteam == 10) team10.count = team10.count + 1;
-                                else if (head.lastteam == 11) team11.count = team11.count + 1;
-                                else if (head.lastteam == 12) team12.count = team12.count + 1;
-                                else if (head.lastteam == 13) team13.count = team13.count + 1;
-                                else if (head.lastteam == 14) team14.count = team14.count + 1;
-                        }
-                        if (head.chosenteam)
-                        {
-                                     if (head.chosenteam ==  1) team1.cnt  = team1.cnt  + 1;
-                                else if (head.chosenteam ==  2) team2.cnt  = team2.cnt  + 1;
-                                else if (head.chosenteam ==  3) team3.cnt  = team3.cnt  + 1;
-                                else if (head.chosenteam ==  4) team4.cnt  = team4.cnt  + 1;
-                                else if (head.chosenteam ==  5) team5.cnt  = team5.cnt  + 1;
-                                else if (head.chosenteam ==  6) team6.cnt  = team6.cnt  + 1;
-                                else if (head.chosenteam ==  7) team7.cnt  = team7.cnt  + 1;
-                                else if (head.chosenteam ==  8) team8.cnt  = team8.cnt  + 1;
-                                else if (head.chosenteam ==  9) team9.cnt  = team9.cnt  + 1;
-                                else if (head.chosenteam == 10) team10.cnt = team10.cnt + 1;
-                                else if (head.chosenteam == 11) team11.cnt = team11.cnt + 1;
-                                else if (head.chosenteam == 12) team12.cnt = team12.cnt + 1;
-                                else if (head.chosenteam == 13) team13.cnt = team13.cnt + 1;
-                                else if (head.chosenteam == 14) team14.cnt = team14.cnt + 1;
-                        }
-                        head = head.chain;
-                }
-        }
-        if (time > nextcvarupdate)
-        {
-                nextcvarupdate = time + 1;
-                mode_updatecvars();
-        }
-        if (deathmatch == DM_ONEVSALL)
-                DM_KillTheLeader();
-        else if (deathmatch == DM_ELIM)
-                DM_Elimination();
+	local entity head;
+	nofire = FALSE;
+	matchmode = FALSE; // changed by DM_ code
+	if (deathmatch == DM_ELIM)
+	{
+		head = findchain(classname, "player");
+		while (head)
+		{
+			if (head.deadflag)
+				head.lastteam = 1; // white
+			else
+				head.lastteam = head.chosenteam;
+			head = head.chain;
+		}
+	}
+	team1.count  = team1.cnt  = 0;team2.count  = team2.cnt  = 0;team3.count  = team3.cnt  = 0;team4.count  = team4.cnt  = 0;
+	team5.count  = team5.cnt  = 0;team6.count  = team6.cnt  = 0;team7.count  = team7.cnt  = 0;team8.count  = team8.cnt  = 0;
+	team9.count  = team9.cnt  = 0;team10.count = team10.cnt = 0;team11.count = team11.cnt = 0;team12.count = team12.cnt = 0;
+	team13.count = team13.cnt = 0;team14.count = team14.cnt = 0;
+	head = findchain(classname, "player");
+	if (head)
+	{
+		while(head)
+		{
+			if (head.lastteam)
+			{
+	if (head.lastteam ==  1) team1.count  = team1.count  + 1;
+				else if (head.lastteam ==  2) team2.count  = team2.count  + 1;
+				else if (head.lastteam ==  3) team3.count  = team3.count  + 1;
+				else if (head.lastteam ==  4) team4.count  = team4.count  + 1;
+				else if (head.lastteam ==  5) team5.count  = team5.count  + 1;
+				else if (head.lastteam ==  6) team6.count  = team6.count  + 1;
+				else if (head.lastteam ==  7) team7.count  = team7.count  + 1;
+				else if (head.lastteam ==  8) team8.count  = team8.count  + 1;
+				else if (head.lastteam ==  9) team9.count  = team9.count  + 1;
+				else if (head.lastteam == 10) team10.count = team10.count + 1;
+				else if (head.lastteam == 11) team11.count = team11.count + 1;
+				else if (head.lastteam == 12) team12.count = team12.count + 1;
+				else if (head.lastteam == 13) team13.count = team13.count + 1;
+				else if (head.lastteam == 14) team14.count = team14.count + 1;
+			}
+			if (head.chosenteam)
+			{
+	if (head.chosenteam ==  1) team1.cnt  = team1.cnt  + 1;
+				else if (head.chosenteam ==  2) team2.cnt  = team2.cnt  + 1;
+				else if (head.chosenteam ==  3) team3.cnt  = team3.cnt  + 1;
+				else if (head.chosenteam ==  4) team4.cnt  = team4.cnt  + 1;
+				else if (head.chosenteam ==  5) team5.cnt  = team5.cnt  + 1;
+				else if (head.chosenteam ==  6) team6.cnt  = team6.cnt  + 1;
+				else if (head.chosenteam ==  7) team7.cnt  = team7.cnt  + 1;
+				else if (head.chosenteam ==  8) team8.cnt  = team8.cnt  + 1;
+				else if (head.chosenteam ==  9) team9.cnt  = team9.cnt  + 1;
+				else if (head.chosenteam == 10) team10.cnt = team10.cnt + 1;
+				else if (head.chosenteam == 11) team11.cnt = team11.cnt + 1;
+				else if (head.chosenteam == 12) team12.cnt = team12.cnt + 1;
+				else if (head.chosenteam == 13) team13.cnt = team13.cnt + 1;
+				else if (head.chosenteam == 14) team14.cnt = team14.cnt + 1;
+			}
+			head = head.chain;
+		}
+	}
+	if (time > nextcvarupdate)
+	{
+		nextcvarupdate = time + 1;
+		mode_updatecvars();
+	}
+	if (deathmatch == DM_ONEVSALL)
+		DM_KillTheLeader();
+	else if (deathmatch == DM_ELIM)
+		DM_Elimination();
 };
 
 
