@@ -89,18 +89,10 @@ trig_playercount.qc
 trig_stuffcmd.qc
 trig_ticker.qc
 
-rain.qc         // particle rain and particle cube
-
-rotate.qc       // rotating doors etc
 spotlights.qc   // spinning spot lights etc
-invisiblewall.qc // invisible walls
-forcefield.qc   // force fields
-shake.qc        // earthquake effects
 
 plats.qc
 misc.qc
-
-xplowall.qc     // breakable walls
 
 m_ogre.qc
 m_demon.qc

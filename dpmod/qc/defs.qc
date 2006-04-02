@@ -1103,5 +1103,6 @@ float CHAN_WEAPON2            = 7;
 // called whenever damage is done, if not supplied there is no visible effect.
 .void(vector org, float bodydamage, float armordamage, vector vel, float damgtype) bleedfunc;
 
-.float cnt2;			// another counter
-.float count2;			// yet another count
+// several counters
+.float count1, count2, count3, count4, count5, count6, cnt1, cnt2;
+

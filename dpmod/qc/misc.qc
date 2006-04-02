@@ -299,8 +299,6 @@ void() light_flame_small_white =
 	//makestatic (self);
 };
 
-.float count1, count2, count3, count4, count5, count6, cnt1, cnt2;
-
 void() thunderthink =
 {
 	local float c;
@@ -1083,4 +1081,1470 @@ void() misc_noisemaker =
 };
 
 // TODO: Nexuiz stuff
+
+
+float SHAKE_SILENT     = 2;
+float SHAKE_STARTON    = 4;
+float SHAKE_TOGGLE     = 8;
+
+void() shaketouch =
+{
+	local vector v;
+	if (!self.weapon) // is it active
+		return;
+	if (other.flags & FL_ONGROUND)
+	if (other.movetype == MOVETYPE_WALK || other.movetype == MOVETYPE_STEP)
+	{
+	//         other.earthquaketime = time + 0.2;
+		self.flags = self.flags - FL_ONGROUND;
+		v_x = crandom();
+		v_y = crandom();
+		v_z = 4;
+		v = normalize(v);
+		other.velocity = other.velocity + v * (random() * 150);
+	}
+};
+
+void() shakethink =
+{
+	self.nextthink = time + 0.1;
+	if (!(self.spawnflags & SHAKE_TOGGLE))
+	{
+		if (time < self.wait)
+		{
+			if (self.spawnflags & SHAKE_STARTON)
+				self.weapon = 0;
+			else
+				self.weapon = 1;
+		}
+		else
+		{
+			if (self.spawnflags & SHAKE_STARTON)
+				self.weapon = 1;
+			else
+				self.weapon = 0;
+		}
+	}
+	if (!self.weapon) // is it active
+		return;
+	force_retouch = 2;      // hit even non-moving objects
+};
+
+void() shakeuse =
+{
+	if (self.spawnflags & SHAKE_TOGGLE)
+	{
+		self.weapon = !self.weapon;
+		return;
+	}
+	if (self.spawnflags & SHAKE_STARTON)
+		self.weapon = 0;
+	else
+		self.weapon = 1;
+	self.wait = time + self.delay;
+};
+
+/*QUAKED trigger_shake (1 .5 0) ? PLAYERONLY SILENT STARTON TOGGLE
+any player touching this feels an earthquake.
+
+when targeted it will flash on/off
+see STARTON, TOGGLE and delay
+
+flags:
+"PLAYERONLY"
+ only affects players.
+"SILENT"
+ no sound.
+"STARTON"
+ works in reverse, normally on, off when targeted.
+"TOGGLE"
+ switches on/off when targeted.
+
+keys:
+"delay"
+ how long it will stay switched when
+ targeted, ignored with TOGGLE.
+"targetname"
+ guess (flashes/toggles when targeted)
+*/
+void() trigger_shake =
+{
+	InitTrigger();
+	self.touch = shaketouch;
+	self.think = shakethink;
+	self.nextthink = time + 0.1;
+	self.use = shakeuse;
+	/* need a earthquake sound
+	if (!(self.spawnflags & SHAKE_SILENT))
+		precache_sound ("ambience/fl_hum1.wav");
+	*/
+	self.wait = 0;
+	self.weapon = 0; // start inactive
+	if (self.spawnflags & SHAKE_STARTON)
+		self.weapon = 1; // oh, turn it on then
+};
+
+
+float INVISIBLEWALL_STARTOFF  =       1;
+
+void() invisiblewall_use =
+{
+	if (self.solid == SOLID_BSP)
+	{
+		self.solid = SOLID_NOT;
+		self.movetype = MOVETYPE_NONE;
+	}
+	else
+	{
+		self.solid = SOLID_BSP;
+		self.movetype = MOVETYPE_PUSH;
+	}
+};
+
+/*QUAKED func_invisiblewall (0 .5 .8) ? STARTOFF
+invisible wall,
+toggles on/off when triggered.
+
+better than invisible walls
+made with CLIP texture
+as bullets etc can't go
+through this.
+
+Flags:
+"STARTOFF"
+ uh, guess...
+*/
+
+void() func_invisiblewall =
+{
+	setmodel (self, self.model);    // set size and link into world
+	self.model = "";                // make it invisible
+	self.use = invisiblewall_use;
+	self.solid = SOLID_BSP; // make it solid
+	self.movetype = MOVETYPE_PUSH;
+	if (self.spawnflags & INVISIBLEWALL_STARTOFF)
+	{
+		self.solid = SOLID_NOT; // oh, turn it off
+		self.movetype = MOVETYPE_NONE;
+	}
+};
+
+void() rain_think =
+{
+	self.nextthink = time + 0.1;
+	te_particlerain(self.absmin, self.absmax, self.dest, self.count, self.cnt);
+//	te_particlesnow(self.absmin, self.absmax, self.dest * 0.25, self.count, self.cnt);
+//	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+//	WriteByte (MSG_BROADCAST, TE_PARTICLERAIN);
+//	WriteVec (MSG_BROADCAST, self.absmin);
+//	WriteVec (MSG_BROADCAST, self.absmax);
+//	WriteVec (MSG_BROADCAST, self.dest);
+//	WriteShort (MSG_BROADCAST, self.count);
+//	WriteByte (MSG_BROADCAST, self.cnt);
+};
+
+/*QUAKED func_rain (0 .5 .8) ?
+This is an invisible area like a trigger, which rain falls inside of.
+
+Keys:
+"velocity"
+ falling direction (should be something like '0 0 -700', use the X and Y velocity for wind)
+"cnt"
+ sets color of rain (default 12 - white)
+"count"
+ adjusts rain density, this many particles fall every second, experiment to see the effects (default is based on area size)
+*/
+void() func_rain =
+{
+	self.dest = self.velocity;
+	self.velocity = '0 0 0';
+	if (!self.dest)
+		self.dest = '0 0 -700';
+	self.angles = '0 0 0';
+	self.movetype = MOVETYPE_NONE;
+	self.solid = SOLID_NOT;
+	setmodel(self, self.model);
+	setorigin(self, self.origin);
+	setsize(self, self.mins, self.maxs);
+	self.model = "";
+	if (!self.cnt)
+		self.cnt = 12;
+	if (!self.count)
+		self.count = (self.absmax_x - self.absmin_x)*(self.absmax_y - self.absmin_y)/8192;
+	if (self.count < 1)
+	{
+		remove(self);
+		return;
+	}
+	// convert from per second to per 0.1 sec,
+	self.count = ceil(self.count * 0.1);
+	self.think = rain_think;
+	self.nextthink = time + 0.5;
+};
+
+void() snow_think =
+{
+	self.nextthink = time + 0.1;
+	te_particlesnow(self.absmin, self.absmax, self.dest, self.count, self.cnt);
+//	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+//	WriteByte (MSG_BROADCAST, TE_PARTICLESNOW);
+//	WriteVec (MSG_BROADCAST, self.absmin);
+//	WriteVec (MSG_BROADCAST, self.absmax);
+//	WriteVec (MSG_BROADCAST, self.dest);
+//	WriteShort (MSG_BROADCAST, self.count);
+//	WriteByte (MSG_BROADCAST, self.cnt);
+};
+
+/*QUAKED func_snow (0 .5 .8) ?
+This is an invisible area like a trigger, which snow falls inside of.
+
+Keys:
+"velocity"
+ falling direction (should be something like '0 0 -300', use the X and Y velocity for wind)
+"cnt"
+ sets color of rain (default 12 - white)
+"count"
+ adjusts snow density, this many particles fall every second, experiment to see the effects (default is based on area size)
+*/
+void() func_snow =
+{
+	self.dest = self.velocity;
+	self.velocity = '0 0 0';
+	if (!self.dest)
+		self.dest = '0 0 -300';
+	self.angles = '0 0 0';
+	self.movetype = MOVETYPE_NONE;
+	self.solid = SOLID_NOT;
+	setmodel(self, self.model);
+	setorigin(self, self.origin);
+	setsize(self, self.mins, self.maxs);
+	self.model = "";
+	if (!self.cnt)
+		self.cnt = 12;
+	if (!self.count)
+		self.count = (self.absmax_x - self.absmin_x)*(self.absmax_y - self.absmin_y)/8192;
+	if (self.count < 1)
+	{
+		remove(self);
+		return;
+	}
+	// convert from per second to per 0.1 sec,
+	self.count = ceil(self.count * 0.1);
+	self.think = snow_think;
+	self.nextthink = time + 0.5;
+};
+
+void() particlecube_think =
+{
+	self.nextthink = time + 0.1;
+	te_particlecube(self.absmin, self.absmax, self.dest, self.count, self.cnt, (self.spawnflags & 1) != 0, self.cnt2);
+//	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+//	WriteByte (MSG_BROADCAST, TE_PARTICLECUBE);
+//	WriteVec (MSG_BROADCAST, self.absmin);
+//	WriteVec (MSG_BROADCAST, self.absmax);
+//	WriteVec (MSG_BROADCAST, self.dest);
+//	WriteShort (MSG_BROADCAST, self.count);
+//	WriteByte (MSG_BROADCAST, self.cnt);
+//	if (self.spawnflags & 1)
+//		WriteByte (MSG_BROADCAST, 1);
+//	else
+//		WriteByte (MSG_BROADCAST, 0);
+//	WriteCoord (MSG_BROADCAST, self.cnt2);
+};
+
+/*QUAKED func_particlecube (0 .5 .8) ? GRAVITY
+This is an invisible area like a trigger, which particles spawn in.
+
+Flags:
+gravity
+ if set the particles will fall.
+
+Keys:
+"velocity"
+ particle velocity. (default is '0 0 0)
+"cnt"
+ sets color of particles (default 12 - white), the colors are actually a range of 4 colors, starting with this color.
+"count"
+ adjusts particle density, this many particles appear every second, experiment to see the effects (default is based on area size).
+"cnt2"
+ random velocity adjustment, default is 0, higher makes the particles more random, 0 makes them follow velocity exactly.
+*/
+void() func_particlecube =
+{
+	self.dest = self.velocity;
+	self.velocity = '0 0 0';
+	self.angles = '0 0 0';
+	self.movetype = MOVETYPE_NONE;
+	self.solid = SOLID_NOT;
+	setmodel(self, self.model);
+	setorigin(self, self.origin);
+	setsize(self, self.mins, self.maxs);
+	self.model = "";
+	if (!self.cnt)
+		self.cnt = 12;
+	if (!self.count)
+		self.count = (self.absmax_x - self.absmin_x)*(self.absmax_y - self.absmin_y)*(self.absmax_z - self.absmin_z)/65536;
+	if (self.count < 1)
+	{
+		remove(self);
+		return;
+	}
+	if (self.spawnflags & 1)
+		self.lefty = 1;
+	// convert from per second to per 0.1 sec,
+	// and round up to nearest multiple of 4
+	self.count = ((self.count * 0.1) + 3) & 65532;
+	self.think = particlecube_think;
+	self.nextthink = time + 0.5;
+};
+
+
+/*
+Exploding Walls
+*/
+
+float XWALL_NOHEAL = 1;
+float XWALL_SILVERKEY = 2;
+float XWALL_GOLDKEY = 4;
+
+void() xwall_break;
+void() xwall_heal;
+void() xwall_keytouch;
+
+void() xwall_respawn =
+{
+	self.solid = SOLID_BSP;
+	self.movetype = MOVETYPE_PUSH;
+	setorigin (self, self.origin);
+	setmodel (self, self.mdl);
+
+	self.use = xwall_break;
+	if (self.max_health >= 1)
+	{
+		self.takedamage = DAMAGE_YES;
+		self.th_die = xwall_break;
+		if (self.spawnflags & XWALL_NOHEAL)
+			self.th_pain = SUB_Null;
+		else
+			self.th_pain = xwall_heal;
+	}
+	else
+		self.takedamage = DAMAGE_NO;
+
+	if (self.items)
+		self.touch = xwall_keytouch;
+	else
+		self.touch = SUB_Null;
+};
+
+void() xwall_hidethink;
+
+void() xwall_breakthink =
+{
+	local float t, r, t2, t3;
+	local vector v, v2;
+	local entity ts;
+	self.think = xwall_breakthink;
+	self.nextthink = time + self.owner.delay;
+	t = 0; // give up the search after 20 failures
+	while (t < 20)
+	{
+		v = randompos(self.absmin, self.absmax);
+		t = t + 1;
+		if (pointcontents(v) != CONTENT_SOLID) // found a spot
+			t = 1000000;
+	}
+
+	t3 = TRUE; // pick a new location for each piece of rubble
+	if (self.cnt2 > 0)
+	{
+		t3 = FALSE; // spawn rubble from each explosion
+		self.cnt2 = self.cnt2 - 1;
+		newmis = spawn();
+		newmis.owner = self.owner;
+		setorigin(newmis, v);
+		T_RadiusDamage(newmis, newmis.owner, newmis.owner.dmg, newmis.owner.dmg, newmis.owner.dmg, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+		BecomeExplosion(newmis, '0 0 0', FALSE);
+	}
+	t2 = floor(self.cnt);
+	self.cnt = self.cnt + self.count;
+	r = floor(random()*3);
+	while (t2 < self.cnt)
+	{
+		t2 = t2 + 1;
+		if (t3) // pick a new location for each piece of rubble
+		{
+			t = 0; // give up the search after 20 failures
+			while (t < 20)
+			{
+				v = randompos(self.absmin, self.absmax);
+				t = t + 1;
+				if (pointcontents(v) != CONTENT_SOLID) // found a spot
+					t = 1000000;
+			}
+		}
+		v2 = randomvec() * (self.owner.dmg + 20) * 3 + '0 0 120';
+		if (r == 0) ThrowDebris(world, v, v2, "progs/rubble1.mdl", self.owner.style);
+		if (r == 1) ThrowDebris(world, v, v2, "progs/rubble2.mdl", self.owner.style);
+		if (r == 2) ThrowDebris(world, v, v2, "progs/rubble3.mdl", self.owner.style);
+		r = r + 1;
+		if (r >= 3)
+			r = 0;
+	}
+	if (self.cnt2 < 1)
+	{
+		ts = self;
+		self = self.owner;
+		if (self.use == SUB_Null)
+		xwall_hidethink();
+		self = ts;
+		remove(self);
+	}
+};
+
+void() xwall_hidethink =
+{
+	SUB_UseTargets();
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_NONE;
+	setorigin(self, self.origin); // relink
+	self.model = "";
+	self.modelindex = 0;
+	self.think = xwall_respawn;
+	if (self.wait > 0)
+		self.nextthink = time + self.wait;
+	else
+		remove(self);
+};
+
+void() xwall_break =
+{
+	local entity e;
+	if (self.use == SUB_Null)
+		return;
+	e = spawn();
+	e.owner = self;
+	e.solid = SOLID_NOT;
+	e.movetype = MOVETYPE_NONE;
+	setorigin(e, '0 0 0');
+	setsize(e, self.absmin - '16 16 16', self.absmax + '16 16 16');
+	e.think = xwall_breakthink;
+	e.nextthink = time + 0.1;
+	e.cnt = 0;
+	e.cnt2 = self.count2;
+	e.count = self.count;
+	e.count2 = self.count2;
+	self.think = xwall_hidethink;
+	self.nextthink = time + (self.delay * self.count2);
+	self.takedamage = DAMAGE_NO;
+	self.th_pain = SUB_Null;
+	self.th_die = SUB_Null;
+	self.touch = SUB_Null;
+	self.use = SUB_Null;
+};
+
+
+void() xwall_heal =
+{
+	self.health = self.max_health;
+};
+
+void() xwall_keytouch =
+{
+	if (!self.items)
+		return;
+	if (time < self.lefty) // uh, didn't want to add a new entity field
+		return;
+	self.lefty = time + 2;
+	if (other.classname != "player")
+		return;
+
+	// FIXME: blink key on player's status bar
+	if ( (self.items & other.items) != self.items )
+	{
+		if (self.items == IT_KEY1)
+		{
+			if (world.worldtype == 2)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the silver keycard");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 1)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the silver runekey");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 0)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the silver key");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 5)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the silver keycard");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 4)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the silver runekey");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 3)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the silver key");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+		}
+		else
+		{
+			if (world.worldtype == 2)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the gold keycard");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 1)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the gold runekey");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 0)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the gold key");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			if (world.worldtype == 5)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the gold keycard");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 4)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the gold runekey");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+			else if (world.worldtype == 3)
+			{
+				if (other.flags & FL_CLIENT)
+					centerprint (other, "You need the gold key");
+				sound (self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+			}
+		}
+		return;
+	}
+
+	// take away 1 key
+	if (self.items == IT_KEY1 && other.keys_silver > 0)
+		other.keys_silver = other.keys_silver - 1;
+	if (self.items == IT_KEY2 && other.keys_gold > 0)
+		other.keys_gold = other.keys_gold - 1;
+
+	// kill the key on scorebar if the player is now out of keys
+	if (other.keys_silver < 1)
+		other.items = other.items - (other.items & IT_KEY1);
+	if (other.keys_gold < 1)
+		other.items = other.items - (other.items & IT_KEY2);
+
+	self.touch = SUB_Null;
+
+	sound (self, CHAN_VOICE, self.noise4, 1, ATTN_NORM);
+
+	xwall_break ();
+};
+
+/*
+=============================================================================
+
+SPAWNING FUNCTIONS
+
+=============================================================================
+*/
+
+/*QUAKED func_xplowall (0 .5 .8) ? NoHeal SilverKey GoldKey
+
+Normally you must do enough damage
+in one blast to break the wall.
+
+Flags:
+"NoHeal"
+ progressive damage will break
+ this wall.
+"SilverKey"
+ will break if touched by player
+ with silver key.
+"GoldKey"
+ will break if touched by player
+ with gold key.
+
+Keys:
+"targetname"
+ will break if targeted.
+"target"
+ will trigger when destroyed.
+"health"
+ if health is -1 then can only be
+ broken by targeting and keys,
+ default 100
+ (close pipebomb will break).
+"dmg"
+ explosions do this much radius
+ damage if set.
+"count"
+ how many pieces of debris
+ (releases this much debris
+  total, some every explosion)
+ (default is 5, -1 for no debris)
+"count2"
+ how many explosions
+ (will release debris with none)
+ (default is 3, use -1 for none)
+"delay"
+ time between explosions
+ default: 0.1
+"wait"
+ time before respawning
+ (default is no respawn)
+ (this time is counted from the
+  last explosion)
+"style"
+ type of debris,
+ hard to describe these:
+0) red
+1) yellow
+2) green
+3) blue
+4) brown
+5) biege
+6) rock
+*/
+
+void() func_xplowall =
+{
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " was splattered by a wall";
+	if (!self.count)
+		self.count = 5;
+	if (!self.count2)
+		self.count2 = 5;
+	if (self.delay < 0.1)
+		self.delay = 0.1;
+	if (!self.health)
+		self.health = 100;
+
+	if (self.count2 >= 1)
+		self.count = self.count / self.count2;
+
+	precache_sound ("weapons/r_exp3.wav");
+	precache_model ("progs/rubble1.mdl");
+	precache_model ("progs/rubble2.mdl");
+	precache_model ("progs/rubble3.mdl");
+
+	self.mdl = self.model;
+	self.max_health = self.health;
+
+	if (self.spawnflags & XWALL_SILVERKEY)
+		self.items = IT_KEY1;
+	if (self.spawnflags & XWALL_GOLDKEY)
+		self.items = IT_KEY2;
+	if (self.items)
+	if (game != GAME_NEXUIZ)
+	{
+		if (world.worldtype == 0)
+		{
+			precache_sound ("doors/medtry.wav");
+			precache_sound ("doors/meduse.wav");
+			self.noise3 = "doors/medtry.wav";
+			self.noise4 = "doors/meduse.wav";
+		}
+		else if (world.worldtype == 1)
+		{
+			precache_sound ("doors/runetry.wav");
+			precache_sound ("doors/runeuse.wav");
+			self.noise3 = "doors/runetry.wav";
+			self.noise4 = "doors/runeuse.wav";
+		}
+		else if (world.worldtype == 2)
+		{
+			precache_sound ("doors/basetry.wav");
+			precache_sound ("doors/baseuse.wav");
+			self.noise3 = "doors/basetry.wav";
+			self.noise4 = "doors/baseuse.wav";
+		}
+		else if (world.worldtype == 3)
+		{
+			precache_sound ("doors/medtry.wav");
+			precache_sound ("doors/meduse.wav");
+			self.noise3 = "doors/medtry.wav";
+			self.noise4 = "doors/meduse.wav";
+		}
+		else if (world.worldtype == 4)
+		{
+			precache_sound ("doors/runetry.wav");
+			precache_sound ("doors/runeuse.wav");
+			self.noise3 = "doors/runetry.wav";
+			self.noise4 = "doors/runeuse.wav";
+		}
+		else if (world.worldtype == 5)
+		{
+			precache_sound ("doors/basetry.wav");
+			precache_sound ("doors/baseuse.wav");
+			self.noise3 = "doors/basetry.wav";
+			self.noise4 = "doors/baseuse.wav";
+		}
+		else
+			dprint ("no worldtype set!\n");
+	}
+
+	xwall_respawn();
+};
+
+/*QUAKED func_wallchunk (0 .5 .8) ?
+wall chunk, destroyed by damage.
+
+you must do enough damage
+in one blast to break the wall.
+
+simply a nice effect,
+used in Dark Places maps.
+
+make a hole in the wall,
+cover it with a
+func_wallchunk,
+set the style for debris,
+and you've got a wall that
+gets damaged in a fight.
+
+actually just a simplified
+func_xplowall.
+
+normally 3 pieces of debris.
+set count to a dif # if you
+like.
+no explosions.
+
+Keys:
+"count"
+ how many pieces of debris.
+ default is 3.
+"style"
+ type of debris,
+ hard to describe these:
+0) red
+1) yellow
+2) green
+3) blue
+4) brown
+5) biege
+6) rock
+*/
+
+void() func_wallchunk =
+{
+	self.spawnflags = XWALL_NOHEAL;
+	if (self.count == 0)
+		self.count = 5;
+	self.count2 = -1;
+	self.health = 150;
+	func_xplowall();
+};
+
+
+
+
+float FORCEFIELD_PLAYERONLY   = 1;
+float FORCEFIELD_SILENT       = 2;
+float FORCEFIELD_STARTOFF     = 4;
+float FORCEFIELD_TOGGLE       = 8;
+float FORCEFIELD_WALL         = 16;
+
+void(vector org, float p) forcefieldflash =
+{
+	self.frame = 1;
+	if (time > self.fly_sound && !(self.spawnflags & FORCEFIELD_SILENT))
+	{
+		self.fly_sound = time + 0.6;
+		xplo = spawn();
+		xplo.think = SUB_Remove;
+		xplo.nextthink = time + 0.1;
+		setorigin(xplo, org);
+		sound (xplo, CHAN_AUTO, "weapons/lhit.wav", 1, ATTN_NORM);
+	}
+	self.alpha = 0.5;
+};
+
+void(entity attacker, float take) forcefieldpain =
+{
+	self.health = 99999999;
+	forcefieldflash(self.absmin + self.absmax * 0.5, take);
+};
+
+void() forcefieldtouch =
+{
+	local vector v1, v2, v;
+	if (other.takedamage)
+		self.enemy = other;
+	if (!self.weapon) // is it active
+		return;
+	if (time < self.dmgtime)
+		return;
+	if (other.movetype != MOVETYPE_NONE && other.movetype != MOVETYPE_PUSH)
+	{
+		if (self.spawnflags & FORCEFIELD_PLAYERONLY)
+		if (other.classname != "player")
+			return;
+		self.dmgtime = time + 0.1;
+		forcefieldflash(other.origin, 20);
+		// FIXME: this would be a lot more sane if we knew what plane normal was involved in the collision
+		v1 = (other.absmin + other.absmax) * 0.5;
+		v2 = (self.absmin + self.absmax) * 0.5;
+		v = normalize(v1 - v2) * self.speed;
+		T_Damage(other, self, self, self.dmg, self.dmg, self.deathtype, DT_LIGHTNING, other.origin, v, Obituary_Generic);
+		SUB_UseTargets();
+	}
+};
+
+void() forcefieldthink =
+{
+	self.frame = 0;
+	if (!(self.spawnflags & FORCEFIELD_TOGGLE))
+	{
+		if (time < self.wait)
+		{
+			if (self.spawnflags & FORCEFIELD_STARTOFF)
+				self.weapon = 1;
+			else
+				self.weapon = 0;
+		}
+		else
+		{
+			if (self.spawnflags & FORCEFIELD_STARTOFF)
+				self.weapon = 0;
+			else
+				self.weapon = 1;
+		}
+	}
+	if (self.weapon != self.items)
+	{
+		self.items = self.weapon;
+		if (self.weapon)
+		{
+			if (self.spawnflags & FORCEFIELD_WALL)
+			{
+				self.movetype = MOVETYPE_PUSH;
+				self.solid = SOLID_BSP;
+			}
+			else
+			{
+				self.movetype = MOVETYPE_NONE;
+				self.solid = SOLID_TRIGGER;
+			}
+			self.alpha = 0.3;
+		}
+		else
+		{
+			self.movetype = MOVETYPE_NONE;
+			self.solid = SOLID_TRIGGER;
+			self.alpha = 0;
+		}
+		setmodel(self, self.mdl);
+	}
+	if (!self.weapon) // is it active?
+		return;
+	if (time < self.dmgtime)
+		self.alpha = 0.5;
+	else
+		self.alpha = 0.3;
+	force_retouch = 2;      // hit even non-moving objects
+};
+
+void() forcefielduse =
+{
+	if (self.spawnflags & FORCEFIELD_TOGGLE)
+	{
+		self.weapon = !self.weapon;
+		return;
+	}
+	if (self.spawnflags & FORCEFIELD_STARTOFF)
+		self.weapon = 1;
+	else
+		self.weapon = 0;
+	self.wait = time + self.delay;
+};
+
+void() doforcefieldthink =
+{
+	local entity saveself;
+	self.nextthink = time + 0.1;
+	saveself = self;
+	self = saveself.owner;
+	forcefieldthink();
+	self = saveself;
+};
+
+/*QUAKED trigger_forcefield (1 .5 0) ? PLAYERONLY SILENT STARTOFF TOGGLE WALL
+anything touching this can be pushed away,
+can be blocked, and can be hurt.
+
+when targeted it will flash off/on
+see STARTOFF, TOGGLE and delay
+
+flags:
+"PLAYERONLY"
+ only affects players, still flashes
+ on monsters, but no effect.
+"SILENT"
+ no hum or push sound.
+"STARTOFF"
+ works in reverse, normally off, on when targeted.
+"TOGGLE"
+ switches on/off when targeted.
+"WALL"
+ is totally solid when on.
+
+keys:
+"dmg"
+ amount of damage to do when touched, default 0
+"delay"
+ how long it will stay switched when
+ targeted, ignored with TOGGLE.
+"speed"
+ how much force, default 0
+"targetname"
+ guess (flashes when targeted)
+"target"
+ triggered on touch
+*/
+void() trigger_forcefield =
+{
+	local vector o;
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " walked into a rather painful forcefield";
+	if (self.speed < 30)
+		self.speed = 30;
+	self.mdl = self.model;
+	self.solid = SOLID_TRIGGER;
+	setmodel (self, self.model);    // set size and link into world
+	self.movetype = MOVETYPE_NONE;
+	self.modelindex = 0;
+	self.model = "";
+	self.touch = forcefieldtouch;
+	self.takedamage = DAMAGE_YES;
+	self.health = 99999999;
+	self.th_pain = forcefieldpain;
+	self.th_die = forcefieldpain;
+	self.think = forcefieldthink;
+	self.nextthink = time + 0.1;
+	self.use = forcefielduse;
+	self.alpha = 0.5;
+	self.effects = EF_ADDITIVE;
+	if (!(self.spawnflags & FORCEFIELD_SILENT))
+	{
+		// same as light_flouro, sounds about perfect for this
+		precache_sound ("ambience/fl_hum1.wav");
+		o = (self.mins + self.maxs)*0.5;
+		ambientsound (o, "ambience/fl_hum1.wav", 1, ATTN_STATIC);
+	}
+	self.wait = 0;
+	self.weapon = 1; // start active
+	if (self.spawnflags & FORCEFIELD_STARTOFF)
+		self.weapon = 0; // oh, turn it off then
+	self.items = -1; // make think set up the solid/trigger/off stuff
+	self.think();
+	// normal thinking wasn't working, so this is a hack...
+	self.think = SUB_Null;
+	self.nextthink = -1;
+	newmis = spawn();
+	newmis.think = doforcefieldthink;
+	newmis.nextthink = time + 0.1;
+	newmis.owner = self;
+};
+
+
+// shared spawnflags
+float ROTATE_TOUCHDMG = 1;
+
+// door spawnflags
+float ROTATEDOOR_CRUSH = 2;
+float ROTATEDOOR_TOGGLE = 4;
+// object spawnflags
+float ROTATINGOBJECT_STARTON = 2;
+float ROTATINGOBJECT_NOTSOLID = 4;
+
+//.float rotatetype;
+//float ROTATETYPE_OBJECT = 1;
+//float ROTATETYPE_MOVEWALL = 2;
+//float ROTATETYPE_ENTITY = 3; // anything else
+
+
+float STATE_CLOSED = 1;
+float STATE_CLOSING = 2;
+float STATE_OPENING = 3;
+float STATE_OPEN = 4;
+float STATE_STARTCLOSING = 5;
+
+float MOVEWALL_VISIBLE = 1;
+float MOVEWALL_TOUCH = 2;
+
+float STATE_NOTSPINNING = 1;
+float STATE_SPINNINGUP = 2;
+float STATE_SPINNING = 3;
+float STATE_SPINNINGDOWN = 4;
+
+//.float setuprotatetargets;
+//.vector rotateoffset;
+
+/*QUAKED info_rotate (0 .5 0) (-8 -8 -8) (8 8 8)
+rotate_objects target this to
+set center of rotation.
+*/
+
+void() info_rotate =
+{
+	self.think = SUB_Remove;
+	self.nextthink = time + 2; // give things a chance to get info
+};
+
+void(entity door) rotate_door_group_reversedirection;
+void() rotate_door_stateupdate;
+
+void() rotate_touch =
+{
+	if (time < self.attack_finished)
+		return;
+
+	if (self.dmg > 0)
+	{
+		T_Damage (other, self, self, self.dmg * 0.1, self.dmg * 0.1, self.deathtype, DT_IMPACT, (self.absmin + self.absmax) * 0.5, '0 0 0', Obituary_Generic);
+		self.attack_finished = time + 0.1;
+	}
+};
+
+void() rotate_blocked =
+{
+	if (time < self.attack_finished)
+		return;
+
+	self.attack_finished = time + 0.1;
+
+	if (self.classname == "func_rotatingdoor")
+	{
+		rotate_door_stateupdate();
+		rotate_door_group_reversedirection(self);
+	}
+
+	if(self.dmg > 0)
+	{
+		T_Damage (other, self, self, self.dmg * 0.1, self.dmg * 0.1, self.deathtype, DT_IMPACT, (self.absmin + self.absmax) * 0.5, '0 0 0', Obituary_Generic);
+		self.attack_finished = time + 0.1;
+	}
+};
+
+void(float notsolid) rotate_setup =
+{
+	local entity e;
+
+	if (notsolid)
+		self.solid = SOLID_NOT;
+	else
+		self.solid = SOLID_BSP;
+	self.movetype = MOVETYPE_PUSH;
+	setmodel(self, self.model);
+
+	e = find(world, targetname, self.target);
+	if (e.classname != "info_rotate")
+		objerror("rotate_object: must target an info_rotate\nto define center of rotation");
+	setorigin(self, e.origin);
+	self.oldorigin = self.origin;
+
+	if (self.spawnflags & ROTATE_TOUCHDMG)
+		self.touch = rotate_touch;
+	self.blocked = rotate_blocked;
+};
+
+void(vector destangles) rotate_calculatemove =
+{
+	self.ltime = time;
+	self.nextthink = time + (vlen(destangles - self.angles) / self.speed);
+	if (self.nextthink >= time + 0.01)
+		self.avelocity = normalize(destangles - self.angles) * self.speed;
+	else
+	{
+		self.nextthink = time + 0.01;
+		self.avelocity = '0 0 0';
+	}
+};
+
+void() rotate_door_stateupdate =
+{
+	local float s;
+	s = 0;
+	if (self.state == STATE_OPENING)
+	{
+		rotate_calculatemove(self.dest);
+		s = 1;
+	}
+	else if (self.state == STATE_CLOSING)
+	{
+		rotate_calculatemove(self.dest1);
+		s = 1;
+	}
+	else
+		s = 0;
+	if (self.cnt != s)
+	{
+		self.cnt = s;
+		if (s == 1)
+		{
+			if (self.noise2 != "")
+				sound(self, CHAN_VOICE, self.noise2, 1, ATTN_NORM);
+		}
+		else
+		{
+			if (self.noise3 != "")
+				sound(self, CHAN_VOICE, self.noise3, 1, ATTN_NORM);
+		}
+	}
+	if (self.state == STATE_CLOSED || self.state == STATE_CLOSING)
+		self.frame = 0;
+	else
+		self.frame = 1;
+};
+
+void() rotate_door_statethink =
+{
+	self.nextthink = 0;
+	self.avelocity = '0 0 0';
+	// all of these are right when the state begins
+	if (self.state == STATE_STARTCLOSING)
+		self.state = STATE_CLOSING;
+	else if (self.state == STATE_CLOSING)
+		self.state = STATE_CLOSED;
+	else if (self.state == STATE_OPENING)
+	{
+		self.state = STATE_OPEN;
+		if (!(self.spawnflags & ROTATEDOOR_TOGGLE))
+		if (self.wait >= 0)
+		{
+			self.nextthink = time + self.wait;
+			self.state = STATE_STARTCLOSING;
+		}
+	}
+	rotate_door_stateupdate();
+};
+
+void() rotate_door_use =
+{
+	if (self.spawnflags & ROTATEDOOR_TOGGLE)
+	{
+		if (self.state == STATE_OPEN || self.state == STATE_STARTCLOSING || self.state == STATE_OPENING)
+			self.state = STATE_CLOSING;
+		if (self.state == STATE_CLOSED || self.state == STATE_CLOSED)
+			self.state = STATE_OPENING;
+	}
+	else
+	{
+		if (self.state != STATE_OPEN)
+		if (self.state != STATE_OPENING)
+		{
+			if (self.state == STATE_STARTCLOSING)
+				self.nextthink = time + self.wait;
+			else
+				self.state = STATE_OPENING;
+		}
+	}
+	rotate_door_stateupdate();
+};
+
+void() rotate_door_reversedirection =
+{
+	if (self.spawnflags & ROTATEDOOR_CRUSH)
+		return;
+
+	if (self.state == STATE_CLOSED || self.state == STATE_CLOSING)
+		self.state = STATE_OPENING;
+	else
+		self.state = STATE_CLOSING;
+
+	rotate_door_stateupdate();
+};
+
+void(entity door) rotate_door_group_reversedirection =
+{
+	local string n;
+	local entity eself;
+
+	eself = self;
+	self = door;
+
+	// reverse all in group
+	if (self.group)
+	{
+		n = self.group;
+		self = find(world, group, n);
+		while(self != world)
+		{
+			rotate_door_reversedirection();
+			self = find(self, group, n);
+		}
+	}
+	else
+		rotate_door_reversedirection();
+	self = eself;
+};
+
+/*QUAKED func_rotatingdoor (.6 0 .9) ? TOUCHDMG CRUSH TOGGLE
+rotating door.
+
+Flags:
+"TOUCHDMG"
+ if set, will do block damage
+ when touched, not just when
+ blocked.
+"CRUSH"
+ will crush things instead of
+ reversing direction when
+ blocked, useful when making a
+ door to block off an area.
+"TOGGLE"
+ opens/closes when triggered,
+ rather than just opening.
+
+Keys:
+"dmg"
+ damage to cause when blocked,
+ default is 2, use -1 for no
+ damage.
+"speed"
+ how fast it rotates,
+ in degrees per second.
+ default: 90
+"angles"
+ start angles (pitch yaw roll).
+"dest"
+ end angles (pitch yaw roll).
+"wait"
+ how long to stay open.
+ (not used with TOGGLE)
+ default: 3 seconds
+"target"
+ must target info_rotate
+ object to define origin
+"targetname"
+ must be targeted, rotating
+ doors operate only when
+ triggered
+"group"
+ you can group rotating doors,
+ when grouped all rotating
+ doors will reverse direction
+ at the same time
+"deathtype"
+ as with basically all things
+ in Dark Places, deathtype
+ is message when something is
+ killed by this.
+ default: " got in the way"
+"sounds"
+1) medieval (default)
+2) metal
+3) base
+*/
+
+void() func_rotatingdoor =
+{
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " got in the way";
+	if (!self.target)
+		objerror("func_rotateingdoor: must have targets.");
+
+	self.dest1 = self.angles;
+
+	if (self.speed <= 0)
+		self.speed = 90;
+	if (self.wait == 0)
+		self.wait = 3;
+	if (self.wait <= 0)
+		self.wait = 0;
+
+	if (self.dmg == 0)
+		self.dmg = 2;
+	else if (self.dmg < 0)
+		self.dmg = 0;
+
+	if (game != GAME_NEXUIZ)
+	{
+		if (self.sounds == 0)
+			self.sounds = 1;
+		if (self.sounds == 1)
+		{
+			precache_sound ("doors/winch2.wav");
+			precache_sound ("doors/drclos4.wav");
+			self.noise2 = "doors/winch2.wav";
+			self.noise3 = "doors/drclos4.wav";
+		}
+		if (self.sounds == 2)
+		{
+			precache_sound ("doors/airdoor1.wav");
+			precache_sound ("doors/airdoor2.wav");
+			self.noise2 = "doors/airdoor1.wav";
+			self.noise3 = "doors/airdoor2.wav";
+		}
+		if (self.sounds == 3)
+		{
+			precache_sound ("doors/basesec1.wav");
+			precache_sound ("doors/basesec2.wav");
+			self.noise2 = "doors/basesec1.wav";
+			self.noise3 = "doors/basesec2.wav";
+		}
+	}
+
+	rotate_setup(FALSE);
+
+	self.state = STATE_CLOSED;
+	self.use = rotate_door_use;
+	self.think = rotate_door_statethink;
+	self.nextthink = 0;
+};
+
+void() rotatingobject_think =
+{
+	local float t, s;
+	self.nextthink = time;
+	self = self.owner;
+
+	t = time - self.count;
+	self.count = time;
+
+	self.avelocity = self.rotate * self.speed;
+
+	if (self.state == STATE_SPINNINGUP)
+	{
+		if (self.delay)
+			s = t * self.delay;
+		else
+			s = 1;
+		self.speed = self.speed + s;
+		if (self.speed >= 1)
+		{
+			self.speed = 1;
+			self.state = STATE_SPINNING;
+		}
+	}
+	else if (self.state == STATE_SPINNINGDOWN)
+	{
+		if (self.delay)
+			s = t * self.delay;
+		else
+			s = 1;
+		self.speed = self.speed - s;
+		if (self.speed <= 0)
+		{
+			self.speed = 0;
+			self.state = STATE_NOTSPINNING;
+		}
+	}
+	if (self.state == STATE_SPINNINGUP || self.state == STATE_SPINNING)
+		self.frame = 1;
+	else
+		self.frame = 0;
+};
+
+void() rotatingobject_use =
+{
+	if (self.state == STATE_SPINNINGUP || self.state == STATE_SPINNING)
+		self.state = STATE_SPINNINGDOWN;
+	else
+		self.state = STATE_SPINNINGUP;
+};
+
+void() rotatingobject_setup =
+{
+	self.enemy = spawn();
+	self.enemy.owner = self;
+	self.enemy.think = rotatingobject_think;
+	self.enemy.nextthink = self.count = time + 0.1;
+
+	self.state = STATE_NOTSPINNING;
+	self.use = rotatingobject_use;
+	self.think = SUB_Null;
+	self.nextthink = 99999999999;
+	if ((self.spawnflags & ROTATINGOBJECT_STARTON) || (!self.targetname))
+	{
+		self.speed = 1;
+		self.state = STATE_SPINNING;
+	}
+};
+
+/*QUAKED func_rotatingobject (.6 0 .9) ? TOUCHDMG STARTON NOTSOLID
+a rotating 'thing',
+like a spinning fan.
+
+Flags:
+"TOUCHDMG"
+ cause damage when touched,
+ not just when blocked.
+ (example: blades)
+"STARTON"
+ easy to guess this one,
+ meaningless if it can't be
+ triggered.
+"NOTSOLID"
+ if set, the object is not
+ solid.
+
+Keys:
+"dmg"
+ damage to cause when blocked.
+ default: 0
+"delay"
+ how long it takes
+ to completely spin up/down.
+ default: 0 (instant)
+"rotate"
+ rotation per second
+ (pitch yaw roll, in degrees).
+"target"
+ of course this must be set
+"targetname"
+ if set, it will only
+ start/stop spinning when
+ triggered, rather than
+ simply spinning all the time.
+"deathtype"
+ as with basically all things
+ in Dark Places, deathtype
+ is message when something is
+ killed by this.
+ default: " got in the way"
+*/
+
+void() func_rotatingobject =
+{
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " got in the way";
+	if (!self.target)
+		objerror("func_rotatingobject: must target info_rotate.");
+
+	if (self.delay < 0.01)
+		self.delay = 0;
+	// change to acceleration rate
+	if (self.delay)
+		self.delay = 1 / self.delay;
+	self.speed = 0;
+
+	rotate_setup(self.spawnflags & ROTATINGOBJECT_NOTSOLID);
+
+	self.think = rotatingobject_setup;
+	self.nextthink = time + 0.2;
+};
 
