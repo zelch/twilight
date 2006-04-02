@@ -354,17 +354,17 @@ float(float index, float endindex) lhbitparms_usedspace =
 		{
 			while (s_x >= 2)
 			{
-				current = current + 1; 
+				current = current + 1;
 				s_x = s_x * 0.5;
 			}
 			while (s_y >= 2)
 			{
-				current = current + 1; 
+				current = current + 1;
 				s_y = s_y * 0.5;
 			}
 			while (s_z >= 2)
 			{
-				current = current + 1; 
+				current = current + 1;
 				s_z = s_z * 0.5;
 			}
 		}
@@ -372,17 +372,17 @@ float(float index, float endindex) lhbitparms_usedspace =
 		{
 			while (s_x > lhbitparms_scale_x)
 			{
-				current = current + 1; 
+				current = current + 1;
 				s_x = s_x * 0.5;
 			}
 			while (s_y > lhbitparms_scale_y)
 			{
-				current = current + 1; 
+				current = current + 1;
 				s_y = s_y * 0.5;
 			}
 			while (s_z > lhbitparms_scale_z)
 			{
-				current = current + 1; 
+				current = current + 1;
 				s_z = s_z * 0.5;
 			}
 		}
@@ -602,7 +602,7 @@ void() lhbitparms_test =
 		cds = lhbitparms_encodebits(cdc, cdr);if (l == 1) dprint_lhbitparms_space(0, 16);
 		ces = lhbitparms_encodebits(cec, cer);if (l == 1) dprint_lhbitparms_space(0, 16);
 		cfs = lhbitparms_encodebits(cfc, cfr);if (l == 1) dprint_lhbitparms_space(0, 16);
-		lhbitparms_encode_finish();           
+		lhbitparms_encode_finish();
 		lhbitparms_decode_begin(0, 16);
 		if (c0s) if (lhbitparms_decodebits(c0r) != c0c) dprint("decode error\n");
 		if (c1s) if (lhbitparms_decodebits(c1r) != c1c) dprint("decode error\n");
@@ -1391,7 +1391,7 @@ float(float n, float radix) lhradixarray_encode =
 	// for example this tries to pack radix 2 into a code with scale 2
 	// remaining space
 	index = 0;
-	bestindex = -1; 
+	bestindex = -1;
 	while (index < lhradixarray_numcodes)
 	{
 		lhradixarray_load(index);
@@ -2758,7 +2758,7 @@ float(vector org, vector end, entity targ, float shotspeed, float maxtime, float
 	if (maxtime == 0) // calculate maxtime
 		maxtime = vlen(end - org) / shotspeed + 0.2;
 	dir = normalize(end - org);
-	while (c < 1) // won't aim more than 1.0 above direct direction
+	while (c < 10) // 10 traces
 	{
 		findtrajectory_velocity = normalize(dir) * shotspeed;
 		//dprint("findtrajectory: testing vel=");
@@ -2771,7 +2771,7 @@ float(vector org, vector end, entity targ, float shotspeed, float maxtime, float
 			return TRUE;
 		}
 		dir_z = dir_z + 0.1; // aim up a little more
-		c = c + 0.1; // 10 traces
+		c = c + 1;
 	}
 	//dprint("findtrajectory: didn't reach target\n");
 	// leave a valid one even if it won't reach
@@ -2784,7 +2784,7 @@ float(vector org, vector end, entity targ, float shotspeed, float maxtime, float
 float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxtime, entity ignore) findtrajectory =
 {
 	local   float   c;
-	local   vector  dir, vel, end;
+	local   vector  dir, end;
 	if (shotspeed < 1)
 		return FALSE; // could cause division by zero if calculated
 	if (targ.solid < SOLID_BBOX) // SOLID_NOT and SOLID_TRIGGER
@@ -2797,15 +2797,27 @@ float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxt
 	setsize(tracetossent, m1, m2);
 	c = 0;
 	dir = normalize(end - org);
-	while (c < 1) // won't aim more than 1.0 above direct direction
+	while (c < 10) // 10 traces
 	{
 		setorigin(tracetossent, org); // reset
 		tracetossent.velocity = findtrajectory_velocity = normalize(dir) * shotspeed;
 		tracetoss(tracetossent, ignore); // love builtin functions...
 		if (trace_ent == targ) // done
 			return TRUE;
+/*
+		if (cvar("developer"))
+		{
+			oldtracetoss(org, findtrajectory_velocity, maxtime, MOVE_NORMAL, ignore);
+			if (trace_ent == targ)
+			{
+				dprint("engine tracetoss broken?  (oldtracetoss succeeded)\n");
+				dprint("findtrajectory ");dprintvector(org);dprint(" to ");dprintvector(end);dprint("\n");
+				return TRUE;
+			}
+		}
+*/
 		dir_z = dir_z + 0.1; // aim up a little more
-		c = c + 0.1; // 10 traces
+		c = c + 1;
 	}
 	// leave a valid one even if it won't reach
 	findtrajectory_velocity = normalize(end - org) * shotspeed;
@@ -2816,9 +2828,9 @@ float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxt
 // FALSE if not
 float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxtime, float shotdelay, entity ignore) findtrajectorywithleading =
 {
-	local float c, savesolid;
-	local vector dir, vel, end, v;
-	if (targ.velocity == '0 0 0') // immobile targets can be hit with the normal method
+	local float c, savesolid, shottime;
+	local vector dir, end, v;
+	if (vlen(targ.velocity) < 10) // immobile targets can be hit with the normal method
 		return findtrajectory(org, m1, m2, targ, shotspeed, maxtime, ignore);
 	if (shotspeed < 1)
 		return FALSE; // could cause division by zero if calculated
@@ -2826,10 +2838,12 @@ float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxt
 		return FALSE; // could never hit it
 	if (!tracetossent)
 		tracetossent = spawn();
+	tracetossent.owner = ignore;
 	setsize(tracetossent, m1, m2);
 	savesolid = targ.solid;
 	targ.solid = SOLID_NOT;
-	v = targ.velocity * ((vlen(targ.origin - org) / shotspeed) + shotdelay) + targ.origin;
+	shottime = ((vlen(targ.origin - org) / shotspeed) + shotdelay);
+	v = targ.velocity * shottime + targ.origin;
 	tracebox(targ.origin, targ.mins, targ.maxs, v, FALSE, targ);
 	v = trace_endpos;
 	end = v + (targ.mins + targ.maxs) * 0.5;
@@ -2845,14 +2859,14 @@ float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxt
 	tracetossfaketarget.solid = savesolid;
 	tracetossfaketarget.movetype = targ.movetype;
 	setmodel(tracetossfaketarget, targ.model);
-	tracetossfaketarget.model = "";
+	tracetossfaketarget.model = targ.model;
 	tracetossfaketarget.modelindex = targ.modelindex;
 	setsize(tracetossfaketarget, targ.mins, targ.maxs);
 	setorigin(tracetossfaketarget, v);
 
 	c = 0;
 	dir = normalize(end - org);
-	while (c < 1) // won't aim more than 1.0 above direct direction
+	while (c < 10) // 10 traces
 	{
 		setorigin(tracetossent, org); // reset
 		tracetossent.velocity = findtrajectory_velocity = normalize(dir) * shotspeed;
@@ -2871,8 +2885,31 @@ float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxt
 
 			return TRUE;
 		}
+/*
+		if (cvar("developer"))
+		{
+			oldtracetoss(org, findtrajectory_velocity, maxtime, MOVE_NORMAL, ignore);
+			if (trace_ent == targ)
+			{
+				dprint("engine tracetoss broken?  (oldtracetoss succeeded)\n");
+				dprint("findtrajectorywithleading ");dprintvector(org);dprint(" to ");dprintvector(end);dprint(" (");dprintvector(targ.origin);dprint(" + ");dprintfloat(shottime);dprint(" * ");dprintvector(targ.velocity);dprint(")\n");
+
+				targ.solid = savesolid;
+
+				// make it disappear
+				tracetossfaketarget.solid = SOLID_NOT;
+				tracetossfaketarget.movetype = MOVETYPE_NONE;
+				tracetossfaketarget.model = "";
+				tracetossfaketarget.modelindex = 0;
+				// relink to remove it from physics considerations
+				setorigin(tracetossfaketarget, v);
+
+				return TRUE;
+			}
+		}
+*/
 		dir_z = dir_z + 0.1; // aim up a little more
-		c = c + 0.1; // 10 traces
+		c = c + 1;
 	}
 	targ.solid = savesolid;
 
@@ -2928,10 +2965,10 @@ void(entity missile, float mspeed, float accuracy) WizardLaunchMissile =
 
 // project the target forward in time
 	vec = vec + move * fly;
-	
+
 	vec = normalize(vec);
 	vec = vec + accuracy*v_up*(random()- 0.5) + accuracy*v_right*(random()- 0.5);
-	
+
 	missile.velocity = vec * mspeed;
 
 	missile.angles = '0 0 0';
