@@ -38,13 +38,13 @@ team #3 - grey
 /*QUAKED --MiscItems-- (1 1 1) ?
 DO NOT USE
 */
-/*QUAKED item_armor_green (0 .5 .8) (-16 -16 0) (16 16 32)
+/*QUAKED item_armor1 (0 .5 .8) (-16 -16 0) (16 16 32)
 100 green armor, 30% absorb
 */
-/*QUAKED item_armor_yellow (0 .5 .8) (-16 -16 0) (16 16 32)
+/*QUAKED item_armor2 (0 .5 .8) (-16 -16 0) (16 16 32)
 150 yellow armor, 60% absorb
 */
-/*QUAKED item_armor_red (0 .5 .8) (-16 -16 0) (16 16 32)
+/*QUAKED item_armorInv (0 .5 .8) (-16 -16 0) (16 16 32)
 200 red armor, 80% absorb
 */
 /*QUAKED item_armor_glow (0 .5 .8) (-16 -16 0) (16 16 32)
