@@ -135,11 +135,11 @@ void		end_sys_globals;		// flag for structure dumping
 // stats
 .float		health;
 .float		frags;
-.float          weapon;                 // one of the IT_SHOTGUN, etc flags
+.float		weapon;			// one of the IT_SHOTGUN, etc flags
 .string		weaponmodel;
 .float		weaponframe;
 .float		currentammo;
-.float          ammo_shells, ammo_nails, ammo_rockets, ammo_cells;
+.float		ammo_shells, ammo_nails, ammo_rockets, ammo_cells;
 
 .float		items;			// bit flags
 
@@ -224,26 +224,26 @@ void		end_sys_fields;			// flag for structure dumping
 // constants
 //
 
-float   FALSE                           = 0;
-float   TRUE                            = 1;
+float	FALSE					= 0;
+float 	TRUE					= 1;
 
 // edict.flags
-float   FL_FLY                          = 1;
-float   FL_SWIM                         = 2;
-float   FL_CLIENT                       = 8;    // set for all client edicts
-float   FL_INWATER                      = 16;   // for enter / leave water splash
-float   FL_MONSTER                      = 32;
-float   FL_GODMODE                      = 64;   // player cheat
-float   FL_NOTARGET                     = 128;  // player cheat
-float   FL_ITEM                         = 256;  // extra wide size for bonus items
-float   FL_ONGROUND                     = 512;  // standing on something
+float	FL_FLY					= 1;
+float	FL_SWIM					= 2;
+float	FL_CLIENT				= 8;	// set for all client edicts
+float	FL_INWATER				= 16;	// for enter / leave water splash
+float	FL_MONSTER				= 32;
+float	FL_GODMODE				= 64;	// player cheat
+float	FL_NOTARGET				= 128;	// player cheat
+float	FL_ITEM					= 256;	// extra wide size for bonus items
+float	FL_ONGROUND				= 512;	// standing on something
 float	FL_PARTIALGROUND		= 1024;	// not all corners are valid
 float	FL_WATERJUMP			= 2048;	// player jumping out of water
 float	FL_JUMPRELEASED			= 4096;	// for jump debouncing
 
 // edict.movetype values
 float	MOVETYPE_NONE			= 0;	// never moves
-//float MOVETYPE_ANGLENOCLIP            = 1;
+//float	MOVETYPE_ANGLENOCLIP	= 1;
 //float	MOVETYPE_ANGLECLIP		= 2;
 float	MOVETYPE_WALK			= 3;	// players only
 float	MOVETYPE_STEP			= 4;	// discrete, not real time unless fall
@@ -253,77 +253,63 @@ float	MOVETYPE_PUSH			= 7;	// no clip to world, push and crush
 float	MOVETYPE_NOCLIP			= 8;
 float	MOVETYPE_FLYMISSILE		= 9;	// fly with extra size against monsters
 float	MOVETYPE_BOUNCE			= 10;
+float	MOVETYPE_BOUNCEMISSILE	= 11;	// bounce with extra size
 
 // edict.solid values
-float   SOLID_NOT                       = 0;    // no interaction with other objects
+float	SOLID_NOT				= 0;	// no interaction with other objects
 float	SOLID_TRIGGER			= 1;	// touch on edge, but not blocking
-float   SOLID_BBOX                      = 2;    // touch on edge, block
+float	SOLID_BBOX				= 2;	// touch on edge, block
 float	SOLID_SLIDEBOX			= 3;	// touch on edge, but not an onground
-float   SOLID_BSP                       = 4;    // bsp clip, touch on edge, block
+float	SOLID_BSP				= 4;	// bsp clip, touch on edge, block
 
 // range values
-float   RANGE_MELEE                     = 0;
-float   RANGE_NEAR                      = 1;
-float   RANGE_MID                       = 2;
-float   RANGE_FAR                       = 3;
+float	RANGE_MELEE				= 0;
+float	RANGE_NEAR				= 1;
+float	RANGE_MID				= 2;
+float	RANGE_FAR				= 3;
 
 // deadflag values
 
-float   DEAD_NO                         = 0; // alive
-float   DEAD_DYING                      = 1; // dying
-float   DEAD_DEAD                       = 2; // dead, waiting for buttons to be released
-float	DEAD_RESPAWNABLE                = 3; // dead, waiting for button to be pressed
-float	DEAD_RESPAWNING                 = 4; // dead, waiting for buttons to be released
+float	DEAD_NO					= 0;
+float	DEAD_DYING				= 1;
+float	DEAD_DEAD				= 2;
+float	DEAD_RESPAWNABLE		= 3;
+float	DEAD_RESPAWNING			= 4; // dead, waiting for buttons to be released
 
 // takedamage values
 
-float   DAMAGE_NO                       = 0;
-float   DAMAGE_YES                      = 1;
-float   DAMAGE_AIM                      = 2;
-
-
+float	DAMAGE_NO				= 0;
+float	DAMAGE_YES				= 1;
+float	DAMAGE_AIM				= 2;
 
 // items
-// float   IT_AXE                       = 4096;
-// float   IT_SHOTGUN                   = 1;
-// float   IT_SUPER_SHOTGUN             = 2;
-// float   IT_NAILGUN                   = 4;
-// float   IT_SUPER_NAILGUN             = 8;
-// float   IT_GRENADE_LAUNCHER          = 16;
-// float   IT_ROCKET_LAUNCHER           = 32;
-// float   IT_LIGHTNING                 = 64;
-// float   IT_EXTRA_WEAPON              = 128;
+float	IT_AXE					= 4096;
+float	IT_SHOTGUN				= 1;
+float	IT_SUPER_SHOTGUN		= 2;
+float	IT_NAILGUN				= 4;
+float	IT_SUPER_NAILGUN		= 8;
+float	IT_GRENADE_LAUNCHER		= 16;
+float	IT_ROCKET_LAUNCHER		= 32;
+float	IT_LIGHTNING			= 64;
+float	IT_EXTRA_WEAPON			= 128;
 
-float   IT_WEAPON1                      = 4096;
-float   IT_WEAPON2                      = 1;
-float   IT_WEAPON3                      = 2;
-float   IT_WEAPON4                      = 4;
-float   IT_WEAPON5                      = 8;
-float   IT_WEAPON6                      = 16;
-float   IT_WEAPON7                      = 32;
-float   IT_WEAPON8                      = 64;
-float   IT_WEAPON9                      = 128;
-float   IT_WEAPON10                     = 8388608;
+float	IT_SHELLS				= 256;
+float	IT_NAILS				= 512;
+float	IT_ROCKETS				= 1024;
+float	IT_CELLS				= 2048;
 
-float   IT_SHELLS                       = 256;
-float   IT_NAILS                        = 512;
-float   IT_ROCKETS                      = 1024;
-float   IT_CELLS                        = 2048;
-
-float   IT_ARMOR1                       = 8192;
-float   IT_ARMOR2                       = 16384;
-float   IT_ARMOR3                       = 32768;
+float	IT_ARMOR1				= 8192;
+float	IT_ARMOR2				= 16384;
+float	IT_ARMOR3				= 32768;
 float	IT_SUPERHEALTH			= 65536;
 
-float   IT_KEY1                         = 131072;
-float   IT_KEY2                         = 262144;
+float	IT_KEY1					= 131072;
+float	IT_KEY2					= 262144;
 
-float   IT_INVISIBILITY                 = 524288;
-float   IT_INVULNERABILITY              = 1048576;
-float   IT_SUIT                         = 2097152;
-float   IT_QUAD                         = 4194304;
-
-// see modecheck.qc for deathmatch and teamplay settings
+float	IT_INVISIBILITY			= 524288;
+float	IT_INVULNERABILITY		= 1048576;
+float	IT_SUIT					= 2097152;
+float	IT_QUAD					= 4194304;
 
 // point content values
 
@@ -356,26 +342,18 @@ float	SVC_CDTRACK			= 32;
 float	SVC_SELLSCREEN		= 33;
 
 
-//float   TE_SPIKE                = 0;
-//float   TE_SUPERSPIKE           = 1;
-//float   TE_GUNSHOT              = 2;
-//float   TE_EXPLOSION            = 3;
-//float   TE_TAREXPLOSION         = 4;
-//float   TE_LIGHTNING1           = 5;
-//float   TE_LIGHTNING2           = 6;
-//float   TE_WIZSPIKE             = 7;
-//float   TE_KNIGHTSPIKE          = 8;
-//float   TE_LIGHTNING3           = 9;
-//float   TE_LAVASPLASH           = 10;
-//float   TE_TELEPORT             = 11;
-//float   TE_EXPLOSION2           = 12; // mission pack #2 explosion
-//                                      // takes a color range
-//                                      // 2 bytes:
-//                                      // first color
-//                                      // # of colors in the range
-//float   TE_BEAM                 = 13; // mission pack #2 thing
-//                                      // like TE_LIGHTNING etc,
-//                                      // but uses progs/beam.mdl
+float	TE_SPIKE		= 0;
+float	TE_SUPERSPIKE	= 1;
+float	TE_GUNSHOT		= 2;
+float	TE_EXPLOSION	= 3;
+float	TE_TAREXPLOSION	= 4;
+float	TE_LIGHTNING1	= 5;
+float	TE_LIGHTNING2	= 6;
+float	TE_WIZSPIKE		= 7;
+float	TE_KNIGHTSPIKE	= 8;
+float	TE_LIGHTNING3	= 9;
+float	TE_LAVASPLASH	= 10;
+float	TE_TELEPORT		= 11;
 
 // sound channels
 // channel 0 never willingly overrides
@@ -385,11 +363,6 @@ float	CHAN_WEAPON		= 1;
 float	CHAN_VOICE		= 2;
 float	CHAN_ITEM		= 3;
 float	CHAN_BODY		= 4;
-
-// added for Dark Places
-float   CHAN_SPEECH             = 5;
-float   CHAN_FOOT               = 6;
-float   CHAN_WEAPON2            = 7;
 
 float	ATTN_NONE		= 0;
 float	ATTN_NORM		= 1;
@@ -417,7 +390,6 @@ float	MSG_ONE			= 1;		// reliable to one (msg_entity)
 float	MSG_ALL			= 2;		// reliable to all
 float	MSG_INIT		= 3;		// write to the init string
 
-
 //================================================
 
 //
@@ -426,8 +398,8 @@ float	MSG_INIT		= 3;		// write to the init string
 float	movedist;
 float	gameover;		// set when a rule exits
 
-string	string_null;	// null string, nothing should be held here
-float	empty_float;
+//string	string_null;	// null string, nothing should be held here
+//float	empty_float;
 
 entity	newmis;			// launch_spike sets this after spawning it
 
@@ -443,7 +415,7 @@ float		skill;
 //
 // world fields (FIXME: make globals)
 //
-.string		wad;
+//.string		wad;
 .string 	map;
 .float		worldtype;	// 0=medieval 1=metal 2=base
 
@@ -454,7 +426,7 @@ float		skill;
 //
 // quakeed fields
 //
-//.float		light_lev;		// not used by game, but parsed by light util
+.float		light_lev;		// not used by game, but parsed by light util
 .float		style;
 
 
@@ -483,8 +455,10 @@ float	AS_SLIDING		= 2;
 float	AS_MELEE		= 3;
 float	AS_MISSILE		= 4;
 
-// .gravity field added in Quake 1.07 (Scourge of Armagon)
-.float          gravity;
+//
+// player only fields
+//
+//.float		walkframe;
 
 .float 		attack_finished;
 .float		pain_finished;
@@ -494,7 +468,7 @@ float	AS_MISSILE		= 4;
 .float		super_damage_finished;
 .float		radsuit_finished;
 
-.float		invincible_time, invincible_sound;
+.float		invincible_time;//, invincible_sound;
 .float		invisible_time, invisible_sound;
 .float		super_time, super_sound;
 .float		rad_time;
@@ -502,38 +476,14 @@ float	AS_MISSILE		= 4;
 
 //.float		axhitme;
 
-.float		show_hostile;	// set to time+0.2 whenever a client fires a weapon or takes damage.  Used to alert monsters that otherwise would let the player go
+.float		show_hostile;	// set to time+0.2 whenever a client fires a
+							// weapon or takes damage.  Used to alert
+							// monsters that otherwise would let the player go
 .float		jump_flag;		// player jump flag
 .float		swim_flag;		// player swimming sound flag
 .float		air_finished;	// when time > air_finished, start drowning
+.float		bubble_count;	// keeps track of the number of bubbles
 .string		deathtype;		// keeps track of how the player died
-.float		bodyhealth;		// used by corpse code
-.float		iscorpse;		// used by corpse code
-
-.vector		dest, dest1, dest2, dest3, dest4, dest5;
-
-
-.entity		flame;			// the flame burning this thing
-
-.float		doobits;		// set if this should do obit on death
-
-//.vector bodymins, bodymaxs, headmins, headmaxs;
-
-.vector		rotate;
-.string		group;
-
-// counts of how many keys this player/bot has
-.float		keys_silver;
-.float		keys_gold;
-
-.float		havocattack;
-.float		havocpickup;
-.float(entity player, entity item) pickupevalfunc; // returns rating for item considering player's condition (don't pick up health if it's not needed, etc)
-.float		shoulddodge;
-.float		dangerrating;
-
-// called whenever damage is done, if not supplied there is no visible effect.
-.void(vector org, float bodydamage, float armordamage, vector vel, float damgtype) bleedfunc;
 
 //
 // object stuff
@@ -561,6 +511,7 @@ float	AS_MISSILE		= 4;
 .float 		pausetime;
 .entity 	movetarget;
 
+
 //
 // doors
 //
@@ -571,13 +522,12 @@ float	AS_MISSILE		= 4;
 // misc
 //
 .float		cnt; 			// misc flag
-.float		cnt2;			// another counter
-.float		count2;			// yet another count
 
 //
 // subs
 //
 .void()		think1;
+//.vector		finaldest, finalangle;
 
 //
 // triggers
@@ -597,6 +547,8 @@ float	AS_MISSILE		= 4;
 // sounds
 //
 .float		waitmin, waitmax;
+//.float		distance;
+//.float		volume;
 
 
 
@@ -703,13 +655,7 @@ void(string s) changelevel = #70;
 
 void(string var, string val) cvar_set = #72;	// sets cvar.value
 
-void(entity client, string s) centerprint = #73;        // sprint, but in middle
-void(entity client, string s, string s1) centerprint2 = #73;	// sprint, but in middle
-void(entity client, string s, string s1, string s2) centerprint3 = #73;	// sprint, but in middle
-void(entity client, string s, string s1, string s2, string s3) centerprint4 = #73;	// sprint, but in middle
-void(entity client, string s, string s1, string s2, string s3, string s4) centerprint5 = #73;	// sprint, but in middle
-void(entity client, string s, string s1, string s2, string s3, string s4, string s5) centerprint6 = #73;	// sprint, but in middle
-void(entity client, string s, string s1, string s2, string s3, string s4, string s5, string s6) centerprint7 = #73;	// sprint, but in middle
+void(entity client, string s, ...) centerprint = #73;	// sprint, but in middle
 
 void(vector pos, string samp, float vol, float atten) ambientsound = #74;
 
@@ -717,7 +663,9 @@ string(string s) precache_model2	= #75;		// registered version only
 string(string s) precache_sound2	= #76;		// registered version only
 string(string s) precache_file2		= #77;		// registered version only
 
-void(entity e) setspawnparms		= #78;		// set parm1... to the values at level start for coop respawn
+void(entity e) setspawnparms		= #78;		// set parm1... to the
+												// values at level start
+												// for coop respawn
 
 //============================================================================
 
@@ -733,7 +681,16 @@ void() SUB_Null;
 void() SUB_UseTargets;
 void() SUB_Remove;
 
+//
+//	combat.qc
+//
+
+
+
 float(entity targ, entity inflictor) CanDamage;
+
+
+
 
 
 //void(vector org, entity en, vector dir, float holetype) newbullethole;
@@ -753,63 +710,63 @@ float() crandom =
 
 vector(vector m1, vector m2) randompos =
 {
-        local   vector  v;
-        m2 = m2 - m1;
-        v_x = m2_x * random() + m1_x;
-        v_y = m2_y * random() + m1_y;
-        v_z = m2_z * random() + m1_z;
-        return  v;
+	local vector v;
+	m2 = m2 - m1;
+	v_x = m2_x * random() + m1_x;
+	v_y = m2_y * random() + m1_y;
+	v_z = m2_z * random() + m1_z;
+	return  v;
 };
 
 // LordHavoc: made this a builtin function
 /*
 vector() randomvec =
 {
-	local   vector  v;
-        do
-        {
-                v_x = random() - 0.5; // scaled up in the return()
-                v_y = random() - 0.5;
-                v_z = random() - 0.5;
-        }
-        while (vlen(v) > 0.25);
-        return(v * 2);
+	local vector v;
+	do
+	{
+		v_x = random() - 0.5; // scaled up in the return()
+		v_y = random() - 0.5;
+		v_z = random() - 0.5;
+	}
+	while (vlen(v) > 0.25);
+	return(v * 2);
 };
 */
 
 vector() randomvec2 =
 {
-	local   vector  v;
-        v_x = random() - 0.5; // scale doesn't matter because it's normalized
-        v_y = random() - 0.5;
-        v_z = random() - 0.5;
+	local vector v;
+	v_x = random() - 0.5; // scale doesn't matter because it's normalized
+	v_y = random() - 0.5;
+	v_z = random() - 0.5;
 	v = normalize(v);
 	return(v);
 };
 
 vector() randomdirvec =
 {
-	local   vector  v;
-        do
-        {
-                do
-                {
-                        v_x = random() - 0.5;
-                        v_y = random() - 0.5;
-                        v_z = random() - 0.5;
-                }
-                while (vlen(v) > 0.25);
-        }
-        while (vlen(v) < 0.1);
-        return normalize(v);
+	local vector v;
+	do
+	{
+		do
+		{
+			v_x = random() - 0.5;
+			v_y = random() - 0.5;
+			v_z = random() - 0.5;
+		}
+		while (vlen(v) > 0.25);
+	}
+	while (vlen(v) < 0.1);
+	return normalize(v);
 };
 
 /*
 float(float a) sqrt = // now this IS silly (using vlen to do square root)
 {
-        local   vector  v;
-        v_x = a;
-        return (vlen(v));
+	local vector v;
+	v_x = a;
+	return (vlen(v));
 };
 */
 
@@ -817,22 +774,22 @@ float(float a) sqrt = // now this IS silly (using vlen to do square root)
 // (useful for explosions)
 vector (vector org) findbetterlocation =
 {
-        local   vector  v;
-        local   float   c;
-        if (pointcontents(org) != CONTENT_SOLID)
-                return org;
-        c = 0;
-        while (c < 20)
-        {
-                c = c + 1;
+	local vector v;
+	local float c;
+	if (pointcontents(org) != CONTENT_SOLID)
+		return org;
+	c = 0;
+	while (c < 20)
+	{
+		c = c + 1;
 // 4.1 to get it to choose +2 occasionally (rather than a 1 in 32768 chance)
-                v_x = org_x + random() * 4.1 - 2;
-                v_y = org_y + random() * 4.1 - 2;
-                v_z = org_z + random() * 4.1 - 2;
-                if (pointcontents(v) != CONTENT_SOLID)
-                        return v;
-        }
-        return org; // failed to find an empty point
+		v_x = org_x + random() * 4.1 - 2;
+		v_y = org_y + random() * 4.1 - 2;
+		v_z = org_z + random() * 4.1 - 2;
+		if (pointcontents(v) != CONTENT_SOLID)
+			return v;
+	}
+	return org; // failed to find an empty point
 };
 
 // adjusts the entity's origin to move it out of a solid
@@ -841,196 +798,198 @@ vector (vector org) findbetterlocation =
 // (unless they happen to have their origin on the surface of a wall)
 void (entity e) findbetterlocation2 =
 {
-        local   vector  v, org;
-        local   float   c;
-        if (pointcontents(e.origin) != CONTENT_SOLID)
-                return;
-        org = e.origin;
-        c = 0;
-        while (c < 20)
-        {
-                c = c + 1;
+	local vector v, org;
+	local float c;
+	if (pointcontents(e.origin) != CONTENT_SOLID)
+		return;
+	org = e.origin;
+	c = 0;
+	while (c < 20)
+	{
+		c = c + 1;
 // 4.1 to get it to choose 4 occasionally (rather than a 1 in 32768 chance)
-                v_x = org_x + random() * 4.1 - 2;
-                v_y = org_y + random() * 4.1 - 2;
-                v_z = org_z + random() * 4.1 - 2;
-                if (pointcontents(v) != CONTENT_SOLID)
-                {
-                        setorigin(e, v);
-                        return;
-                }
-        }
-        return; // failed to find an empty point
+		v_x = org_x + random() * 4.1 - 2;
+		v_y = org_y + random() * 4.1 - 2;
+		v_z = org_z + random() * 4.1 - 2;
+		if (pointcontents(v) != CONTENT_SOLID)
+		{
+			setorigin(e, v);
+			return;
+		}
+	}
+	return; // failed to find an empty point
 };
 
 // returns a point at least 12 units away from walls
 // (useful for explosion animations, although the blast is performed where it really happened)
 vector (vector org) findbetterlocation3 =
 {
-        local   vector  v2;
-        traceline(org, org - '12 0 0' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '12 0 0' , TRUE, world);if (trace_fraction >= 1) org = v2 + '12 0 0' ;}
-        traceline(org, org - '-12 0 0', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '-12 0 0', TRUE, world);if (trace_fraction >= 1) org = v2 + '-12 0 0';}
-        traceline(org, org - '0 12 0' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 12 0' , TRUE, world);if (trace_fraction >= 1) org = v2 + '0 12 0' ;}
-        traceline(org, org - '0 -12 0', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 -12 0', TRUE, world);if (trace_fraction >= 1) org = v2 + '0 -12 0';}
-        traceline(org, org - '0 0 12' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 0 12' , TRUE, world);if (trace_fraction >= 1) org = v2 + '0 0 12' ;}
-        traceline(org, org - '0 0 -12', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 0 -12', TRUE, world);if (trace_fraction >= 1) org = v2 + '0 0 -12';}
-        return org;
+	local vector v2;
+	traceline(org, org - '12 0 0' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '12 0 0' , TRUE, world);if (trace_fraction >= 1) org = v2 + '12 0 0' ;}
+	traceline(org, org - '-12 0 0', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '-12 0 0', TRUE, world);if (trace_fraction >= 1) org = v2 + '-12 0 0';}
+	traceline(org, org - '0 12 0' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 12 0' , TRUE, world);if (trace_fraction >= 1) org = v2 + '0 12 0' ;}
+	traceline(org, org - '0 -12 0', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 -12 0', TRUE, world);if (trace_fraction >= 1) org = v2 + '0 -12 0';}
+	traceline(org, org - '0 0 12' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 0 12' , TRUE, world);if (trace_fraction >= 1) org = v2 + '0 0 12' ;}
+	traceline(org, org - '0 0 -12', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 0 -12', TRUE, world);if (trace_fraction >= 1) org = v2 + '0 0 -12';}
+	return org;
 };
 
 vector (vector org) findbetterlocation4 =
 {
-        local   vector  v2;
-        traceline(org, org - '5 0 0' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '5 0 0' , TRUE, world);if (trace_fraction >= 1) org = v2 + '5 0 0' ;}
-        traceline(org, org - '-5 0 0', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '-5 0 0', TRUE, world);if (trace_fraction >= 1) org = v2 + '-5 0 0';}
-        traceline(org, org - '0 5 0' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 5 0' , TRUE, world);if (trace_fraction >= 1) org = v2 + '0 5 0' ;}
-        traceline(org, org - '0 -5 0', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 -5 0', TRUE, world);if (trace_fraction >= 1) org = v2 + '0 -5 0';}
-        traceline(org, org - '0 0 5' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 0 5' , TRUE, world);if (trace_fraction >= 1) org = v2 + '0 0 5' ;}
-        traceline(org, org - '0 0 -5', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 0 -5', TRUE, world);if (trace_fraction >= 1) org = v2 + '0 0 -5';}
-        return org;
+	local vector v2;
+	traceline(org, org - '5 0 0' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '5 0 0' , TRUE, world);if (trace_fraction >= 1) org = v2 + '5 0 0' ;}
+	traceline(org, org - '-5 0 0', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '-5 0 0', TRUE, world);if (trace_fraction >= 1) org = v2 + '-5 0 0';}
+	traceline(org, org - '0 5 0' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 5 0' , TRUE, world);if (trace_fraction >= 1) org = v2 + '0 5 0' ;}
+	traceline(org, org - '0 -5 0', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 -5 0', TRUE, world);if (trace_fraction >= 1) org = v2 + '0 -5 0';}
+	traceline(org, org - '0 0 5' , TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 0 5' , TRUE, world);if (trace_fraction >= 1) org = v2 + '0 0 5' ;}
+	traceline(org, org - '0 0 -5', TRUE, world);if (trace_fraction < 1) {v2 = trace_endpos;traceline(v2, v2 + '0 0 -5', TRUE, world);if (trace_fraction >= 1) org = v2 + '0 0 -5';}
+	return org;
 };
 
+/*
 void(vector v1, vector v2, vector m1, vector m2) lh_traceagainstbox =
 {
-        local   vector  b, dir, delta, dir2, dironx, dirony, dironz;
-        local   float   d, completedist, r;
-        trace_endpos = v2;
-        trace_fraction = 1;
-        if (vlen(v2 - v1) < 0.1) // too short, might do a divide by zero
-                return;
-        // throw out the complete misses
-        if (v1_x <= m1_x) if (v2_x <= m1_x) return;
-        if (v1_x >= m2_x) if (v2_x >= m2_x) return;
-        if (v1_y <= m1_y) if (v2_y <= m1_y) return;
-        if (v1_y >= m2_y) if (v2_y >= m2_y) return;
-        if (v1_z <= m1_z) if (v2_z <= m1_z) return;
-        if (v1_z >= m2_z) if (v2_z >= m2_z) return;
-        // starting inside the box?
-        if (v1_x >= m1_x) if (v1_x < m2_x) if (v1_y >= m1_y) if (v1_y < m2_y) if (v1_z >= m1_z) if (v1_z < m2_z) return;
-        delta = v2 - v1;
-        dir = normalize(delta);
-        completedist = vlen(v2 - v1);
-        if (delta_x < -0.001 || delta_x > 0.001)
-        {
-                dironx_x = 1;if (delta_x < 0) dironx_x = -1;
-                dironx_y = delta_y / delta_x;
-                dironx_z = delta_z / delta_x;
-        }
-        else
-        {
-                dironx_x = 1;if (delta_x < 0) dironx_x = -1;
-                dironx_y = 0;
-                dironx_z = 0;
-        }
-        if (delta_y < -0.001 || delta_y > 0.001)
-        {
-                dirony_x = delta_x / delta_y;
-                dirony_y = 1;if (delta_y < 0) dirony_y = -1;
-                dirony_z = delta_z / delta_y;
-        }
-        else
-        {
-                dirony_x = 0;
-                dirony_y = 1;if (delta_y < 0) dirony_y = -1;
-                dirony_z = 0;
-        }
-        if (delta_z < -0.001 || delta_z > 0.001)
-        {
-                dironz_x = delta_x / delta_z;
-                dironz_y = delta_y / delta_z;
-                dironz_z = 1;if (delta_z < 0) dironz_z = -1;
-        }
-        else
-        {
-                dironz_x = 0;
-                dironz_y = 0;
-                dironz_z = 1;if (delta_z < 0) dironz_z = -1;
-        }
-        b = v1;
-        r = floor(random() * 1000);
-        if (dir_x > 0)
-        {
-                if (b_x < m1_x)
-                {
-                        b = b + dironx * (m1_x - b_x);
-                        trace_fraction = vlen(b - v1) / completedist;
-                }
-        }
-        else
-        {
-                if (b_x > m2_x)
-                {
-                        b = b - dironx * (m2_x - b_x);
-                        trace_fraction = vlen(b - v1) / completedist;
-                }
-        }
-        trace_endpos = b;
-        if (trace_fraction > 1) trace_fraction = 1;
-        if (dir_y > 0)
-        {
-                if (b_y < m1_y)
-                {
-                        b = b + dirony * (m1_y - b_y);
-                        trace_fraction = vlen(b - v1) / completedist;
-                }
-        }
-        else
-        {
-                if (b_y > m2_y)
-                {
-                        b = b - dirony * (m2_y - b_y);
-                        trace_fraction = vlen(b - v1) / completedist;
-                }
-        }
-        trace_endpos = b;
-        if (trace_fraction > 1) trace_fraction = 1;
-        if (dir_z > 0)
-        {
-                if (b_z < m1_z)
-                {
-                        b = b + dironz * (m1_z - b_z);
-                        trace_fraction = vlen(b - v1) / completedist;
-                }
-        }
-        else
-        {
-                if (b_z > m2_z)
-                {
-                        b = b - dironz * (m2_z - b_z);
-                        trace_fraction = vlen(b - v1) / completedist;
-                }
-        }
-        trace_endpos = b;
-        if (trace_fraction > 1) trace_fraction = 1;
+	local vector b, dir, delta, dironx, dirony, dironz;
+	local float completedist, r;
+	trace_endpos = v2;
+	trace_fraction = 1;
+	if (vlen(v2 - v1) < 0.1) // too short, might do a divide by zero
+		return;
+	// throw out the complete misses
+	if (v1_x <= m1_x) if (v2_x <= m1_x) return;
+	if (v1_x >= m2_x) if (v2_x >= m2_x) return;
+	if (v1_y <= m1_y) if (v2_y <= m1_y) return;
+	if (v1_y >= m2_y) if (v2_y >= m2_y) return;
+	if (v1_z <= m1_z) if (v2_z <= m1_z) return;
+	if (v1_z >= m2_z) if (v2_z >= m2_z) return;
+	// starting inside the box?
+	if (v1_x >= m1_x) if (v1_x < m2_x) if (v1_y >= m1_y) if (v1_y < m2_y) if (v1_z >= m1_z) if (v1_z < m2_z) return;
+	delta = v2 - v1;
+	dir = normalize(delta);
+	completedist = vlen(v2 - v1);
+	if (delta_x < -0.001 || delta_x > 0.001)
+	{
+		dironx_x = 1;if (delta_x < 0) dironx_x = -1;
+		dironx_y = delta_y / delta_x;
+		dironx_z = delta_z / delta_x;
+	}
+	else
+	{
+		dironx_x = 1;if (delta_x < 0) dironx_x = -1;
+		dironx_y = 0;
+		dironx_z = 0;
+	}
+	if (delta_y < -0.001 || delta_y > 0.001)
+	{
+		dirony_x = delta_x / delta_y;
+		dirony_y = 1;if (delta_y < 0) dirony_y = -1;
+		dirony_z = delta_z / delta_y;
+	}
+	else
+	{
+		dirony_x = 0;
+		dirony_y = 1;if (delta_y < 0) dirony_y = -1;
+		dirony_z = 0;
+	}
+	if (delta_z < -0.001 || delta_z > 0.001)
+	{
+		dironz_x = delta_x / delta_z;
+		dironz_y = delta_y / delta_z;
+		dironz_z = 1;if (delta_z < 0) dironz_z = -1;
+	}
+	else
+	{
+		dironz_x = 0;
+		dironz_y = 0;
+		dironz_z = 1;if (delta_z < 0) dironz_z = -1;
+	}
+	b = v1;
+	r = floor(random() * 1000);
+	if (dir_x > 0)
+	{
+		if (b_x < m1_x)
+		{
+			b = b + dironx * (m1_x - b_x);
+			trace_fraction = vlen(b - v1) / completedist;
+		}
+	}
+	else
+	{
+		if (b_x > m2_x)
+		{
+			b = b - dironx * (m2_x - b_x);
+			trace_fraction = vlen(b - v1) / completedist;
+		}
+	}
+	trace_endpos = b;
+	if (trace_fraction > 1) trace_fraction = 1;
+	if (dir_y > 0)
+	{
+		if (b_y < m1_y)
+		{
+			b = b + dirony * (m1_y - b_y);
+			trace_fraction = vlen(b - v1) / completedist;
+		}
+	}
+	else
+	{
+		if (b_y > m2_y)
+		{
+			b = b - dirony * (m2_y - b_y);
+			trace_fraction = vlen(b - v1) / completedist;
+		}
+	}
+	trace_endpos = b;
+	if (trace_fraction > 1) trace_fraction = 1;
+	if (dir_z > 0)
+	{
+		if (b_z < m1_z)
+		{
+			b = b + dironz * (m1_z - b_z);
+			trace_fraction = vlen(b - v1) / completedist;
+		}
+	}
+	else
+	{
+		if (b_z > m2_z)
+		{
+			b = b - dironz * (m2_z - b_z);
+			trace_fraction = vlen(b - v1) / completedist;
+		}
+	}
+	trace_endpos = b;
+	if (trace_fraction > 1) trace_fraction = 1;
 };
+*/
 
-.float  cantrigger;
+.float cantrigger;
 
 void(float n) bprintfloat =
 {
-        local   string  s;
-        s = ftos(n);
-        bprint(s);
+	local string s;
+	s = ftos(n);
+	bprint(s);
 };
 
 void(vector n) bprintvector =
 {
-        local   string  s;
-        s = vtos(n);
-        bprint(s);
+	local string s;
+	s = vtos(n);
+	bprint(s);
 };
 
 void(float n) dprintfloat =
 {
-        local   string  s;
-        s = ftos(n);
-        dprint(s);
+	local string s;
+	s = ftos(n);
+	dprint(s);
 };
 
 void(vector n) dprintvector =
 {
-        local   string  s;
-        s = vtos(n);
-        dprint(s);
+	local string s;
+	s = vtos(n);
+	dprint(s);
 };
 
 string deathstring1, deathstring2, deathstring3, deathstring4;
@@ -1094,3 +1053,55 @@ float GAME_NEXUIZ = 1;
 float game;
 
 float darkmode;
+
+float IT_WEAPON1                      = 4096;
+float IT_WEAPON2                      = 1;
+float IT_WEAPON3                      = 2;
+float IT_WEAPON4                      = 4;
+float IT_WEAPON5                      = 8;
+float IT_WEAPON6                      = 16;
+float IT_WEAPON7                      = 32;
+float IT_WEAPON8                      = 64;
+float IT_WEAPON9                      = 128;
+float IT_WEAPON10                     = 8388608;
+
+// see modecheck.qc for deathmatch and teamplay settings
+
+// added for Dark Places
+float CHAN_SPEECH             = 5;
+float CHAN_FOOT               = 6;
+float CHAN_WEAPON2            = 7;
+
+// .gravity field added in Quake 1.07 (Scourge of Armagon)
+.float gravity;
+
+.float		bodyhealth;		// used by corpse code
+.float		iscorpse;		// used by corpse code
+
+.vector dest, dest1, dest2, dest3, dest4;//, dest5;
+
+
+.entity flame;			// the flame burning this thing
+
+.float doobits;		// set if this should do obit on death
+
+//.vector bodymins, bodymaxs, headmins, headmaxs;
+
+.vector rotate;
+.string group;
+
+// counts of how many keys this player/bot has
+.float keys_silver;
+.float keys_gold;
+
+.float havocattack;
+.float havocpickup;
+.float(entity player, entity item) pickupevalfunc; // returns rating for item considering player's condition (don't pick up health if it's not needed, etc)
+.float shoulddodge;
+.float dangerrating;
+
+// called whenever damage is done, if not supplied there is no visible effect.
+.void(vector org, float bodydamage, float armordamage, vector vel, float damgtype) bleedfunc;
+
+.float cnt2;			// another counter
+.float count2;			// yet another count
