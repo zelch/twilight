@@ -64,6 +64,10 @@ void() PlaceItem =
 	else
 		self.solid = SOLID_TRIGGER;
 
+	// make bots pick up this tiem, if it has any value
+	if (self.pickupevalfunc)
+		self.havocpickup = TRUE;
+
 	tracebox(self.origin + '0 0 1', self.mins, self.maxs, self.origin + '0 0 -256', FALSE, self);
 	if (trace_startsolid || trace_fraction == 1)
 	{
@@ -162,7 +166,6 @@ void() item_health =
 			self.netname = "+5 health\n";
 			self.count2 = 5;
 			self.cnt2 = TRUE;
-			self.havocpickup = TRUE;
 			self.dmg = 7500;
 			self.pickupevalfunc = item_health_pickupeval;
 		}
@@ -173,7 +176,6 @@ void() item_health =
 			self.netname = "+100 health\n";
 			self.count2 = 100;
 			self.cnt2 = TRUE;
-			self.havocpickup = TRUE;
 			self.dmg = 25000;
 			self.pickupevalfunc = item_megahealth_pickupeval;
 		}
@@ -184,7 +186,6 @@ void() item_health =
 			self.netname = "+25 health\n";
 			self.count2 = 25;
 			self.cnt2 = FALSE;
-			self.havocpickup = TRUE;
 			self.dmg = 12500;
 			self.pickupevalfunc = item_health_pickupeval;
 		}
@@ -201,7 +202,6 @@ void() item_health =
 			self.netname = "+15 health\n";
 			self.count2 = 15;
 			self.cnt2 = FALSE;
-			self.havocpickup = TRUE;
 			self.dmg = 7500;
 			self.pickupevalfunc = item_health_pickupeval;
 		}
@@ -214,7 +214,6 @@ void() item_health =
 			self.netname = "+100 health\n";
 			self.count2 = 100;
 			self.cnt2 = TRUE;
-			self.havocpickup = TRUE;
 			self.dmg = 25000;
 			self.pickupevalfunc = item_megahealth_pickupeval;
 		}
@@ -227,7 +226,6 @@ void() item_health =
 			self.netname = "+25 health\n";
 			self.count2 = 25;
 			self.cnt2 = FALSE;
-			self.havocpickup = TRUE;
 			self.dmg = 12500;
 			self.pickupevalfunc = item_health_pickupeval;
 		}
@@ -361,7 +359,6 @@ void() item_armor1 =
 		self.armorvalue = GREENARMOR_VALUE;
 	self.netname = "Green armor - 30% off damage\n";
 	self.items = IT_ARMOR1;
-	self.havocpickup = TRUE;
 	self.dmg = self.armorvalue * self.armortype;
 	self.dmg2 = 10000 / (160 * 160); // 200 red armor = 160 rating (200 * 0.8)
 	self.pickupevalfunc = item_armor_pickupeval;
@@ -393,7 +390,6 @@ void() item_armor2 =
 		self.armorvalue = YELLOWARMOR_VALUE;
 	self.netname = "Yellow armor - 60% off damage\n";
 	self.items = IT_ARMOR2;
-	self.havocpickup = TRUE;
 	self.dmg = self.armorvalue * self.armortype;
 	self.dmg2 = 10000 / (160 * 160); // 200 red armor = 160 rating (200 * 0.8)
 	self.pickupevalfunc = item_armor_pickupeval;
@@ -424,7 +420,6 @@ void() item_armorInv =
 		self.armorvalue = REDARMOR_VALUE;
 	self.netname = "Red armor - 80% off damage\n";
 	self.items = IT_ARMOR3;
-	self.havocpickup = TRUE;
 	self.dmg = self.armorvalue * self.armortype;
 	self.dmg2 = 10000 / (160 * 160); // 200 red armor = 160 rating (200 * 0.8)
 	self.pickupevalfunc = item_armor_pickupeval;
@@ -501,7 +496,6 @@ float(entity player, entity item) item_weapon_pickupeval =
 
 void(string wmdl, float rating, string name) weapon_spawnhandler =
 {
-	self.havocpickup = TRUE;
 	self.pickupevalfunc = item_weapon_pickupeval;
 	self.dmg = rating;
 	precache_model (wmdl);
@@ -686,7 +680,6 @@ void() item_shells =
 	setsize (self, '-16 -16 0', '16 16 8');
 	setorigin(self, self.origin + '16 16 0');
 	self.ammo_typestring = "shells";
-	self.havocpickup = TRUE;
 	self.dmg = 60 * self.aflag / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
 	self.pickupevalfunc = item_shells_pickupeval;
 	StartItem ();
@@ -735,7 +728,6 @@ void() item_spikes =
 	}
 	self.weapon = 2;
 	self.ammo_typestring = "nails";
-	self.havocpickup = TRUE;
 	self.dmg = 15 * self.aflag / (AMMOMAX_NAILS * AMMOMAX_NAILS);
 	self.pickupevalfunc = item_nails_pickupeval;
 	StartItem ();
@@ -784,7 +776,6 @@ void() item_rockets =
 	self.ammo_typestring = "rockets";
 	setsize (self, '-16 -16 0', '16 16 16');
 	setorigin(self, self.origin + '16 16 0');
-	self.havocpickup = TRUE;
 	self.dmg = 120 * self.aflag / (AMMOMAX_ROCKETS * AMMOMAX_ROCKETS);
 	self.pickupevalfunc = item_rockets_pickupeval;
 	StartItem ();
@@ -833,7 +824,6 @@ void() item_cells =
 	}
 	self.weapon = 4;
 	self.ammo_typestring = "cells";
-	self.havocpickup = TRUE;
 	self.dmg = 30 * self.aflag / (AMMOMAX_CELLS * AMMOMAX_CELLS);
 	self.pickupevalfunc = item_cells_pickupeval;
 	StartItem ();
@@ -1179,7 +1169,6 @@ void() item_artifact_invulnerability =
 	self.netname = "You got the Pentagram of Protection!\n";
 	self.items = IT_INVULNERABILITY;
 	setsize (self, '-16 -16 -24', '16 16 32');
-	self.havocpickup = TRUE;
 	self.dmg = 10000;
 	self.pickupevalfunc = item_artifact_pickupeval;
 	StartItem ();
@@ -1220,7 +1209,6 @@ void() item_artifact_invisibility =
 	self.netname = "You got the Ring of Shadows!\n";
 	self.items = IT_INVISIBILITY;
 	setsize (self, '-16 -16 -24', '16 16 32');
-	self.havocpickup = TRUE;
 	self.dmg = 5000;
 	self.pickupevalfunc = item_artifact_pickupeval;
 	StartItem ();
@@ -1243,7 +1231,6 @@ void() item_artifact_super_damage =
 	self.netname = "You got the Quad Damage!\n";
 	self.items = IT_QUAD;
 	setsize (self, '-16 -16 -24', '16 16 32');
-	self.havocpickup = TRUE;
 	self.dmg = 5000;
 	self.pickupevalfunc = item_artifact_pickupeval;
 	StartItem ();
