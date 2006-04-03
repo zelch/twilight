@@ -31,30 +31,6 @@ void() explosionfx_precache =
 	}
 };
 
-void() harmlessfireball_think =
-{
-	self.nextthink = time + 0.01;
-	self.angles = vectoangles(self.velocity) + '90 0 0';
-	if (time > self.cnt)
-		remove(self);
-};
-
-void(vector org, vector vel, float lifetime) SpawnHarmlessFireball =
-{
-	newmis = spawn();
-	newmis.classname = "harmlessfireball";
-	setorigin(newmis, org);
-	setmodel(newmis, "progs/flame2.mdl");
-	setsize (newmis, '0 0 0', '0 0 0');
-	newmis.velocity = vel;
-	newmis.think = harmlessfireball_think;
-	newmis.nextthink = time + 0.01;
-	newmis.cnt = time + lifetime;
-	newmis.solid = SOLID_NOT;
-	newmis.movetype = MOVETYPE_BOUNCE;
-	newmis.effects = EF_ADDITIVE;
-};
-
 .float anim_fps;
 .float anim_endframe;
 void() explosionanimate =
