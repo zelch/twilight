@@ -897,7 +897,7 @@ void() spike_touch =
 		remove(self);
 		return;
 	}
-	T_Damage (other, self, self.owner, self.health, self.health, self.deathtype, DT_NAIL, self.origin, self.dest * self.health, self.obitfunc1);
+	T_Damage (other, self, self.owner, self.health, self.health, self.deathtype, DT_NAIL, self.origin, '0 0 0', self.obitfunc1);
 
 	v = normalize(self.velocity);
 	setorigin(self, self.origin - 8*v);
