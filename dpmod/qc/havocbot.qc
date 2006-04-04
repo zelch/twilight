@@ -8,122 +8,136 @@ float(vector m1, vector m2, vector m3, vector m4) boxesoverlap =
 	return m2_x >= m3_x && m1_x <= m4_x && m2_y >= m3_y && m1_y <= m4_y && m2_z >= m3_z && m1_z <= m4_z;
 };
 
-.entity wp0, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12, wp13, wp14, wp15, wp16, wp17, wp18, wp19, wp20, wp21, wp22, wp23, wp24, wp25, wp26, wp27, wp28, wp29, wp30, wp31;
+.entity wp00, wp01, wp02, wp03, wp04, wp05, wp06, wp07;
+.entity wp08, wp09, wp10, wp11, wp12, wp13, wp14, wp15;
+.entity wp16, wp17, wp18, wp19, wp20, wp21, wp22, wp23, wp24, wp25, wp26, wp27, wp28, wp29, wp30, wp31;
+.float wp00mincost, wp01mincost, wp02mincost, wp03mincost, wp04mincost, wp05mincost, wp06mincost, wp07mincost;
+.float wp08mincost, wp09mincost, wp10mincost, wp11mincost, wp12mincost, wp13mincost, wp14mincost, wp15mincost;
+.float wp16mincost, wp17mincost, wp18mincost, wp19mincost, wp20mincost, wp21mincost, wp22mincost, wp23mincost, wp24mincost, wp25mincost, wp26mincost, wp27mincost, wp28mincost, wp29mincost, wp30mincost, wp31mincost;
 .float wpfire, wpcost;
+.float wpisbox;
 
-.entity goalcurrent, goalstack1, goalstack2, goalstack3, goalstack4, goalstack5, goalstack6, goalstack7, goalstack8, goalstack9;
+.entity goalcurrent, goalstack01, goalstack02, goalstack03, goalstack04, goalstack05, goalstack06, goalstack07, goalstack08, goalstack09;
 .entity goalstack10, goalstack11, goalstack12, goalstack13, goalstack14, goalstack15, goalstack16, goalstack17, goalstack18, goalstack19;
 .entity goalstack20, goalstack21, goalstack22, goalstack23, goalstack24, goalstack25, goalstack26, goalstack27, goalstack28, goalstack29;
 .entity goalstack30, goalstack31, goalstack32;
 
-
-float(entity from, entity to) waypoint_addlink =
+void(entity from, entity to) waypoint_addlink =
 {
-	if (from == to)
-		return FALSE;
-	if (from.wp0 == world) {from.wp0 = to;return TRUE;}if (from.wp0 == to) return FALSE;
-	if (from.wp1 == world) {from.wp1 = to;return TRUE;}if (from.wp1 == to) return FALSE;
-	if (from.wp2 == world) {from.wp2 = to;return TRUE;}if (from.wp2 == to) return FALSE;
-	if (from.wp3 == world) {from.wp3 = to;return TRUE;}if (from.wp3 == to) return FALSE;
-	if (from.wp4 == world) {from.wp4 = to;return TRUE;}if (from.wp4 == to) return FALSE;
-	if (from.wp5 == world) {from.wp5 = to;return TRUE;}if (from.wp5 == to) return FALSE;
-	if (from.wp6 == world) {from.wp6 = to;return TRUE;}if (from.wp6 == to) return FALSE;
-	if (from.wp7 == world) {from.wp7 = to;return TRUE;}if (from.wp7 == to) return FALSE;
-	if (from.wp8 == world) {from.wp8 = to;return TRUE;}if (from.wp8 == to) return FALSE;
-	if (from.wp9 == world) {from.wp9 = to;return TRUE;}if (from.wp9 == to) return FALSE;
-	if (from.wp10 == world) {from.wp10 = to;return TRUE;}if (from.wp10 == to) return FALSE;
-	if (from.wp11 == world) {from.wp11 = to;return TRUE;}if (from.wp11 == to) return FALSE;
-	if (from.wp12 == world) {from.wp12 = to;return TRUE;}if (from.wp12 == to) return FALSE;
-	if (from.wp13 == world) {from.wp13 = to;return TRUE;}if (from.wp13 == to) return FALSE;
-	if (from.wp14 == world) {from.wp14 = to;return TRUE;}if (from.wp14 == to) return FALSE;
-	if (from.wp15 == world) {from.wp15 = to;return TRUE;}if (from.wp15 == to) return FALSE;
-	if (from.wp16 == world) {from.wp16 = to;return TRUE;}if (from.wp16 == to) return FALSE;
-	if (from.wp17 == world) {from.wp17 = to;return TRUE;}if (from.wp17 == to) return FALSE;
-	if (from.wp18 == world) {from.wp18 = to;return TRUE;}if (from.wp18 == to) return FALSE;
-	if (from.wp19 == world) {from.wp19 = to;return TRUE;}if (from.wp19 == to) return FALSE;
-	if (from.wp20 == world) {from.wp20 = to;return TRUE;}if (from.wp20 == to) return FALSE;
-	if (from.wp21 == world) {from.wp21 = to;return TRUE;}if (from.wp21 == to) return FALSE;
-	if (from.wp22 == world) {from.wp22 = to;return TRUE;}if (from.wp22 == to) return FALSE;
-	if (from.wp23 == world) {from.wp23 = to;return TRUE;}if (from.wp23 == to) return FALSE;
-	if (from.wp24 == world) {from.wp24 = to;return TRUE;}if (from.wp24 == to) return FALSE;
-	if (from.wp25 == world) {from.wp25 = to;return TRUE;}if (from.wp25 == to) return FALSE;
-	if (from.wp26 == world) {from.wp26 = to;return TRUE;}if (from.wp26 == to) return FALSE;
-	if (from.wp27 == world) {from.wp27 = to;return TRUE;}if (from.wp27 == to) return FALSE;
-	if (from.wp28 == world) {from.wp28 = to;return TRUE;}if (from.wp28 == to) return FALSE;
-	if (from.wp29 == world) {from.wp29 = to;return TRUE;}if (from.wp29 == to) return FALSE;
-	if (from.wp30 == world) {from.wp30 = to;return TRUE;}if (from.wp30 == to) return FALSE;
-	if (from.wp31 == world) {from.wp31 = to;return TRUE;}if (from.wp31 == to) return FALSE;
-	return FALSE;
-};
+	local float c;
 
-float(entity from, entity to) waypoint_removelink =
-{
 	if (from == to)
-		return FALSE;
-	if (from.wp0 == to){from.wp0 = from.wp1;from.wp1 = from.wp2;from.wp2 = from.wp3;from.wp3 = from.wp4;from.wp4 = from.wp5;from.wp5 = from.wp6;from.wp6 = from.wp7;from.wp7 = from.wp8;from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp1 == to){from.wp1 = from.wp2;from.wp2 = from.wp3;from.wp3 = from.wp4;from.wp4 = from.wp5;from.wp5 = from.wp6;from.wp6 = from.wp7;from.wp7 = from.wp8;from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp2 == to){from.wp2 = from.wp3;from.wp3 = from.wp4;from.wp4 = from.wp5;from.wp5 = from.wp6;from.wp6 = from.wp7;from.wp7 = from.wp8;from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp3 == to){from.wp3 = from.wp4;from.wp4 = from.wp5;from.wp5 = from.wp6;from.wp6 = from.wp7;from.wp7 = from.wp8;from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp4 == to){from.wp4 = from.wp5;from.wp5 = from.wp6;from.wp6 = from.wp7;from.wp7 = from.wp8;from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp5 == to){from.wp5 = from.wp6;from.wp6 = from.wp7;from.wp7 = from.wp8;from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp6 == to){from.wp6 = from.wp7;from.wp7 = from.wp8;from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp7 == to){from.wp7 = from.wp8;from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp8 == to){from.wp8 = from.wp9;from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp9 == to){from.wp9 = from.wp10;from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp10 == to){from.wp10 = from.wp11;from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp11 == to){from.wp11 = from.wp12;from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp12 == to){from.wp12 = from.wp13;from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp13 == to){from.wp13 = from.wp14;from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp14 == to){from.wp14 = from.wp15;from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp15 == to){from.wp15 = from.wp16;from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp16 == to){from.wp16 = from.wp17;from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp17 == to){from.wp17 = from.wp18;from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp18 == to){from.wp18 = from.wp19;from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp19 == to){from.wp19 = from.wp20;from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp20 == to){from.wp20 = from.wp21;from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp21 == to){from.wp21 = from.wp22;from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp22 == to){from.wp22 = from.wp23;from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp23 == to){from.wp23 = from.wp24;from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp24 == to){from.wp24 = from.wp25;from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp25 == to){from.wp25 = from.wp26;from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp26 == to){from.wp26 = from.wp27;from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp27 == to){from.wp27 = from.wp28;from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp28 == to){from.wp28 = from.wp29;from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp29 == to){from.wp29 = from.wp30;from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp30 == to){from.wp30 = from.wp31;from.wp31 = world;return TRUE;}
-	if (from.wp31 == to){from.wp31 = world;return TRUE;}
-	return FALSE;
+		return;
+
+	if (from.wp00 == to) return;if (from.wp01 == to) return;if (from.wp02 == to) return;if (from.wp03 == to) return;
+	if (from.wp04 == to) return;if (from.wp05 == to) return;if (from.wp06 == to) return;if (from.wp07 == to) return;
+	if (from.wp08 == to) return;if (from.wp09 == to) return;if (from.wp10 == to) return;if (from.wp11 == to) return;
+	if (from.wp12 == to) return;if (from.wp13 == to) return;if (from.wp14 == to) return;if (from.wp15 == to) return;
+	if (from.wp16 == to) return;if (from.wp17 == to) return;if (from.wp18 == to) return;if (from.wp19 == to) return;
+	if (from.wp20 == to) return;if (from.wp21 == to) return;if (from.wp22 == to) return;if (from.wp23 == to) return;
+	if (from.wp24 == to) return;if (from.wp25 == to) return;if (from.wp26 == to) return;if (from.wp27 == to) return;
+	if (from.wp28 == to) return;if (from.wp29 == to) return;if (from.wp30 == to) return;if (from.wp31 == to) return;
+
+	// if either is a box, then the only way they would link up is by
+	// overlapping eachother, so the minimum travel cost is... 0
+	if (to.wpisbox || from.wpisbox)
+		c = 0;
+	else
+		c = vlen(to.origin - from.origin);
+
+	if (from.wp31mincost < c) return;
+	if (from.wp30mincost < c) {from.wp31 = to;from.wp31mincost = c;return;} from.wp31 = from.wp30;from.wp31mincost = from.wp30mincost;
+	if (from.wp29mincost < c) {from.wp30 = to;from.wp30mincost = c;return;} from.wp30 = from.wp29;from.wp30mincost = from.wp29mincost;
+	if (from.wp28mincost < c) {from.wp29 = to;from.wp29mincost = c;return;} from.wp29 = from.wp28;from.wp29mincost = from.wp28mincost;
+	if (from.wp27mincost < c) {from.wp28 = to;from.wp28mincost = c;return;} from.wp28 = from.wp27;from.wp28mincost = from.wp27mincost;
+	if (from.wp26mincost < c) {from.wp27 = to;from.wp27mincost = c;return;} from.wp27 = from.wp26;from.wp27mincost = from.wp26mincost;
+	if (from.wp25mincost < c) {from.wp26 = to;from.wp26mincost = c;return;} from.wp26 = from.wp25;from.wp26mincost = from.wp25mincost;
+	if (from.wp24mincost < c) {from.wp25 = to;from.wp25mincost = c;return;} from.wp25 = from.wp24;from.wp25mincost = from.wp24mincost;
+	if (from.wp23mincost < c) {from.wp24 = to;from.wp24mincost = c;return;} from.wp24 = from.wp23;from.wp24mincost = from.wp23mincost;
+	if (from.wp22mincost < c) {from.wp23 = to;from.wp23mincost = c;return;} from.wp23 = from.wp22;from.wp23mincost = from.wp22mincost;
+	if (from.wp21mincost < c) {from.wp22 = to;from.wp22mincost = c;return;} from.wp22 = from.wp21;from.wp22mincost = from.wp21mincost;
+	if (from.wp20mincost < c) {from.wp21 = to;from.wp21mincost = c;return;} from.wp21 = from.wp20;from.wp21mincost = from.wp20mincost;
+	if (from.wp19mincost < c) {from.wp20 = to;from.wp20mincost = c;return;} from.wp20 = from.wp19;from.wp20mincost = from.wp19mincost;
+	if (from.wp18mincost < c) {from.wp19 = to;from.wp19mincost = c;return;} from.wp19 = from.wp18;from.wp19mincost = from.wp18mincost;
+	if (from.wp17mincost < c) {from.wp18 = to;from.wp18mincost = c;return;} from.wp18 = from.wp17;from.wp18mincost = from.wp17mincost;
+	if (from.wp16mincost < c) {from.wp17 = to;from.wp17mincost = c;return;} from.wp17 = from.wp16;from.wp17mincost = from.wp16mincost;
+	if (from.wp15mincost < c) {from.wp16 = to;from.wp16mincost = c;return;} from.wp16 = from.wp15;from.wp16mincost = from.wp15mincost;
+	if (from.wp14mincost < c) {from.wp15 = to;from.wp15mincost = c;return;} from.wp15 = from.wp14;from.wp15mincost = from.wp14mincost;
+	if (from.wp13mincost < c) {from.wp14 = to;from.wp14mincost = c;return;} from.wp14 = from.wp13;from.wp14mincost = from.wp13mincost;
+	if (from.wp12mincost < c) {from.wp13 = to;from.wp13mincost = c;return;} from.wp13 = from.wp12;from.wp13mincost = from.wp12mincost;
+	if (from.wp11mincost < c) {from.wp12 = to;from.wp12mincost = c;return;} from.wp12 = from.wp11;from.wp12mincost = from.wp11mincost;
+	if (from.wp10mincost < c) {from.wp11 = to;from.wp11mincost = c;return;} from.wp11 = from.wp10;from.wp11mincost = from.wp10mincost;
+	if (from.wp09mincost < c) {from.wp10 = to;from.wp10mincost = c;return;} from.wp10 = from.wp09;from.wp10mincost = from.wp09mincost;
+	if (from.wp08mincost < c) {from.wp09 = to;from.wp09mincost = c;return;} from.wp09 = from.wp08;from.wp09mincost = from.wp08mincost;
+	if (from.wp07mincost < c) {from.wp08 = to;from.wp08mincost = c;return;} from.wp08 = from.wp07;from.wp08mincost = from.wp07mincost;
+	if (from.wp06mincost < c) {from.wp07 = to;from.wp07mincost = c;return;} from.wp07 = from.wp06;from.wp07mincost = from.wp06mincost;
+	if (from.wp05mincost < c) {from.wp06 = to;from.wp06mincost = c;return;} from.wp06 = from.wp05;from.wp06mincost = from.wp05mincost;
+	if (from.wp04mincost < c) {from.wp05 = to;from.wp05mincost = c;return;} from.wp05 = from.wp04;from.wp05mincost = from.wp04mincost;
+	if (from.wp03mincost < c) {from.wp04 = to;from.wp04mincost = c;return;} from.wp04 = from.wp03;from.wp04mincost = from.wp03mincost;
+	if (from.wp02mincost < c) {from.wp03 = to;from.wp03mincost = c;return;} from.wp03 = from.wp02;from.wp03mincost = from.wp02mincost;
+	if (from.wp01mincost < c) {from.wp02 = to;from.wp02mincost = c;return;} from.wp02 = from.wp01;from.wp02mincost = from.wp01mincost;
+	if (from.wp00mincost < c) {from.wp01 = to;from.wp01mincost = c;return;} from.wp01 = from.wp00;from.wp01mincost = from.wp00mincost;
+	from.wp00 = to;from.wp00mincost = c;return;
+
+	/*
+	if (from.wp01 == world) {from.wp01 = to;from.wp01mincost = c;return;}
+	if (from.wp02 == world) {from.wp02 = to;from.wp02mincost = c;return;}
+	if (from.wp03 == world) {from.wp03 = to;from.wp03mincost = c;return;}
+	if (from.wp04 == world) {from.wp04 = to;from.wp04mincost = c;return;}
+	if (from.wp05 == world) {from.wp05 = to;from.wp05mincost = c;return;}
+	if (from.wp06 == world) {from.wp06 = to;from.wp06mincost = c;return;}
+	if (from.wp07 == world) {from.wp07 = to;from.wp07mincost = c;return;}
+	if (from.wp08 == world) {from.wp08 = to;from.wp08mincost = c;return;}
+	if (from.wp09 == world) {from.wp09 = to;from.wp09mincost = c;return;}
+	if (from.wp10 == world) {from.wp10 = to;from.wp10mincost = c;return;}
+	if (from.wp11 == world) {from.wp11 = to;from.wp11mincost = c;return;}
+	if (from.wp12 == world) {from.wp12 = to;from.wp12mincost = c;return;}
+	if (from.wp13 == world) {from.wp13 = to;from.wp13mincost = c;return;}
+	if (from.wp14 == world) {from.wp14 = to;from.wp14mincost = c;return;}
+	if (from.wp15 == world) {from.wp15 = to;from.wp15mincost = c;return;}
+	if (from.wp16 == world) {from.wp16 = to;from.wp16mincost = c;return;}
+	if (from.wp17 == world) {from.wp17 = to;from.wp17mincost = c;return;}
+	if (from.wp18 == world) {from.wp18 = to;from.wp18mincost = c;return;}
+	if (from.wp19 == world) {from.wp19 = to;from.wp19mincost = c;return;}
+	if (from.wp20 == world) {from.wp20 = to;from.wp20mincost = c;return;}
+	if (from.wp21 == world) {from.wp21 = to;from.wp21mincost = c;return;}
+	if (from.wp22 == world) {from.wp22 = to;from.wp22mincost = c;return;}
+	if (from.wp23 == world) {from.wp23 = to;from.wp23mincost = c;return;}
+	if (from.wp24 == world) {from.wp24 = to;from.wp24mincost = c;return;}
+	if (from.wp25 == world) {from.wp25 = to;from.wp25mincost = c;return;}
+	if (from.wp26 == world) {from.wp26 = to;from.wp26mincost = c;return;}
+	if (from.wp27 == world) {from.wp27 = to;from.wp27mincost = c;return;}
+	if (from.wp28 == world) {from.wp28 = to;from.wp28mincost = c;return;}
+	if (from.wp29 == world) {from.wp29 = to;from.wp29mincost = c;return;}
+	if (from.wp30 == world) {from.wp30 = to;from.wp30mincost = c;return;}
+	if (from.wp31 == world) {from.wp31 = to;from.wp31mincost = c;return;}
+	*/
 };
 
 void() waypoint_think =
 {
 	local entity e;
 	local vector v;
-	if (vlen(self.size) > 1)
+	e = findchain(classname, "waypoint");
+	while (e)
 	{
-		// box
-		e = findchain(classname, "waypoint");
-		while (e)
+		if (self.wpisbox)
 		{
+			// box
 			if (boxesoverlap(self.absmin, self.absmax, e.absmin, e.absmax))
 			{
 				waypoint_addlink(self, e);
 				waypoint_addlink(e, self);
 			}
-			e = e.chain;
 		}
-	}
-	else
-	{
-		// point
-		e = findchain(classname, "waypoint");
-		while (e)
+		else
 		{
+			// point
 			v = self.origin;
 			v_x = bound(e.absmin_x, v_x, e.absmax_x);
 			v_y = bound(e.absmin_y, v_y, e.absmax_y);
 			v_z = bound(e.absmin_z, v_z, e.absmax_z);
-			if (vlen(v - self.origin) < 1000)
+			if (vlen(v - self.origin) < self.wp31mincost)
 			{
 				//traceline(self.origin, e.origin, FALSE, world);
 				//if (trace_fraction == 1)
@@ -132,62 +146,101 @@ void() waypoint_think =
 				if (tracewalk(self, v, '-16 -16 -24', '16 16 24', self.origin))
 					waypoint_addlink(e, self);
 			}
-			e = e.chain;
 		}
+		e = e.chain;
 	}
 };
+
+void(entity wp) waypoint_relink =
+{
+	local float f;
+	local vector m1, m2;
+	if (wp == world)
+		return;
+	f = 1050; // maximum search range for other waypoints
+	m1 = wp.mins;
+	m2 = wp.maxs;
+	// TODO: add some sort of visible box in edit mode for box waypoints
+	if (cvar("havocbot_editwaypoints"))
+		setmodel(wp, "progs/s_bubble.spr");
+	else
+		wp.model = "";
+	setsize(wp, m1, m2);
+	wp.wpisbox = vlen(wp.size) > 0;
+	wp.enemy = world;
+	wp.owner = world;
+	wp.wp00 = wp.wp01 = wp.wp02 = wp.wp03 = wp.wp04 = wp.wp05 = wp.wp06 = wp.wp07 = world;wp.wp00mincost = wp.wp01mincost = wp.wp02mincost = wp.wp03mincost = wp.wp04mincost = wp.wp05mincost = wp.wp06mincost = wp.wp07mincost = f;
+	wp.wp08 = wp.wp09 = wp.wp10 = wp.wp11 = wp.wp12 = wp.wp13 = wp.wp14 = wp.wp15 = world;wp.wp08mincost = wp.wp09mincost = wp.wp10mincost = wp.wp11mincost = wp.wp12mincost = wp.wp13mincost = wp.wp14mincost = wp.wp15mincost = f;
+	wp.wp16 = wp.wp17 = wp.wp18 = wp.wp19 = wp.wp20 = wp.wp21 = wp.wp22 = wp.wp23 = world;wp.wp16mincost = wp.wp17mincost = wp.wp18mincost = wp.wp19mincost = wp.wp20mincost = wp.wp21mincost = wp.wp22mincost = wp.wp23mincost = f;
+	wp.wp24 = wp.wp25 = wp.wp26 = wp.wp27 = wp.wp28 = wp.wp29 = wp.wp30 = wp.wp31 = world;wp.wp24mincost = wp.wp25mincost = wp.wp26mincost = wp.wp27mincost = wp.wp28mincost = wp.wp29mincost = wp.wp30mincost = wp.wp31mincost = f;
+	wp.think = waypoint_think;
+	wp.nextthink = time + 0.1;
+}
 
 void(vector o, float f) waypoint_spawn =
 {
 	newmis = spawn();
 	newmis.classname = "waypoint";
-	newmis.think = waypoint_think;
 	newmis.lefty = f;
-	newmis.nextthink = time + 0.2;
-	newmis.cnt = time + 1;
 	setorigin(newmis, o);
-	// TODO: add some sort of visible box in edit mode for box waypoints
-	if (cvar("havocbot_editwaypoints"))
-		setmodel(newmis, "progs/s_bubble.spr");
-	setsize(newmis, '0 0 0', '0 0 0');
-	//setsize(newmis, -16 -16 -24', '16 16 24');
+	waypoint_relink(newmis);
+};
+
+// waypoint map entity
+void() waypoint =
+{
+	setorigin(self, self.origin);
+	waypoint_relink(self);
 };
 
 void(entity e) waypoint_remove =
 {
-	if (e.wp0) waypoint_removelink(e.wp0, e);
-	if (e.wp1) waypoint_removelink(e.wp1, e);
-	if (e.wp2) waypoint_removelink(e.wp2, e);
-	if (e.wp3) waypoint_removelink(e.wp3, e);
-	if (e.wp4) waypoint_removelink(e.wp4, e);
-	if (e.wp5) waypoint_removelink(e.wp5, e);
-	if (e.wp6) waypoint_removelink(e.wp6, e);
-	if (e.wp7) waypoint_removelink(e.wp7, e);
-	if (e.wp8) waypoint_removelink(e.wp8, e);
-	if (e.wp9) waypoint_removelink(e.wp9, e);
-	if (e.wp10) waypoint_removelink(e.wp10, e);
-	if (e.wp11) waypoint_removelink(e.wp11, e);
-	if (e.wp12) waypoint_removelink(e.wp12, e);
-	if (e.wp13) waypoint_removelink(e.wp13, e);
-	if (e.wp14) waypoint_removelink(e.wp14, e);
-	if (e.wp15) waypoint_removelink(e.wp15, e);
-	if (e.wp16) waypoint_removelink(e.wp16, e);
-	if (e.wp17) waypoint_removelink(e.wp17, e);
-	if (e.wp18) waypoint_removelink(e.wp18, e);
-	if (e.wp19) waypoint_removelink(e.wp19, e);
-	if (e.wp20) waypoint_removelink(e.wp20, e);
-	if (e.wp21) waypoint_removelink(e.wp21, e);
-	if (e.wp22) waypoint_removelink(e.wp22, e);
-	if (e.wp23) waypoint_removelink(e.wp23, e);
-	if (e.wp24) waypoint_removelink(e.wp24, e);
-	if (e.wp25) waypoint_removelink(e.wp25, e);
-	if (e.wp26) waypoint_removelink(e.wp26, e);
-	if (e.wp27) waypoint_removelink(e.wp27, e);
-	if (e.wp28) waypoint_removelink(e.wp28, e);
-	if (e.wp29) waypoint_removelink(e.wp29, e);
-	if (e.wp30) waypoint_removelink(e.wp30, e);
-	if (e.wp31) waypoint_removelink(e.wp31, e);
+	// tell all linked waypoints that they need to relink
+	waypoint_relink(e.wp00);
+	waypoint_relink(e.wp01);
+	waypoint_relink(e.wp02);
+	waypoint_relink(e.wp03);
+	waypoint_relink(e.wp04);
+	waypoint_relink(e.wp05);
+	waypoint_relink(e.wp06);
+	waypoint_relink(e.wp07);
+	waypoint_relink(e.wp08);
+	waypoint_relink(e.wp09);
+	waypoint_relink(e.wp10);
+	waypoint_relink(e.wp11);
+	waypoint_relink(e.wp12);
+	waypoint_relink(e.wp13);
+	waypoint_relink(e.wp14);
+	waypoint_relink(e.wp15);
+	waypoint_relink(e.wp16);
+	waypoint_relink(e.wp17);
+	waypoint_relink(e.wp18);
+	waypoint_relink(e.wp19);
+	waypoint_relink(e.wp20);
+	waypoint_relink(e.wp21);
+	waypoint_relink(e.wp22);
+	waypoint_relink(e.wp23);
+	waypoint_relink(e.wp24);
+	waypoint_relink(e.wp25);
+	waypoint_relink(e.wp26);
+	waypoint_relink(e.wp27);
+	waypoint_relink(e.wp28);
+	waypoint_relink(e.wp29);
+	waypoint_relink(e.wp30);
+	waypoint_relink(e.wp31);
 	remove(e);
+};
+
+void() waypoint_removeall =
+{
+	local entity head, next;
+	head = findchain(classname, "waypoint");
+	while (head)
+	{
+		next = head.chain;
+		remove(head);
+		head = next;
+	}
 };
 
 void() waypoint_relinkall =
@@ -196,14 +249,7 @@ void() waypoint_relinkall =
 	head = findchain(classname, "waypoint");
 	while (head)
 	{
-		head.enemy = world;
-		head.owner = world;
-		head.wp0 = head.wp1 = head.wp2 = head.wp3 = head.wp4 = head.wp5 = head.wp6 = head.wp7 = world;
-		head.wp8 = head.wp9 = head.wp10 = head.wp11 = head.wp12 = head.wp13 = head.wp14 = head.wp15 = world;
-		head.wp16 = head.wp17 = head.wp18 = head.wp19 = head.wp20 = head.wp21 = head.wp22 = head.wp23 = world;
-		head.wp24 = head.wp25 = head.wp26 = head.wp27 = head.wp28 = head.wp29 = head.wp30 = head.wp31 = world;
-		head.think = waypoint_think;
-		head.nextthink = time + 0.1;
+		waypoint_relink(head);
 		head = head.chain;
 	}
 };
@@ -255,6 +301,7 @@ float() waypoint_loadall =
 	file = fopen(filename, FILE_READ);
 	if (file >= 0)
 	{
+		waypoint_removeall();
 		while (1)
 		{
 			s = fgets(file);
@@ -269,17 +316,17 @@ float() waypoint_loadall =
 			c = c + 1;
 		}
 		fclose(file);
-		bprint("loaded ");
-		bprint(ftos(c));
-		bprint(" waypoints from waypoints/");
-		bprint(mapname);
-		bprint(".waypoints\n");
+		dprint("loaded ");
+		dprint(ftos(c));
+		dprint(" waypoints from waypoints/");
+		dprint(mapname);
+		dprint(".waypoints\n");
 	}
 	else
 	{
-		bprint("waypoint load from ");
-		bprint(filename);
-		bprint(" failed\n");
+		dprint("waypoint load from ");
+		dprint(filename);
+		dprint(" failed\n");
 	}
 	return c;
 };
@@ -312,15 +359,15 @@ void(entity e) waypointspawnforitem =
 void() havocbot_clearroute =
 {
 	self.goalcurrent = world;
-	self.goalstack1 = world;
-	self.goalstack2 = world;
-	self.goalstack3 = world;
-	self.goalstack4 = world;
-	self.goalstack5 = world;
-	self.goalstack6 = world;
-	self.goalstack7 = world;
-	self.goalstack8 = world;
-	self.goalstack9 = world;
+	self.goalstack01 = world;
+	self.goalstack02 = world;
+	self.goalstack03 = world;
+	self.goalstack04 = world;
+	self.goalstack05 = world;
+	self.goalstack06 = world;
+	self.goalstack07 = world;
+	self.goalstack08 = world;
+	self.goalstack09 = world;
 	self.goalstack10 = world;
 	self.goalstack11 = world;
 	self.goalstack12 = world;
@@ -370,31 +417,31 @@ void(entity e) havocbot_pushroute =
 	self.goalstack13 = self.goalstack12;
 	self.goalstack12 = self.goalstack11;
 	self.goalstack11 = self.goalstack10;
-	self.goalstack10 = self.goalstack9;
-	self.goalstack9 = self.goalstack8;
-	self.goalstack8 = self.goalstack7;
-	self.goalstack7 = self.goalstack6;
-	self.goalstack6 = self.goalstack5;
-	self.goalstack5 = self.goalstack4;
-	self.goalstack4 = self.goalstack3;
-	self.goalstack3 = self.goalstack2;
-	self.goalstack2 = self.goalstack1;
-	self.goalstack1 = self.goalcurrent;
+	self.goalstack10 = self.goalstack09;
+	self.goalstack09 = self.goalstack08;
+	self.goalstack08 = self.goalstack07;
+	self.goalstack07 = self.goalstack06;
+	self.goalstack06 = self.goalstack05;
+	self.goalstack05 = self.goalstack04;
+	self.goalstack04 = self.goalstack03;
+	self.goalstack03 = self.goalstack02;
+	self.goalstack02 = self.goalstack01;
+	self.goalstack01 = self.goalcurrent;
 	self.goalcurrent = e;
 };
 
 void() havocbot_poproute =
 {
-	self.goalcurrent = self.goalstack1;
-	self.goalstack1 = self.goalstack2;
-	self.goalstack2 = self.goalstack3;
-	self.goalstack3 = self.goalstack4;
-	self.goalstack4 = self.goalstack5;
-	self.goalstack5 = self.goalstack6;
-	self.goalstack6 = self.goalstack7;
-	self.goalstack7 = self.goalstack8;
-	self.goalstack8 = self.goalstack9;
-	self.goalstack9 = self.goalstack10;
+	self.goalcurrent = self.goalstack01;
+	self.goalstack01 = self.goalstack02;
+	self.goalstack02 = self.goalstack03;
+	self.goalstack03 = self.goalstack04;
+	self.goalstack04 = self.goalstack05;
+	self.goalstack05 = self.goalstack06;
+	self.goalstack06 = self.goalstack07;
+	self.goalstack07 = self.goalstack08;
+	self.goalstack08 = self.goalstack09;
+	self.goalstack09 = self.goalstack10;
 	self.goalstack10 = self.goalstack11;
 	self.goalstack11 = self.goalstack12;
 	self.goalstack12 = self.goalstack13;
@@ -483,14 +530,16 @@ void() havocbot_markroutes_nearestwaypoints =
 {
 	local entity head;
 	local float dist;
-	local vector v;
+	local vector v, m1, m2;
 	head = findchain(classname, "waypoint");
 	while (head)
 	{
+		m1 = head.origin + head.mins;
+		m2 = head.origin + head.maxs;
 		v = self.origin;
-		v_x = bound(head.absmin_x, v_x, head.absmax_x);
-		v_y = bound(head.absmin_y, v_y, head.absmax_y);
-		v_z = bound(head.absmin_z, v_z, head.absmax_z);
+		v_x = bound(m1_x, v_x, m2_x);
+		v_y = bound(m1_y, v_y, m2_y);
+		v_z = bound(m1_z, v_z, m2_z);
 		dist = vlen(v - self.origin);
 		if (dist < 1000)
 		{
@@ -521,34 +570,44 @@ void() havocbot_markroutes_nearestwaypoints =
 	}
 }
 
-float(entity head, entity w) havocbot_markroutes_checkwaypoint =
+vector(vector p, vector m1, vector m2) nearestpointonbox =
 {
-	local vector o;
-	local float cost;
-	if(!w)
-		return FALSE;
-	cost = head.wpcost + head.dmg;
-	if (w.wpcost > cost)
+	p_x = bound(m1_x, p_x, m2_x);
+	p_y = bound(m1_y, p_y, m2_y);
+	p_z = bound(m1_z, p_z, m2_z);
+	return p;
+};
+
+void(entity w, entity wp, float cost2, vector p) havocbot_markroutes_checkwaypoint =
+{
+	local vector m1;
+	local vector m2;
+	local vector v;
+	if (wp.wpisbox)
 	{
-		o_x = bound(w.absmin_x, head.dest_x, w.absmax_x);
-		o_y = bound(w.absmin_y, head.dest_y, w.absmax_y);
-		o_z = bound(w.absmin_z, head.dest_z, w.absmax_z);
-		cost = cost + head.dmg + vlen(o - head.dest);
-		if (w.wpcost > cost)
-		{
-			w.dest = o;
-			w.wpcost = cost;
-			w.enemy = head;
-			w.wpfire = 1;
-		}
+		m1 = wp.absmin;
+		m2 = wp.absmax;
+		v_x = bound(m1_x, p_x, m2_x);
+		v_y = bound(m1_y, p_y, m2_y);
+		v_z = bound(m1_z, p_z, m2_z);
 	}
-	return TRUE;
-}
+	else
+		v = wp.origin;
+	cost2 = cost2 + vlen(v);
+	if (wp.wpcost > cost2)
+	{
+		wp.wpcost = cost2;
+		wp.enemy = w;
+		wp.wpfire = 1;
+		wp.dest = v;
+	}
+};
 
 void() havocbot_markroutes =
 {
-	local entity w, waylist;
-	local float searching;
+	local entity w, wp, waylist;
+	local float searching, cost, cost2;
+	local vector p;
 	w = waylist = findchain(classname, "waypoint");
 	while (w)
 	{
@@ -570,38 +629,41 @@ void() havocbot_markroutes =
 			{
 				searching = TRUE;
 				w.wpfire = 0;
-				if (havocbot_markroutes_checkwaypoint(w, w.wp0))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp1))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp2))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp3))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp4))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp5))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp6))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp7))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp8))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp9))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp10))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp11))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp12))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp13))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp14))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp15))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp16))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp17))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp18))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp19))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp20))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp21))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp22))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp23))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp24))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp25))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp26))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp27))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp28))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp29))
-				if (havocbot_markroutes_checkwaypoint(w, w.wp30))
-					havocbot_markroutes_checkwaypoint(w, w.wp31);
+				cost = w.wpcost;
+				p = w.dest;
+				wp = w.wp00;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp00mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp01;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp01mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp02;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp02mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp03;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp03mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp04;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp04mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp05;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp05mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp06;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp06mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp07;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp07mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp08;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp08mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp09;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp09mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp10;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp10mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp11;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp11mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp12;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp12mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp13;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp13mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp14;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp14mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp15;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp15mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp16;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp16mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp17;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp17mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp18;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp18mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp19;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp19mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp20;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp20mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp21;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp21mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp22;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp22mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp23;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp23mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp24;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp24mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp25;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp25mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp26;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp26mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp27;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp27mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp28;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp28mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp29;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp29mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp30;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp30mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				wp = w.wp31;if (wp){cost2 = cost + wp.dmg;if (wp.wpcost > cost2 + wp.wp31mincost) havocbot_markroutes_checkwaypoint(w, wp, cost2, p);
+				}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 			}
 			w = w.chain;
 		}
@@ -992,7 +1054,6 @@ void() havocbot_removenewest =
 	havocbot_relinkbotlist();
 };
 
-void() havocbot_think;
 void() havocbot_updatedangerousobjects;
 
 void() havocbot_serverframe =
@@ -1003,7 +1064,9 @@ void() havocbot_serverframe =
 	havocbots = cvar("bots");
 	if (havocbots < 0)
 		havocbots = 0;
-	while (havoccurrentbots < havocbots)
+	// only add one bot per frame to reduce the chances of a telefrag
+	// gib fountain
+	if (havoccurrentbots < havocbots)
 		havocbot_new();
 	while (havoccurrentbots > havocbots)
 		havocbot_removenewest();
@@ -1150,10 +1213,14 @@ vector() havocbot_dodge =
 	return dodge;
 };
 
+.float havocbot_chooseenemy_finished;
 void() havocbot_chooseenemy =
 {
 	local entity head, best;
 	local float rating, bestrating;
+	if (time < self.havocbot_chooseenemy_finished)
+		return;
+	self.havocbot_chooseenemy_finished = time + 0.5;
 	best = world;
 	bestrating = 100000000;
 	head = findchainfloat(havocattack, TRUE);
@@ -1247,6 +1314,8 @@ void() havocbot_think =
 	self.button6 = 0;
 	self.button7 = 0;
 	self.button8 = 0;
+	self.buttonchat = 0;
+	self.buttonuse = 0;
 
 	if (self.deadflag)
 	{
@@ -1266,7 +1335,7 @@ void() havocbot_think =
 	if (self.aimtarg && self.weaponclass)
 		self.weaponclass.w_func(WR_AIM);
 	else
-		w_aimdir(self.goalcurrent.origin - self.origin, 0);
+		w_aimdir(self.goalcurrent.origin - self.origin, -1);
 	dodge = havocbot_dodge();
 	havocbot_movetogoal(dodge);
 };
@@ -1309,17 +1378,17 @@ void() havoc_laywaypoints =
 	head = havocbot_findnearestwaypoint(self.origin);
 	if (head)
 	{
-		w = head;if (w) te_lightning2(w, w.origin, self.origin);
-		w = head.wp0;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp1;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp2;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp3;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp4;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp5;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp6;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp7;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp8;if (w) te_lightning2(w, w.origin, head.origin);
-		w = head.wp9;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head     ;if (w) te_lightning2(w, w.origin, self.origin);
+		w = head.wp00;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp01;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp02;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp03;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp04;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp05;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp06;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp07;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp08;if (w) te_lightning2(w, w.origin, head.origin);
+		w = head.wp09;if (w) te_lightning2(w, w.origin, head.origin);
 		w = head.wp10;if (w) te_lightning2(w, w.origin, head.origin);
 		w = head.wp11;if (w) te_lightning2(w, w.origin, head.origin);
 		w = head.wp12;if (w) te_lightning2(w, w.origin, head.origin);
@@ -1348,18 +1417,19 @@ void() havoc_laywaypoints =
 entity dangerwaypoint;
 void() havocbot_updatedangerousobjects =
 {
-	local entity head;
+	local entity head, shoulddodgelist;
 	local vector m1, m2, v;
 	local float c, d, danger;
 	c = 0;
+	shoulddodgelist = findchainfloat(shoulddodge, TRUE);
 	dangerwaypoint = find(dangerwaypoint, classname, "waypoint");
-	while (dangerwaypoint != world && c < 16)
+	while (dangerwaypoint != world && c < 256)
 	{
 		c = c + 1;
 		danger = 0;
 		m1 = dangerwaypoint.mins;
 		m2 = dangerwaypoint.maxs;
-		head = findchainfloat(shoulddodge, TRUE);
+		head = shoulddodgelist;
 		while (head)
 		{
 			v = head.origin;
