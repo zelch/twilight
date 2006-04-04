@@ -182,6 +182,7 @@ void() waypoints_dpdm2 =
 	waypoint_spawn('386.6 -734.6 24.0', 0);
 	waypoint_spawn('565.3 -898.9 24.0', 0);
 	waypoint_spawn('576.0 -1920.0 -296.0', 0);
+	waypoint_spawn('576.0 -1104.0 24.0', 0);
 };
 
 void() waypoints_ctfgold8 =
