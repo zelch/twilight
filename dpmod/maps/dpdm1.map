@@ -2928,55 +2928,56 @@
 //"0000"
 "classname"	"light"
 "origin"	"-576 0 100"
-"light"	"150"
+"light"	"350"
 }
 {
 //"0000"
 "classname"	"light"
-"origin"	"-384 640 244"
-"light"	"150"
+"origin"	"-384 640 228"
+"light"	"450"
 }
 {
 //"0000"
 "classname"	"light"
-"origin"	"-832 320 244"
-"light"	"150"
+"origin"	"-832 320 228"
+"light"	"450"
 }
 {
 //"0000"
 "classname"	"light"
-"origin"	"-576 0 244"
-"light"	"150"
-}
-{
-//"0000"
-"classname"	"light"
-"origin"	"-384 320 244"
-"light"	"150"
-}
-{
-//"0000"
-"classname"	"light"
-"origin"	"-128 512 244"
-"light"	"150"
-}
-{
-//"0000"
-"classname"	"light"
-"origin"	"0 -480 244"
-"light"	"200"
-}
-{
-//"0000"
-"classname"	"light"
-"origin"	"-544 -480 240"
+"origin"	"-576 0 224"
+"_color"	"1 0.1 0.1"
 "light"	"250"
 }
 {
 //"0000"
 "classname"	"light"
-"origin"	"-832 0 244"
-"light"	"150"
+"origin"	"-384 320 228"
+"light"	"450"
+}
+{
+//"0000"
+"classname"	"light"
+"origin"	"-128 512 228"
+"light"	"450"
+}
+{
+//"0000"
+"classname"	"light"
+"origin"	"0 -480 228"
+"light"	"450"
+}
+{
+//"0000"
+"classname"	"light"
+"origin"	"-544 -480 228"
+"light"	"450"
+}
+{
+//"0000"
+"classname"	"light"
+"origin"	"-832 0 228"
+"light"	"450"
 }
 {
 //"0000"
@@ -2993,128 +2994,131 @@
 "classname"	"light"
 "origin"	"96 1248 64"
 "light"	"100"
-"_color"	"8 9 10"
+"_color"	"0.8 0.9 1"
 "wait"	"0.00001"
 }
 {
 //"0000"
 "classname"	"light"
-"origin"	"-832 640 244"
-"light"	"300"
-"_color"	"10 10 6"
+"origin"	"-832 640 228"
+"light"	"450"
+"_color"	"1 1 0.1"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"384 1088 272"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"300"
+"_color"	"0.8 0.9 1"
 "wait"	"0.00001"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-192 1088 272"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"300"
+"_color"	"0.8 0.9 1"
 "wait"	"0.00001"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"384 1344 272"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"300"
+"_color"	"0.8 0.9 1"
 "wait"	"0.00001"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"96 1280 272"
-"light"	"100"
-"_color"	"8 6 10"
+"light"	"300"
+"_color"	"0.8 0.9 1"
 }
 {
 //"0000"
-"light"	"100"
+"light"	"250"
 "origin"	"544 -96 192"
 "classname"	"light"
+"_color"	"1 0.4 0.1"
 }
 {
 //"0000"
-"light"	"100"
+"light"	"250"
 "origin"	"544 160 192"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
 }
 {
 //"0000"
-"light"	"100"
+"light"	"250"
 "origin"	"672 0 192"
 "classname"	"light"
+"_color"	"1 0.4 0.1"
 }
 {
 //"0000"
-"light"	"100"
+"light"	"250"
 "origin"	"448 0 192"
 "classname"	"light"
+"_color"	"1 0.4 0.1"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-192 1344 272"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"300"
+"_color"	"0.8 0.9 1"
 "wait"	"0.00001"
 }
 {
 //"0000"
-"light"	"100"
 "origin"	"544 -160 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
-"light"	"100"
 "origin"	"736 96 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
-"light"	"100"
 "origin"	"640 -64 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
-"light"	"100"
 "origin"	"576 160 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
-"light"	"100"
 "origin"	"768 -192 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
-"light"	"100"
 "origin"	"800 224 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
 "origin"	"800 0 72"
 "classname"	"light"
-"_color"	"4 4 10"
-"light"	"200"
+"_color"	"0.3 0.3 1.5"
+"light"	"300"
 }
 {
 //"0000"
@@ -3179,40 +3183,45 @@
 }
 {
 //"0000"
-"light"	"150"
+"light"	"350"
 "origin"	"384 576 96"
 "classname"	"light"
-"_color"	"8 9 10"
+"_color"	"0.8 0.9 1"
 }
 {
 //"0000"
-"light"	"100"
 "origin"	"384 576 -24"
 "classname"	"light"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
 "origin"	"608 416 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
 "origin"	"176 368 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
 "origin"	"544 736 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
 "origin"	"192 768 -24"
 "classname"	"light"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
@@ -3254,29 +3263,29 @@
 //"0000"
 "classname"	"light"
 "origin"	"-732 640 64"
-"light"	"50"
-"_color"	"10 10 6"
+"light"	"150"
+"_color"	"0.5 0.5 0.3"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-832 540 64"
-"light"	"50"
-"_color"	"10 10 6"
+"light"	"150"
+"_color"	"0.5 0.5 0.3"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-832 740 64"
-"light"	"50"
-"_color"	"10 10 6"
+"light"	"150"
+"_color"	"0.5 0.5 0.3"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-932 640 64"
-"light"	"50"
-"_color"	"10 10 6"
+"light"	"150"
+"_color"	"0.5 0.5 0.3"
 }
 {
 //"0000"
@@ -3303,36 +3312,36 @@
 //"0000"
 "classname"	"light"
 "origin"	"-180 180 -24"
-"light"	"150"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light"	"350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"180 180 -24"
-"light"	"150"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-180 -180 -24"
-"light"	"150"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"180 -180 -24"
-"light"	"150"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"0 0 128"
 "light"	"350"
-"_color"	"8 9 10"
+"_color"	"0.8 0.9 1"
 }
 {
 //"0000"
@@ -3343,26 +3352,29 @@
 //"0000"
 "classname"	"light"
 "origin"	"-744 -216 -24"
-"light"	"150"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-344 -216 -24"
-"light"	"150"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-744 -744 -24"
-"light"	"150"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-344 -744 -24"
-"light"	"150"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
@@ -3373,8 +3385,9 @@
 {
 //"0000"
 "classname"	"light"
-"origin"	"-352 -224 132"
-"_color"	"10 10 6"
+"origin"	"-352 -224 144"
+"_color"	"1 1 .1"
+"light"	"200"
 }
 {
 //"0000"
@@ -3451,57 +3464,57 @@
 //"0000"
 "classname"	"light"
 "origin"	"-160 -352 -24"
-"light"	"175"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"160 -352 -24"
-"light"	"175"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-160 -608 -24"
-"light"	"175"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"160 -608 -24"
-"light"	"175"
-"_color"	"10 4 2"
+"_color"	"1 0.4 0.1"
+"light" "350"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-40 40 312"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"400"
+"_color"	"0.4 0.45 0.5"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"40 40 312"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"400"
+"_color"	"0.4 0.45 0.5"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"-40 -40 312"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"400"
+"_color"	"0.4 0.45 0.5"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"40 -40 312"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"400"
+"_color"	"0.4 0.45 0.5"
 }
 {
 //"0000"
@@ -3737,27 +3750,27 @@
 //"0000"
 "classname"	"light"
 "origin"	"344 616 312"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"400"
+"_color"	"0.4 0.45 0.5"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"424 616 312"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"400"
+"_color"	"0.4 0.45 0.5"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"344 536 312"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"400"
+"_color"	"0.4 0.45 0.5"
 }
 {
 //"0000"
 "classname"	"light"
 "origin"	"424 536 312"
-"light"	"100"
-"_color"	"8 9 10"
+"light"	"400"
+"_color"	"0.4 0.45 0.5"
 }
