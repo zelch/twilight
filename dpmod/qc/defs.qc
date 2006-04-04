@@ -438,7 +438,7 @@ float		skill;
 .void()		th_run;
 .float()	th_missile; // LordHavoc: changed from void() to float(), returns true if attacking
 .void()		th_melee;
-.void(entity attacker, float damage)		th_pain;
+.void(entity attacker, float damage, float damgtype, string dethtype)		th_pain;
 .void()		th_die;
 
 .entity		oldenemy;		// mad at this player before taking damage

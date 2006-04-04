@@ -1,5 +1,15 @@
 
-.float wload;
+// player animations that can be called from weapon code
+void() player_axe1;
+void() player_axeb1;
+void() player_axec1;
+void() player_axed1;
+void() player_shot1;
+void() player_nail1;
+void() player_rocket1;
+void() player_light1;
+
+void() W_SetupShot;
 
 void(vector muzzleorg, float kickback) w_muzzleflash =
 {
@@ -17,53 +27,25 @@ void(vector muzzleorg, float kickback) w_muzzleflash =
 	self.punchangle_z = 0; // don't want roll
 };
 
-vector(vector srcvec, vector dstvec, vector dstvel, float shotspeed) w_directaim =
-{
-	dstvec = dstvec + dstvel * (vlen(dstvec - srcvec) / shotspeed);
-	traceline(srcvec, dstvec, FALSE, self);
-	if (trace_fraction < 1 && trace_ent != self.enemy)
-		return '0 0 0';
-	return dstvec - srcvec;
-};
-
-vector(vector srcvec, vector dstvec, vector dstvel, float shotspeed) w_rocketaim =
-{
-	dstvec = dstvec + dstvel * (vlen(dstvec - srcvec) / shotspeed);
-	if (vlen(dstvec - srcvec) < 150)
-		return '0 0 0';
-	traceline(srcvec, dstvec, FALSE, self);
-	if (trace_fraction < 1 && trace_ent != self.enemy)
-		return '0 0 0';
-	return dstvec - srcvec;
-};
-
-vector(vector srcvec, vector dstvec, vector dstvel, float shotspeed) w_grenadeaim =
-{
-	dstvec = dstvec + dstvel * (vlen(dstvec - srcvec) / shotspeed);
-	if (vlen(dstvec - srcvec) < 150)
-		return '0 0 0';
-	traceline(srcvec, dstvec, FALSE, self);
-	if (trace_fraction < 1 && trace_ent != self.enemy)
-		return '0 0 0';
-	if (!findtrajectorywithleading(srcvec, '0 0 0', '0 0 0', self.enemy, 600, 5, 0, self))
-		return '0 0 0';
-	return findtrajectory_velocity;
-};
-
 float(entity e) w_shouldattack =
 {
 	if (!e.takedamage)
 		return FALSE;
+	if (e.team == self.team)
+	{
+		if (teamplay)
+			return FALSE;
+		if (e == self)
+			return FALSE;
+	}
+	if (coop)
+	if (e.classname == self.classname)
+		return FALSE;
 	if (e.health <= 0)
 		return FALSE;
-	if (e.classname == "player")
-	if (coop)
+	if (e.deadflag)
 		return FALSE;
-	if (e.team == self.team)
-	if (self.team)
-	if (teamplay)
-		return FALSE;
-	if (e == self)
+	if (e.flags & FL_NOTARGET)
 		return FALSE;
 	return TRUE;
 };
@@ -115,11 +97,14 @@ float(vector v, float maxfiredeviation) w_aimdir =
 	//diffang = diffang + randomvec() * (dist * 0.05 * (3.5 - bound(0, skill, 3)));
 
 	// turn
-	self.v_angle = self.v_angle + diffang * min(1, (3 * (skill + 1)) * frametime);
+	self.v_angle = self.v_angle + diffang * min(1, (6 * (skill + 1)) * frametime);
 	while (self.v_angle_y < -180)
 		self.v_angle_y = self.v_angle_y + 360;
 	while (self.v_angle_y >= 180)
 		self.v_angle_y = self.v_angle_y - 360;
+
+	// since v_angle changed, we need to call W_SetupShot again
+	W_SetupShot();
 
 	// calculate turn angles again
 	diffang = desiredang - self.v_angle;
@@ -141,70 +126,39 @@ vector(vector targorigin, vector targvelocity, float shotspeed, float shotdelay)
 	return targorigin + targvelocity * (shotdelay + vlen(targorigin - shotorg) / shotspeed);
 };
 
-float(float shotspeed, float maxshottime) w_directattackaim =
+float(float shotspeed, float maxshottime, float applygravity) w_aim =
 {
 	local float f, r;
 	local vector v;
-	v = w_shotlead(self.aimtargorigin, self.aimtargvelocity, shotspeed, self.aimlatency);
-	//bprint("AIM: ");bprintvector(v);bprint("\n");
-	r = vlen(v - shotorg);
-	f = w_aimdir(v - shotorg, min(10, 720 / r));
-	if (r > maxshottime * shotspeed)
-		return FALSE;
-	traceline(shotorg, v, FALSE, self);
-	if (trace_fraction < 1)
-	if (!w_shouldattack(trace_ent))
-		return FALSE;
-	//bprint("b\n");
-	return f;
-};
-
-float(float shotspeed, float maxshottime) w_grenadeattackaim =
-{
-	local float f, r;
-	local vector v;
-	if (!findtrajectorywithleading(shotorg, '0 0 0', '0 0 0', self.aimtarg, shotspeed, maxshottime, 0, self))
-		return FALSE;
+	W_SetupShot();
 	v = w_shotlead(self.aimtargorigin, self.aimtargvelocity, shotspeed, self.aimlatency);
 	r = vlen(v - shotorg);
-	f = w_aimdir(findtrajectory_velocity, min(10, 720 / r));
+	if (applygravity)
+	{
+		if (!findtrajectorywithleading(shotorg, '0 0 0', '0 0 0', self.aimtarg, shotspeed, maxshottime, 0, self))
+			return FALSE;
+		f = w_aimdir(findtrajectory_velocity, min(10, 720 / r));
+	}
+	else
+	{
+		f = w_aimdir(v - shotorg, min(10, 720 / r));
+		//dprint("AIM: ");dprint(vtos(self.aimtargorigin));dprint(" + ");dprint(vtos(self.aimtargvelocity));dprint(" * ");dprint(ftos(self.aimlatency + vlen(self.aimtargorigin - shotorg) / shotspeed));dprint(" = ");dprint(vtos(v));dprint(" : aimdir = ");dprint(vtos(normalize(v - shotorg)));dprint(" : ");dprint(vtos(shotdir));dprint("\n");
+		traceline(shotorg, shotorg + shotdir * 10000, FALSE, self);
+		if (trace_fraction < 1)
+		if (!w_shouldattack(trace_ent))
+			return FALSE;
+	}
 	if (r > maxshottime * shotspeed)
 		return FALSE;
 	return f;
 };
 
-void() W_SetupShot;
 void() W_Hostile =
 {
 	// wake up monsters
 	self.show_hostile = time + 1;
 	fightdone = time + 1; // delay stuff until fighting is over
 	SuperDamageSound();
-};
-
-.float firing;
-.float oldfiring;
-float(float nextshotdelay) W_ShotsToFire =
-{
-	local float shotcount;
-
-	self.firing = TRUE;
-
-	// check if still busy with the previous shot
-	if (time < self.attack_finished)
-		return 0;
-
-	// if not firing yet, set base time to avoid double shots
-	if (!self.oldfiring)
-		self.attack_finished = time;
-
-	shotcount = 0;
-	while (time >= self.attack_finished)
-	{
-		self.attack_finished = self.attack_finished + nextshotdelay;
-		shotcount = shotcount + 1;
-	}
-	return shotcount;
 };
 
 // linked list of weapon classes
@@ -214,12 +168,7 @@ entity w_chain;
 .entity w_next;
 .entity w_prev;
 
-float WANIMTYPE_SHOTGUN = 1;
-float WANIMTYPE_NAILGUN = 2;
-float WANIMTYPE_ROCKET = 3;
-float WANIMTYPE_LIGHTNING = 4;
-
-void(float wimpulse, string printname, float(float request) func, string itemname, float vwepmode, string modelname, float ammoitembit, float minrange, float preferredrange, float baserating, float animtype) registerweapon =
+void(float wimpulse, string printname, float(float request) func, string itemname, string modelname, float ammoitembit, float minrange, float preferredrange, float baserating) registerweapon =
 {
 	newmis = spawn();
 	newmis.classname = "weaponclass";
@@ -227,13 +176,11 @@ void(float wimpulse, string printname, float(float request) func, string itemnam
 	newmis.netname = printname;
 	newmis.w_func = func;
 	newmis.w_item = itemname;
-	newmis.cnt = vwepmode;
 	newmis.weaponmodel = modelname;
 	newmis.items = ammoitembit;
 	newmis.count = minrange;
 	newmis.count2 = preferredrange;
 	newmis.count3 = baserating;
-	newmis.lefty = animtype;
 	if (w_chain == world)
 	{
 		newmis.w_prev = newmis;
@@ -478,7 +425,6 @@ void() CheatCommand =
 };
 
 .float seenhelp;
-.float idealzoom;
 
 void() W_SetupShot =
 {
@@ -510,13 +456,7 @@ void() W_WeaponFrame =
 		else
 		{
 			self.seenhelp = time + 9999999;
-			if (self.flags & FL_CLIENT)
-			{
-				//            12345678901234567890123456789012345678
-				sprint(self, "Lord Havoc's Dark Places\n");
-				sprint(self, "be sure to type dphelp in console for very useful information\n");
-				sprint(self, "http://icculus.org/twilight/darkplaces\n");
-			}
+			centerprint(self, "Lord Havoc's Dark Places\nbe sure to type dphelp in console for very useful information\nhttp://icculus.org/twilight/darkplaces\n");
 		}
 	}
 	/*
@@ -537,15 +477,20 @@ void() W_WeaponFrame =
 		return;
 
 	if (nofire)
-		self.button0 = self.button3 = self.button4 = self.button5 = self.button6 = self.button7 = self.button8 = 0;
+		self.button0 = self.button3 = self.button4 = self.button5 = self.button6 = self.button7 = self.button8 = self.buttonuse = 0;
 
 	W_SetupShot();
 
-	self.idealzoom = 1;
-	if (self.button4)
-		self.idealzoom = 0.2;
-
-	if (self.viewzoom == 0)
+	// teleport effect
+	if (time < self.teleport_time - 0.2)
+	{
+		//self.viewzoom = 1 + 3 * (self.teleport_time - 0.2 - time);
+		self.viewzoom = 1 - 3 * (self.teleport_time - 0.2 - time);
+		//dprint(ftos(self.viewzoom));dprint("\n");
+	}
+	else if (self.button4)
+		self.viewzoom = 0.2;
+	else
 		self.viewzoom = 1;
 
 	if (self.weaponclass == self.switchweaponclass)
@@ -556,14 +501,8 @@ void() W_WeaponFrame =
 	w_frame_grapple();
 
 	// weapon animation, firing, etc
-	self.oldfiring = self.firing;
-	self.firing = FALSE;
 	if (self.weaponclass)
 	{
-		// if 10 frames was not enough to push the accumulator into the
-		// negatives, reset it
-		if (self.wanim_accumulator > 0)
-			self.wanim_accumulator = 0;
 		self.weaponclass.w_func(WR_FRAME);
 		// run 10 times to give a weapon a chance to fire multiple times per
 		// frame if needed
@@ -587,42 +526,7 @@ void() W_WeaponFrame =
 			self.wanim_accumulator = 0;
 	}
 
-	// update the player model animation
-	f = 0;
-	if (self.wanim_id != WANIM_RAISE)
-	if (self.wanim_id != WANIM_LOWER)
-	if (self.weaponframe >= 0)
-		f = self.weaponframe;
-
-	if (self.weaponclass.lefty == WANIMTYPE_SHOTGUN)
-		havoc_shotanimupdate(f);
-	else if (self.weaponclass.lefty == WANIMTYPE_NAILGUN)
-		havoc_nailanimupdate(f);
-	else if (self.weaponclass.lefty == WANIMTYPE_ROCKET)
-		havoc_rockanimupdate(f);
-	else if (self.weaponclass.lefty == WANIMTYPE_LIGHTNING)
-		havoc_lightanimupdate(f);
-
-	if (self.viewzoom != self.idealzoom)
-	{
-		if (self.viewzoom > self.idealzoom)
-		{
-			self.viewzoom = self.viewzoom - frametime * 10;
-			if (self.viewzoom < self.idealzoom)
-				self.viewzoom = self.idealzoom;
-		}
-		else if (self.viewzoom < self.idealzoom)
-		{
-			self.viewzoom = self.viewzoom + frametime * 10;
-			if (self.viewzoom > self.idealzoom)
-				self.viewzoom = self.idealzoom;
-		}
-	}
-
-	//self.v_angle = realvangle;
-
 	if (cvar("temp1") & 4096)
-	if (self.flags & FL_CLIENT)
 	{
 		v = self.velocity;
 		v_z = 0;
@@ -682,9 +586,7 @@ float PLASMAWAVE_WAVE_CHARGETIME = 0.5;
 float PLASMAWAVE_WAVE_REFIRE = 1.1;
 float PLASMAWAVE_WAVE_BURNRADIUS = 120;
 float PLASMAWAVE_WAVE_SPREADANGLEPERSHOT = 6;
-float LASERRIFLE_BURST = 3;
-float LASERRIFLE_BURSTREFIRE = 0.1;
-float LASERRIFLE_BETWEENBURSTREFIRE = 0.3;
+float LASERRIFLE_REFIRE = 0.2;
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Axe =
 {
@@ -699,6 +601,22 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Axe =
 		Obituary_Fallback(targ, attacker, dmsg, dtype);
 };
 
+// called from player animations
+void() W_FireAxe =
+{
+	W_SetupShot();
+	weapontraceline (shotorg, shotorg + shotdir * 64, FALSE, self);
+	if (trace_fraction < 1)
+	{
+		if (trace_ent.solid == SOLID_BSP)
+		{
+			sound (self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
+			te_gunshot(trace_endpos - shotdir * 4);
+		}
+		T_Damage (trace_ent, self, self, AMMO_AXE_DAMAGE, AMMO_AXE_BODYDAMAGE, "AXE", DT_AX, trace_endpos - shotdir * 4, '0 0 0', Obituary_Axe);
+	}
+};
+
 float(float request) w_axe =
 {
 	local float f;
@@ -706,7 +624,7 @@ float(float request) w_axe =
 	{
 		precache_model("progs/v_axe.mdl");
 		// the * 0.1 is because the axe has limited range
-		registerweapon(1, "Axe", w_axe, "axe", VWEP_AXE, "progs/v_axe.mdl", 0, 0, 2000, AMMO_AXE_DAMAGE / AXE_REFIRE * 0.1, WANIMTYPE_SHOTGUN);
+		registerweapon(1, "Axe", w_axe, "axe", "progs/v_axe.mdl", 0, 0, 2000, AMMO_AXE_DAMAGE / AXE_REFIRE * 0.1);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -731,7 +649,7 @@ float(float request) w_axe =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(10000, 1);
+		self.button0 = w_aim(10000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -746,31 +664,28 @@ float(float request) w_axe =
 		}
 		if (self.button0)
 		{
-			W_Hostile();
-			// FIXME: this needs to animate the player model too
+			//W_Hostile(); // axe doesn't wake up monsters
 			f = random() * 4;
+			// animate the player model, and the view model
 			if (f < 1)
-				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE); // player_axe
-			else if (f < 2)
-				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE); // player_axeb
-			else if (f < 3)
-				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE); // player_axec
-			else
-				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE); // player_axed
-			// FIXME: damage code should be on third animation frame
-			// change solid type so the traceline hits SOLID_CORPSE
-			f = self.solid;
-			self.solid = SOLID_BBOX;
-			traceline (shotorg, shotorg + shotdir * 64, FALSE, self);
-			self.solid = f;
-			if (trace_fraction < 1)
 			{
-				if (trace_ent.solid == SOLID_BSP)
-				{
-					sound (self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
-					te_gunshot(trace_endpos - shotdir * 4);
-				}
-				T_Damage (trace_ent, self, self, AMMO_AXE_DAMAGE, AMMO_AXE_BODYDAMAGE, "AXE", DT_CUT, trace_endpos - shotdir * 4, '0 0 0', Obituary_Axe);
+				player_axe1();
+				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE);
+			}
+			else if (f < 2)
+			{
+				player_axeb1();
+				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE);
+			}
+			else if (f < 3)
+			{
+				player_axec1();
+				wsetanim(WANIM_FIRE1, 1, 4, AXE_REFIRE);
+			}
+			else
+			{
+				player_axed1();
+				wsetanim(WANIM_FIRE1, 5, 4, AXE_REFIRE);
 			}
 		}
 		return TRUE;
@@ -799,7 +714,7 @@ float(float request) w_shotgun =
 		precache_sound("weapons/shotgn2.wav");
 		precache_sound("weapons/bsgnoammo.wav");
 		precache_sound("weapons/bsgload.wav");
-		registerweapon(2, "Shotgun", w_shotgun, "shotgun", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_SHELLS, 0, 2000, AMMO_SHELL_DAMAGE / SHOTGUN_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(2, "Shotgun", w_shotgun, "shotgun", "progs/v_dpshot.mdl", IT_SHELLS, 0, 2000, AMMO_SHELL_DAMAGE / SHOTGUN_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -840,7 +755,7 @@ float(float request) w_shotgun =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(10000, 1);
+		self.button0 = w_aim(10000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -861,6 +776,7 @@ float(float request) w_shotgun =
 			Inventory_AdjustQuantity(self, "shells", -1);
 			w_muzzleflash(shotorg, 2);
 			FireBullets(self, self, 1, 10, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_BODYDAMAGE * 0.1, 0, 0, shotdir * 10000, 0.03, "SHOTGUN", DT_SHOTGUN, Obituary_Shotgun);
+			player_shot1();
 			wsetanim(WANIM_FIRE1, 1, 6, SHOTGUN_REFIRE);
 		}
 		return TRUE;
@@ -890,7 +806,7 @@ float(float request) w_dbshotgun =
 		precache_sound("weapons/shotgn2.wav");
 		precache_sound("weapons/bsgnoammo.wav");
 		precache_sound("weapons/bsgload.wav");
-		registerweapon(3, "Double Barreled Shotgun", w_dbshotgun, "supershotgun", VWEP_SUPER_SHOTGUN, "progs/v_dpshot2.mdl", IT_SHELLS, 0, 500, AMMO_SHELL_DAMAGE * DBSHOTGUN_AMMO / DBSHOTGUN_REFIRE, WANIMTYPE_SHOTGUN);
+		registerweapon(3, "Double Barreled Shotgun", w_dbshotgun, "supershotgun", "progs/v_dpshot2.mdl", IT_SHELLS, 0, 500, AMMO_SHELL_DAMAGE * DBSHOTGUN_AMMO / DBSHOTGUN_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -944,7 +860,7 @@ float(float request) w_dbshotgun =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(10000, 1);
+		self.button0 = w_aim(10000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -976,6 +892,7 @@ float(float request) w_dbshotgun =
 				Inventory_AdjustQuantity(self, "shells", -1);
 				FireBullets(self, self, 1, 10, AMMO_SHELL_DAMAGE * 0.1, AMMO_SHELL_BODYDAMAGE * 0.1, 0, 0, shotdir * 10000, 0.1, "SHOTGUN", DT_SHOTGUN, Obituary_DBShotgun);
 			}
+			player_shot1();
 			wsetanim(WANIM_FIRE1, 1, 7, DBSHOTGUN_REFIRE);
 		}
 		return TRUE;
@@ -1033,7 +950,7 @@ float(float request) w_nailgun =
 		precache_model("progs/v_dpnail.mdl");
 		precache_sound("weapons/rocket1i.wav");
 		precache_sound("weapons/bomb/trigger.wav");
-		registerweapon(4, "Nailgun", w_nailgun, "nailgun", VWEP_NAILGUN, "progs/v_dpnail.mdl", IT_NAILS, 0, 4000, AMMO_NAIL_DAMAGE / NAILGUN_REFIRE, WANIMTYPE_NAILGUN);
+		registerweapon(4, "Nailgun", w_nailgun, "nailgun", "progs/v_dpnail.mdl", IT_NAILS, 0, 4000, AMMO_NAIL_DAMAGE / NAILGUN_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1073,6 +990,8 @@ float(float request) w_nailgun =
 					//ejectcasing(shotorg + v_forward * -5, v_right * -150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 -250 0', 100, 0);
 				}
 				shotorg = v;
+				// update the player animation
+				player_nail1();
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -1091,7 +1010,7 @@ float(float request) w_nailgun =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(10000, 1);
+		self.button0 = w_aim(10000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1118,8 +1037,6 @@ float(float request) w_nailgun =
 			self.wfiretime = time;
 			Inventory_AdjustQuantity(self, "rockets", -1);
 			w_muzzleflash(shotorg, 1);
-			//LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, 80, 80, 300, GRENADE_IMPACT, 2.5, "NAILGUNGRENADE", Obituary_NailgunGrenade);
-			//LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, 200, 200, 70, 20, 10, MINE_LASERTRIP, 60, 2, "LASERTRIPMINE", Obituary_NailgunMine);
 			LaunchMine(shotorg, shotdir * 600 + v_up * 200, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, NAILGUN_MINE_IMPACT, NAILGUN_MINE_IMPACTBODY, MINE_PROXIMITY, NAILGUN_MINE_TIME, NAILGUN_MINE_ARMDELAY, "PROXIMITYMINE", Obituary_NailgunMine);
 			wsetanim(WANIM_FIRE2, 0, 0, 0.6);
 		}
@@ -1220,7 +1137,7 @@ float(float request) w_supernailgun =
 		precache_model("progs/v_dpnail2.mdl");
 		precache_sound("weapons/spike2.wav");
 		precache_sound("weapons/bomb/trigger.wav");
-		registerweapon(5, "Super Nailgun", w_supernailgun, "supernailgun", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_NAILS, 0, 1500, AMMO_NAIL_DAMAGE / SUPERNAILGUN_REFIRE, WANIMTYPE_NAILGUN);
+		registerweapon(5, "Super Nailgun", w_supernailgun, "supernailgun", "progs/v_dpnail2.mdl", IT_NAILS, 0, 1500, AMMO_NAIL_DAMAGE / SUPERNAILGUN_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1251,6 +1168,8 @@ float(float request) w_supernailgun =
 					Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 200 + v_up * 75, shotorg + v_forward * -3, v_right * 150 + v_up * 50, "progs/casing_bronze.mdl");
 				else
 					ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
+				// update the player animation
+				player_nail1();
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -1268,7 +1187,7 @@ float(float request) w_supernailgun =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(10000, 1);
+		self.button0 = w_aim(10000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1295,9 +1214,10 @@ float(float request) w_supernailgun =
 			self.wfiretime = time;
 			Inventory_AdjustQuantity(self, "rockets", -1);
 			w_muzzleflash(shotorg, 3);
-			//LaunchMine(shotorg, shotdir * 1000 + v_up * 200, self, a * 100, a * 100, 350, 20, 10, MINE_PROXIMITY, 60, 2, "PROXIMITYMINE", Obituary_ProximityMine);
 			LaunchGrenade(shotorg, shotdir * 600 + v_up * 200, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, GRENADE_IMPACT, SUPERNAILGUN_GRENADE_TIME, "SUPERNAILGUNGRENADE", Obituary_SuperNailgunGrenade);
 			wsetanim(WANIM_FIRE2, 0, 0, 0.6);
+			// update the player animation
+			player_rocket1();
 		}
 		return TRUE;
 	}
@@ -1325,7 +1245,7 @@ float(float request) w_grenadelauncher =
 		precache_model("progs/grenade.mdl");
 		precache_sound("weapons/grenade.wav");
 		precache_sound("weapons/bounce.wav");
-		registerweapon(6, "Grenade Launcher", w_grenadelauncher, "grenadelauncher", VWEP_GRENADE_LAUNCHER, "progs/v_dprock.mdl", IT_ROCKETS, 0, 2000, AMMO_ROCKET_DAMAGE / GRENADELAUNCHER_REFIRE, WANIMTYPE_ROCKET);
+		registerweapon(6, "Grenade Launcher", w_grenadelauncher, "grenadelauncher", "progs/v_dprock.mdl", IT_ROCKETS, AMMO_ROCKET_RADIUS + 50, 2000, AMMO_ROCKET_DAMAGE / GRENADELAUNCHER_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1350,7 +1270,7 @@ float(float request) w_grenadelauncher =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_grenadeattackaim(1000, 2);
+		self.button0 = w_aim(1000, 2, TRUE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1375,6 +1295,8 @@ float(float request) w_grenadelauncher =
 			else
 				LaunchGrenade(shotorg, shotdir * 1000 + v_up * 200, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, GRENADE_IMMUNETODAMAGE, 3, "GRENADE", Obituary_Grenade);
 			wsetanim(WANIM_FIRE1, 1, 6, GRENADELAUNCHER_REFIRE);
+			// update the player animation
+			player_rocket1();
 		}
 		return TRUE;
 	}
@@ -1403,7 +1325,7 @@ float(float request) w_rocketlauncher =
 		precache_model("progs/missile.mdl");
 		precache_sound("weapons/sgun1.wav");
 		precache_sound("weapons/lock4.wav");
-		registerweapon(7, "Rocket Launcher", w_rocketlauncher, "rocketlauncher", VWEP_ROCKET_LAUNCHER, "progs/v_dprock2.mdl", IT_ROCKETS, 0, 2000, AMMO_ROCKET_DAMAGE / ROCKETLAUNCHER_REFIRE, WANIMTYPE_ROCKET);
+		registerweapon(7, "Rocket Launcher", w_rocketlauncher, "rocketlauncher", "progs/v_dprock2.mdl", IT_ROCKETS, AMMO_ROCKET_RADIUS + 50, 2000, AMMO_ROCKET_DAMAGE / ROCKETLAUNCHER_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1430,7 +1352,7 @@ float(float request) w_rocketlauncher =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(ROCKETLAUNCHER_VELOCITY, 1);
+		self.button0 = w_aim(ROCKETLAUNCHER_VELOCITY, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1490,6 +1412,8 @@ float(float request) w_rocketlauncher =
 				}
 			}
 			wsetanim(WANIM_FIRE1, 1, 6, ROCKETLAUNCHER_REFIRE);
+			// update the player animation
+			player_rocket1();
 			return TRUE;
 		}
 		return TRUE;
@@ -1519,7 +1443,7 @@ float(float request) w_plasmarifle =
 		precache_model("progs/plasmashot.spr32");
 		precache_sound("plasma/plasma.wav");
 		precache_sound("plasma/plasexpl.wav");
-		registerweapon(9, "Plasma Rifle", w_plasmarifle, "plasmarifle", VWEP_SUPER_NAILGUN, "progs/v_dpnail2.mdl", IT_CELLS, 0, 1500, AMMO_CELL_DAMAGE * PLASMARIFLE_NORMAL_AMMO / PLASMARIFLE_NORMAL_REFIRE, WANIMTYPE_NAILGUN);
+		registerweapon(9, "Plasma Rifle", w_plasmarifle, "plasmarifle", "progs/v_dpnail2.mdl", IT_CELLS, 100, 1500, AMMO_CELL_DAMAGE * PLASMARIFLE_NORMAL_AMMO / PLASMARIFLE_NORMAL_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1554,6 +1478,8 @@ float(float request) w_plasmarifle =
 				//	cells = cells - 1;
 				//	ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 100, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				//}
+				// update the player animation
+				player_light1();
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -1571,7 +1497,7 @@ float(float request) w_plasmarifle =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(10000, 1);
+		self.button0 = w_aim(10000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1602,6 +1528,8 @@ float(float request) w_plasmarifle =
 			//	ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 100, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 			//}
 			self.attack_finished = time + PLASMARIFLE_SUPER_REFIRE;
+			// update the player animation
+			player_rocket1();
 			return TRUE;
 		}
 		if (self.button0)
@@ -1690,7 +1618,7 @@ float(float request) w_thunderbolt =
 		precache_model("progs/bolt2.mdl");
 		precache_sound("weapons/lstart.wav");
 		precache_sound("weapons/lhit.wav");
-		registerweapon(8, "Thunderbolt", w_thunderbolt, "thunderbolt", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_CELLS, 0, 1500, AMMO_CELL_DAMAGE / THUNDERBOLT_REFIRE, WANIMTYPE_LIGHTNING);
+		registerweapon(8, "Thunderbolt", w_thunderbolt, "thunderbolt", "progs/v_dplight.mdl", IT_CELLS, 0, 1500, AMMO_CELL_DAMAGE / THUNDERBOLT_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1722,6 +1650,8 @@ float(float request) w_thunderbolt =
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
 				v = W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, AMMO_CELL_DAMAGE * cells, AMMO_CELL_BODYDAMAGE * cells, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
 				te_lightning2(self, shotorg, v);
+				// update the player animation
+				player_light1();
 				return TRUE;
 			}
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -1741,7 +1671,7 @@ float(float request) w_thunderbolt =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(100000, 1);
+		self.button0 = w_aim(100000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1820,7 +1750,7 @@ float(float request) w_plasmawave =
 		precache_model("progs/plasmashot.spr32");
 		precache_sound("plasma/plasma.wav");
 		precache_sound("plasma/plasexpl.wav");
-		registerweapon(10, "Plasma Wave", w_plasmawave, "plasmawave", VWEP_LIGHTNING, "progs/v_dplight.mdl", IT_CELLS, 0, 1500, 200, WANIMTYPE_ROCKET);
+		registerweapon(10, "Plasma Wave", w_plasmawave, "plasmawave", "progs/v_dplight.mdl", IT_CELLS, 100, 1500, PLASMAWAVE_SINGLE_AMMO * AMMO_CELL_DAMAGE / PLASMAWAVE_SINGLE_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1862,6 +1792,8 @@ float(float request) w_plasmawave =
 				ang = ang + '0 1 0' * PLASMAWAVE_WAVE_SPREADANGLEPERSHOT;
 			}
 			wsetanim(WANIM_FIRE1, 0, 0, PLASMAWAVE_WAVE_REFIRE - PLASMAWAVE_WAVE_CHARGETIME);
+			// update the player animation
+			player_rocket1();
 		}
 		else
 			wsetanim(WANIM_READY, 0, 0, 0);
@@ -1870,9 +1802,9 @@ float(float request) w_plasmawave =
 	if (request == WR_AIM)
 	{
 		if (random() < 0.2)
-			self.button3 = w_directattackaim(3000, 1);
+			self.button3 = w_aim(3000, 1, FALSE);
 		else
-			self.button0 = w_directattackaim(5000, 1);
+			self.button0 = w_aim(5000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1906,6 +1838,8 @@ float(float request) w_plasmawave =
 			w_muzzleflash(shotorg, 4);
 			FirePlasmaBall(self, self, shotorg, shotdir * 1000, cells * AMMO_CELL_DAMAGE, cells * AMMO_CELL_DAMAGE, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 			wsetanim(WANIM_FIRE1, 0, 0, PLASMAWAVE_SINGLE_REFIRE);
+			// update the player animation
+			player_rocket1();
 			return TRUE;
 		}
 		return TRUE;
@@ -1934,7 +1868,7 @@ float(float request) w_laserrifle =
 		precache_model("progs/laser.mdl");
 		precache_sound("enforcer/enfire.wav");
 		precache_sound("enforcer/enfstop.wav");
-		registerweapon(10, "Laser Rifle", w_laserrifle, "laserrifle", VWEP_SHOTGUN, "progs/v_dpshot.mdl", IT_CELLS, 0, 2000, AMMO_CELL_DAMAGE * LASERRIFLE_BURST / (LASERRIFLE_BURST * LASERRIFLE_BURSTREFIRE + LASERRIFLE_BETWEENBURSTREFIRE), WANIMTYPE_SHOTGUN);
+		registerweapon(10, "Laser Rifle", w_laserrifle, "laserrifle", "progs/v_dpshot.mdl", IT_CELLS, 0, 2000, AMMO_CELL_DAMAGE / LASERRIFLE_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1953,29 +1887,13 @@ float(float request) w_laserrifle =
 	{
 		if (self.wanim_id == WANIM_LOWER)
 			wswitch();
-		else if (self.wanim_id == WANIM_FIRE1)
-		{
-			if (self.wload > 0)
-			if (Inventory_Quantity(self, "cells"))
-			{
-				self.wload = self.wload - 1;
-				W_Hostile();
-				sound(self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
-				Inventory_AdjustQuantity(self, "cells", -1);
-				w_muzzleflash(shotorg, 0.5);
-				LaunchLaser(self, shotorg, shotdir * 10000, AMMO_CELL_DAMAGE, "LASERRIFLE", Obituary_LaserRifle);
-				wsetanim(WANIM_FIRE1, 1, 0, LASERRIFLE_BURSTREFIRE);
-				return TRUE;
-			}
-			wsetanim(WANIM_FIRE2, 2, 5, LASERRIFLE_BETWEENBURSTREFIRE);
-		}
 		else
 			wsetanim(WANIM_READY, 0, 0, 0);
 		return TRUE;
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_directattackaim(10000, 1);
+		self.button0 = w_aim(10000, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1991,8 +1909,14 @@ float(float request) w_laserrifle =
 		if (self.button0)
 		if (Inventory_Quantity(self, "cells"))
 		{
-			self.wload = LASERRIFLE_BURST;
-			wsetanim(WANIM_FIRE1, 1, 0, LASERRIFLE_BURSTREFIRE);
+			W_Hostile();
+			sound(self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
+			Inventory_AdjustQuantity(self, "cells", -1);
+			w_muzzleflash(shotorg, 0.5);
+			LaunchLaser(self, shotorg, shotdir * 10000, AMMO_CELL_DAMAGE, "LASERRIFLE", Obituary_LaserRifle);
+			wsetanim(WANIM_FIRE1, 1, 0, LASERRIFLE_REFIRE);
+			// update the player animation
+			player_shot1();
 		}
 		return TRUE;
 	}
@@ -2005,13 +1929,11 @@ void() grappleflythink;
 
 void() grapplereturnthink =
 {
+	local float f;
 	self.nextthink = time;
-	if (time > self.count2)
-	{
-		self.count2 = time + 0.05;
-		te_lightning2(self.owner, self.owner.origin + '0 0 16', self.origin);
-	}
-	self.velocity = normalize(self.owner.origin - self.origin) * 3000;
+	f = vlen(self.owner.origin - self.origin) / frametime;
+	f = min(f, 3000);
+	self.velocity = normalize(self.owner.origin - self.origin) * f;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
 	traceline(self.origin, self.owner.origin + '0 0 16', TRUE, self);
 	if (trace_fraction < 1)
@@ -2049,12 +1971,8 @@ void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Grapple =
 
 void() grapplepull =
 {
+	local float f;
 	self.nextthink = time; // as often as possible
-	if (time > self.count2)
-	{
-		self.count2 = time + 0.05;
-		te_lightning2(self.owner, self.owner.origin + '0 0 16', self.origin);
-	}
 	if (time > self.cnt2)
 	{
 		self.cnt2 = time + 0.1;
@@ -2083,7 +2001,9 @@ void() grapplepull =
 		//self.enemy.velocity = normalize(self.owner.origin - self.origin) * 600;
 		//self.enemy.flags = self.enemy.flags - (self.enemy.flags & FL_ONGROUND);
 	}
-	self.owner.velocity = normalize(self.origin - self.owner.origin) * 1000;
+	f = vlen(self.origin - self.owner.origin) / frametime;
+	f = min(f, 1000);
+	self.owner.velocity = normalize(self.origin - self.owner.origin) * f;
 	self.owner.flags = self.owner.flags - (self.owner.flags & FL_ONGROUND);
 	if (vlen(self.origin - (self.owner.origin + '0 0 16')) < 30)
 	{
@@ -2146,11 +2066,6 @@ void() grappleflytouch =
 void() grappleflythink =
 {
 	self.nextthink = time + 0.05;
-	if (time > self.count2)
-	{
-		self.count2 = time + 0.05;
-		te_lightning2(self.owner, self.owner.origin + '0 0 16', self.origin);
-	}
 	traceline(self.owner.origin + '0 0 16', self.origin, TRUE, self);
 	if (trace_fraction < 1 || time > self.cnt || !self.owner.button5)
 	//if (trace_fraction < 1 || time > self.cnt || !self.owner.button0)
@@ -2193,18 +2108,16 @@ void(entity own, vector org, vector dir) FireGrapple =
 	grapplebolt.nextthink = time;
 	grapplebolt.cnt = time + 3;
 	sound(grapplebolt, CHAN_BODY, "weapons/chain1.wav", 1, ATTN_NORM);
-	c = 0;
+	c = 0.25;
 	while (c < 1)
 	{
-		c = c + 0.25;
-		if (c >= 1)
-			break;
 		bit = spawn();
 		bit.owner = grapplebolt;
 		bit.think = grapplebit_think;
 		bit.nextthink = time;
 		bit.count = c;
 		setmodel(bit, "progs/bit.mdl");
+		c = c + 0.25;
 	}
 };
 
@@ -2215,6 +2128,8 @@ void() W_GrappleFireCode =
 	self.wfiretime = time;
 	w_muzzleflash(shotorg, 1);
 	FireGrapple(self, shotorg, shotdir);
+	// update the player animation
+	player_rocket1();
 };
 
 void() grapple_precache =
@@ -2229,29 +2144,17 @@ void() grapple_precache =
 	precache_sound("weapons/bounce2.wav");
 };
 
-void(entity targ, entity attacker, string dmsg, float dtype) Obituary_LightningGrapple =
-{
-	if (dtype == DTYPE_PLAYER)
-	{
-		deathstring1 = targ.netname;
-		deathstring2 = " was zapped by ";
-		deathstring3 = attacker.netname;
-		deathstring4 = "";
-		if (targ.bodyhealth < 1)
-			deathstring2 = " was obliterated by ";
-	}
-	else
-		Obituary_Fallback(targ, attacker, dmsg, dtype);
-};
-
 .float grappleactive;
 void() w_frame_grapple =
 {
 	if (self.button5) // fire
 	{
 		if (!self.grapple)
-		if (W_ShotsToFire(0.5))
+		if (time >= self.attack_finished)
+		{
+			self.attack_finished = time + 0.5;
 			W_GrappleFireCode();
+		}
 	}
 	else if (self.grappleactive)
 	{

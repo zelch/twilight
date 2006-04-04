@@ -297,7 +297,7 @@ void() wiz_die =
 };
 
 
-void(entity attacker, float damage) Wiz_Pain =
+void(entity attacker, float damage, float damgtype, string dethtype) Wiz_Pain =
 {
 	sound (self, CHAN_VOICE, "wizard/wpain.wav", 1, ATTN_NORM);
 	if (random()*70 > damage)

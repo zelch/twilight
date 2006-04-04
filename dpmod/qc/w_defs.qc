@@ -14,11 +14,6 @@ void() SuperDamageSound;
 // called by worldspawn
 void() W_Precache;
 
-void(float wframe) havoc_shotanimupdate;
-void(float wframe) havoc_nailanimupdate;
-void(float wframe) havoc_rockanimupdate;
-void(float wframe) havoc_lightanimupdate;
-
 float(entity wclass) WeaponClassToNumber;
 entity(float number) NumberToWeaponClass;
 

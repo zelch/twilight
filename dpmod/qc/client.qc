@@ -6,8 +6,8 @@
 // prototypes
 void () W_WeaponFrame;
 //void() W_SetCurrentAmmo;
-void(entity attacker, float take) player_pain;
-void() player_move;
+void(entity attacker, float damage, float damgtype, string dethtype) player_pain;
+void() player_movestart;
 void (vector org) spawn_tfog;
 void (vector org, entity death_owner, vector org2) spawn_tdeath;
 
@@ -15,13 +15,7 @@ void() GibPlayer;
 void() PlayerDead;
 
 float modelindex_eyes, modelindex_player;
-//float modelindex_player_sg, modelindex_player_dbsg;
-//float modelindex_player_ng, modelindex_player_sng;
-//float modelindex_player_gl, modelindex_player_rl;
-//float modelindex_player_lg;
 //float modelindex_null;
-
-float modelindex_nogun;
 
 //used for combo kills
 .float combo_time;
@@ -643,6 +637,7 @@ void() PutClientInServer =
 
 	self.angles = spot.angles;
 	self.fixangle = TRUE;           // turn this way immediately
+	self.teleport_time = time + 0.5; // zoom effect
 
 	// oh, this is a hack!
 	if (modelindex_eyes == 0) // hasn't been done yet
@@ -652,32 +647,6 @@ void() PutClientInServer =
 
 		setmodel (self, "progs/eyes.mdl");
 		modelindex_eyes = self.modelindex;
-
-/*
-		setmodel (self, "progs/playersg.mdl");
-		modelindex_player_sg = self.modelindex;
-
-		setmodel (self, "progs/playerss.mdl");
-		modelindex_player_dbsg = self.modelindex;
-
-		setmodel (self, "progs/playernl.mdl");
-		modelindex_player_ng = self.modelindex;
-
-		setmodel (self, "progs/playersn.mdl");
-		modelindex_player_sng = self.modelindex;
-
-		setmodel (self, "progs/playergr.mdl");
-		modelindex_player_gl = self.modelindex;
-
-		setmodel (self, "progs/playerrl.mdl");
-		modelindex_player_rl = self.modelindex;
-
-		setmodel (self, "progs/playerli.mdl");
-		modelindex_player_lg = self.modelindex;
-*/
-
-		setmodel (self, "progs/playernogun.mdl");
-		modelindex_nogun = self.modelindex;
 
 		setmodel (self, "progs/player.mdl");
 		modelindex_player = self.modelindex;
@@ -733,7 +702,7 @@ void() PutClientInServer =
 		makevectors(self.angles);
 		spawn_tfog (self.origin + v_forward*20);
 	}
-	spawn_tdeath (self.origin, self, '0 0 0');
+	//spawn_tdeath (self.origin, self, '0 0 0');
 
 	if (self.isbot)
 		havocbot_chooserole();
@@ -741,7 +710,7 @@ void() PutClientInServer =
 	if (!self.solid) // observer
 		return;
 
-	player_move ();
+	player_movestart ();
 
 	if (darkmode)
 	if (self.flashlight == world)
@@ -1375,7 +1344,21 @@ void() PlayerPostThink =
 		playerfootstep();
 	}
 
-	dovisibleweapon();
+	// don't tinker with the model when dead, might be a gibbed head
+	if (!self.deadflag && self.solid)
+	{
+		if (self.items & IT_INVISIBILITY)
+		{
+			self.model = "progs/player.mdl";
+			self.modelindex = modelindex_eyes;
+			self.frame = 0;
+		}
+		else
+		{
+			self.model = "progs/player.mdl"; // make player visible
+			self.modelindex = modelindex_player;
+		}
+	}
 };
 
 

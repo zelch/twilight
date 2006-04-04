@@ -30,8 +30,6 @@ decors.qc
 
 projectiles.qc
 
-visibleweapons.qc
-
 mode_management.qc
 //mode_elimination.qc
 

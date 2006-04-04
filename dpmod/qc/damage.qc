@@ -235,6 +235,7 @@ float DTF_TELEFRAG        = 33554432; // ignores god mode, team, and always gibs
 float DTF_SHOCK           =      512; // change radius damage behavior in water/slime
 float DTF_NOPROTECT       =     1024; // god mode etc have no effect
 float DTF_FREEZE          =     4096;
+float DTF_AXHIT           =     8192; // humiliating scream when hit by an ax
 
 // unfortunately I had to use decimal bitmasks here instead of |'ing or +'ing
 // the flags together.  QCC needs more number formats, like binary and hex...
@@ -251,6 +252,7 @@ float DT_NAIL             =       35;
 float DT_CUT              =       33;
 float DT_HURT             =        1;
 float DT_TELEFRAG         = 33554432; // can not be combined with other flags
+float DT_AX               =     8225;
 
 float DT_FALL             =        0; // no armor damage
 

@@ -329,7 +329,7 @@ void() ogre_paine14=[	$paine14,	ogre_paine15	] {};
 void() ogre_paine15=[	$paine15,	ogre_run1	] {};
 
 
-void(entity attacker, float damage) ogre_pain =
+void(entity attacker, float damage, float damgtype, string dethtype) ogre_pain =
 {
 	local float r;
 

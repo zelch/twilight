@@ -417,7 +417,7 @@ void() sham_pain4       =[      $pain4, sham_pain5      ] {monster_setalpha(0.25
 void() sham_pain5       =[      $pain5, sham_pain6      ] {monster_setalpha(0.00);};
 void() sham_pain6       =[      $pain6, sham_run1      ] {};
 
-void(entity attacker, float damage) sham_pain =
+void(entity attacker, float damage, float damgtype, string dethtype) sham_pain =
 {
 	sound (self, CHAN_VOICE, "shambler/shurt2.wav", 1, ATTN_NORM);
 

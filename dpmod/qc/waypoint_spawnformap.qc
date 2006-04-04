@@ -279,6 +279,10 @@ void() waypoint_spawnformap =
 	if (waypoint_loadall())
 		return;
 
+	// if the map already has waypoints, don't spawn any
+	if (find(world, classname, "waypoint"))
+		return;
+
 	if (world.model == "maps/ctfgold8.bsp")
 		waypoints_ctfgold8();
 	if (world.model == "maps/dpdm2.bsp")

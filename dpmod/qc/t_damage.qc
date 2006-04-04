@@ -218,8 +218,6 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	{
 		if (damage <= 0) // no damage to begin with
 			return;
-		if (targ.flags & FL_GODMODE)
-			return;
 		if (targ.invincible_finished >= time)
 		{
 			if (self.invincible_sound < time)
@@ -308,6 +306,9 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 			self = oldself;
 		}
 
+		if (targ.flags & FL_GODMODE)
+			return;
+
 		// moved below bleedfunc for sake of showing the correct armortype
 		if (targ.armorvalue < 1)
 		{
@@ -356,7 +357,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	if (self.th_pain)
 	if (!self.frozen)
 	{
-		self.th_pain (attacker, htake);
+		self.th_pain (attacker, htake, damgtype, dethtype);
 		// nightmare mode monsters don't go into pain frames often
 		if (skill >= 3)
 		if (self.flags & FL_MONSTER)
@@ -467,6 +468,7 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 	{
 		if (head.takedamage)
 		if (!head.isdecor)
+		if (head != ignore)
 		{
 			points = LinearRadDamage(head, ignore, inflictor.origin, radius, 3);
 			if (points > 0)

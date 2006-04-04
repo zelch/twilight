@@ -157,7 +157,7 @@ void() knight_painb9	=[	$painb9,	knight_painb10	] {ai_painforward(5);};
 void() knight_painb10	=[	$painb10,	knight_painb11	] {ai_painforward(0);};
 void() knight_painb11	=[	$painb11,	knight_run1	] {};
 
-void(entity attacker, float damage) knight_pain =
+void(entity attacker, float damage, float damgtype, string dethtype) knight_pain =
 {
 	local float r;
 

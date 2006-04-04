@@ -121,7 +121,7 @@ void() demon1_pain4	=[	$pain4,		demon1_pain5	] {monster_setalpha(0.25);};
 void() demon1_pain5	=[	$pain5,		demon1_pain6	] {monster_setalpha(0.00);};
 void() demon1_pain6	=[	$pain6,		demon1_run1	] {};
 
-void(entity attacker, float damage) demon1_pain =
+void(entity attacker, float damage, float damgtype, string dethtype) demon1_pain =
 {
 	if (self.touch == Demon_JumpTouch)
 		return;

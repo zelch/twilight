@@ -86,67 +86,74 @@ PLAYER
 
 .float playermovestate, playermovebegin;
 
-void() player_move =
+void() player_move = [$stand1, player_move]
 {
 	local float m, n, t;
-	if (self.health < 1) return;
-	self.think = player_move;
-	self.nextthink = time + 0.1;
-	//if (time < self.pain_finished) return; // don't interrupt pain anim
-	m = (self.velocity_x || self.velocity_y)/* + (self.weapon == IT_WEAPON1) * 2*/;
+
+	m = (self.velocity_x || self.velocity_y) + (self.weapon == IT_WEAPON1) * 2;
 	if (m != self.playermovestate)
-	{
 		self.playermovebegin = time;
-		self.playermovestate = m;
-	}
+	self.playermovestate = m;
 
 	if (m == 0) {n =  5;self.frame = $stand1;  } // gun stand
 	else if (m == 1) {n =  6;self.frame = $rockrun1;} // gun run
-//	else if (m == 2) {n = 12;self.frame = $axstnd1; } // axe stand
-//	else             {n =  6;self.frame = $axrun1;  } // axe run
+	else if (m == 2) {n = 12;self.frame = $axstnd1; } // axe stand
+	else             {n =  6;self.frame = $axrun1;  } // axe run
 
 	t = (time - self.playermovebegin) * 10;
 	t = t - (floor(t / n) * n);
 	self.frame = floor(self.frame + t);
-	dovisibleweapon();
 };
 
 void() player_movestart =
 {
+	self.playermovebegin = time;
 	self.playermovestate = -1;
 	player_move();
 };
 
-void(float weapframe) havoc_shotanimupdate  = {if (self.health < 1) return;if (weapframe >= 1) {self.frame = $shotatt1 +   weapframe - 1      ;dovisibleweapon();}/* else player_move();*/};
-void(float weapframe) havoc_nailanimupdate  = {if (self.health < 1) return;if (weapframe >= 1) {self.frame = $nailatt1 + ((weapframe - 1) & 1);dovisibleweapon();}/* else player_move();*/};
-void(float weapframe) havoc_rockanimupdate  = {if (self.health < 1) return;if (weapframe >= 1) {self.frame = $rockatt1 +   weapframe - 1      ;dovisibleweapon();}/* else player_move();*/};
-void(float weapframe) havoc_lightanimupdate = {if (self.health < 1) return;if (weapframe >= 1) {self.frame = $light1   + ((weapframe - 1) & 1);dovisibleweapon();}/* else player_move();*/};
+void() W_FireAxe;
+void()	player_axe1		=	[$axatt1	, player_axe2		] {};
+void()	player_axe2		=	[$axatt2	, player_axe3		] {};
+void()	player_axe3		=	[$axatt3	, player_axe4		] {W_FireAxe();};
+void()	player_axe4		=	[$axatt4	, player_movestart	] {};
 
-/*
-void()	player_axe1		=	[$axatt1, player_axe2		] {if (self.health < 1) return;self.weaponframe=1;};
-void()	player_axe2		=	[$axatt2, player_axe3		] {self.weaponframe=2;};
-void()	player_axe3		=	[$axatt3, player_axe4		] {self.weaponframe=3;W_FireAxe();};
-void()	player_axe4		=	[$axatt4, player_movestart	] {self.weaponframe=4;};
+void()	player_axeb1	=	[$axattb1	, player_axeb2		] {};
+void()	player_axeb2	=	[$axattb2	, player_axeb3		] {};
+void()	player_axeb3	=	[$axattb3	, player_axeb4		] {W_FireAxe();};
+void()	player_axeb4	=	[$axattb4	, player_movestart	] {};
 
-void()	player_axeb1	=	[$axattb1, player_axeb2		] {if (self.health < 1) return;self.weaponframe=5;};
-void()	player_axeb2	=	[$axattb2, player_axeb3		] {self.weaponframe=6;};
-void()	player_axeb3	=	[$axattb3, player_axeb4		] {self.weaponframe=7;W_FireAxe();};
-void()	player_axeb4	=	[$axattb4, player_movestart	] {self.weaponframe=8;};
+void()	player_axec1	=	[$axattc1	, player_axec2		] {};
+void()	player_axec2	=	[$axattc2	, player_axec3		] {};
+void()	player_axec3	=	[$axattc3	, player_axec4		] {W_FireAxe();};
+void()	player_axec4	=	[$axattc4	, player_movestart	] {};
 
-void()	player_axec1	=	[$axattc1, player_axec2		] {if (self.health < 1) return;self.weaponframe=1;};
-void()	player_axec2	=	[$axattc2, player_axec3		] {self.weaponframe=2;};
-void()	player_axec3	=	[$axattc3, player_axec4		] {self.weaponframe=3;W_FireAxe();};
-void()	player_axec4	=	[$axattc4, player_movestart	] {self.weaponframe=4;};
+void()	player_axed1	=	[$axattd1	, player_axed2		] {};
+void()	player_axed2	=	[$axattd2	, player_axed3		] {};
+void()	player_axed3	=	[$axattd3	, player_axed4		] {W_FireAxe();};
+void()	player_axed4	=	[$axattd4	, player_movestart	] {};
 
-void()	player_axed1	=	[$axattd1, player_axed2		] {if (self.health < 1) return;self.weaponframe=5;};
-void()	player_axed2	=	[$axattd2, player_axed3		] {self.weaponframe=6;};
-void()	player_axed3	=	[$axattd3, player_axed4		] {self.weaponframe=7;W_FireAxe();};
-void()	player_axed4	=	[$axattd4, player_movestart	] {self.weaponframe=8;};
-*/
+void()	player_shot1	=	[$shotatt1	, player_shot2		] {};
+void()	player_shot2	=	[$shotatt2	, player_shot3		] {};
+void()	player_shot3	=	[$shotatt3	, player_shot4		] {};
+void()	player_shot4	=	[$shotatt4	, player_shot5		] {};
+void()	player_shot5	=	[$shotatt5	, player_shot6		] {};
+void()	player_shot6	=	[$shotatt6	, player_movestart	] {};
+
+void()	player_nail1	=	[$nailatt1	, player_movestart	] {self.frame = $nailatt1 + ((self.weaponframe - 1) & 1);};
+
+void()	player_rocket1	=	[$rockatt1	, player_rocket2	] {};
+void()	player_rocket2	=	[$rockatt2	, player_rocket3	] {};
+void()	player_rocket3	=	[$rockatt3	, player_rocket4	] {};
+void()	player_rocket4	=	[$rockatt4	, player_rocket5	] {};
+void()	player_rocket5	=	[$rockatt5	, player_rocket6	] {};
+void()	player_rocket6	=	[$rockatt6	, player_movestart	] {};
+
+void()	player_light1	=	[$light1	, player_movestart	] {self.frame = $light1 + ((self.weaponframe - 1) & 1);};
 
 //============================================================================
 
-void() PainSound =
+void(float damgtype) PainSound =
 {
 	local float rs;
 
@@ -184,23 +191,17 @@ void() PainSound =
 	}
 
 	if (self.pain_finished > time)
-	{
-//		self.axhitme = 0;
 		return;
-	}
 	self.pain_finished = time + 0.3;
 
 	// don't make multiple pain sounds right after each other
 
 	// ax pain sound
-	/*
-	if (self.axhitme)
+	if (damgtype & DTF_AXHIT)
 	{
-		self.axhitme = FALSE;
 		sound (self, CHAN_VOICE, "player/axhit1.wav", 1, ATTN_NORM);
 		return;
 	}
-	*/
 
 
 	rs = random() * 6;
@@ -221,46 +222,40 @@ void() PainSound =
 	return;
 };
 
-/*
-void()	player_pain1	= [$pain1	, player_pain2		] {PainSound();};
+void()	player_pain1	= [$pain1	, player_pain2		] {};
 void()	player_pain2	= [$pain2	, player_pain3		] {};
 void()	player_pain3	= [$pain3	, player_pain4		] {};
 void()	player_pain4	= [$pain4	, player_pain5		] {};
 void()	player_pain5	= [$pain5	, player_pain6		] {};
 void()	player_pain6	= [$pain6	, player_movestart	] {};
 
-void()	player_axpain1	= [$axpain1	, player_axpain2	] {PainSound();};
+void()	player_axpain1	= [$axpain1	, player_axpain2	] {};
 void()	player_axpain2	= [$axpain2	, player_axpain3	] {};
 void()	player_axpain3	= [$axpain3	, player_axpain4	] {};
 void()	player_axpain4	= [$axpain4	, player_axpain5	] {};
 void()	player_axpain5	= [$axpain5	, player_axpain6	] {};
 void()	player_axpain6	= [$axpain6	, player_movestart	] {};
-*/
 
-void(entity attacker, float take) player_pain =
+void(entity attacker, float damage, float damgtype, string dethtype) player_pain =
 {
-	if (self.health < 1)
-		return; // dead
-
-	if (take < 5) // ignore
+	if (damage < 5) // ignore
 		return;
 
-	//if (self.weaponframe)
-	//	return;
+	if (self.deadflag)
+		return; // dead
+
+	PainSound(damgtype);
+
+	if (self.think != player_move)
+		return;
 
 	if (self.invisible_finished > time)
 		return;		// eyes don't have pain frames
 
-	PainSound();
-
-	/*
 	if (self.weapon == IT_WEAPON1)
 		player_axpain1 ();
 	else
 		player_pain1 ();
-	//player_pain1 ();
-	dovisibleweapon();
-	*/
 };
 
 void() player_diea1;

@@ -491,7 +491,18 @@ void() weapon_touch =
 
 float(entity player, entity item) item_weapon_pickupeval =
 {
-	return item.dmg;
+	entity w;
+	// scan our item list to see which weapons a pickup would give
+	w = Inventory_GetNextItem(item, world);
+	while (w)
+	{
+		// if this is a weapon, check if the player already has it
+		if (w.count1 == 1)
+		if (!Inventory_Quantity(player, w.netname))
+			return item.dmg;
+		w = Inventory_GetNextItem(item, w);
+	}
+	return 0; // player already has the weapon
 };
 
 void(string wmdl, float rating, string name) weapon_spawnhandler =

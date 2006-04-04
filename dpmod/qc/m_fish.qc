@@ -145,7 +145,7 @@ void() f_pain7  =[      $pain7, f_pain8 ] {ai_pain(6);};
 void() f_pain8  =[      $pain8, f_pain9 ] {ai_pain(6);};
 void() f_pain9  =[      $pain9, f_run1 ] {ai_pain(6);};
 
-void(entity attacker, float damage) fish_pain =
+void(entity attacker, float damage, float damgtype, string dethtype) fish_pain =
 {
 
 // fish allways do pain frames

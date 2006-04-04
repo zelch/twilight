@@ -566,9 +566,6 @@ void() worldspawn =
 
 	modesetup();
 
-	// spawn waypoints for the bots to use on this map
-	waypoint_spawnformap();
-
 	// spawn skill 4 teleport on the other side of the wooden beam that leads
 	// to the nightmare (skill 3) teleport
 	if (self.model == "maps/start.bsp")
@@ -971,6 +968,7 @@ void() startframe_creaturecode =
 void() superdomination_startframe;
 void() superdomination_endframe;
 
+float spawnedwaypoints;
 void() StartFrame =
 {
 	framecount = framecount + 1;
@@ -978,6 +976,13 @@ void() StartFrame =
 	serverinactive = find(world, classname, "player") == world;
 	if (serverinactive)
 		return; // don't waste time on idling dedicated servers
+
+	if (!spawnedwaypoints)
+	{
+		spawnedwaypoints = TRUE;
+		// spawn waypoints for the bots to use on this map
+		waypoint_spawnformap();
+	}
 
 	modeupdate(); // all kinds of stuff (teamplay changing etc)
 
