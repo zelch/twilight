@@ -125,10 +125,10 @@ void() ItemClass_RegisterDefaultClasses =
 	ItemClass_Register("plasmawave", "progs/backpack.mdl", 1, IT_WEAPON8);
 	ItemClass_Register("laserrifle", "progs/backpack.mdl", 1, IT_WEAPON8);
 
-	ItemClass_Register("shells", "progs/backpack.mdl", AMMOMAX_SHELLS, IT_SHELLS);
-	ItemClass_Register("nails", "progs/backpack.mdl", AMMOMAX_NAILS, IT_NAILS);
-	ItemClass_Register("rockets", "progs/backpack.mdl", AMMOMAX_ROCKETS, IT_ROCKETS);
-	ItemClass_Register("cells", "progs/backpack.mdl", AMMOMAX_CELLS, IT_CELLS);
+	ItemClass_Register("shells", "progs/backpack.mdl", AMMOMAX_SHELLS, 0);
+	ItemClass_Register("nails", "progs/backpack.mdl", AMMOMAX_NAILS, 0);
+	ItemClass_Register("rockets", "progs/backpack.mdl", AMMOMAX_ROCKETS, 0);
+	ItemClass_Register("cells", "progs/backpack.mdl", AMMOMAX_CELLS, 0);
 };
 
 entity(string name) ItemClass_FindByName =
