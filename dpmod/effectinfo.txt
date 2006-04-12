@@ -644,7 +644,7 @@ velocityjitter 4 4 8
 
 effect TR_NEXUIZPLASMA
 trailspacing 4
-type alphastatic
+type static
 color 0x283880 0x283880
 size 4 4
 alpha 256 256 1024
@@ -682,4 +682,3 @@ velocityjitter 128 128 128
 lightradius 200
 lighttime 0
 lightcolor 1 0.7 0.3
-*/
