@@ -217,11 +217,11 @@ int parsefilenames(void)
 }
 */
 
-unsigned char *tokenpos;
+char *tokenpos;
 
-int getline(unsigned char *line)
+int getline(char *line)
 {
-	unsigned char *out = line;
+	char *out = line;
 	while (*tokenpos == '\r' || *tokenpos == '\n')
 		tokenpos++;
 	if (*tokenpos)
@@ -412,12 +412,12 @@ int setbonepose(int frame, int num, float x, float y, float z, float a, float b,
 bonepose_t bonematrix[MAX_BONES];
 
 int modelfilesize;
-unsigned char *modelfile;
+char *modelfile;
 
 int parsenodes(void)
 {
 	int num, parent, i;
-	unsigned char line[1024], name[1024];
+	char line[1024], name[1024];
 	memset(scenebone, 0, sizeof(scenebone));
 	memset(sceneboneremap, 0xFF, sizeof(sceneboneremap));
 	while (getline(line))
@@ -497,7 +497,7 @@ foundbone:
 
 int parseskeleton(void)
 {
-	unsigned char line[1024], command[256];
+	char line[1024], command[256];
 	int i, frame, num, highest;
 	float x, y, z, a, b, c;
 	int baseframe;
@@ -550,9 +550,9 @@ int parseskeleton(void)
 		if (!posedefined[frame+baseframe])
 		{
 			printf("warning: missing pose, compacting pose list\n");
-			memcpy(&pose[frame+baseframe][0], &pose[frame+baseframe+1][0], (int) (&pose[highest+baseframe][0]) - (int) (&pose[frame+baseframe][0]));
-			memcpy(&posedefined[frame+baseframe], &posedefined[frame+baseframe+1], (int) (&posedefined[highest+baseframe]) - (int) (&posedefined[frame+baseframe]));
-			memset(&pose[highest+baseframe][0], 0, (int) &pose[highest+baseframe+1][0] - (int) &pose[highest+baseframe][0]);
+			memcpy(&pose[frame+baseframe][0], &pose[frame+baseframe+1][0], (unsigned char *) (&pose[highest+baseframe][0]) - (unsigned char *) (&pose[frame+baseframe][0]));
+			memcpy(&posedefined[frame+baseframe], &posedefined[frame+baseframe+1], (unsigned char *) (&posedefined[highest+baseframe]) - (unsigned char *) (&posedefined[frame+baseframe]));
+			memset(&pose[highest+baseframe][0], 0, (unsigned char *) &pose[highest+baseframe+1][0] - (unsigned char *) &pose[highest+baseframe][0]);
 			posedefined[highest+baseframe] = 0;
 			highest--;
 			frame--; // recheck this frame
@@ -565,7 +565,7 @@ int parseskeleton(void)
 
 int parsemeshskeleton(void)
 {
-	unsigned char line[1024], command[256];
+	char line[1024], command[256];
 	int i, num;
 	float x, y, z, a, b, c;
 	while (getline(line))
@@ -612,7 +612,7 @@ triangle triangles[MAX_TRIS];
 
 int parsemeshtriangles(void)
 {
-	unsigned char line[1024];
+	char line[1024];
 	int current = 0, bonenum, i;
 	float org[3], normal[3];
 	float d;
@@ -753,12 +753,12 @@ void putinit(void)
 
 int putgetposition(void)
 {
-	return (int) output - (int) outputbuffer;
+	return (int)(output - outputbuffer);
 }
 
 void putsetposition(int n)
 {
-	output = (unsigned char *) (n + (int) outputbuffer);
+	output = outputbuffer + n;
 }
 
 typedef struct lump_s
