@@ -361,7 +361,8 @@ void() FoundTarget =
 	HuntTarget ();
 };
 
-float checkplayertime;
+/*
+//float checkplayertime;
 entity lastcheckplayer;
 entity havocbot_list;
 
@@ -371,8 +372,10 @@ entity() checkplayer =
 	local entity check;
 	local float worldcount;
 	// we can just fallback on checkclient if there are no bots
-	//if (!havocbot_list)
-	//	return checkclient();
+	if (!havocbot_list)
+		return checkclient();
+*/
+	/*
 	if (time < checkplayertime)
 	{
 		traceline(self.origin + self.view_ofs, lastcheckplayer.origin + lastcheckplayer.view_ofs, TRUE, self);
@@ -382,17 +385,21 @@ entity() checkplayer =
 			return lastcheckplayer;
 	}
 	checkplayertime = time + 0.1;
+	*/
+/*
 	check = lastcheckplayer;
 	worldcount = 0;
+	c = 0;
 	do
 	{
+		c = c + 1;
 		check = findfloat(check, havocattack, TRUE);
 		if (check.classname == "player" || check.classname == "turretbase")
 		{
-			//traceline(self.origin + self.view_ofs, check.origin + check.view_ofs, TRUE, self);
-			//if (trace_fraction == 1)
-			//	return lastcheckplayer = check;
-			//if (trace_ent == check)
+			traceline(self.origin + self.view_ofs, check.origin + check.view_ofs, TRUE, self);
+			if (trace_fraction == 1)
+				return lastcheckplayer = check;
+			if (trace_ent == check)
 				return lastcheckplayer = check;
 		}
 		else if (check == world)
@@ -402,9 +409,10 @@ entity() checkplayer =
 				return lastcheckplayer = check;
 		}
 	}
-	while(check != lastcheckplayer);
+	while(check != lastcheckplayer && c < 100);
 	return world;
 };
+*/
 
 /*
 ===========
@@ -438,7 +446,7 @@ float() FindTarget =
 	if (self.spawnflags & 3)
 	{
 		// don't wake up on seeing another monster getting angry
-		client = checkplayer ();
+		client = checkclient ();
 		if (!client)
 			return FALSE;   // current check entity isn't in PVS
 	}
@@ -452,7 +460,7 @@ float() FindTarget =
 		}
 		else
 		{
-			client = checkplayer ();
+			client = checkclient ();
 			if (!client)
 				return FALSE;   // current check entity isn't in PVS
 		}
