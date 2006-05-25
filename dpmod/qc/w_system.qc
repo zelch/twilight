@@ -481,14 +481,7 @@ void() W_WeaponFrame =
 
 	W_SetupShot();
 
-	// teleport effect
-	if (time < self.teleport_time - 0.2)
-	{
-		//self.viewzoom = 1 + 3 * (self.teleport_time - 0.2 - time);
-		self.viewzoom = 1 - 3 * (self.teleport_time - 0.2 - time);
-		//dprint(ftos(self.viewzoom));dprint("\n");
-	}
-	else if (self.button4)
+	if (self.button4)
 		self.viewzoom = 0.2;
 	else
 		self.viewzoom = 1;
@@ -556,7 +549,7 @@ float DBSHOTGUN_REFIRE = 0.7;
 float NAILGUN_REFIRE = 0.1;
 float NAILGUN_MINE_IMPACT = 10;
 float NAILGUN_MINE_IMPACTBODY = 5;
-float NAILGUN_MINE_TIME = 60;
+float NAILGUN_MINE_TIME = 600;
 float NAILGUN_MINE_ARMDELAY = 3;
 float SUPERNAILGUN_REFIRE = 0.05;
 float SUPERNAILGUN_GRENADE_TIME = 60;
@@ -1039,6 +1032,8 @@ float(float request) w_nailgun =
 			w_muzzleflash(shotorg, 1);
 			LaunchMine(shotorg, shotdir * 600 + v_up * 200, self, AMMO_ROCKET_DAMAGE, AMMO_ROCKET_FORCE, AMMO_ROCKET_RADIUS, NAILGUN_MINE_IMPACT, NAILGUN_MINE_IMPACTBODY, MINE_PROXIMITY, NAILGUN_MINE_TIME, NAILGUN_MINE_ARMDELAY, "PROXIMITYMINE", Obituary_NailgunMine);
 			wsetanim(WANIM_FIRE2, 0, 0, 0.6);
+			// update the player animation
+			player_rocket1();
 		}
 		return TRUE;
 	}
