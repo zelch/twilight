@@ -14,6 +14,7 @@ PROFILEOPTION=
 #debug compile
 OPTIMIZATIONS=
 CFLAGS= -I/usr/include/SDL -MD -Wall -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION)
+CPP=g++
 
 LDFLAGS= -lm $(PROFILEOPTION)
 
@@ -22,10 +23,13 @@ TARGETS= lhterrain
 all: $(TARGETS)
 
 .c.o:
-	gcc $(CFLAGS) -c $*.c
+	$(CPP) $(CFLAGS) -c $*.c
 
-lhterrain: lhterrain.o endian.o file.o image.o system.o texture.o
-	gcc -o $@ $^ $(LDFLAGS) -lSDL -lSDLmain -lpthread
+.cpp.o:
+	$(CPP) $(CFLAGS) -c $*.cpp
+
+lhterrain: lhterrain.c mesh.cpp endian.o file.o image.o system.o texture.o
+	$(CPP) -o $@ $^ $(LDFLAGS) -lSDL -lSDLmain -lpthread
 
 
 clean:
