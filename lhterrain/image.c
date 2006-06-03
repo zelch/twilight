@@ -24,7 +24,7 @@ unsigned char *LoadTGA (const char *filename, int *imagewidth, int *imageheight)
 	*imagewidth = 0;
 	*imageheight = 0;
 
-	f = loadfile(filename, &loadsize);
+	f = (unsigned char *)loadfile(filename, &loadsize);
 	if (!f)
 		return NULL;
 	if (loadsize < 18+3)
@@ -66,7 +66,7 @@ unsigned char *LoadTGA (const char *filename, int *imagewidth, int *imageheight)
 	image_width = targa_header.width;
 	image_height = targa_header.height;
 
-	image_rgba = malloc(image_width * image_height * 4);
+	image_rgba = (unsigned char *)malloc(image_width * image_height * 4);
 	if (!image_rgba)
 	{
 		free(f);

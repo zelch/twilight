@@ -37,8 +37,8 @@ int textureforimage(const char *name)
 	for (image = imagetexturehash[hashindex];image;image = image->next)
 		if (!strcmp(image->name, name))
 			return image->texnum;
-	image = malloc(sizeof(imagetexture_t));
-	image->name = malloc(strlen(name) + 1);
+	image = (imagetexture_t *)malloc(sizeof(imagetexture_t));
+	image->name = (char *)malloc(strlen(name) + 1);
 	strcpy(image->name, name);
 	image->texnum = 0;
 	image->next = imagetexturehash[hashindex];
@@ -56,7 +56,7 @@ int textureforimage(const char *name)
 	{
 		for (width = 1;width < pixels_width && width < gl_maxtexturesize;width *= 2);
 		for (height = 1;height < pixels_height && height < gl_maxtexturesize;height *= 2);
-		texturepixels = malloc(width * height * 4);
+		texturepixels = (unsigned char *)malloc(width * height * 4);
 		resampleimage(pixels, pixels_width, pixels_height, texturepixels, width, height);
 		alpha = 0;
 		for (i = 3;i < width * height * 4;i += 4)

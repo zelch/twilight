@@ -107,8 +107,59 @@ void GL_PrintError(int errornumber, char *filename, int linenumber)
 
 
 
+typedef struct glfunc_s
+{
+	const char *name;
+	void **var;
+}
+glfunc_t;
+
+glfunc_t glfunctions[] =
+{
+	{"glEnable", (void **)&glEnable},
+	{"glDisable", (void **)&glDisable},
+	{"glGetIntegerv", (void **)&glGetIntegerv},
+	{"glGetString", (void **)&glGetString},
+	{"glOrtho", (void **)&glOrtho},
+	{"glFrustum", (void **)&glFrustum},
+	{"glGenTextures", (void **)&glGenTextures},
+	{"glBindTexture", (void **)&glBindTexture},
+	{"glTexImage2D", (void **)&glTexImage2D},
+	{"glTexParameteri", (void **)&glTexParameteri},
+	{"glColor4f", (void **)&glColor4f},
+	{"glTexCoord2f", (void **)&glTexCoord2f},
+	{"glVertex3f", (void **)&glVertex3f},
+	{"glBegin", (void **)&glBegin},
+	{"glEnd", (void **)&glEnd},
+	{"glGetError", (void **)&glGetError},
+	{"glClearColor", (void **)&glClearColor},
+	{"glClear", (void **)&glClear},
+	{"glMatrixMode", (void **)&glMatrixMode},
+	{"glLoadIdentity", (void **)&glLoadIdentity},
+	{"glRotatef", (void **)&glRotatef},
+	{"glTranslatef", (void **)&glTranslatef},
+	{"glVertexPointer", (void **)&glVertexPointer},
+	{"glNormalPointer", (void **)&glNormalPointer},
+	{"glColorPointer", (void **)&glColorPointer},
+	{"glTexCoordPointer", (void **)&glTexCoordPointer},
+	{"glDrawElements", (void **)&glDrawElements},
+	{"glDrawRangeElements", (void **)&glDrawRangeElements},
+
+	{"glBindBufferARB", (void **)&glBindBufferARB},
+	{"glDeleteBuffersARB", (void **)&glDeleteBuffersARB},
+	{"glGenBuffersARB", (void **)&glGenBuffersARB},
+	{"glIsBufferARB", (void **)&glIsBufferARB},
+	{"glMapBufferARB", (void **)&glMapBufferARB},
+	{"glUnmapBufferARB", (void **)&glUnmapBufferARB},
+	{"glBufferDataARB", (void **)&glBufferDataARB},
+	{"glBufferSubDataARB", (void **)&glBufferSubDataARB},
+
+	{NULL, NULL},
+};
+
 SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
 {
+	int i;
 	SDL_Surface *surface;
 	if (SDL_GL_LoadLibrary (NULL))
 	{
@@ -121,43 +172,8 @@ SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
 	if (!surface)
 		return NULL;
 
-	glEnable = SDL_GL_GetProcAddress("glEnable");
-	glDisable = SDL_GL_GetProcAddress("glDisable");
-	glGetIntegerv = SDL_GL_GetProcAddress("glGetIntegerv");
-	glGetString = SDL_GL_GetProcAddress("glGetString");
-	glOrtho = SDL_GL_GetProcAddress("glOrtho");
-	glFrustum = SDL_GL_GetProcAddress("glFrustum");
-	glGenTextures = SDL_GL_GetProcAddress("glGenTextures");
-	glBindTexture = SDL_GL_GetProcAddress("glBindTexture");
-	glTexImage2D = SDL_GL_GetProcAddress("glTexImage2D");
-	glTexParameteri = SDL_GL_GetProcAddress("glTexParameteri");
-	glColor4f = SDL_GL_GetProcAddress("glColor4f");
-	glTexCoord2f = SDL_GL_GetProcAddress("glTexCoord2f");
-	glVertex3f = SDL_GL_GetProcAddress("glVertex3f");
-	glBegin = SDL_GL_GetProcAddress("glBegin");
-	glEnd = SDL_GL_GetProcAddress("glEnd");
-	glGetError = SDL_GL_GetProcAddress("glGetError");
-	glClearColor = SDL_GL_GetProcAddress("glClearColor");
-	glClear = SDL_GL_GetProcAddress("glClear");
-	glMatrixMode = SDL_GL_GetProcAddress("glMatrixMode");
-	glLoadIdentity = SDL_GL_GetProcAddress("glLoadIdentity");
-	glRotatef = SDL_GL_GetProcAddress("glRotatef");
-	glTranslatef = SDL_GL_GetProcAddress("glTranslatef");
-	glVertexPointer = SDL_GL_GetProcAddress("glVertexPointer");
-	glNormalPointer = SDL_GL_GetProcAddress("glNormalPointer");
-	glColorPointer = SDL_GL_GetProcAddress("glColorPointer");
-	glTexCoordPointer = SDL_GL_GetProcAddress("glTexCoordPointer");
-	glDrawElements = SDL_GL_GetProcAddress("glDrawElements");
-	glDrawRangeElements = SDL_GL_GetProcAddress("glDrawRangeElements");
-
-	glBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
-	glDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
-	glGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
-	glIsBufferARB = SDL_GL_GetProcAddress("glIsBufferARB");
-	glMapBufferARB = SDL_GL_GetProcAddress("glMapBufferARB");
-	glUnmapBufferARB = SDL_GL_GetProcAddress("glUnmapBufferARB");
-	glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
-	glBufferSubDataARB = SDL_GL_GetProcAddress("glBufferSubDataARB");
+	for (i = 0;glfunctions[i].name;i++)
+		*(glfunctions[i].var) = (void *)SDL_GL_GetProcAddress(glfunctions[i].name);
 
 	gl_ext_string = (const char *)glGetString(GL_EXTENSIONS);
 	gl_ext_drawrangeelements = strstr(gl_ext_string, "GL_EXT_draw_range_elements") != NULL;
@@ -191,8 +207,6 @@ void drawstring(const char *string, float x, float y, float scalex, float scaley
 	}
 	glEnd();
 }
-
-int system_width, system_height;
 
 int main(int argc, char **argv)
 {

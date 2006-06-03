@@ -1,9 +1,10 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include "system.h"
 #include "texture.h"
+#include "image.h"
 
 double view_origin[3];
 double view_angles[3];
@@ -41,6 +42,12 @@ void application_init(void)
 
 int application_load(char *filename)
 {
+	int image_width, image_height;
+	unsigned char *pixels;
+	pixels = LoadTGA(filename, &image_width, &image_height);
+	if (!pixels)
+		return 0;
+
 	return 1;
 }
 
