@@ -157,8 +157,54 @@ void Mesh::CompileTriangleNeighbors(void)
 
 void Mesh::Compile(void)
 {
+	int i, j, n;
+	char *vertexused;
+
+	// modify the arrays to remove any degenerate triangles
+	// (such as those produced by CollapseEdges)
+	// note: this corrupts the neighbors array
+	n = num_triangles;
+	num_triangles = 0;
+	for (i = 0;i < n;i++)
+		if (array_element3i[i*3+0] == array_element3i[i*3+1] || array_element3i[i*3+1] == array_element3i[i*3+2] || array_element3i[i*3+2] == array_element3i[i*3+0])
+			for (j = 0;j < 3;j++)
+				array_element3i[num_triangles*3+j] = array_element3i[i*3+j];
+
+	// now check if there are any unused vertices to remove
+	vertexused = (char *)calloc(num_vertices, 1);
+	for (i = 0;i < num_triangles * 3;i++)
+		vertexused[array_element3i[i]] = 1;
+
+	// now remove the unused vertex data
+	// note: this does not copy tangent vectors because they are regenerated later
+	n = num_vertices;
+	num_vertices = 0;
+	for (i = 0;i < n;i++)
+	{
+		if (!vertexused[i])
+			continue;
+		array_vertex3f[num_vertices*3+0]             = array_vertex3f[i*3+0];
+		array_vertex3f[num_vertices*3+1]             = array_vertex3f[i*3+1];
+		array_vertex3f[num_vertices*3+2]             = array_vertex3f[i*3+2];
+		array_normal3f[num_vertices*3+0]             = array_normal3f[i*3+0];
+		array_normal3f[num_vertices*3+1]             = array_normal3f[i*3+1];
+		array_normal3f[num_vertices*3+2]             = array_normal3f[i*3+2];
+		array_texcoord2f[num_vertices*2+0]           = array_texcoord2f[i*2+0];
+		array_texcoord2f[num_vertices*2+1]           = array_texcoord2f[i*2+1];
+		array_textureblendindex2i[num_vertices*2+0]  = array_textureblendindex2i[i*2+0];
+		array_textureblendindex2i[num_vertices*2+1]  = array_textureblendindex2i[i*2+1];
+		array_textureblendfactor1f[num_vertices*1+0] = array_textureblendfactor1f[i*1+0];
+		num_vertices++;
+	}
+
+	// free the temporary vertexused array
+	free(vertexused);
+
+	// resize the arrays to free any wasted space
 	ResizeVertices(num_vertices);
 	ResizeTriangles(num_triangles);
+
+	// recalculate the tangent vectors and neighbors
 	CompileTangentVectors();
 	CompileTriangleNeighbors();
 }
@@ -173,7 +219,7 @@ Example cases:
 simple example:
 before:
    +
-  / \ 
+  / \
  / a \  <- a is the active triangle which will be removed
 +--b--+ <- b is the active edge
  \ c /  <- c is the far-side triangle of the active edge, also to be removed
@@ -206,6 +252,39 @@ after:
  /   \  /   |   \  /   \
 +-----+-----+-----+-----+
 
+another example:
+before:
+   +-----+-----+
+  / \   / \   / \
+ /   \ / a \ /   \
++-----+--b--+-----+
+after:
+   +-----+-----+
+  /  \   |   /  \
+ /     \ | /     \
++--------+--------+
+
+examples of invalid cases: (these should not be collapsed)
+   +-----+-----+
+  / \ a / \   / \
+ /   \ b   \ /   \
++-----+-----+-----+
+
+   +-----+-----+
+  / \   / \   / \
+ /   \ b a \ /   \
++-----+-----+-----+
+
+   +-----+-----+
+  / \   / \   / \
+ b a \ /   \ /   \
++-----+-----+-----+
+
+rule:
+if this edge has no far side triangle:
+	collapse if this triangle has no other edges without far side triangles
+else
+	collapse if this edge has no border vertices (neighboring triangles using it as part of a no-far-side edge)
 */
 
 // this implementation is TEMPORARY and simply returns the edge length, squared
@@ -223,10 +302,17 @@ float Mesh::EdgeErrorMetric(float *v1, float *v2)
 // semi-qsort-style comparison function for edge sorting
 int Mesh::EdgeCompare(int e1, int e2)
 {
+	// sort deleted triangle edges to the end of the array
+	if (array_element3i[e1] >= 0 && array_element3i[e2] < 0)
+		return -1;
+	if (array_element3i[e1] < 0 && array_element3i[e2] >= 0)
+		return 1;
+	// sort by edgeerror
 	if (array_edgeerror[e1] > array_edgeerror[e2])
 		return 1;
 	if (array_edgeerror[e1] < array_edgeerror[e2])
 		return -1;
+	// sort by edge index
 	return e1 - e2;
 }
 
@@ -309,6 +395,37 @@ void Mesh::CollapseEdges_CalculateMidPoint(int vertex, int vertex1, int vertex2)
 	}
 }
 
+bool Mesh::CollapseEdges_RecursiveCheckEdgeVertices(int thistriangle, int vertex1, int vertex2)
+{
+	int i;
+	bool replaced = false;
+	int *e;
+	// ignore invalid triangle indices
+	if (thistriangle < 0)
+		return false;
+	e = array_element3i + thistriangle * 3;
+	for (i = 0;i < 3;i++)
+		if (e[i] == vertex1 || e[i] == vertex2)
+			break;
+	// if this triangle does not use either of the edge vertices then it is of
+	// no interest
+	if (i == 3)
+		return false;
+	for (i = 0;i < 3;i++)
+	{
+		int fartriangle = array_neighbor3i[thistriangle * 3 + i];
+		if (fartriangle >= 0)
+		{
+			if (CollapseEdges_RecursiveCheckEdgeVertices(fartriangle, vertex1, vertex2))
+				return true;
+		}
+		else
+			if (e[i] == vertex1 || e[i] == vertex2 || e[(i+1) % 3] == vertex1 || e[(i+1) % 3] == vertex2)
+				return true;
+	}
+	return false;
+}
+
 void Mesh::CollapseEdges_RecursiveReplaceVertex(int thistriangle, int oldvertex, int newvertex)
 {
 	int i;
@@ -330,6 +447,11 @@ void Mesh::CollapseEdges_RecursiveReplaceVertex(int thistriangle, int oldvertex,
 	// if no match was found, this triangle is not relevant, so just return
 	if (!replaced)
 		return;
+	// update error metrics
+	// they will be re-sorted later
+	array_edgeerror[thistriangle * 3 + 0] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[thistriangle * 3 + 0], array_vertex3f + 3 * array_element3i[thistriangle * 3 + 1]);
+	array_edgeerror[thistriangle * 3 + 1] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[thistriangle * 3 + 1], array_vertex3f + 3 * array_element3i[thistriangle * 3 + 2]);
+	array_edgeerror[thistriangle * 3 + 2] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[thistriangle * 3 + 2], array_vertex3f + 3 * array_element3i[thistriangle * 3 + 0]);
 	// we have fixed this triangle, now flow into neighbors
 	for (i = 0;i < 3;i++)
 		CollapseEdges_RecursiveReplaceVertex(array_neighbor3i[thistriangle * 3 + i], oldvertex, newvertex);
@@ -373,11 +495,14 @@ void Mesh::CollapseEdges_CollapseTriangle(int thistriangle, int othertriangle)
 
 void Mesh::CollapseEdges(float tolerance)
 {
-	int i, j, n;
+	int i, j;
+
 	array_edgeerror = (float *)malloc(num_triangles * 3 * sizeof(float));
 	array_edgesortindex = (int *)malloc(num_triangles * 3 * sizeof(int));
+
 	// we need the triangle neighbors for edge information
 	CompileTriangleNeighbors();
+
 	// compute edge error metrics
 	for (i = 0;i < num_triangles;i++)
 	{
@@ -388,8 +513,9 @@ void Mesh::CollapseEdges(float tolerance)
 		array_edgesortindex[i * 3 + 1] = i * 3 + 1;
 		array_edgesortindex[i * 3 + 2] = i * 3 + 2;
 	}
-	// selection sort of the edge error metrics (could use qsort instead but the edgesortindex array would have to contain edgeerror data as qsort does not allow multiple data parameters to the compare function)
-	// prefer lowest error metric first, then border edges at the end of the array
+
+	// initial selection sort of the edge error metrics (could use qsort instead but the edgesortindex array would have to contain edgeerror data as qsort does not allow multiple data parameters to the compare function)
+	// see EdgeCompare code for more details
 	for (i = 0;i < num_triangles * 3;i++)
 	{
 		for (j = i + 1;j < num_triangles * 3;j++)
@@ -402,20 +528,55 @@ void Mesh::CollapseEdges(float tolerance)
 			}
 		}
 	}
+
 	// repeatedly pick an edge to collapse from the sorted list until we have a minimal set
 	for(;;)
 	{
 		// don't collapse any more edges if we reached the tolerance
 		int thistriangle, fartriangle;
 		int vertex1, vertex2;
-		int edge = array_edgesortindex[0];
-		if (array_edgeerror[edge] > tolerance)
-			break;
-		// don't collapse an edge if one or both of its endpoints lie along a border that is perpendicular to it (if it is a boedge edge itself it is fine to collapse, but not if it is an interior edge with a border endpoint)
-		// TODO: how to check for this?
-		// we have accepted this edge as a valid one to collapse
-		// TODO: code this
+		int edgeindex;
+		int edge;
+		for (edgeindex = 0;edgeindex < num_triangles * 3;edgeindex++)
+		{
+			edge = array_edgesortindex[edgeindex];
+			if (array_edgeerror[edge] > tolerance)
+			{
+				edgeindex = num_triangles * 3;
+				break;
+			}
+			thistriangle = edge / 3;
 
+			//the rule:
+			//if this edge has no far side triangle:
+			//	collapse if this triangle has no other edges without far side triangles
+			//else
+			//	collapse if this edge has no border vertices (neighboring triangles using it as part of a no-far-side edge)
+
+			if (array_neighbor3i[edge] < 0)
+			{
+				int n;
+				n = array_neighbor3i[thistriangle * 3 + 0] < 0;
+				n += array_neighbor3i[thistriangle * 3 + 1] < 0;
+				n += array_neighbor3i[thistriangle * 3 + 2] < 0;
+				if (n > 1)
+					continue;
+			}
+			else
+			{
+				if (CollapseEdges_RecursiveCheckEdgeVertices(thistriangle, vertex1, vertex2))
+					continue;
+			}
+			// we found one we can collapse
+			break;
+		}
+
+		// if the tolerance was reached, we're done
+		if (edgeindex == num_triangles * 3)
+			break;
+
+		// we found an edge to collapse
+		// set up some index variables
 		thistriangle = edge / 3;
 		fartriangle = array_neighbor3i[edge];
 		vertex1 = array_element3i[edge];
@@ -432,17 +593,31 @@ void Mesh::CollapseEdges(float tolerance)
 
 		// now collapse this triangle
 		CollapseEdges_CollapseTriangle(thistriangle, fartriangle);
-	}
 
-	// now modify the arrays to no longer include the dead triangles
-	n = num_triangles;
-	num_triangles = 0;
-	for (i = 0;i < n;i++)
-		if (array_element3i[i*3+0] == array_element3i[i*3+1] || array_element3i[i*3+1] == array_element3i[i*3+2] || array_element3i[i*3+2] == array_element3i[i*3+0])
-			for (j = 0;j < 3;j++)
-				array_element3i[num_triangles*3+j] = array_element3i[i*3+j];
+		// bubble sort the edge error metrics incase any have changed place
+		// note: this always has to move the collapsed triangles to the end of the index array
+		// note: doing this each triangle is inefficient, but the use of the array_edgesortindex array does not allow backwards referencing of individual indices when the error metrics are changed, so the entire array needs to be checked...
+		for (i = 0;i < num_triangles * 3;i++)
+		{
+			for (j = i;j > 0 && EdgeCompare(array_edgesortindex[j - 1], array_edgesortindex[j]) > 0;j--)
+			{
+				int k = array_edgesortindex[j - 1];
+				array_edgesortindex[j - 1] = array_edgesortindex[j];
+				array_edgesortindex[j] = k;
+			}
+			for (j = i + 1;j < (num_triangles * 3) && EdgeCompare(array_edgesortindex[j - 1], array_edgesortindex[j]) > 0;j++)
+			{
+				int k = array_edgesortindex[j - 1];
+				array_edgesortindex[j - 1] = array_edgesortindex[j];
+				array_edgesortindex[j] = k;
+			}
+		}
+	}
 
 	free(array_edgeerror);array_edgeerror = NULL;
 	free(array_edgesortindex);array_edgesortindex = NULL;
+
+	// now recompile the mesh to remove the deleted elements
+	Compile();
 }
 
