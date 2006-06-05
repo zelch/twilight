@@ -47,7 +47,8 @@ int application_load(char *filename)
 	pixels = LoadTGA(filename, &image_width, &image_height);
 	if (!pixels)
 		return 0;
-
+	// TODO: generate a KDTree containing triangles (up to a certain number per leaf)
+	// TODO: push KDTree leaf triangles up to parent node and reduce them using a tolerance and store the mesh in that node, and while doing so add skirt triangles to the leafs that are being merged, then repeat
 	return 1;
 }
 

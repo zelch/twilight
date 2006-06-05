@@ -166,8 +166,50 @@ void Mesh::Compile(void)
 variables:
 */
 
-// this implementation simply returns the edge length, squared
-// (I'm not sure what the best error metric is, but this should work)
+/*
+Example cases:
+
+simple example:
+before:
+   +
+  / \ 
+ / a \  <- a is the active triangle which will be removed
++--b--+ <- b is the active edge
+ \ c /  <- c is the far-side triangle of the active edge, also to be removed
+  \ /
+   +
+after:
+   +
+   |
+   |    <- edge (collapsed triangle a, now one edge)
+   +    <- vertex (collapsed edge b)
+   |    <- edge (collapsed triangle b, now one edge)
+   |
+   +
+
+another example:
+before:
+      +-----+-----+
+     / \   / \   / \
+    /   \ / a \ /   \
+   +-----+--b--+-----+
+  / \   / \ c / \   / \
+ /   \ /   \ /   \ /   \
++-----+-----+-----+-----+
+after:
+      +-----+-----+
+     /  \   |   /  \
+    /     \ | /     \
+   +--------+--------+
+  / \     / | \     / \
+ /   \  /   |   \  /   \
++-----+-----+-----+-----+
+
+*/
+
+// this implementation is TEMPORARY and simply returns the edge length, squared
+// a better metric would take into account the flatness of the edge (surface normal comparison between the two triangles using the edge)
+// and I should spend some time researching Quadric Error Metrics as those seem to be considered the best
 float Mesh::EdgeErrorMetric(float *v1, float *v2)
 {
 	float diff[3];
@@ -180,10 +222,6 @@ float Mesh::EdgeErrorMetric(float *v1, float *v2)
 // semi-qsort-style comparison function for edge sorting
 int Mesh::EdgeCompare(int e1, int e2)
 {
-	if (array_neighbor3i[e1] < 0 && array_neighbor3i[e2] >= 0)
-		return 1;
-	if (array_neighbor3i[e1] >= 0 && array_neighbor3i[e2] < 0)
-		return -1;
 	if (array_edgeerror[e1] > array_edgeerror[e2])
 		return 1;
 	if (array_edgeerror[e1] < array_edgeerror[e2])
@@ -225,13 +263,21 @@ void Mesh::CollapseEdges(float tolerance)
 	// repeatedly pick an edge to collapse from the sorted list until we have a minimal set
 	for(;;)
 	{
-		// we can't collapse a border edge
-		if (array_neighbor3i[array_edgesortindex[0]] < 0)
-			break;
+		// don't collapse any more edges if we reached the tolerance
 		if (array_edgeerror[array_edgesortindex[0]] > tolerance)
 			break;
+		// don't collapse an edge if one or both of its endpoints lie along a border that is perpendicular to it (if it is a boedge edge itself it is fine to collapse, but not if it is an interior edge with a border endpoint)
+		// TODO: how to check for this?
 		// we have accepted this edge as a valid one to collapse
 		// TODO: code this
+
+		// if there is a far-side triangle, collapse it first
+		if (array_neighbor3i[array_edgesortindex[0]] >= 0)
+		{
+			// there is a far side triangle, so collapse it
+		}
+
+		// now collapse this triangle
 	}
 	free(array_edgeerror);array_edgeerror = NULL;
 	free(array_edgesortindex);array_edgesortindex = NULL;
