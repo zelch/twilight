@@ -13,6 +13,9 @@ protected:
 	int EdgeCompare(int e1, int e2);
 	void CompileTangentVectors(void);
 	void CompileTriangleNeighbors(void);
+	void CollapseEdges_CalculateMidPoint(int vertex, int oldvertex1, int oldvertex2);
+	void CollapseEdges_RecursiveReplaceVertex(int thistriangle, int oldvertex, int newvertex);
+	void CollapseEdges_CollapseTriangle(int thistriangle, int othertriangle);
 public:
 	int num_triangles;
 	int max_triangles;

@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <math.h>
 #include "mesh.hpp"
 
 Mesh::Mesh()
@@ -229,9 +230,150 @@ int Mesh::EdgeCompare(int e1, int e2)
 	return e1 - e2;
 }
 
-void Mesh::CollapseEdges(float tolerance)
+#ifndef DotProduct
+#define DotProduct(a,b) ((a)[0] * (b)[0] + (a)[1] * (b)[1] + (a)[2] * (b)[2])
+#endif
+#ifndef Normalize
+#define Normalize(n) do{double sum = sqrt(DotProduct((n),(n)));sum = sum ? 1 / sum : 1;(n)[0] *= sum;(n)[1] *= sum;(n)[2] *= sum;}while(0)
+#endif
+
+void Mesh::CollapseEdges_CalculateMidPoint(int vertex, int vertex1, int vertex2)
 {
 	int i, j;
+	float f;
+	int besttexindex[4];
+	float besttexfactor[4];
+	// average most arrays
+	array_vertex3f[vertex*3+0] = (array_vertex3f[vertex1*3+0] + array_vertex3f[vertex2*3+0]) * 0.5;
+	array_vertex3f[vertex*3+1] = (array_vertex3f[vertex1*3+1] + array_vertex3f[vertex2*3+1]) * 0.5;
+	array_vertex3f[vertex*3+2] = (array_vertex3f[vertex1*3+2] + array_vertex3f[vertex2*3+2]) * 0.5;
+	array_normal3f[vertex*3+0] = (array_normal3f[vertex1*3+0] + array_normal3f[vertex2*3+0]) * 0.5;
+	array_normal3f[vertex*3+1] = (array_normal3f[vertex1*3+1] + array_normal3f[vertex2*3+1]) * 0.5;
+	array_normal3f[vertex*3+2] = (array_normal3f[vertex1*3+2] + array_normal3f[vertex2*3+2]) * 0.5;
+	Normalize(array_normal3f + vertex * 3);
+	array_svector3f[vertex*3+0] = (array_svector3f[vertex1*3+0] + array_svector3f[vertex2*3+0]) * 0.5;
+	array_svector3f[vertex*3+1] = (array_svector3f[vertex1*3+1] + array_svector3f[vertex2*3+1]) * 0.5;
+	array_svector3f[vertex*3+2] = (array_svector3f[vertex1*3+2] + array_svector3f[vertex2*3+2]) * 0.5;
+	Normalize(array_svector3f + vertex * 3);
+	array_tvector3f[vertex*3+0] = (array_tvector3f[vertex1*3+0] + array_tvector3f[vertex2*3+0]) * 0.5;
+	array_tvector3f[vertex*3+1] = (array_tvector3f[vertex1*3+1] + array_tvector3f[vertex2*3+1]) * 0.5;
+	array_tvector3f[vertex*3+2] = (array_tvector3f[vertex1*3+2] + array_tvector3f[vertex2*3+2]) * 0.5;
+	Normalize(array_tvector3f + vertex * 3);
+	array_texcoord2f[vertex*2+0] = (array_texcoord2f[vertex1*2+0] + array_texcoord2f[vertex2*2+0]) * 0.5;
+	array_texcoord2f[vertex*2+1] = (array_texcoord2f[vertex1*2+1] + array_texcoord2f[vertex2*2+1]) * 0.5;
+
+	// texture indices can't be averaged, so try to reduce the indices to a smaller set that still describes the blend
+	besttexindex[0] = array_textureblendindex2i[vertex1 * 2 + 0];
+	besttexindex[1] = array_textureblendindex2i[vertex2 * 2 + 0];
+	besttexindex[2] = array_textureblendindex2i[vertex1 * 2 + 1];
+	besttexindex[3] = array_textureblendindex2i[vertex2 * 2 + 1];
+	for (i = 0;i < 4;i++)
+		besttexfactor[i] = 0;
+	// sum the factors
+	for (i = 0;i < 4;i++)
+		for (j = 0;j <= i;j++)
+			if (besttexindex[j] == besttexindex[i])
+				besttexfactor[j] += ((i & 1) ? (1 - array_textureblendfactor1f[i >> 1]) : (array_textureblendfactor1f[i >> 1]));
+	// do a select sort on the factors
+	for (i = 0;i < 4;i++)
+	{
+		for (j = i + 1;j < 4;j++)
+		{
+			if (besttexfactor[i] < besttexfactor[j])
+			{
+				int k = besttexindex[i];
+				float f = besttexfactor[i];
+				besttexindex[i] = besttexindex[j];
+				besttexfactor[i] = besttexfactor[j];
+				besttexindex[j] = k;
+				besttexfactor[j] = f;
+			}
+		}
+	}
+	// now store the two texture indices
+	// make sure the indices are in a canonical order to improve consistency
+	// (no reason to have indices swapping back and forth based on factors)
+	f = besttexfactor[1] + besttexfactor[2] + besttexfactor[3];
+	f = f / (besttexfactor[0] + f);
+	if (besttexindex[0] < besttexindex[1])
+	{
+		array_textureblendindex2i[vertex*2+0] = besttexindex[0];
+		array_textureblendindex2i[vertex*2+1] = besttexindex[1];
+		array_textureblendfactor1f[vertex*1+0] = f;
+	}
+	else
+	{
+		array_textureblendindex2i[vertex*2+0] = besttexindex[1];
+		array_textureblendindex2i[vertex*2+1] = besttexindex[0];
+		array_textureblendfactor1f[vertex*1+0] = 1 - f;
+	}
+}
+
+void Mesh::CollapseEdges_RecursiveReplaceVertex(int thistriangle, int oldvertex, int newvertex)
+{
+	int i;
+	bool replaced = false;
+	int *e;
+	// ignore invalid triangle indices
+	if (thistriangle < 0)
+		return;
+	// see if this triangle uses the oldvertex
+	e = array_element3i + thistriangle * 3;
+	for (i = 0;i < 3;i++)
+	{
+		if (e[i] == oldvertex)
+		{
+			e[i] = newvertex;
+			replaced = true;
+		}
+	}
+	// if no match was found, this triangle is not relevant, so just return
+	if (!replaced)
+		return;
+	// we have fixed this triangle, now flow into neighbors
+	for (i = 0;i < 3;i++)
+		CollapseEdges_RecursiveReplaceVertex(array_neighbor3i[thistriangle * 3 + i], oldvertex, newvertex);
+}
+
+void Mesh::CollapseEdges_CollapseTriangle(int thistriangle, int othertriangle)
+{
+	int i, j;
+	int side[2];
+
+	// make sure this is a valid triangle index
+	// (which allows the caller to be sloppy)
+	if (thistriangle < 0)
+		return;
+
+	// find out what triangles are beside the triangle
+	for (i = 0, j = 0;i < 3;i++)
+		if (array_neighbor3i[thistriangle * 3 + i] != othertriangle)
+			side[j++] = array_neighbor3i[thistriangle * 3 + i];
+	// now that we know which two sides of this triangle to merge, do so
+	for (i = 0;i < 2;i++)
+	{
+		if (side[i] < 0)
+			continue;
+		// update any references to this triangle to refer to the triangle on
+		// the other side instead
+		for (j = 0;j < 3;j++)
+			if (array_neighbor3i[side[i] * 3 + j] == thistriangle)
+				array_neighbor3i[side[i] * 3 + j] = side[i ^ 1];
+	}
+
+	// now this triangle no longer exists, but since it would be a real hassle
+	// to resize the arrays, just make it a degenerate triangle which can be
+	// removed at a later phase
+	for (i = 0;i < 3;i++)
+	{
+		array_element3i[thistriangle * 3 + i] = -1;
+		array_neighbor3i[thistriangle * 3 + i] = -1;
+	}
+}
+
+void Mesh::CollapseEdges(float tolerance)
+{
+	int i, j, n;
 	array_edgeerror = (float *)malloc(num_triangles * 3 * sizeof(float));
 	array_edgesortindex = (int *)malloc(num_triangles * 3 * sizeof(int));
 	// we need the triangle neighbors for edge information
@@ -264,21 +406,42 @@ void Mesh::CollapseEdges(float tolerance)
 	for(;;)
 	{
 		// don't collapse any more edges if we reached the tolerance
-		if (array_edgeerror[array_edgesortindex[0]] > tolerance)
+		int thistriangle, fartriangle;
+		int vertex1, vertex2;
+		int edge = array_edgesortindex[0];
+		if (array_edgeerror[edge] > tolerance)
 			break;
 		// don't collapse an edge if one or both of its endpoints lie along a border that is perpendicular to it (if it is a boedge edge itself it is fine to collapse, but not if it is an interior edge with a border endpoint)
 		// TODO: how to check for this?
 		// we have accepted this edge as a valid one to collapse
 		// TODO: code this
 
-		// if there is a far-side triangle, collapse it first
-		if (array_neighbor3i[array_edgesortindex[0]] >= 0)
-		{
-			// there is a far side triangle, so collapse it
-		}
+		thistriangle = edge / 3;
+		fartriangle = array_neighbor3i[edge];
+		vertex1 = array_element3i[edge];
+		vertex2 = array_element3i[edge - thistriangle * 3 == 2 ? edge - 2 : edge + 1];
+
+		// modify the two vertices to the midpoint of the edge
+		CollapseEdges_CalculateMidPoint(vertex1, vertex1, vertex2);
+
+		// modify all connected triangles referring to vertex2 to instead refer to vertex1
+		CollapseEdges_RecursiveReplaceVertex(thistriangle, vertex2, vertex1);
+
+		// if there is a far-side triangle, collapse it
+		CollapseEdges_CollapseTriangle(fartriangle, thistriangle);
 
 		// now collapse this triangle
+		CollapseEdges_CollapseTriangle(thistriangle, fartriangle);
 	}
+
+	// now modify the arrays to no longer include the dead triangles
+	n = num_triangles;
+	num_triangles = 0;
+	for (i = 0;i < n;i++)
+		if (array_element3i[i*3+0] == array_element3i[i*3+1] || array_element3i[i*3+1] == array_element3i[i*3+2] || array_element3i[i*3+2] == array_element3i[i*3+0])
+			for (j = 0;j < 3;j++)
+				array_element3i[num_triangles*3+j] = array_element3i[i*3+j];
+
 	free(array_edgeerror);array_edgeerror = NULL;
 	free(array_edgesortindex);array_edgesortindex = NULL;
 }
