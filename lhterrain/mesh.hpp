@@ -9,7 +9,8 @@ protected:
 	void ResizeTriangles(int newmax);
 	float *array_edgeerror;
 	int *array_edgesortindex;
-	float EdgeErrorMetric(float *v1, float *v2);
+	float *array_originalvertex3f;
+	float EdgeErrorMetric(int e1, int e2);
 	int EdgeCompare(int e1, int e2);
 	void CompileTangentVectors(void);
 	void CompileTriangleNeighbors(void);

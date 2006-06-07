@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "mesh.hpp"
 
 Mesh::Mesh()
@@ -38,7 +39,7 @@ void Mesh::ResizeTriangles(int newmax)
 int Mesh::AddVertex(float x, float y, float z, float nx, float ny, float nz, float s, float t, int tex1, int tex2, float texfactor)
 {
 	if (max_vertices <= num_vertices)
-		ResizeVertices(max_vertices < 256 ? 256 : max_vertices * 2);
+		ResizeVertices(max_vertices * 2 > 256 ? max_vertices * 2 : 256);
 	array_vertex3f[num_vertices*3+0] = x;
 	array_vertex3f[num_vertices*3+1] = y;
 	array_vertex3f[num_vertices*3+2] = z;
@@ -62,7 +63,7 @@ int Mesh::AddVertex(float x, float y, float z, float nx, float ny, float nz, flo
 int Mesh::AddTriangle(int a, int b, int c)
 {
 	if (max_triangles <= num_triangles)
-		ResizeTriangles(max_vertices < 256 ? 256 : max_vertices * 2);
+		ResizeTriangles(max_triangles * 2 > 256 ? max_triangles * 2 : 256);
 	array_element3i[num_triangles*3+0] = a;
 	array_element3i[num_triangles*3+1] = b;
 	array_element3i[num_triangles*3+2] = c;
@@ -287,26 +288,48 @@ else
 	collapse if this edge has no border vertices (neighboring triangles using it as part of a no-far-side edge)
 */
 
-// this implementation is TEMPORARY and simply returns the edge length, squared
-// a better metric would take into account the flatness of the edge (surface normal comparison between the two triangles using the edge)
-// and I should spend some time researching Quadric Error Metrics as those seem to be considered the best
-float Mesh::EdgeErrorMetric(float *v1, float *v2)
+// this implementation can be improved
+// a better method would be Quadric Error Metrics
+float Mesh::EdgeErrorMetric(int e1, int e2)
 {
+	float result = 0;
+	float *v1 = array_vertex3f + 3 * e1;
+	float *v2 = array_vertex3f + 3 * e2;
+	float midpoint[3];
 	float diff[3];
-	diff[0] = v2[0] - v1[0];
-	diff[1] = v2[1] - v1[1];
-	diff[2] = v2[2] - v1[2];
-	return (diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2]);
+
+	// if the edge is deleted, return a REALLY high error value
+	if (e1 < 0 || e2 < 0)
+		return (float)(1<<30) * 2.0f;
+
+	// simple averaged location, not the best method
+	midpoint[0] = (array_vertex3f[e1 * 3 + 0] + array_vertex3f[e2 * 3 + 0]) * 0.5;
+	midpoint[1] = (array_vertex3f[e1 * 3 + 1] + array_vertex3f[e2 * 3 + 1]) * 0.5;
+	midpoint[2] = (array_vertex3f[e1 * 3 + 2] + array_vertex3f[e2 * 3 + 2]) * 0.5;
+
+	// measure the deviation from the vertex's original position
+	diff[0] = midpoint[0] - array_originalvertex3f[e1 * 3 + 0];
+	diff[1] = midpoint[1] - array_originalvertex3f[e1 * 3 + 1];
+	diff[2] = midpoint[2] - array_originalvertex3f[e1 * 3 + 2];
+	result += sqrt(diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2]);
+
+	// measure the deviation from the vertex's original position
+	diff[0] = midpoint[0] - array_originalvertex3f[e2 * 3 + 0];
+	diff[1] = midpoint[1] - array_originalvertex3f[e2 * 3 + 1];
+	diff[2] = midpoint[2] - array_originalvertex3f[e2 * 3 + 2];
+	result += sqrt(diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2]);
+
+	// add an extremely high error rating if the texture blend can't be merged
+	if (array_textureblendindex2i[e1 * 2 + 0] != array_textureblendindex2i[e2 * 2 + 0]
+	 || array_textureblendindex2i[e1 * 2 + 1] != array_textureblendindex2i[e2 * 2 + 1])
+		result += (float)(1<<30);
+
+	return result;
 }
 
 // semi-qsort-style comparison function for edge sorting
 int Mesh::EdgeCompare(int e1, int e2)
 {
-	// sort deleted triangle edges to the end of the array
-	if (array_element3i[e1] >= 0 && array_element3i[e2] < 0)
-		return -1;
-	if (array_element3i[e1] < 0 && array_element3i[e2] >= 0)
-		return 1;
 	// sort by edgeerror
 	if (array_edgeerror[e1] > array_edgeerror[e2])
 		return 1;
@@ -349,6 +372,7 @@ void Mesh::CollapseEdges_CalculateMidPoint(int vertex, int vertex1, int vertex2)
 	array_texcoord2f[vertex*2+1] = (array_texcoord2f[vertex1*2+1] + array_texcoord2f[vertex2*2+1]) * 0.5;
 
 	// texture indices can't be averaged, so try to reduce the indices to a smaller set that still describes the blend
+	// note this code is probably overkill because the extreme penalty in the error metric usually prevents the need to merge blends
 	besttexindex[0] = array_textureblendindex2i[vertex1 * 2 + 0];
 	besttexindex[1] = array_textureblendindex2i[vertex2 * 2 + 0];
 	besttexindex[2] = array_textureblendindex2i[vertex1 * 2 + 1];
@@ -449,9 +473,9 @@ void Mesh::CollapseEdges_RecursiveReplaceVertex(int thistriangle, int oldvertex,
 		return;
 	// update error metrics
 	// they will be re-sorted later
-	array_edgeerror[thistriangle * 3 + 0] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[thistriangle * 3 + 0], array_vertex3f + 3 * array_element3i[thistriangle * 3 + 1]);
-	array_edgeerror[thistriangle * 3 + 1] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[thistriangle * 3 + 1], array_vertex3f + 3 * array_element3i[thistriangle * 3 + 2]);
-	array_edgeerror[thistriangle * 3 + 2] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[thistriangle * 3 + 2], array_vertex3f + 3 * array_element3i[thistriangle * 3 + 0]);
+	array_edgeerror[thistriangle * 3 + 0] = Mesh::EdgeErrorMetric(array_element3i[thistriangle * 3 + 0], array_element3i[thistriangle * 3 + 1]);
+	array_edgeerror[thistriangle * 3 + 1] = Mesh::EdgeErrorMetric(array_element3i[thistriangle * 3 + 1], array_element3i[thistriangle * 3 + 2]);
+	array_edgeerror[thistriangle * 3 + 2] = Mesh::EdgeErrorMetric(array_element3i[thistriangle * 3 + 2], array_element3i[thistriangle * 3 + 0]);
 	// we have fixed this triangle, now flow into neighbors
 	for (i = 0;i < 3;i++)
 		CollapseEdges_RecursiveReplaceVertex(array_neighbor3i[thistriangle * 3 + i], oldvertex, newvertex);
@@ -490,6 +514,7 @@ void Mesh::CollapseEdges_CollapseTriangle(int thistriangle, int othertriangle)
 	{
 		array_element3i[thistriangle * 3 + i] = -1;
 		array_neighbor3i[thistriangle * 3 + i] = -1;
+		array_edgeerror[thistriangle * 3 + i] = Mesh::EdgeErrorMetric(-1, -1);
 	}
 }
 
@@ -499,6 +524,8 @@ void Mesh::CollapseEdges(float tolerance)
 
 	array_edgeerror = (float *)malloc(num_triangles * 3 * sizeof(float));
 	array_edgesortindex = (int *)malloc(num_triangles * 3 * sizeof(int));
+	array_originalvertex3f = (float *)malloc(num_vertices * 3 + sizeof(float));
+	memcpy(array_originalvertex3f, array_vertex3f, num_vertices * 3 + sizeof(float));
 
 	// we need the triangle neighbors for edge information
 	CompileTriangleNeighbors();
@@ -506,9 +533,9 @@ void Mesh::CollapseEdges(float tolerance)
 	// compute edge error metrics
 	for (i = 0;i < num_triangles;i++)
 	{
-		array_edgeerror[i * 3 + 0] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[i * 3 + 0], array_vertex3f + 3 * array_element3i[i * 3 + 1]);
-		array_edgeerror[i * 3 + 1] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[i * 3 + 1], array_vertex3f + 3 * array_element3i[i * 3 + 2]);
-		array_edgeerror[i * 3 + 2] = Mesh::EdgeErrorMetric(array_vertex3f + 3 * array_element3i[i * 3 + 2], array_vertex3f + 3 * array_element3i[i * 3 + 0]);
+		array_edgeerror[i * 3 + 0] = Mesh::EdgeErrorMetric(array_element3i[i * 3 + 0], array_element3i[i * 3 + 1]);
+		array_edgeerror[i * 3 + 1] = Mesh::EdgeErrorMetric(array_element3i[i * 3 + 1], array_element3i[i * 3 + 2]);
+		array_edgeerror[i * 3 + 2] = Mesh::EdgeErrorMetric(array_element3i[i * 3 + 2], array_element3i[i * 3 + 0]);
 		array_edgesortindex[i * 3 + 0] = i * 3 + 0;
 		array_edgesortindex[i * 3 + 1] = i * 3 + 1;
 		array_edgesortindex[i * 3 + 2] = i * 3 + 2;
@@ -614,6 +641,7 @@ void Mesh::CollapseEdges(float tolerance)
 		}
 	}
 
+	free(array_originalvertex3f);array_originalvertex3f = NULL;
 	free(array_edgeerror);array_edgeerror = NULL;
 	free(array_edgesortindex);array_edgesortindex = NULL;
 
