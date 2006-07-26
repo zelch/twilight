@@ -21,8 +21,8 @@ typedef unsigned char byte;
 // the dec offsetof macro doesn't work very well...
 #define myoffsetof(type,identifier) ((size_t)&((type *)0)->identifier)
 
-// LordHavoc: increased maximum token length from 128 to 1024
-#define	MAXTOKEN	1024
+// LordHavoc: increased maximum token length from 128 to 16384
+#define	MAXTOKEN	16384
 
 // set these before calling CheckParm
 extern int myargc;
