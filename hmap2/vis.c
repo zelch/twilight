@@ -278,6 +278,10 @@ sep_t *Findpassages (viswinding_t *source, viswinding_t *pass)
 
 	list = NULL;
 
+	// hush warnings about uninitialized plane.type (which isn't used here)
+	memset(&plane, 0, sizeof(plane));
+
+
 // check all combinations
 	for (i=0 ; i<source->numpoints ; i++)
 	{

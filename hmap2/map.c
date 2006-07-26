@@ -290,6 +290,13 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 		scale[0] = (vec_t)atof(token); // LordHavoc: was already float coords
 		GetToken (false);
 		scale[1] = (vec_t)atof(token); // LordHavoc: was already float coords
+
+		bp[0][0] = 1;
+		bp[0][1] = 0;
+		bp[0][2] = 0;
+		bp[1][0] = 0;
+		bp[1][1] = 1;
+		bp[1][2] = 0;
 	}
 	// q3 .map properties, currently unused but parsed
 	facecontents = 0;
