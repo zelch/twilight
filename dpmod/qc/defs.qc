@@ -467,6 +467,7 @@ float	AS_MISSILE		= 4;
 .float		invisible_finished;
 .float		super_damage_finished;
 .float		radsuit_finished;
+.float		spawnshieldtime;
 
 .float		invincible_time, invincible_sound;
 .float		invisible_time, invisible_sound;

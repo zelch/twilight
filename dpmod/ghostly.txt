@@ -1,0 +1,29 @@
+LordHavoc's 'ghostly' speedmod for Quake Expo 2006.
+
+This is a dpmod-based modification and as such it requires DarkPlaces engine
+to run.
+
+Note this is a 3-hour speedmod, as I started so late in the 24 hour
+speedmodding contest that I only had 2 hours left, and ended up going an hour
+over the 24 hour limit in final balancing/playtesting, sorry for the lousy
+presentation of this mod.
+
+The features of this mod will be found in all future dpmod releases.
+
+How to play:
+Go through the start map as normal, but once you enter the main hub room,
+type in the command "skill 5" without quotes, then proceed through any episode
+exit of your choice, enjoy.  And good luck, you'll need it.
+
+The speedmodding theme was making a new scarier Quake experience, preferably
+inspired by H.P. Lovecraft's work, insanity is a favorite subject of his work.
+
+Unfortunately I didn't work in any new H.P. Lovecraft inspired stuff; although
+some might consider the new surprise at the end of each level to be vaguely
+H.P. Lovecraft inspired, and playing this mod may carry a risk of paranoia :)
+
+Warning: Anyone with a risk of heart-attack is advised not to play this for
+their own safety.  Seriously.
+
+This mod will probably be penalized in the QuakeExpo 2006 speedmodding contest
+for being based on dpmod rather than id1 qc.

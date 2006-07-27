@@ -81,12 +81,46 @@ Sets relative alpha of monster in skill 4 mode.
 */
 void(float a) monster_setalpha =
 {
-	if (skill < 4)
+	if (skill < 4 || self.classname == "monster_hellfish")
 	{
 		self.alpha = 1.0;
 		return;
 	}
 
+	if (skill >= 5)
+	{
+		// randomly forget enemy, this makes monsters randomly return to their normal ghostlike state
+		if (a == 0)
+		if (self.enemy)
+		if (random() < 0.1)
+			self.enemy = world;
+		// randomly blink (playing the same alarming sound as if attacking)
+		if (self.enemy == world)
+		{
+			a = 0;
+			if (time >= 0.3) // don't blink during the init process because it might become permanent
+			if (random() < 0.005)
+			{
+				// blink for an instant, this causes the appear sound, alarming the player as if under attack
+				sound(self, CHAN_AUTO, "wizard/wsight.wav", 1, ATTN_NORM);
+				a = 1;
+			}
+		}
+		// if ghosted, become non-solid and immune to damage
+		if (a <= 0 || self.enemy == world)
+		{
+			self.solid = SOLID_NOT;
+			self.takedamage = DAMAGE_NO;
+		}
+		else
+		{
+			// if unghosting, make sure we have an enemy, otherwise stay ghosted (even if blinking) so we can't be shot while blinking
+			if (self.solid != SOLID_SLIDEBOX)
+				sound(self, CHAN_AUTO, "wizard/wsight.wav", 1, ATTN_NORM);
+			self.solid = SOLID_SLIDEBOX;
+			self.takedamage = DAMAGE_AIM;
+		}
+	}
 	self.alpha = SKILL4_MINALPHA + (1 - SKILL4_MINALPHA) * bound(0, a, 1);
 };
 

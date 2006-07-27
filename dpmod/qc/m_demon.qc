@@ -32,6 +32,7 @@ $frame attacka9 attacka10 attacka11 attacka12 attacka13 attacka14 attacka15
 //============================================================================
 
 void() Demon_JumpTouch;
+void() Demon_JumpCheckGround;
 
 void() demon1_stand1	=[	$stand1,	demon1_stand2	] {ai_stand();};
 void() demon1_stand2	=[	$stand2,	demon1_stand3	] {ai_stand();};
@@ -70,12 +71,15 @@ void() demon1_run4	=[	$run4,		demon1_run5	] {ai_run(20);};
 void() demon1_run5	=[	$run5,		demon1_run6	] {ai_run(15);};
 void() demon1_run6	=[	$run6,		demon1_run1	] {ai_run(36);};
 
-void() demon1_jump1	=[	$leap1,		demon1_jump2	] {ai_face();};
-void() demon1_jump2	=[	$leap2,		demon1_jump3	] {ai_face();};
-void() demon1_jump3	=[	$leap3,		demon1_jump4	] {monster_setalpha(0.5);ai_face();};
+void() demon1_jump1	=[	$leap1,		demon1_jump2	] {monster_setalpha(0.5);ai_face();};
+void() demon1_jump2	=[	$leap2,		demon1_jump3	] {monster_setalpha(1.0);ai_face();};
+void() demon1_jump3	=[	$leap3,		demon1_jump4	] {monster_setalpha(1.0);ai_face();};
 void() demon1_jump4	=[	$leap4,		demon1_jump5	]
 {
-	monster_setalpha(1.0);
+	if (skill >= 5 && random() < 0.5) // half the fiend/tarbaby jumps in skill 5 are ghosted (causing the monster to pass through the player)
+		monster_setalpha(0);
+	else
+		monster_setalpha(1.0);
 	ai_face();
 
 	self.touch = Demon_JumpTouch;
@@ -84,40 +88,41 @@ void() demon1_jump4	=[	$leap4,		demon1_jump5	]
 	if (self.flags & FL_ONGROUND)
 		self.flags = self.flags - FL_ONGROUND;
 };
-void() demon1_jump5	=[	$leap5,		demon1_jump6	] {};
-void() demon1_jump6	=[	$leap6,		demon1_jump7	] {};
-void() demon1_jump7	=[	$leap7,		demon1_jump8	] {};
-void() demon1_jump8	=[ $leap8,		demon1_jump9	] {};
-void() demon1_jump9	=[ $leap9,		demon1_jump10	] {};
+void() demon1_jump5	=[	$leap5,		demon1_jump6	] {Demon_JumpCheckGround();};
+void() demon1_jump6	=[	$leap6,		demon1_jump7	] {Demon_JumpCheckGround();};
+void() demon1_jump7	=[	$leap7,		demon1_jump8	] {Demon_JumpCheckGround();};
+void() demon1_jump8	=[ $leap8,		demon1_jump9	] {Demon_JumpCheckGround();};
+void() demon1_jump9	=[ $leap9,		demon1_jump10	] {Demon_JumpCheckGround();};
 void() demon1_jump10	=[ $leap10,	demon1_jump1	] {
-self.nextthink = time + 3;
 // if three seconds pass, assume demon is stuck and jump again
+self.nextthink = time + 3;
+Demon_JumpCheckGround();
 };
 
 void() demon1_jump11	=[ $leap11,	demon1_jump12	] {monster_setalpha(0.0);};
 void() demon1_jump12	=[ $leap12,	demon1_run1	] {};
 
 
-void() demon1_atta1	=[	$attacka1,		demon1_atta2	] {ai_charge(4);};
-void() demon1_atta2	=[	$attacka2,		demon1_atta3	] {ai_charge(0);};
-void() demon1_atta3	=[	$attacka3,		demon1_atta4	] {ai_charge(0);};
-void() demon1_atta4	=[	$attacka4,		demon1_atta5	] {monster_setalpha(0.5);ai_charge(1);};
-void() demon1_atta5	=[	$attacka5,		demon1_atta6	] {monster_setalpha(1.0);ai_charge(2); Demon_Melee(200);};
-void() demon1_atta6	=[	$attacka6,		demon1_atta7	] {monster_setalpha(0.5);ai_charge(1);};
-void() demon1_atta7	=[	$attacka7,		demon1_atta8	] {monster_setalpha(0.0);ai_charge(6);};
-void() demon1_atta8	=[	$attacka8,		demon1_atta9	] {ai_charge(8);};
-void() demon1_atta9	=[	$attacka9,		demon1_atta10] {ai_charge(4);};
-void() demon1_atta10	=[	$attacka10,		demon1_atta11] {monster_setalpha(0.5);ai_charge(2);};
-void() demon1_atta11	=[	$attacka11,		demon1_atta12] {monster_setalpha(1.0);Demon_Melee(-200);};
-void() demon1_atta12	=[	$attacka12,		demon1_atta13] {monster_setalpha(0.5);ai_charge(5);};
-void() demon1_atta13	=[	$attacka13,		demon1_atta14] {monster_setalpha(0.0);ai_charge(8);};
-void() demon1_atta14	=[	$attacka14,		demon1_atta15] {ai_charge(4);};
-void() demon1_atta15	=[	$attacka15,		demon1_run1] {ai_charge(4);};
+void() demon1_atta1	=[	$attacka1,		demon1_atta2	] {monster_setalpha(0);ai_charge(4);};
+void() demon1_atta2	=[	$attacka2,		demon1_atta3	] {monster_setalpha(0.50);ai_charge(0);};
+void() demon1_atta3	=[	$attacka3,		demon1_atta4	] {monster_setalpha(1.00);ai_charge(0);};
+void() demon1_atta4	=[	$attacka4,		demon1_atta5	] {monster_setalpha(1.00);ai_charge(1);};
+void() demon1_atta5	=[	$attacka5,		demon1_atta6	] {monster_setalpha(1.00);ai_charge(2); Demon_Melee(200);};
+void() demon1_atta6	=[	$attacka6,		demon1_atta7	] {monster_setalpha(1.00);ai_charge(1);};
+void() demon1_atta7	=[	$attacka7,		demon1_atta8	] {monster_setalpha(1.00);ai_charge(6);};
+void() demon1_atta8	=[	$attacka8,		demon1_atta9	] {monster_setalpha(1.00);ai_charge(8);};
+void() demon1_atta9	=[	$attacka9,		demon1_atta10	] {monster_setalpha(1.00);ai_charge(4);};
+void() demon1_atta10	=[	$attacka10,		demon1_atta11] {monster_setalpha(1.00);ai_charge(2);};
+void() demon1_atta11	=[	$attacka11,		demon1_atta12] {monster_setalpha(1.00);Demon_Melee(-200);};
+void() demon1_atta12	=[	$attacka12,		demon1_atta13] {monster_setalpha(1.00);ai_charge(5);};
+void() demon1_atta13	=[	$attacka13,		demon1_atta14] {monster_setalpha(1.00);ai_charge(8);};
+void() demon1_atta14	=[	$attacka14,		demon1_atta15] {monster_setalpha(0.50);ai_charge(4);};
+void() demon1_atta15	=[	$attacka15,		demon1_run1] {monster_setalpha(0);ai_charge(4);};
 
 void() demon1_pain1	=[	$pain1,		demon1_pain2	] {monster_setalpha(1.00);};
-void() demon1_pain2	=[	$pain2,		demon1_pain3	] {monster_setalpha(0.75);};
-void() demon1_pain3	=[	$pain3,		demon1_pain4	] {monster_setalpha(0.50);};
-void() demon1_pain4	=[	$pain4,		demon1_pain5	] {monster_setalpha(0.25);};
+void() demon1_pain2	=[	$pain2,		demon1_pain3	] {monster_setalpha(1.00);};
+void() demon1_pain3	=[	$pain3,		demon1_pain4	] {monster_setalpha(1.00);};
+void() demon1_pain4	=[	$pain4,		demon1_pain5	] {monster_setalpha(0.50);};
 void() demon1_pain5	=[	$pain5,		demon1_pain6	] {monster_setalpha(0.00);};
 void() demon1_pain6	=[	$pain6,		demon1_run1	] {};
 
@@ -294,6 +299,15 @@ void(float side) Demon_Melee =
 	//SpawnMeatSpray (self.origin + v_forward*16, side * v_right);
 };
 
+
+void() Demon_JumpCheckGround =
+{
+	if (!checkbottom(self))
+		return;
+	self.touch = SUB_Null;
+	self.think = demon1_jump11;
+	self.nextthink = time + 0.1;
+};
 
 void() Demon_JumpTouch =
 {

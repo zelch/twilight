@@ -339,6 +339,10 @@ void() SightSound =
 {
 	if (self.health < 1)
 		return;
+	// skill 5 does not play sight sounds, instead you only hear the appear sound as they are about to attack
+	if (skill >= 5)
+	if (self.classname != "monster_hellfish")
+		return;
 
 	if (self.th_sightsound)
 		self.th_sightsound();
@@ -475,6 +479,12 @@ float() FindTarget =
 	if (client.items & IT_INVISIBILITY)
 		return FALSE;
 
+	// on skill 5 the monsters usually ignore the player and remain ghostlike
+	if (skill >= 5)
+	if (self.classname != "monster_hellfish")
+	if (random() < 0.99)
+		return FALSE;
+
 	r = range(client);
 	if (r == RANGE_FAR)
 		return FALSE;
@@ -530,6 +540,8 @@ void(float dist) ai_back =
 };
 
 
+void(float a) monster_setalpha;
+
 /*
 =============
 ai_pain
@@ -579,6 +591,7 @@ void(float dist) ai_walk =
 		self.enemy = self.oldenemy;
 		self.oldenemy = world;
 		FoundTarget();
+		monster_setalpha(0);
 		return;
 	}
 	if (self.enemy)
@@ -588,6 +601,7 @@ void(float dist) ai_walk =
 			if (self.enemy.health >= 1)
 			{
 				FoundTarget();
+				monster_setalpha(0);
 				return;
 			}
 			else
@@ -600,6 +614,7 @@ void(float dist) ai_walk =
 	self.findtarget = TRUE;
 
 	movetogoal (dist);
+	monster_setalpha(0);
 };
 
 
@@ -621,6 +636,7 @@ void() ai_stand =
 			if (self.enemy.health >= 1)
 			{
 				FoundTarget();
+				monster_setalpha(0);
 				return;
 			}
 			else
@@ -634,11 +650,13 @@ void() ai_stand =
 	if (time > self.pausetime)
 	{
 		self.th_walk ();
+		monster_setalpha(0);
 		return;
 	}
 
 // change angle slightly
 
+	monster_setalpha(0);
 };
 
 /*
@@ -657,6 +675,7 @@ void() ai_turn =
 			if (self.enemy.health >= 1)
 			{
 				FoundTarget();
+				monster_setalpha(0);
 				return;
 			}
 			else
@@ -668,6 +687,7 @@ void() ai_turn =
 	self.findtarget = TRUE;
 
 	ChangeYaw ();
+	monster_setalpha(0);
 };
 
 //=============================================================================

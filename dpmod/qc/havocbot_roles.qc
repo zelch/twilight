@@ -61,6 +61,8 @@ void(float ratingscale, vector org, float sradius) havocbot_goalrating_enemyplay
 {
 	local entity head;
 	local float t, noteam;
+	if (coop)
+		return;
 	ratingscale = ratingscale * 1200;
 	noteam = self.team == 0 || teamplay == 0;
 	head = findchain(classname, "player");

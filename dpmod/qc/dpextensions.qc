@@ -303,6 +303,18 @@ game/textures/gfx/conchars.tga
 game/gfx/conchars.tga
 */
 
+//DP_GFX_EXTERNALTEXTURES_PERMAPTEXTURES
+//idea: Fuh?
+//darkplaces implementation: LordHavoc
+//description:
+//Q1BSP and HLBSP map loading loads external textures found in textures/<mapname>/ as well as textures/.
+//Where mapname is the bsp filename minus the extension (typically .bsp) and minus maps/ if it is in maps/ (any other path is not removed)
+//example:
+//maps/e1m1.bsp uses textures in the directory textures/e1m1/ and falls back to textures/
+//maps/b_batt0.bsp uses textures in the directory textures/b_batt0.bsp and falls back to textures/
+//as a more extreme example:
+//progs/something/blah.bsp uses textures in the directory textures/progs/something/blah/ and falls back to textures/
+
 //DP_GFX_FOG
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -392,6 +404,16 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 .float button8;
 //description:
 //set to the state of the +button3, +button4, +button5, +button6, +button7, and +button8 buttons from the client, this does not involve protocol changes (the extra 6 button bits were simply not used).
+//the exact mapping of protocol button bits on the server is:
+//self.button0 = (bits & 1) != 0;
+///* button1 is skipped because mods abuse it as a variable, and accordingly it has no bit */
+//self.button2 = (bits & 2) != 0;
+//self.button3 = (bits & 4) != 0;
+//self.button4 = (bits & 8) != 0;
+//self.button5 = (bits & 16) != 0;
+//self.button6 = (bits & 32) != 0;
+//self.button7 = (bits & 64) != 0;
+//self.button8 = (bits & 128) != 0;
 
 //DP_LITSPRITES
 //idea: LordHavoc
@@ -903,12 +925,13 @@ void(entity ent, float colors) setcolor = #401;
 //range is 0 to infinite, recommended values to try are 0.1 (very slow, 10% speed), 1 (normal speed), 5 (500% speed).
 
 //DP_SV_WRITEUNTERMINATEDSTRING
-//idea: shadowalker
+//idea: FrikaC
 //darkplaces implementation: Sajt
 //builtin definitions:
 void(float to, string s) WriteUnterminatedString = #456;
 //description:
 //like WriteString, but does not write a terminating 0 after the string. This means you can include things like a player's netname in the middle of a string sent over the network. Just be sure to end it up with either a call to WriteString (which includes the trailing 0) or WriteByte(0) to terminate it yourself.
+//A historical note: this extension was suggested by FrikaC years ago, more recently Shadowalker has been badmouthing LordHavoc and Spike for stealing 'his' extension writestring2 which does exactly the same thing but uses a different builtin number and name and extension string, this argument hinges on the idea that it was his idea in the first place, which is incorrect as FrikaC first suggested it and used a rough equivilant of it in his FrikBot mod years ago involving WriteByte calls on each character.
 
 //DP_TE_BLOOD
 //idea: LordHavoc

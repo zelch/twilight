@@ -65,11 +65,11 @@ void() shal_attack2     =[      $attack2,       shal_attack3    ] {ai_face();};
 void() shal_attack3     =[      $attack3,       shal_attack4    ] {ai_face();};
 void() shal_attack4     =[      $attack4,       shal_attack5    ] {ai_face();};
 void() shal_attack5     =[      $attack5,       shal_attack6    ] {ai_face();};
-void() shal_attack6     =[      $attack6,       shal_attack7    ] {ai_face();};
-void() shal_attack7     =[      $attack7,       shal_attack8    ] {ai_face();};
-void() shal_attack8     =[      $attack8,       shal_attack9    ] {monster_setalpha(0.5);ai_face();};
+void() shal_attack6     =[      $attack6,       shal_attack7    ] {monster_setalpha(0.5);ai_face();};
+void() shal_attack7     =[      $attack7,       shal_attack8    ] {monster_setalpha(1.0);ai_face();};
+void() shal_attack8     =[      $attack8,       shal_attack9    ] {monster_setalpha(1.0);ai_face();};
 void() shal_attack9     =[      $attack9,       shal_attack10   ] {monster_setalpha(1.0);ShalMissile();};
-void() shal_attack10    =[      $attack10,      shal_attack11   ] {monster_setalpha(0.5);ai_face();};
+void() shal_attack10    =[      $attack10,      shal_attack11   ] {monster_setalpha(1.0);ai_face();};
 void() shal_attack11    =[      $attack11,      shal_run1   ] {monster_setalpha(0.0);};
 
 float() shal_missile =
@@ -83,9 +83,9 @@ float() shal_missile =
 };
 
 void() shal_pain1       =[      $pain1, shal_pain2      ] {monster_setalpha(1.00);};
-void() shal_pain2       =[      $pain2, shal_pain3      ] {monster_setalpha(0.75);};
-void() shal_pain3       =[      $pain3, shal_pain4      ] {monster_setalpha(0.50);};
-void() shal_pain4       =[      $pain4, shal_pain5      ] {monster_setalpha(0.25);};
+void() shal_pain2       =[      $pain2, shal_pain3      ] {monster_setalpha(1.00);};
+void() shal_pain3       =[      $pain3, shal_pain4      ] {monster_setalpha(1.00);};
+void() shal_pain4       =[      $pain4, shal_pain5      ] {monster_setalpha(0.50);};
 void() shal_pain5       =[      $pain5, shal_run1      ] {monster_setalpha(0.00);};
 
 void() shal_death1      =[      $death1,        shal_death2     ] {body_solid('-32 -32 -24', '32 32 32');};

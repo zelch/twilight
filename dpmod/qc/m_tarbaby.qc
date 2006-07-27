@@ -88,6 +88,16 @@ void() tbaby_run25	=[	$run25,		tbaby_run1	] {ai_run(2);};
 
 void() tbaby_jump1;
 
+void() Tar_JumpCheckGround =
+{
+	if (!checkbottom(self))
+		return;
+	self.touch = SUB_Null;
+	self.think = tbaby_jump1;
+	self.nextthink = time + 0.1;
+	monster_setalpha(0.0);
+};
+
 void() Tar_JumpTouch =
 {
 	local float ldmg;
@@ -137,10 +147,10 @@ void() Tar_JumpTouch =
 
 void() tbaby_jump5;
 
-void() tbaby_fly1		=[	$fly1,	tbaby_fly2	] {monster_setalpha(1.0);};
-void() tbaby_fly2		=[	$fly2,	tbaby_fly3	] {monster_setalpha(1.0);};
-void() tbaby_fly3		=[	$fly3,	tbaby_fly4	] {monster_setalpha(1.0);};
-void() tbaby_fly4		=[	$fly4,	tbaby_fly1	] {monster_setalpha(1.0);
+void() tbaby_fly1		=[	$fly1,	tbaby_fly2	] {};
+void() tbaby_fly2		=[	$fly2,	tbaby_fly3	] {};
+void() tbaby_fly3		=[	$fly3,	tbaby_fly4	] {};
+void() tbaby_fly4		=[	$fly4,	tbaby_fly1	] {
 self.cnt = self.cnt + 1;
 if (self.cnt >= 4)
 {
@@ -150,12 +160,15 @@ tbaby_jump5 ();
 };
 
 void() tbaby_jump1		=[	$jump1,	tbaby_jump2		] {ai_face();};
-void() tbaby_jump2		=[	$jump2,	tbaby_jump3		] {ai_face();};
-void() tbaby_jump3		=[	$jump3,	tbaby_jump4		] {ai_face();};
-void() tbaby_jump4		=[	$jump4,	tbaby_jump5		] {monster_setalpha(0.5);ai_face();};
+void() tbaby_jump2		=[	$jump2,	tbaby_jump3		] {monster_setalpha(0.5);ai_face();};
+void() tbaby_jump3		=[	$jump3,	tbaby_jump4		] {monster_setalpha(1.0);ai_face();};
+void() tbaby_jump4		=[	$jump4,	tbaby_jump5		] {monster_setalpha(1.0);ai_face();};
 void() tbaby_jump5		=[	$jump5,	tbaby_jump6		]
 {
-	monster_setalpha(1.0);
+	if (skill >= 5 && random() < 0.5) // half the fiend/tarbaby jumps in skill 5 are ghosted (causing the monster to pass through the player)
+		monster_setalpha(0);
+	else
+		monster_setalpha(1.0);
 	self.cnt = 0;
 // dunno why this would be called when dead, but to be safe
 	if (self.health < 1)
@@ -169,7 +182,7 @@ void() tbaby_jump5		=[	$jump5,	tbaby_jump6		]
 	if (self.flags & FL_ONGROUND)
 		self.flags = self.flags - FL_ONGROUND;
 };
-void() tbaby_jump6	=[	$jump6,tbaby_fly1	] {monster_setalpha(1.0);};
+void() tbaby_jump6	=[	$jump6,tbaby_fly1	] {};
 
 float() tbaby_missile =
 {

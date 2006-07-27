@@ -1632,6 +1632,24 @@ void(entity body, vector org, vector forward, vector left, vector up) RigidBody_
 
 void(entity body, vector lp, vector lf) RigidBody_ApplyImpulse =
 {
+	/*
+	local vector fspinaxis;
+	fspinaxis = normalize(crossproduct(lp, lf));
+	vectorvectors(fspinaxis);
+	fspinforward = v_forward;
+	fspinleft = v_right * -1;
+	fspinup = v_up;
+	p1 = lp_x * body.rb_forward + lp_y * body.rb_left + lp_z * body.rb_up + body.rb_origin;
+	RigidBody_ExtrapolateMotion(body, 1 / 128);
+	p2 = lp_x * _rb_forward + lp_y * _rb_left + lp_z * _rb_up + _rb_origin;
+	temp = p2 - body.rb_origin;
+	lp2_x = temp * body.rb_forward;
+	lp2_y = temp * body.rb_left;
+	lp2_z = temp * body.rb_up;
+	lpv = (lp2 - lp) * 128;
+	lpvf = lpv + lf * (1 / body.rb_mass);
+	*/
+
 /*
 	local vector aorigin;
 	local vector aforward;

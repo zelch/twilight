@@ -1234,8 +1234,8 @@ void() MineThink =
 			while (head)
 			{
 				if ((head.flags & FL_MONSTER) || head.classname == "player")
-				//if (head != self.owner)
-				//if (head.team == 0 || head.team != self.owner.team || teamplay == 0)
+				if (head != self.owner)
+				if (head.team == 0 || !teamplay || (head.team != self.owner.team && (self.owner.classname != "player" || teamplay != TP_COOP)))
 				//if (head != self.enemy)
 				{
 					traceline(head.origin, self.origin, TRUE, world);

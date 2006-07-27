@@ -193,13 +193,13 @@ void() enf_run8	=[	$run8  ,	enf_run1	] {ai_run(11);};
 void() enf_laser1	=[	$attack1,	enf_laser2	] {ai_face();};
 void() enf_laser2	=[	$attack2,	enf_laser3	] {ai_face();};
 void() enf_laser3	=[	$attack3,	enf_laser4	] {ai_face();self.dest1 = monster_shotlead(0.3, 1000);};
-void() enf_laser4	=[	$attack4,	enf_laser5	] {ai_face();self.dest2 = monster_shotlead(0.3, 1000);};
-void() enf_laser5	=[	$attack5,	enf_laser6	] {monster_setalpha(0.5);ai_face();};
+void() enf_laser4	=[	$attack4,	enf_laser5	] {monster_setalpha(0.5);ai_face();self.dest2 = monster_shotlead(0.3, 1000);};
+void() enf_laser5	=[	$attack5,	enf_laser6	] {monster_setalpha(1.0);ai_face();};
 void() enf_laser6	=[	$attack6,	enf_laser7	] {monster_setalpha(1.0);ai_face();enforcer_laser(self.dest1);};
 void() enf_laser7	=[	$attack6,	enf_laser8	] {monster_setalpha(1.0);ai_face();enforcer_laser(self.dest2);};
-void() enf_laser8	=[	$attack7,	enf_laser9	] {monster_setalpha(0.5);ai_face();};
-void() enf_laser9	=[	$attack8,	enf_laser10	] {monster_setalpha(0.0);ai_face();};
-void() enf_laser10	=[	$attack9,	enf_laser11	] {ai_face();};
+void() enf_laser8	=[	$attack7,	enf_laser9	] {monster_setalpha(1.0);ai_face();};
+void() enf_laser9	=[	$attack8,	enf_laser10	] {monster_setalpha(0.5);ai_face();};
+void() enf_laser10	=[	$attack9,	enf_laser11	] {monster_setalpha(0.0);ai_face();};
 void() enf_laser11	=[	$attack10,	enf_run1	] {ai_face();SUB_CheckRefire (enf_laser1);};
 
 float() enf_missile_laser =
@@ -212,14 +212,14 @@ void()	enf_dbshotgun10;
 void()	enf_dbshotgun1	=[	$attack1,	enf_dbshotgun2	] {ai_face();};
 void()	enf_dbshotgun2	=[	$attack2,	enf_dbshotgun3	] {ai_face();self.dest1 = monster_shotlead(0.4, 10000);};
 void()	enf_dbshotgun3	=[	$attack3,	enf_dbshotgun4	] {ai_face();};
-void()	enf_dbshotgun4	=[	$attack4,	enf_dbshotgun5	] {ai_face();};
-void()	enf_dbshotgun5	=[	$attack5,	enf_dbshotgun6	] {monster_setalpha(0.5);ai_face();self.dest2 = monster_shotlead(0.3, 2000);};
+void()	enf_dbshotgun4	=[	$attack4,	enf_dbshotgun5	] {monster_setalpha(0.5);ai_face();};
+void()	enf_dbshotgun5	=[	$attack5,	enf_dbshotgun6	] {monster_setalpha(1.0);ai_face();self.dest2 = monster_shotlead(0.3, 2000);};
 void()	enf_dbshotgun6	=[	$attack6,	enf_dbshotgun7	] {monster_setalpha(1.0);ai_face();enforcer_dbshotgun(self.dest1);};
 void()	enf_dbshotgun7	=[	$attack7,	enf_dbshotgun8	] {monster_setalpha(1.0);if (skill < 3) self.think = enf_dbshotgun10;ai_face();};
 void()	enf_dbshotgun8	=[	$attack6,	enf_dbshotgun9	] {monster_setalpha(1.0);ai_face();enforcer_dbshotgun(self.dest2);};
-void()	enf_dbshotgun9	=[	$attack7,	enf_dbshotgun10	] {monster_setalpha(0.5);ai_face();};
-void()	enf_dbshotgun10	=[	$attack8,	enf_dbshotgun11	] {monster_setalpha(0.0);ai_face();};
-void()	enf_dbshotgun11	=[	$attack9,	enf_dbshotgun12	] {ai_face();};
+void()	enf_dbshotgun9	=[	$attack7,	enf_dbshotgun10	] {monster_setalpha(1.0);ai_face();};
+void()	enf_dbshotgun10	=[	$attack8,	enf_dbshotgun11	] {monster_setalpha(0.5);ai_face();};
+void()	enf_dbshotgun11	=[	$attack9,	enf_dbshotgun12	] {monster_setalpha(0.0);ai_face();};
 void()	enf_dbshotgun12	=[	$attack10,	enf_run1		] {ai_face();};
 
 float() enf_missile_dbshotgun =
@@ -254,14 +254,14 @@ void()	enf_rocket10;
 void()	enf_rocket1		=[	$attack1,	enf_rocket2		] {ai_face();};
 void()	enf_rocket2		=[	$attack2,	enf_rocket3		] {ai_face();};
 void()	enf_rocket3		=[	$attack3,	enf_rocket4		] {ai_face();self.dest1 = monster_shotlead(0.3, 2000);};
-void()	enf_rocket4		=[	$attack4,	enf_rocket5		] {ai_face();};
-void()	enf_rocket5		=[	$attack5,	enf_rocket6		] {monster_setalpha(0.5);ai_face();self.dest2 = monster_shotlead(0.3, 2000);};
+void()	enf_rocket4		=[	$attack4,	enf_rocket5		] {monster_setalpha(0.5);ai_face();};
+void()	enf_rocket5		=[	$attack5,	enf_rocket6		] {monster_setalpha(1.0);ai_face();self.dest2 = monster_shotlead(0.3, 2000);};
 void()	enf_rocket6		=[	$attack6,	enf_rocket7		] {monster_setalpha(1.0);ai_face();enforcer_rocket(self.dest1);};
 void()	enf_rocket7		=[	$attack7,	enf_rocket8		] {monster_setalpha(1.0);if (skill < 3) self.think = enf_rocket10;ai_face();};
 void()	enf_rocket8		=[	$attack6,	enf_rocket9		] {monster_setalpha(1.0);ai_face();enforcer_rocket(self.dest2);};
-void()	enf_rocket9		=[	$attack7,	enf_rocket10	] {monster_setalpha(0.5);ai_face();};
-void()	enf_rocket10	=[	$attack8,	enf_rocket11	] {monster_setalpha(0.0);ai_face();};
-void()	enf_rocket11	=[	$attack9,	enf_rocket12	] {ai_face();};
+void()	enf_rocket9		=[	$attack7,	enf_rocket10	] {monster_setalpha(1.0);ai_face();};
+void()	enf_rocket10	=[	$attack8,	enf_rocket11	] {monster_setalpha(0.5);ai_face();};
+void()	enf_rocket11	=[	$attack9,	enf_rocket12	] {monster_setalpha(0.0);ai_face();};
 void()	enf_rocket12	=[	$attack10,	enf_run1		] {ai_face();};
 
 float() enf_missile_rocket =
@@ -273,14 +273,14 @@ float() enf_missile_rocket =
 void()	enf_plasma1		=[	$attack1,	enf_plasma2		] {ai_face();};
 void()	enf_plasma2		=[	$attack2,	enf_plasma3		] {ai_face();};
 void()	enf_plasma3		=[	$attack3,	enf_plasma4		] {ai_face();self.dest1 = monster_shotlead(0.3, 3000);};
-void()	enf_plasma4		=[	$attack4,	enf_plasma5		] {ai_face();self.dest2 = monster_shotlead(0.3, 3000);};
-void()	enf_plasma5		=[	$attack5,	enf_plasma6		] {monster_setalpha(0.5);ai_face();self.dest3 = monster_shotlead(0.3, 3000);};
+void()	enf_plasma4		=[	$attack4,	enf_plasma5		] {monster_setalpha(0.5);ai_face();self.dest2 = monster_shotlead(0.3, 3000);};
+void()	enf_plasma5		=[	$attack5,	enf_plasma6		] {monster_setalpha(1.0);ai_face();self.dest3 = monster_shotlead(0.3, 3000);};
 void()	enf_plasma6		=[	$attack6,	enf_plasma7		] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest1);};
 void()	enf_plasma7		=[	$attack6,	enf_plasma8		] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest2);};
 void()	enf_plasma8		=[	$attack6,	enf_plasma9		] {monster_setalpha(1.0);ai_face();enforcer_plasma(self.dest3);};
-void()	enf_plasma9		=[	$attack7,	enf_plasma10	] {monster_setalpha(0.5);ai_face();};
-void()	enf_plasma10	=[	$attack8,	enf_plasma11	] {monster_setalpha(0.0);ai_face();};
-void()	enf_plasma11	=[	$attack9,	enf_plasma12	] {ai_face();};
+void()	enf_plasma9		=[	$attack7,	enf_plasma10	] {monster_setalpha(1.0);ai_face();};
+void()	enf_plasma10	=[	$attack8,	enf_plasma11	] {monster_setalpha(0.5);ai_face();};
+void()	enf_plasma11	=[	$attack9,	enf_plasma12	] {monster_setalpha(0.0);ai_face();};
 void()	enf_plasma12	=[	$attack10,	enf_run1		] {ai_face();SUB_CheckRefire (enf_plasma1);};
 
 float() enf_missile_plasma =
@@ -292,29 +292,29 @@ float() enf_missile_plasma =
 
 
 void() enf_paina1	=[	$paina1,	enf_paina2	] {monster_setalpha(1.00);};
-void() enf_paina2	=[	$paina2,	enf_paina3	] {monster_setalpha(0.67);};
-void() enf_paina3	=[	$paina3,	enf_paina4	] {monster_setalpha(0.33);};
+void() enf_paina2	=[	$paina2,	enf_paina3	] {monster_setalpha(1.00);};
+void() enf_paina3	=[	$paina3,	enf_paina4	] {monster_setalpha(0.50);};
 void() enf_paina4	=[	$paina4,	enf_run1	] {monster_setalpha(0.00);};
 
 void() enf_painb1	=[	$painb1,	enf_painb2	] {monster_setalpha(1.00);};
-void() enf_painb2	=[	$painb2,	enf_painb3	] {monster_setalpha(0.75);};
-void() enf_painb3	=[	$painb3,	enf_painb4	] {monster_setalpha(0.50);};
-void() enf_painb4	=[	$painb4,	enf_painb5	] {monster_setalpha(0.25);};
+void() enf_painb2	=[	$painb2,	enf_painb3	] {monster_setalpha(1.00);};
+void() enf_painb3	=[	$painb3,	enf_painb4	] {monster_setalpha(1.00);};
+void() enf_painb4	=[	$painb4,	enf_painb5	] {monster_setalpha(0.50);};
 void() enf_painb5	=[	$painb5,	enf_run1	] {monster_setalpha(0.00);};
 
 void() enf_painc1	=[	$painc1,	enf_painc2	] {monster_setalpha(1.00);};
-void() enf_painc2	=[	$painc2,	enf_painc3	] {monster_setalpha(0.75);};
-void() enf_painc3	=[	$painc3,	enf_painc4	] {monster_setalpha(0.50);};
-void() enf_painc4	=[	$painc4,	enf_painc5	] {monster_setalpha(0.25);};
+void() enf_painc2	=[	$painc2,	enf_painc3	] {monster_setalpha(1.00);};
+void() enf_painc3	=[	$painc3,	enf_painc4	] {monster_setalpha(1.00);};
+void() enf_painc4	=[	$painc4,	enf_painc5	] {monster_setalpha(0.50);};
 void() enf_painc5	=[	$painc5,	enf_painc6	] {monster_setalpha(0.00);};
 void() enf_painc6	=[	$painc6,	enf_painc7	] {};
 void() enf_painc7	=[	$painc7,	enf_painc8	] {};
 void() enf_painc8	=[	$painc8,	enf_run1	] {};
 
 void() enf_paind1	=[	$paind1,	enf_paind2	] {monster_setalpha(1.00);};
-void() enf_paind2	=[	$paind2,	enf_paind3	] {monster_setalpha(0.75);};
-void() enf_paind3	=[	$paind3,	enf_paind4	] {monster_setalpha(0.50);};
-void() enf_paind4	=[	$paind4,	enf_paind5	] {monster_setalpha(0.25);ai_painforward(2);};
+void() enf_paind2	=[	$paind2,	enf_paind3	] {monster_setalpha(1.00);};
+void() enf_paind3	=[	$paind3,	enf_paind4	] {monster_setalpha(1.00);};
+void() enf_paind4	=[	$paind4,	enf_paind5	] {monster_setalpha(0.50);ai_painforward(2);};
 void() enf_paind5	=[	$paind5,	enf_paind6	] {monster_setalpha(0.00);ai_painforward(1);};
 void() enf_paind6	=[	$paind6,	enf_paind7	] {};
 void() enf_paind7	=[	$paind7,	enf_paind8	] {};

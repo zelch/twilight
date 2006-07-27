@@ -58,7 +58,26 @@ void() f_walk16 =[      $swim16, f_walk17 ] {ai_walk(8);};
 void() f_walk17 =[      $swim17, f_walk18 ] {ai_walk(8);};
 void() f_walk18 =[      $swim18, f_walk1 ] {ai_walk(8);};
 
-void() f_run1  =[      $swim1, f_run2 ] {ai_run(12);
+void() hf_run1  =[      $swim1, hf_run2 ] {ai_run(30);
+	if (random() < 0.5)
+		sound (self, CHAN_VOICE, "fish/idle.wav", 1, ATTN_NORM);
+};
+void() hf_run2  =[      $swim3, hf_run3 ] {ai_run(30);};
+void() hf_run3  =[      $swim5, hf_run4 ] {ai_run(30);};
+void() hf_run4  =[      $swim7, hf_run5 ] {ai_run(30);};
+void() hf_run5  =[      $swim9, hf_run6 ] {ai_run(30);};
+void() hf_run6  =[      $swim11, hf_run7 ] {ai_run(30);};
+void() hf_run7  =[      $swim13, hf_run8 ] {ai_run(30);};
+void() hf_run8  =[      $swim15, hf_run9 ] {ai_run(30);};
+void() hf_run9  =[      $swim17, hf_run1 ] {ai_run(30);};
+
+void() f_run1  =[      $swim1, f_run2 ] {
+	if (self.classname == "monster_hellfish")
+	{
+		hf_run1();
+		return;
+	}
+	ai_run(12);
 	if (random() < 0.5)
 		sound (self, CHAN_VOICE, "fish/idle.wav", 1, ATTN_NORM);
 };
@@ -88,30 +107,39 @@ void() fish_melee =
 		return;
 
 	sound (self, CHAN_VOICE, "fish/bite.wav", 1, ATTN_NORM);
-	ldmg = DMG_FISH_BITE_BASE + DMG_FISH_BITE_RANDOM1 * random();
-	ldmg = ldmg + DMG_FISH_BITE_RANDOM2 * random();
-	ldmg = ldmg + DMG_FISH_BITE_RANDOM3 * random();
+	if (self.classname == "monster_hellfish")
+	{
+		ldmg = DMG_HELLFISH_BITE_BASE + DMG_HELLFISH_BITE_RANDOM1 * random();
+		ldmg = ldmg + DMG_HELLFISH_BITE_RANDOM2 * random();
+		ldmg = ldmg + DMG_HELLFISH_BITE_RANDOM3 * random();
+	}
+	else
+	{
+		ldmg = DMG_FISH_BITE_BASE + DMG_FISH_BITE_RANDOM1 * random();
+		ldmg = ldmg + DMG_FISH_BITE_RANDOM2 * random();
+		ldmg = ldmg + DMG_FISH_BITE_RANDOM3 * random();
+	}
 	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, raddamage_lasthit, '0 0 0', Obituary_Generic);
 };
 
-void() f_attack1        =[      $attack1,       f_attack2 ] {ai_charge(10);};
-void() f_attack2        =[      $attack2,       f_attack3 ] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack1        =[      $attack1,       f_attack2 ] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack2        =[      $attack2,       f_attack3 ] {monster_setalpha(1.0);ai_charge(10);};
 void() f_attack3        =[      $attack3,       f_attack4 ] {monster_setalpha(1.0);fish_melee();};
-void() f_attack4        =[      $attack4,       f_attack5 ] {monster_setalpha(0.5);ai_charge(10);};
-void() f_attack5        =[      $attack5,       f_attack6 ] {monster_setalpha(0.0);ai_charge(10);};
-void() f_attack6        =[      $attack6,       f_attack7 ] {ai_charge(10);};
-void() f_attack7        =[      $attack7,       f_attack8 ] {ai_charge(10);};
-void() f_attack8        =[      $attack8,       f_attack9 ] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack4        =[      $attack4,       f_attack5 ] {monster_setalpha(1.0);ai_charge(10);};
+void() f_attack5        =[      $attack5,       f_attack6 ] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack6        =[      $attack6,       f_attack7 ] {monster_setalpha(0.0);ai_charge(10);};
+void() f_attack7        =[      $attack7,       f_attack8 ] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack8        =[      $attack8,       f_attack9 ] {monster_setalpha(1.0);ai_charge(10);};
 void() f_attack9        =[      $attack9,       f_attack10] {monster_setalpha(1.0);fish_melee();};
-void() f_attack10       =[      $attack10,      f_attack11] {monster_setalpha(0.5);ai_charge(10);};
-void() f_attack11       =[      $attack11,      f_attack12] {monster_setalpha(0.0);ai_charge(10);};
-void() f_attack12       =[      $attack12,      f_attack13] {ai_charge(10);};
-void() f_attack13       =[      $attack13,      f_attack14] {ai_charge(10);};
-void() f_attack14       =[      $attack14,      f_attack15] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack10       =[      $attack10,      f_attack11] {monster_setalpha(1.0);ai_charge(10);};
+void() f_attack11       =[      $attack11,      f_attack12] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack12       =[      $attack12,      f_attack13] {monster_setalpha(0.0);ai_charge(10);};
+void() f_attack13       =[      $attack13,      f_attack14] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack14       =[      $attack14,      f_attack15] {monster_setalpha(1.0);ai_charge(10);};
 void() f_attack15       =[      $attack15,      f_attack16] {monster_setalpha(1.0);fish_melee();};
-void() f_attack16       =[      $attack16,      f_attack17] {monster_setalpha(0.5);ai_charge(10);};
-void() f_attack17       =[      $attack17,      f_attack18] {monster_setalpha(0.0);ai_charge(10);};
-void() f_attack18       =[      $attack18,      f_run1    ] {ai_charge(10);};
+void() f_attack16       =[      $attack16,      f_attack17] {monster_setalpha(1.0);ai_charge(10);};
+void() f_attack17       =[      $attack17,      f_attack18] {monster_setalpha(0.5);ai_charge(10);};
+void() f_attack18       =[      $attack18,      f_run1    ] {monster_setalpha(0.0);ai_charge(10);};
 
 void() f_death1  =[      $death1,        f_death2        ] {body_solid('-16 -16 -24', '16 16  15');sound (self, CHAN_VOICE, "fish/death.wav", 1, ATTN_NORM);};
 void() f_death2  =[      $death2,        f_death3        ] {body_solid('-16 -16 -24', '16 16  13');};
@@ -136,9 +164,9 @@ void() f_death20 =[      $death20,       f_death21       ] {body_nonsolid('-16 -
 void() f_death21 =[      $death21,       f_death21       ] {body_nonsolid('-16 -16 -24', '16 16 -14');};
 
 void() f_pain1  =[      $pain1, f_pain2 ] {monster_setalpha(1.00);};
-void() f_pain2  =[      $pain2, f_pain3 ] {monster_setalpha(0.75);ai_pain(6);};
-void() f_pain3  =[      $pain3, f_pain4 ] {monster_setalpha(0.50);ai_pain(6);};
-void() f_pain4  =[      $pain4, f_pain5 ] {monster_setalpha(0.25);ai_pain(6);};
+void() f_pain2  =[      $pain2, f_pain3 ] {monster_setalpha(1.00);ai_pain(6);};
+void() f_pain3  =[      $pain3, f_pain4 ] {monster_setalpha(1.00);ai_pain(6);};
+void() f_pain4  =[      $pain4, f_pain5 ] {monster_setalpha(0.50);ai_pain(6);};
 void() f_pain5  =[      $pain5, f_pain6 ] {monster_setalpha(0.00);ai_pain(6);};
 void() f_pain6  =[      $pain6, f_pain7 ] {ai_pain(6);};
 void() f_pain7  =[      $pain7, f_pain8 ] {ai_pain(6);};
@@ -217,6 +245,50 @@ void() monster_fish =
 	self.th_gib = fish_gib;
 
 	swimmonster_start ();
+};
+
+/*QUAKED monster_hellfish (1 0 0) (-16 -16 -24) (16 16 24) Ambush
+*/
+void() monster_hellfish =
+{
+	if (deathmatch)
+	if (!monsterspawn)
+	{
+		remove(self);
+		return;
+	}
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " was munched by a Hellfish";
+
+	if (!monsterspawn)
+		precachemonster_fish();
+
+	self.forcescale = 6;
+	self.netname = "Hellfish";
+	// self.doobits = 1;
+	self.solid = SOLID_SLIDEBOX;
+	self.movetype = MOVETYPE_STEP;
+
+	setmodel (self, "progs/fish.mdl");
+
+	setsize (self, '-16 -16 -24', '16 16 16');
+	if (!self.health)
+		self.health = MH_HELLFISH;
+	self.health = self.health;
+	self.bodyhealth = self.health + MB_HELLFISH;
+	self.candrown = 0;
+	self.bleedratio = 0.5; // hellfish are animated dead
+
+	self.th_stand = f_stand1;
+	self.th_walk = f_walk1;
+	self.th_run = f_run1;
+	self.th_die = fish_die;
+	self.th_pain = fish_pain;
+	self.th_checkattack = GenericCheckAttack;
+	self.th_melee = f_attack1;
+	self.th_gib = fish_gib;
+
+	flymonster_start ();
 };
 
 /*QUAKED dead_fish (1 0 0) (-16 -16 -24) (16 16 -14)

@@ -841,6 +841,7 @@ void() trap_shooter =
 
 
 void() make_bubbles;
+void() bubble_bob;
 
 /*QUAKED air_bubbles (0 .5 .8) (-8 -8 -8) (8 8 8)
 testing air bubbles
@@ -864,6 +865,82 @@ void() make_bubbles =
 	self.nextthink = time + random() + 0.5;
 	self.think = make_bubbles;
 };
+
+void() bubble_split =
+{
+	makebubble(self.origin, self.velocity, 1);
+	self.frame = 1;
+	self.cnt = 10;
+};
+
+void() bubble_bob =
+{
+	local float p;
+	local vector v;
+
+	// I added this, so bubbles won't go up through floors etc (much)
+	p = pointcontents(self.origin);
+	if ((p != CONTENT_WATER) && (p != CONTENT_SLIME))
+	{
+		remove(self);
+		return;
+	}
+
+	self.cnt = self.cnt + 1;
+	if (self.cnt == 4)
+		bubble_split();
+	if (self.cnt == 20)
+	{
+		remove(self);
+		return;         // I added this return
+	}
+
+	v = self.velocity + randompos('-10 -10 10', '10 10 20');
+
+	if (v_x > 10)
+		v_x = 5;
+	if (v_x < -10)
+		v_x = -5;
+
+	if (v_y > 10)
+		v_y = 5;
+	if (v_y < -10)
+		v_y = -5;
+
+	if (v_z < 10)
+		v_z = 15;
+	if (v_z > 30)
+		v_z = 25;
+
+	self.velocity = v;
+
+	self.think = bubble_bob;
+	self.nextthink = time + 0.5;
+};
+
+// original: vel '0 0 15' size 0
+// split: vel current size 1
+void(vector org, vector vel, float bubblesize) makebubble =
+{
+	if (game == GAME_NEXUIZ)
+		return;
+	newmis = spawn();
+	setmodel (newmis, "progs/s_bubble.spr");
+	setorigin (newmis, org);
+	newmis.movetype = MOVETYPE_NOCLIP;
+	newmis.solid = SOLID_NOT;
+	newmis.velocity = vel;
+	newmis.think = bubble_bob;
+	newmis.nextthink = time + 0.5;
+	newmis.touch = SUB_Remove;
+	newmis.classname = "bubble";
+	newmis.frame = bubblesize;
+	if (bubblesize)
+		newmis.cnt = 10; // no splitting
+	else
+		newmis.cnt = 0; // split once
+	setsize (newmis, '-8 -8 -8', '8 8 8');
+}
 
 /*~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>
 ~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~<~>~*/

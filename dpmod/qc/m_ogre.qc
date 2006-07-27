@@ -49,6 +49,12 @@ $frame pull1 pull2 pull3 pull4 pull5 pull6 pull7 pull8 pull9 pull10 pull11
 
 //=============================================================================
 
+// LordHavoc: this function added back only for compatibility with weird maps that refer to functions
+void() OgreGrenadeExplode =
+{
+	T_RadiusDamage(self, self.owner, 40, 40, 40, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+	BecomeExplosion(self, '-2 0 0', FALSE);
+};
 
 /*
 ===========
@@ -260,12 +266,12 @@ void() ogre_nail10	=[	$shoot5,	ogre_nail11	] {monster_setalpha(0.0);ai_face();};
 void() ogre_nail11	=[	$shoot6,	ogre_run1	] {ai_face();};
 
 void() ogre_gren1	=[	$shoot1,	ogre_gren2	] {ai_face();if (Inventory_Quantity(self, "rockets") < 1) ogre_nail1();};
-void() ogre_gren2	=[	$shoot2,	ogre_gren3	] {ai_face();};
-void() ogre_gren3	=[	$shoot2,	ogre_gren4	] {monster_setalpha(0.5);ai_face();};
+void() ogre_gren2	=[	$shoot2,	ogre_gren3	] {monster_setalpha(0.5);ai_face();};
+void() ogre_gren3	=[	$shoot2,	ogre_gren4	] {monster_setalpha(1.0);ai_face();};
 void() ogre_gren4	=[	$shoot3,	ogre_gren5	] {monster_setalpha(1.0);ai_face();if (!OgreFireGrenade()) ogre_nail1();};
-void() ogre_gren5	=[	$shoot4,	ogre_gren6	] {monster_setalpha(0.5);ai_face();};
-void() ogre_gren6	=[	$shoot5,	ogre_gren7	] {monster_setalpha(0.0);ai_face();};
-void() ogre_gren7	=[	$shoot6,	ogre_run1	] {ai_face();};
+void() ogre_gren5	=[	$shoot4,	ogre_gren6	] {monster_setalpha(1.0);ai_face();};
+void() ogre_gren6	=[	$shoot5,	ogre_gren7	] {monster_setalpha(0.5);ai_face();};
+void() ogre_gren7	=[	$shoot6,	ogre_run1	] {monster_setalpha(0.0);ai_face();};
 
 float() ogre_missile =
 {
@@ -276,9 +282,9 @@ float() ogre_missile =
 }
 
 void() ogre_pain1	=[	$pain1,		ogre_pain2	] {monster_setalpha(1.00);};
-void() ogre_pain2	=[	$pain2,		ogre_pain3	] {monster_setalpha(0.75);};
-void() ogre_pain3	=[	$pain3,		ogre_pain4	] {monster_setalpha(0.50);};
-void() ogre_pain4	=[	$pain4,		ogre_pain5	] {monster_setalpha(0.25);};
+void() ogre_pain2	=[	$pain2,		ogre_pain3	] {monster_setalpha(1.00);};
+void() ogre_pain3	=[	$pain3,		ogre_pain4	] {monster_setalpha(1.00);};
+void() ogre_pain4	=[	$pain4,		ogre_pain5	] {monster_setalpha(0.50);};
 void() ogre_pain5	=[	$pain5,		ogre_run1	] {monster_setalpha(0.00);};
 
 
@@ -288,17 +294,17 @@ void() ogre_painb3	=[	$painb3,	ogre_run1	] {monster_setalpha(0.00);};
 
 
 void() ogre_painc1	=[	$painc1,	ogre_painc2	] {monster_setalpha(1.00);};
-void() ogre_painc2	=[	$painc2,	ogre_painc3	] {monster_setalpha(0.75);};
-void() ogre_painc3	=[	$painc3,	ogre_painc4	] {monster_setalpha(0.50);};
-void() ogre_painc4	=[	$painc4,	ogre_painc5	] {monster_setalpha(0.25);};
+void() ogre_painc2	=[	$painc2,	ogre_painc3	] {monster_setalpha(1.00);};
+void() ogre_painc3	=[	$painc3,	ogre_painc4	] {monster_setalpha(1.00);};
+void() ogre_painc4	=[	$painc4,	ogre_painc5	] {monster_setalpha(0.50);};
 void() ogre_painc5	=[	$painc5,	ogre_painc6	] {monster_setalpha(0.00);};
 void() ogre_painc6	=[	$painc6,	ogre_run1	] {};
 
 
 void() ogre_paind1	=[	$paind1,	ogre_paind2	] {monster_setalpha(1.00);};
-void() ogre_paind2	=[	$paind2,	ogre_paind3	] {monster_setalpha(0.75);ai_pain(10);};
-void() ogre_paind3	=[	$paind3,	ogre_paind4	] {monster_setalpha(0.50);ai_pain(9);};
-void() ogre_paind4	=[	$paind4,	ogre_paind5	] {monster_setalpha(0.25);ai_pain(4);};
+void() ogre_paind2	=[	$paind2,	ogre_paind3	] {monster_setalpha(1.00);ai_pain(10);};
+void() ogre_paind3	=[	$paind3,	ogre_paind4	] {monster_setalpha(1.00);ai_pain(9);};
+void() ogre_paind4	=[	$paind4,	ogre_paind5	] {monster_setalpha(0.50);ai_pain(4);};
 void() ogre_paind5	=[	$paind5,	ogre_paind6	] {monster_setalpha(0.00);};
 void() ogre_paind6	=[	$paind6,	ogre_paind7	] {};
 void() ogre_paind7	=[	$paind7,	ogre_paind8	] {};
@@ -313,9 +319,9 @@ void() ogre_paind15=[	$paind15,	ogre_paind16	] {};
 void() ogre_paind16=[	$paind16,	ogre_run1	] {};
 
 void() ogre_paine1	=[	$paine1,	ogre_paine2	] {monster_setalpha(1.00);};
-void() ogre_paine2	=[	$paine2,	ogre_paine3	] {monster_setalpha(0.75);ai_pain(10);};
-void() ogre_paine3	=[	$paine3,	ogre_paine4	] {monster_setalpha(0.50);ai_pain(9);};
-void() ogre_paine4	=[	$paine4,	ogre_paine5	] {monster_setalpha(0.25);ai_pain(4);};
+void() ogre_paine2	=[	$paine2,	ogre_paine3	] {monster_setalpha(1.00);ai_pain(10);};
+void() ogre_paine3	=[	$paine3,	ogre_paine4	] {monster_setalpha(1.00);ai_pain(9);};
+void() ogre_paine4	=[	$paine4,	ogre_paine5	] {monster_setalpha(0.50);ai_pain(4);};
 void() ogre_paine5	=[	$paine5,	ogre_paine6	] {monster_setalpha(0.00);};
 void() ogre_paine6	=[	$paine6,	ogre_paine7	] {};
 void() ogre_paine7	=[	$paine7,	ogre_paine8	] {};

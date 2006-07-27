@@ -3,6 +3,7 @@ float TP_NONE                         = 0;
 float TP_NOTEAMDAMAGE                 = 1;
 float TP_CANHURTTEAM                  = 2;
 float TP_CANHURTSELFONLY              = 3;
+float TP_COOP                         = 4;
 
 // deathmatch settings
 float DM_NONE                         = 0;

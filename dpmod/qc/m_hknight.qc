@@ -390,9 +390,9 @@ void() hknight_run8	=[	$run8,		hknight_run1	] {ai_run(13);};
 //============================================================================
 
 void() hknight_pain1	=[	$pain1,		hknight_pain2	] {monster_setalpha(1.00);sound (self, CHAN_VOICE, "hknight/pain1.wav", 1, ATTN_NORM);};
-void() hknight_pain2	=[	$pain2,		hknight_pain3	] {monster_setalpha(0.75);};
-void() hknight_pain3	=[	$pain3,		hknight_pain4	] {monster_setalpha(0.50);};
-void() hknight_pain4	=[	$pain4,		hknight_pain5	] {monster_setalpha(0.25);};
+void() hknight_pain2	=[	$pain2,		hknight_pain3	] {monster_setalpha(1.00);};
+void() hknight_pain3	=[	$pain3,		hknight_pain4	] {monster_setalpha(1.00);};
+void() hknight_pain4	=[	$pain4,		hknight_pain5	] {monster_setalpha(0.50);};
 void() hknight_pain5	=[	$pain5,		hknight_run1	] {monster_setalpha(0.00);};
 
 //============================================================================
@@ -447,12 +447,12 @@ void()	hknight_magica4		=[	$magica4,	hknight_magica5		] {hknight_infernowarning(
 void()	hknight_magica5		=[	$magica5,	hknight_magica6		] {hknight_infernowarning();ai_face();};
 void()	hknight_magica6		=[	$magica6,	hknight_magica7		] {hknight_infernowarning();ai_face();};
 void()	hknight_magica7		=[	$magica7,	hknight_magica8		] {hknight_infernowarning();};
-void()	hknight_magica8		=[	$magica8,	hknight_magica9		] {hknight_infernowarning();};
-void()	hknight_magica9		=[	$magica9,	hknight_magica10	] {monster_setalpha(0.5);hknight_infernowarning();};
+void()	hknight_magica8		=[	$magica8,	hknight_magica9		] {monster_setalpha(0.5);hknight_infernowarning();};
+void()	hknight_magica9		=[	$magica9,	hknight_magica10	] {monster_setalpha(1.0);hknight_infernowarning();};
 void()	hknight_magica10	=[	$magica10,	hknight_magica11	] {monster_setalpha(1.0);hknight_inferno();};
-void()	hknight_magica11	=[	$magica11,	hknight_magica12	] {monster_setalpha(0.5);};
-void()	hknight_magica12	=[	$magica12,	hknight_magica13	] {monster_setalpha(0.0);};
-void()	hknight_magica13	=[	$magica13,	hknight_magica14	] {ai_face();};
+void()	hknight_magica11	=[	$magica11,	hknight_magica12	] {monster_setalpha(1.0);};
+void()	hknight_magica12	=[	$magica12,	hknight_magica13	] {monster_setalpha(0.5);};
+void()	hknight_magica13	=[	$magica13,	hknight_magica14	] {monster_setalpha(0.0);ai_face();};
 void()	hknight_magica14	=[	$magica14,	hknight_run1		] {ai_face();};
 
 //============================================================================
@@ -461,12 +461,12 @@ void()	hknight_magicb1		=[	$magicb1,	hknight_magicb2		] {ai_face();};
 void()	hknight_magicb2		=[	$magicb2,	hknight_magicb3		] {ai_face();};
 void()	hknight_magicb3		=[	$magicb3,	hknight_magicb4		] {ai_face();};
 void()	hknight_magicb4		=[	$magicb4,	hknight_magicb5		] {ai_face();};
-void()	hknight_magicb5		=[	$magicb5,	hknight_magicb6		] {ai_face();};
-void()	hknight_magicb6		=[	$magicb6,	hknight_magicb7		] {monster_setalpha(0.5);ai_face();};
+void()	hknight_magicb5		=[	$magicb5,	hknight_magicb6		] {monster_setalpha(0.5);ai_face();};
+void()	hknight_magicb6		=[	$magicb6,	hknight_magicb7		] {monster_setalpha(1.0);ai_face();};
 void()	hknight_magicb7		=[	$magicb7,	hknight_magicb8		] {monster_setalpha(1.0);hknight_fireball();};
-void()	hknight_magicb8		=[	$magicb8,	hknight_magicb9		] {monster_setalpha(0.5);};
-void()	hknight_magicb9		=[	$magicb9,	hknight_magicb10	] {monster_setalpha(0.0);};
-void()	hknight_magicb10	=[	$magicb10,	hknight_magicb11	] {};
+void()	hknight_magicb8		=[	$magicb8,	hknight_magicb9		] {monster_setalpha(1.0);};
+void()	hknight_magicb9		=[	$magicb9,	hknight_magicb10	] {monster_setalpha(0.5);};
+void()	hknight_magicb10	=[	$magicb10,	hknight_magicb11	] {monster_setalpha(0.0);};
 void()	hknight_magicb11	=[	$magicb11,	hknight_magicb12	] {};
 void()	hknight_magicb12	=[	$magicb12,	hknight_magicb13	] {};
 void()	hknight_magicb13	=[	$magicb13,	hknight_run1		] {ai_face();};

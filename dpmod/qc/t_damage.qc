@@ -148,6 +148,7 @@ This should be the only function that ever reduces health.
 ============
 */
 void() FoundTarget;
+.float painenemytime;
 void(entity targ, entity inflictor, entity attacker, float healthdamage, float damage, string dethtype, float damgtype, vector damgpoint, vector force, void(entity t, entity a, string m, float dtyp) obitfunc) T_Damage =
 {
 	local entity oldself;
@@ -218,7 +219,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	{
 		if (damage <= 0) // no damage to begin with
 			return;
-		if (targ.invincible_finished >= time)
+		if (targ.spawnshieldtime >= time || targ.invincible_finished >= time)
 		{
 			if (self.invincible_sound < time)
 			{
@@ -229,11 +230,27 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		}
 
 // team play damage avoidance
+		if (teamplay)
 		if (targ.team > 0)
-		if (targ.team == attacker.team)
-		if (teamplay == 1 || teamplay == 3)
-		if (targ != attacker || teamplay == 1)
-			return;
+		if (attacker.team > 0)
+		if (teamplay != TP_CANHURTTEAM)
+		if (attacker.classname == "player")
+		if (targ.classname == "player")
+		{
+			if (targ == attacker)
+			{
+				if (teamplay != TP_NOTEAMDAMAGE)
+				if (teamplay != TP_COOP)
+					return;
+			}
+			else
+			{
+				if (targ.team == attacker.team)
+					return;
+				if (teamplay == TP_COOP)
+					return;
+			}
+		}
 
 		// consult the target's damage modifier code and resistance data
 		ratio = 1.0;
@@ -339,6 +356,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 
 	if ( (self.flags & FL_MONSTER) && attacker != world)
 	if (attacker.takedamage)
+	if (time > self.painenemytime || self.enemy == world)
 	{
 	// get mad unless of the same class (except for soldiers)
 		if (self != attacker && attacker != self.enemy)
@@ -348,6 +366,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 			{
 				if (self.enemy.classname == "player")
 					self.oldenemy = self.enemy;
+				self.painenemytime = time + 1;
 				self.enemy = attacker;
 				FoundTarget ();
 			}

@@ -232,36 +232,42 @@ void(string m) setteamplay =
 
 void() mode_updatecvars =
 {
-	if (cvar("deathmatch") ==  0) setdm("0?Dark Places - Coop");
-	else if (cvar("deathmatch") ==  1) setdm("1?Dark Places - Deathmatch");
-	else if (cvar("deathmatch") ==  2) setdm("2?Dark Places - Deathmatch 2 (can only pickup gun once)");
-	else if (cvar("deathmatch") ==  3) setdm("3?Dark Places - Deathmatch 3 (quick ammo respawn)");
-	else if (cvar("deathmatch") ==  5) setdm("5?Dark Places - Frag Fest (spawn with full pack)");
-//	else if (cvar("deathmatch") ==  6) setdm("6?Dark Places - Random Weapons (spawn with 2 random weapons)"); // removed
-	else if (cvar("deathmatch") ==  7) setdm("7?Dark Places - Monsters");
-//	else if (cvar("deathmatch") ==  8) setdm("8?Dark Places - Elimination");
-//	else if (cvar("deathmatch") ==  9) setdm("9?Dark Places - Kill The Leader Mode");
-	else if (cvar("deathmatch") == 10) setdm("10?Dark Places - Capture The Flag - 2 Team");
-	else if (cvar("deathmatch") == 11) setdm("11?Dark Places - Capture The Flag - 3 Team");
-	else if (cvar("deathmatch") == 12) setdm("12?Dark Places - Domination");
-	else if (cvar("deathmatch") == 13) setdm("13?Dark Places - Monster Capture The Flag - 2 Team");
-	else if (cvar("deathmatch") == 14) setdm("14?Dark Places - Super Domination");
-	else if (cvar("deathmatch") == 30) setdm("30?Dark Places - Role Playing Game");
+	local float dm, tp;
+	dm = cvar("deathmatch");
+	tp = cvar("teamplay");
+	// now set deathmatch cvar
+	if (dm ==  0) setdm("0?Dark Places - Coop");
+	else if (dm ==  1) setdm("1?Dark Places - Deathmatch");
+	else if (dm ==  2) setdm("2?Dark Places - Deathmatch 2 (can only pickup gun once)");
+	else if (dm ==  3) setdm("3?Dark Places - Deathmatch 3 (quick ammo respawn)");
+	else if (dm ==  5) setdm("5?Dark Places - Frag Fest (spawn with full pack)");
+//	else if (dm ==  6) setdm("6?Dark Places - Random Weapons (spawn with 2 random weapons)"); // removed
+	else if (dm ==  7) setdm("7?Dark Places - Monsters");
+//	else if (dm ==  8) setdm("8?Dark Places - Elimination");
+//	else if (dm ==  9) setdm("9?Dark Places - Kill The Leader Mode");
+	else if (dm == 10) setdm("10?Dark Places - Capture The Flag - 2 Team");
+	else if (dm == 11) setdm("11?Dark Places - Capture The Flag - 3 Team");
+	else if (dm == 12) setdm("12?Dark Places - Domination");
+	else if (dm == 13) setdm("13?Dark Places - Monster Capture The Flag - 2 Team");
+	else if (dm == 14) setdm("14?Dark Places - Super Domination");
+	else if (dm == 30) setdm("30?Dark Places - Role Playing Game");
 	else                               setdm("1?Dark Places - Deathmatch");
 
-	/*if (deathmatch == 8) setteamplay("3?Dark Places - Elimination");
-	else if (deathmatch == 9) setteamplay("3?Dark Places - Kill The Leader");
-	else*/ if (deathmatch == 10) setteamplay("3?Dark Places - Capture The Flag - 2 Team");
-	else if (deathmatch == 11) setteamplay("3?Dark Places - Capture The Flag - 3 Team");
-	else if (deathmatch == 12) setteamplay("3?Dark Places - Domination");
-	else if (deathmatch == 13) setteamplay("3?Dark Places - Monster Capture The Flag - 2 Team");
+	// now set teamplay cvar
+	if (dm == 0) setteamplay("4?Dark Places - Coop (Can't hurt other players)");
+	//else if (dm == 8) setteamplay("3?Dark Places - Elimination");
+	//else if (dm == 9) setteamplay("3?Dark Places - Kill The Leader");
+	else if (dm == 10) setteamplay("3?Dark Places - Capture The Flag - 2 Team");
+	else if (dm == 11) setteamplay("3?Dark Places - Capture The Flag - 3 Team");
+	else if (dm == 12) setteamplay("3?Dark Places - Domination");
+	else if (dm == 13) setteamplay("3?Dark Places - Monster Capture The Flag - 2 Team");
 	else
 	{
-	if (cvar("teamplay") == 0) setteamplay("0?Dark Places - No Teamplay");
-		else if (cvar("teamplay") == 1) setteamplay("1?Dark Places - No team damage");
-		else if (cvar("teamplay") == 2) setteamplay("2?Dark Places - Can hurt anyone");
-		else if (cvar("teamplay") == 3) setteamplay("3?Dark Places - No team damage, but can hurt self");
-		else                            setteamplay("0?Dark Places - No Teamplay");
+		if (tp == 0) setteamplay("0?Dark Places - No Teamplay");
+		else if (tp == 1) setteamplay("1?Dark Places - No team damage");
+		else if (tp == 2) setteamplay("2?Dark Places - Can hurt anyone");
+		else if (tp == 3) setteamplay("3?Dark Places - No team damage, but can hurt self");
+		else              setteamplay("0?Dark Places - No Teamplay");
 	}
 };
 
@@ -383,19 +389,9 @@ void() spawnmonster_think =
 	monsterspawn = FALSE;
 };
 
-void(float c1, float c2, string cname, void() spawnfunc, vector m1, vector m2) spawnmonster =
+void(vector org, float c1, float c2, string cname, void() spawnfunc, vector m1, vector m2) spawnmonster =
 {
 	local float c;
-	local entity head;
-	c = random() * 50 + 1;
-	head = world;
-	while (c > 0)
-	{
-		c = c - 1;
-		head = find(head, classname, "info_player_deathmatch");
-		if (head == world)
-			head = find(head, classname, "info_player_deathmatch");
-	}
 	c = (c2 - c1) * random() + c1;
 	c = rint(c);
 	while (c > 0)
@@ -405,7 +401,7 @@ void(float c1, float c2, string cname, void() spawnfunc, vector m1, vector m2) s
 		newmis = spawn();
 		newmis.cnt = time + 10;
 		newmis.lefty = 10;
-		newmis.dest = head.origin;
+		newmis.dest = org;
 		newmis.classname = "spawningmonster";
 		newmis.netname = cname;
 		newmis.solid = SOLID_TRIGGER;
@@ -423,7 +419,7 @@ void(float c1, float c2, string cname, void() spawnfunc, vector m1, vector m2) s
 		newmis.th_run = spawnfunc;
 		newmis.think = spawnmonster_think;
 		newmis.nextthink = time + random() * 0.5 + 0.3;
-		setorigin(newmis, head.origin);
+		setorigin(newmis, org);
 		setmodel(newmis, "progs/s_explod.spr");
 		setsize(newmis, m1, m2);
 	}
@@ -442,27 +438,41 @@ void() monster_tarbaby;
 void() monster_wizard;
 void() monster_zombie;
 void() monster_fish;
+void() monster_hellfish;
 
 void() spawnmonsters =
 {
 	local float r;
+	local vector org;
+	local entity head;
 	if (find(world, classname, "info_player_deathmatch") == world)
 		return;
+	r = random() * 50 + 1;
+	head = world;
+	while (r > 0)
+	{
+		r = r - 1;
+		head = find(head, classname, "info_player_deathmatch");
+		if (head == world)
+			head = find(head, classname, "info_player_deathmatch");
+	}
+	org = head.origin;
 
-	r = random() * 13;
-	if (r <  1) spawnmonster( 5, 10, "monster_army"       , monster_army       , '-16 -16 -24', '16 16 32');
-	else if (r <  2) spawnmonster( 3,  6, "monster_demon1"     , monster_demon1     , '-32 -32 -24', '32 32 64');
-	else if (r <  3) spawnmonster( 6, 12, "monster_dog"        , monster_dog        , '-16 -16 -24', '16 16 32');
-	else if (r <  4) spawnmonster( 4,  8, "monster_enforcer"   , monster_enforcer   , '-16 -16 -24', '16 16 32');
-	else if (r <  5) spawnmonster( 4,  8, "monster_hell_knight", monster_hell_knight, '-16 -16 -24', '16 16 32');
-	else if (r <  6) spawnmonster( 6, 12, "monster_knight"     , monster_knight     , '-16 -16 -24', '16 16 32');
-	else if (r <  7) spawnmonster( 3,  6, "monster_ogre"       , monster_ogre       , '-32 -32 -24', '32 32 64');
-	else if (r <  8) spawnmonster( 1,  3, "monster_shalrath"   , monster_shalrath   , '-32 -32 -24', '32 32 64');
-	else if (r <  9) spawnmonster( 1,  1, "monster_shambler"   , monster_shambler   , '-32 -32 -24', '32 32 64');
-	else if (r < 10) spawnmonster(10, 15, "monster_tarbaby"    , monster_tarbaby    , '-16 -16 -24', '16 16 32');
-	else if (r < 11) spawnmonster( 6, 10, "monster_wizard"     , monster_wizard     , '-16 -16 -24', '16 16 32');
-	else if (r < 12) spawnmonster( 4,  8, "monster_zombie"     , monster_zombie     , '-16 -16 -24', '16 16 32');
-	else if (r < 13) spawnmonster( 4,  8, "monster_fish"       , monster_fish       , '-16 -16 -24', '16 16 32');
+	r = random() * 14;
+	     if (r <  1) spawnmonster(org,  5, 10, "monster_army"       , monster_army       , '-16 -16 -24', '16 16 32');
+	else if (r <  2) spawnmonster(org,  3,  6, "monster_demon1"     , monster_demon1     , '-32 -32 -24', '32 32 64');
+	else if (r <  3) spawnmonster(org,  6, 12, "monster_dog"        , monster_dog        , '-16 -16 -24', '16 16 32');
+	else if (r <  4) spawnmonster(org,  4,  8, "monster_enforcer"   , monster_enforcer   , '-16 -16 -24', '16 16 32');
+	else if (r <  5) spawnmonster(org,  4,  8, "monster_hell_knight", monster_hell_knight, '-16 -16 -24', '16 16 32');
+	else if (r <  6) spawnmonster(org,  6, 12, "monster_knight"     , monster_knight     , '-16 -16 -24', '16 16 32');
+	else if (r <  7) spawnmonster(org,  3,  6, "monster_ogre"       , monster_ogre       , '-32 -32 -24', '32 32 64');
+	else if (r <  8) spawnmonster(org,  1,  3, "monster_shalrath"   , monster_shalrath   , '-32 -32 -24', '32 32 64');
+	else if (r <  9) spawnmonster(org,  1,  1, "monster_shambler"   , monster_shambler   , '-32 -32 -24', '32 32 64');
+	else if (r < 10) spawnmonster(org, 10, 15, "monster_tarbaby"    , monster_tarbaby    , '-16 -16 -24', '16 16 32');
+	else if (r < 11) spawnmonster(org,  6, 10, "monster_wizard"     , monster_wizard     , '-16 -16 -24', '16 16 32');
+	else if (r < 12) spawnmonster(org,  4,  8, "monster_zombie"     , monster_zombie     , '-16 -16 -24', '16 16 32');
+	else if (r < 13) spawnmonster(org,  4,  8, "monster_fish"       , monster_fish       , '-16 -16 -24', '16 16 32');
+	else if (r < 14) spawnmonster(org,  4,  4, "monster_hellfish"   , monster_hellfish   , '-16 -16 -24', '16 16 32');
 };
 
 float monstersprecached;
@@ -498,10 +508,27 @@ void() precachemonsters =
 	monstersprecached = TRUE;
 };
 
+float spawnedexitmonsters;
 void() deathmatch7update =
 {
 	local entity e;
 	local float f, monster_count, monsters;
+	if (skill >= 5)
+	if (!deathmatch)
+	{
+		if (!spawnedexitmonsters)
+		if (time >= 2)
+		{
+			spawnedexitmonsters = TRUE;
+			e = find(world, classname, "trigger_changelevel");
+			while (e)
+			{
+				spawnmonster(e.origin + (e.mins + e.maxs) * 0.5, 8, 8, "monster_hellfish", monster_hellfish, '-16 -16 -24', '16 16 32');
+				e = find(e, classname, "trigger_changelevel");
+			}
+		}
+		return;
+	}
 	if (time < spawnchecktime)
 		return;
 	if (!monstersprecached)

@@ -38,20 +38,7 @@ void() place_flag =
 		remove(self);
 		return;
 	}
-	self.oldorigin = self.origin;
-};
-
-void(entity e) RegenFlag =
-{
-	e.movetype = MOVETYPE_TOSS;
-	e.solid = SOLID_TRIGGER;
-	if (game != GAME_NEXUIZ)
-		sound(e, CHAN_AUTO, "items/itembk2.wav", 1, ATTN_NORM);
-	setorigin(e, e.oldorigin);
-	e.angles = e.mangle;
-	e.cnt = FLAG_BASE;
-	e.owner = world;
-	e.flags = FL_ITEM; // clear FL_ONGROUND and any other junk
+	self.dest = self.origin;
 };
 
 void(entity e) ReturnFlag =
@@ -60,7 +47,19 @@ void(entity e) ReturnFlag =
 	if (e.owner.flagcarried == e)
 		e.owner.flagcarried = world;
 	e.owner = world;
-	RegenFlag(e);
+	e.movetype = MOVETYPE_TOSS;
+	e.solid = SOLID_TRIGGER;
+	if (game != GAME_NEXUIZ)
+		sound(e, CHAN_AUTO, "items/itembk2.wav", 1, ATTN_NORM);
+	e.angles = e.mangle;
+	e.cnt = FLAG_BASE;
+	e.flags = FL_ITEM; // clear FL_ONGROUND and any other junk
+	e.dmg = time + 0.2;
+	setorigin(e, e.dest);
+	if (e.team == 5)
+		bprint("The RED flag has returned to base\n");
+	else
+		bprint("The BLUE flag has returned to base\n");
 };
 
 void(entity e) DropFlag =
@@ -111,13 +110,7 @@ void() FlagThink =
 	if (self.cnt == FLAG_DROPPED)
 	{
 		if (time > self.super_time)
-		{
-			if (self.team == 5)
-				bprint("The RED flag has returned to base\n");
-			else
-				bprint("The BLUE flag has returned to base\n");
 			ReturnFlag(self);
-		}
 		return;
 	}
 
@@ -176,67 +169,85 @@ float flagcaptimerecord;
 void() FlagTouch =
 {
 	local float t;
+
+	if(gameover) return;
+
 	if (other.classname != "player")
 		return;
-	if (other.health < 1) // ignore dead players
+	if (other.deadflag) // ignore dead players
 		return;
 
 	if (self.cnt == FLAG_CARRY)
 		return;
 
 	if (self.cnt == FLAG_BASE)
-	if (other.team == self.team)
-	if (other.flagcarried) // he's got a flag
-	if (other.flagcarried.team != self.team) // capture
 	{
-		bprint(other.netname);
-		if (other.flagcarried.team == 5)
-			bprint(" captured the RED flag in ");
-		else
-			bprint(" captured the BLUE flag in ");
-		t = time - other.flagpickuptime;
-		bprintfloat(t);
-		if (flagcaptimerecord == 0)
+		if (time < self.dmg)
 		{
-			bprint(" seconds\n");
-			flagcaptimerecord = t;
+			dprint("trying to pick up flag before timeout?\n");
+			eprint(self);
 		}
-		else if (t < flagcaptimerecord)
+		if (other.flagcarried) // he's got a flag
 		{
-			bprint(", breaking the previous record of");
-			bprintfloat(flagcaptimerecord);
-			bprint(" seconds\n");
-			flagcaptimerecord = t;
+			if (other.team == self.team)
+			if (other.flagcarried.team != self.team) // capture
+			if (other.flagcarried.cnt == FLAG_CARRY)
+			{
+				bprint(other.netname);
+				if (other.flagcarried.team == 5)
+					bprint(" captured the RED flag in ");
+				else
+					bprint(" captured the BLUE flag in ");
+				t = time - other.flagpickuptime;
+				bprintfloat(t);
+				if (flagcaptimerecord == 0)
+				{
+					bprint(" seconds\n");
+					flagcaptimerecord = t;
+				}
+				else if (t < flagcaptimerecord)
+				{
+					bprint(", breaking the previous record of");
+					bprintfloat(flagcaptimerecord);
+					bprint(" seconds\n");
+					flagcaptimerecord = t;
+				}
+				else
+				{
+					bprint(", failing to break the record of ");
+					bprintfloat(flagcaptimerecord);
+					bprint(" seconds\n");
+				}
+				ChangeTeamFrags(other, FLAGSCORE_CAPTURE, FLAGSCORE_CAPTURE_TEAM);
+				sound (self, CHAN_AUTO, "misc/flagcap.wav", 1, ATTN_NONE);
+				ReturnFlag(other.flagcarried);
+				other.flagcarried = world;
+				return;
+			}
 		}
 		else
 		{
-			bprint(", failing to break the record of ");
-			bprintfloat(flagcaptimerecord);
-			bprint(" seconds\n");
+			if (other.team != self.team)
+			if (other.team == 5 || other.team == 14) // only red and blue team can steal flags
+			if (!other.flagcarried)
+			{
+				// pick up
+				other.flagpickuptime = time; // used for timing runs
+				self.solid = SOLID_NOT;
+				setorigin(self, self.origin); // relink
+				self.owner = other;
+				other.flagcarried = self;
+				self.cnt = FLAG_CARRY;
+				bprint(other.netname);
+				if (other.flagcarried.team == 5)
+					bprint(" got the RED flag\n");
+				else
+					bprint(" got the BLUE flag\n");
+				ChangeFrags(other, FLAGSCORE_PICKUP);
+				sound (self, CHAN_AUTO, "misc/flagtk.wav", 1, ATTN_NONE);
+				return;
+			}
 		}
-		ChangeTeamFrags(other, FLAGSCORE_CAPTURE, FLAGSCORE_CAPTURE_TEAM);
-		sound (self, CHAN_AUTO, "misc/flagcap.wav", 1, ATTN_NONE);
-		ReturnFlag(other.flagcarried);
-	}
-	if (self.cnt == FLAG_BASE)
-	if (other.team == 5 || other.team == 14) // only red and blue team can steal flags
-	if (other.team != self.team)
-	if (!other.flagcarried)
-	{
-		// pick up
-		other.flagpickuptime = time; // used for timing runs
-		self.solid = SOLID_NOT;
-		setorigin(self, self.origin); // relink
-		self.owner = other;
-		other.flagcarried = self;
-		self.cnt = FLAG_CARRY;
-		bprint(other.netname);
-		if (other.flagcarried.team == 5)
-			bprint(" got the RED flag\n");
-		else
-			bprint(" got the BLUE flag\n");
-		ChangeFrags(other, FLAGSCORE_PICKUP);
-		sound (self, CHAN_AUTO, "misc/flagtk.wav", 1, ATTN_NONE);
 		return;
 	}
 
@@ -275,6 +286,7 @@ void() FlagTouch =
 			ChangeFrags(other, FLAGSCORE_PICKUP);
 			sound (self, CHAN_AUTO, "misc/flagtk.wav", 1, ATTN_NONE);
 		}
+		return;
 	}
 };
 

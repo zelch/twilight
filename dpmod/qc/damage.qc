@@ -130,7 +130,7 @@ float YELLOWARMOR_TYPE        = 0.6;
 float REDARMOR_VALUE          = 200;
 float REDARMOR_TYPE           = 0.8;
 
-float SKILL4_MINALPHA         = 0.2;
+float SKILL4_MINALPHA         = 0.4;
 
 float DMG_CHTHON_LAVABALL_DAMAGE      =  110;
 float DMG_CHTHON_LAVABALL_FORCE       =  110;
@@ -159,6 +159,10 @@ float DMG_FISH_BITE_BASE              =    0;
 float DMG_FISH_BITE_RANDOM1           =    3;
 float DMG_FISH_BITE_RANDOM2           =    3;
 float DMG_FISH_BITE_RANDOM3           =    0;
+float DMG_HELLFISH_BITE_BASE          =    0;
+float DMG_HELLFISH_BITE_RANDOM1       =    9;
+float DMG_HELLFISH_BITE_RANDOM2       =    9;
+float DMG_HELLFISH_BITE_RANDOM3       =    0;
 float DMG_HELLKNIGHT_SPIKE            =    9;
 float DMG_KNIGHT_MELEE_BASE           =    0;
 float DMG_KNIGHT_MELEE_RANDOM1        =    3;
@@ -214,6 +218,8 @@ float MH_TARBABY   =    80;
 float MH_WIZARD    =    80;float MB_WIZARD    =    70;
 float MH_ZOMBIE    =   200; // explosives do more damage than normal
 
+// new monsters
+float MH_HELLFISH  =    90;float MB_HELLFISH  =   150;
 
 
 

@@ -611,6 +611,7 @@ void() PutClientInServer =
 	self.avelocity = '0 0 0';
 	self.punchangle = '0 0 0';
 	self.frozen = FALSE;
+	self.spawnshieldtime = time + 2;
 
 	// set up health and equipment
 	DecodeLevelParms();
