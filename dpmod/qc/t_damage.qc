@@ -342,7 +342,8 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	targ.regenthink = time + 2; // stop regeneration for 2 sec
 
 	targ.deathmsg = dethtype;
-	if (targ.health <= 0)
+	// check health < 1 because values in the range 0-.9999 are shown as 0 on the client, which makes the view tilt and scoreboard show, even though the player is not really dead yet
+	if (targ.health < 1)
 	if (targ.th_die)
 	if (targ.th_die != SUB_Null)
 	if (!targ.iscorpse || targ.bodyhealth <= 0)
