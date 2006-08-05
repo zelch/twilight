@@ -879,30 +879,28 @@ void() startframe_creaturecode =
 				if (self.flags & FL_ONGROUND)
 				if (self.solid) // ignore observers
 				{
-					if (self.watertype == CONTENT_WATER)
-						sound (self, CHAN_BODY, "player/h2ojump.wav", 1, ATTN_NORM);
-					else if (self.jump_flag < -650 && world.worldtype < 3)
+					local float d;
+					d = 0;
+					b = self.origin;
+					b_z = self.absmin_z;
+					if (self.watertype != CONTENT_WATER)
 					{
-						// normal quake maps
-						b = self.origin;
-						b_z = self.absmin_z;
-						//T_Damage (self, world, world, (-650 - self.jump_flag) * 0.1, (-650 - self.jump_flag) * 0.1, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
-						T_Damage (self, world, world, 5, 5, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
-						if (!self.deadflag)
-							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
+						if (self.jump_flag < -650 && world.worldtype < 3) // normal quake maps
+							d = 5;//d = (-650 - self.jump_flag) * 0.1;
+						else if (self.jump_flag < -500 && world.worldtype >= 3) // Dark Places maps
+							d = 5;//d = (-500 - self.jump_flag) * 0.3;
 					}
-					else if (self.jump_flag < -500 && world.worldtype >= 3)
+					if (d)
+						T_Damage (self, world, world, d, d, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
+					if (!self.deadflag && self.classname == "player")
 					{
-						// Dark Places maps
-						b = self.origin;
-						b_z = self.absmin_z;
-						//T_Damage (self, world, world, (-500 - self.jump_flag) * 0.3, (-500 - self.jump_flag) * 0.3, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
-						T_Damage (self, world, world, 5, 5, " met a flat world", DT_FALL, b, '0 0 20', Obituary_Generic);
-						if (!self.deadflag)
+						if (self.watertype == CONTENT_WATER)
+							sound (self, CHAN_BODY, "player/h2ojump.wav", 1, ATTN_NORM);
+						else if (d)
 							sound (self, CHAN_VOICE, "player/land2.wav", 1, ATTN_NORM);
+						else
+							sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
 					}
-					else if (!self.deadflag)
-						sound (self, CHAN_VOICE, "player/land.wav", 1, ATTN_NORM);
 				}
 				self.jump_flag = self.velocity_z;
 				if (self.movetype == MOVETYPE_STEP || self.movetype == MOVETYPE_WALK)
