@@ -458,7 +458,7 @@ void() spawnmonsters =
 	}
 	org = head.origin;
 
-	r = random() * 14;
+	r = random() * 13;
 	     if (r <  1) spawnmonster(org,  5, 10, "monster_army"       , monster_army       , '-16 -16 -24', '16 16 32');
 	else if (r <  2) spawnmonster(org,  3,  6, "monster_demon1"     , monster_demon1     , '-32 -32 -24', '32 32 64');
 	else if (r <  3) spawnmonster(org,  6, 12, "monster_dog"        , monster_dog        , '-16 -16 -24', '16 16 32');
@@ -472,7 +472,6 @@ void() spawnmonsters =
 	else if (r < 11) spawnmonster(org,  6, 10, "monster_wizard"     , monster_wizard     , '-16 -16 -24', '16 16 32');
 	else if (r < 12) spawnmonster(org,  4,  8, "monster_zombie"     , monster_zombie     , '-16 -16 -24', '16 16 32');
 	else if (r < 13) spawnmonster(org,  4,  8, "monster_fish"       , monster_fish       , '-16 -16 -24', '16 16 32');
-	else if (r < 14) spawnmonster(org,  4,  4, "monster_hellfish"   , monster_hellfish   , '-16 -16 -24', '16 16 32');
 };
 
 float monstersprecached;
