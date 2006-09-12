@@ -45,7 +45,7 @@ int fiximage(const char *filename)
 	int imagetype, pixel_size, baseimagetype;
 	unsigned char header[18+256], originalheader[18];
 	char comment[256];
-	file = fopen(filename, nowrites ? "rb" : "ab");
+	file = fopen(filename, nowrites ? "rb" : "r+b");
 	if (!file)
 	{
 		if (nowrites)
@@ -138,8 +138,9 @@ int fiximage(const char *filename)
 		else
 		{
 			fprintf(stderr, "%s: saving changes\n", filename);
-			fseek(file, -18, SEEK_CUR);
-			fwrite(header, 1, 18, file);
+			fseek(file, 0, SEEK_SET);
+			if (fwrite(header, 1, 18, file) != 18)
+				fprintf(stderr, "%s: write failed\n", filename);
 		}
 	}
 
