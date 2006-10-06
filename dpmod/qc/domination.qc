@@ -248,7 +248,7 @@ void() dom_delayedinit =
 			dom_spawnpoint('144 1376 912');
 			dom_spawnpoint('832 -592 840');
 			dom_spawnpoint('704 1344 344');
-			dom_spawnpoint('704 3404 944');
+			dom_spawnpoint('704 2304 944');
 		}
 		else
 		{
