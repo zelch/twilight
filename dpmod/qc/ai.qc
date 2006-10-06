@@ -352,6 +352,8 @@ void() FoundTarget =
 {
 	if (self.health < 1 || !self.th_run)
 		return;
+	if (self.enemy.health < 1 || !self.enemy.takedamage)
+		return;
 	if (self.enemy.classname == "player")
 	{
 		// let other monsters see this monster for a while
