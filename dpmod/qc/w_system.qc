@@ -568,17 +568,20 @@ float PLASMARIFLE_SUPER_AMMO = 4;
 float PLASMARIFLE_SUPER_RADIUS = 80;
 float PLASMARIFLE_SUPER_VELOCITY = 5000;
 float PLASMARIFLE_SUPER_REFIRE = 0.5;
+float PLASMAWAVE_SINGLE_CELL = 10;
 float PLASMAWAVE_SINGLE_AMMO = 10;
-float PLASMAWAVE_SINGLE_REFIRE = 0.6;
+float PLASMAWAVE_SINGLE_REFIRE = 0.8;
 float PLASMAWAVE_SINGLE_BURNRADIUS = 120;
-float PLASMAWAVE_WAVE_CELL = 30;
+float PLASMAWAVE_SINGLE_SPEED = 600;
+float PLASMAWAVE_WAVE_CELL = 7;
 float PLASMAWAVE_WAVE_MAXAMMO = 50;
-float PLASMAWAVE_WAVE_AMMOPERSHOT = 5;
-float PLASMAWAVE_WAVE_MAXSHOTS = 10;
+float PLASMAWAVE_WAVE_AMMOPERSHOT = 10;
+float PLASMAWAVE_WAVE_MAXSHOTS = 5;
 float PLASMAWAVE_WAVE_CHARGETIME = 0.5;
-float PLASMAWAVE_WAVE_REFIRE = 1.1;
+float PLASMAWAVE_WAVE_REFIRE = 2;
 float PLASMAWAVE_WAVE_BURNRADIUS = 120;
 float PLASMAWAVE_WAVE_SPREADANGLEPERSHOT = 6;
+float PLASMAWAVE_WAVE_SPEED = 400;
 float LASERRIFLE_REFIRE = 0.2;
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Axe =
@@ -1783,7 +1786,7 @@ float(float request) w_plasmawave =
 			{
 				shots = shots - 1;
 				makevectors(ang);
-				FirePlasmaBall(self, self, shotorg, v_forward * 1000, damage, damage, PLASMAWAVE_WAVE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveOverload);
+				FirePlasmaBall(self, self, shotorg, v_forward * PLASMAWAVE_WAVE_SPEED, damage, damage, PLASMAWAVE_WAVE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveOverload);
 				ang = ang + '0 1 0' * PLASMAWAVE_WAVE_SPREADANGLEPERSHOT;
 			}
 			wsetanim(WANIM_FIRE1, 0, 0, PLASMAWAVE_WAVE_REFIRE - PLASMAWAVE_WAVE_CHARGETIME);
@@ -1797,9 +1800,9 @@ float(float request) w_plasmawave =
 	if (request == WR_AIM)
 	{
 		if (random() < 0.2)
-			self.button3 = w_aim(3000, 1, FALSE);
+			self.button3 = w_aim(PLASMAWAVE_WAVE_SPEED, 1, FALSE);
 		else
-			self.button0 = w_aim(5000, 1, FALSE);
+			self.button0 = w_aim(PLASMAWAVE_SINGLE_SPEED, 1, FALSE);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1831,7 +1834,7 @@ float(float request) w_plasmawave =
 			self.wfiretime = time;
 			Inventory_AdjustQuantity(self, "cells", 0 - cells);
 			w_muzzleflash(shotorg, 4);
-			FirePlasmaBall(self, self, shotorg, shotdir * 1000, cells * AMMO_CELL_DAMAGE, cells * AMMO_CELL_DAMAGE, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
+			FirePlasmaBall(self, self, shotorg, shotdir * PLASMAWAVE_SINGLE_SPEED, cells * PLASMAWAVE_SINGLE_CELL, cells * PLASMAWAVE_SINGLE_CELL, PLASMAWAVE_SINGLE_BURNRADIUS, "PLASMAWAVE", Obituary_PlasmaWaveShot);
 			wsetanim(WANIM_FIRE1, 0, 0, PLASMAWAVE_SINGLE_REFIRE);
 			// update the player animation
 			player_rocket1();

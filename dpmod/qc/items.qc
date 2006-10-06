@@ -550,7 +550,7 @@ void() weapon_supernailgun =
 */
 void() weapon_grenadelauncher =
 {
-	weapon_spawnhandler("progs/g_rock.mdl", 2000, "You got the Proximity Grenade Launcher!\n");
+	weapon_spawnhandler("progs/g_rock.mdl", 2000, "You got the Grenade Launcher!\n");
 	Inventory_SetQuantity(self, "grenadelauncher", 1);
 	Inventory_SetQuantity(self, "rockets", AMMO_ROCKETS);
 };
@@ -568,11 +568,54 @@ void() weapon_rocketlauncher =
 */
 void() weapon_lightning =
 {
-	weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Thunderbolt!\n");
+	weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Thunderbolt and Plasma Rifle!\n");
 	Inventory_SetQuantity(self, "thunderbolt", 1);
 	Inventory_SetQuantity(self, "plasmarifle", 1);
+	Inventory_SetQuantity(self, "cells", AMMO_CELLS);
+};
+
+/*QUAKED weapon_plasma (0 .5 .8) (-16 -16 0) (16 16 32)
+*/
+void() weapon_plasma =
+{
+	weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Plasma Rifle!\n");
+	Inventory_SetQuantity(self, "plasmarifle", 1);
+	Inventory_SetQuantity(self, "cells", AMMO_CELLS);
+};
+
+/*QUAKED weapon_plasma_wave (0 .5 .8) (-16 -16 0) (16 16 32)
+*/
+void() weapon_plasma_wave =
+{
+	weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Plasma Wave Cannon!\n");
 	Inventory_SetQuantity(self, "plasmawave", 1);
 	Inventory_SetQuantity(self, "cells", AMMO_CELLS);
+};
+
+// these are compatibility with various other games, and older (generally unreleased) dpmod maps
+void() weapon_machinegun =
+{
+	weapon_spawnhandler("progs/g_nail.mdl", 2000, "You got the Nailgun!\n");
+	Inventory_SetQuantity(self, "nailgun", 1);
+	Inventory_SetQuantity(self, "nails", AMMO_NAILS);
+};
+void() weapon_chaingun =
+{
+	weapon_spawnhandler("progs/g_nail2.mdl", 2000, "You got the Super Nailgun!\n");
+	Inventory_SetQuantity(self, "supernailgun", 1);
+	Inventory_SetQuantity(self, "nails", AMMO_NAILS);
+};
+void() weapon_rifle =
+{
+	weapon_spawnhandler("progs/g_light.mdl", 2000, "You got the Thunderbolt!\n");
+	Inventory_SetQuantity(self, "thunderbolt", 1);
+	Inventory_SetQuantity(self, "cells", AMMO_CELLS);
+};
+void() weapon_proximitygrenade =
+{
+	weapon_spawnhandler("progs/g_rock.mdl", 2000, "You got the Grenade Launcher!\n");
+	Inventory_SetQuantity(self, "grenadelauncher", 1);
+	Inventory_SetQuantity(self, "rockets", AMMO_ROCKETS);
 };
 
 /*
