@@ -1214,6 +1214,15 @@ float Q3SURFACEFLAG_NOSTEPS = 8192; // walking on this surface should not make f
 //description:
 //scales fov and sensitivity of player, valid range is 0 to 1 (intended for sniper rifle zooming, and such)
 
+//DP_QC_STRINGCOLORFUNCTIONS
+//idea: Dresk
+//darkplaces implementation: Dresk
+//builtin definitions:
+float(string s) strlennocol = #476; // returns how many characters are in a string, minus color codes
+string(string s) strdecolorize = #477; // returns a string minus the color codes of the string provided
+//description:
+//provides additional functionality to strings by supporting functions that isolate and identify strings with color codes
+
 //EXT_BITSHIFT
 //idea: Spike
 //darkplaces implementation: [515]
