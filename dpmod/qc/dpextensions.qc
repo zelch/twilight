@@ -871,6 +871,16 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //description:
 //clientside playback of simple custom sprite effects (explosion sprites, etc).
 
+//DP_SV_ENTITYCONTENTSTRANSITION
+//idea: Dresk
+//darkplaces implementation: Dresk
+//field definitions:
+.void(float nOriginalContents, float nNewContents) contentstransition;
+//description:
+//This field function, when provided, is triggered on an entity when the contents (ie. liquid / water / etc) is changed.
+//The first parameter provides the entities original contents, prior to the transition.  The second parameter provides the new contents.
+//NOTE: If this field function is provided on an entity, the standard watersplash sound IS SUPPRESSED to allow for authors to create their own transition sounds.
+
 //DP_SV_NODRAWTOCLIENT
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
