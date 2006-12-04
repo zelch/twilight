@@ -24,20 +24,26 @@
 int glerrornum;
 #define CHECKGLERROR if ((glerrornum = glGetError())) GL_PrintError(glerrornum, __FILE__, __LINE__);
 
-typedef int GLint;
-typedef unsigned int GLuint;
-typedef int GLenum;
-typedef int GLsizei;
-typedef float GLfloat;
+typedef char GLcharARB;
+typedef double GLclampd;
 typedef double GLdouble;
-typedef void GLvoid;
 typedef float GLclampf;
-typedef int GLbitfield;
+typedef float GLfloat;
+typedef int GLhandleARB;
+typedef int GLint;
+typedef int GLsizei;
+typedef short GLshort;
+typedef signed char GLbyte;
 typedef unsigned char GLboolean;
 typedef unsigned char GLubyte;
+typedef unsigned int GLbitfield;
+typedef unsigned int GLenum;
+typedef unsigned int GLuint;
+typedef unsigned short GLushort;
+typedef void GLvoid;
 
-typedef int GLintptrARB;
-typedef int GLsizeiptrARB;
+typedef size_t GLintptrARB;
+typedef size_t GLsizeiptrARB;
 
 
 static int quit;
@@ -973,20 +979,20 @@ void dpmdraw(dpmheader_t *dpm, dpmbonepose_t *bonepose)
 			}
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
 			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(vertex_t) * mesh->num_verts, varray_vertex);
-			glVertexPointer(3, GL_FLOAT, 0, 0);
+			glVertexPointer(3, GL_FLOAT, sizeof(vertex_t), 0);
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
 			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(vertex_t) * mesh->num_verts, varray_normal);
-			glNormalPointer(GL_FLOAT, 0, 0);
+			glNormalPointer(GL_FLOAT, sizeof(vertex_t), 0);
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
 			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(texcoord_t) * mesh->num_verts, varray_texcoord);
-			glTexCoordPointer(2, GL_FLOAT, 0, 0);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(texcoord_t), 0);
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 		}
 		else
 		{
-			glVertexPointer(3, GL_FLOAT, 0, varray_vertex);
-			glNormalPointer(GL_FLOAT, 0, varray_normal);
-			glTexCoordPointer(2, GL_FLOAT, 0, varray_texcoord);
+			glVertexPointer(3, GL_FLOAT, sizeof(vertex_t), varray_vertex);
+			glNormalPointer(GL_FLOAT, sizeof(vertex_t), varray_normal);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(texcoord_t), varray_texcoord);
 		}
 		glColor4f(1,1,1,1);
 		bindimagetexture(mesh->shadername);
