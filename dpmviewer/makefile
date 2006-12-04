@@ -1,4 +1,9 @@
 
+#compiler to use
+CC=gcc
+
+SDL_CONFIG?=sdl-config
+
 #use this line for profiling
 #PROFILEOPTION=-pg -g
 #use this lines for no profiling
@@ -9,23 +14,23 @@ PROFILEOPTION=
 #this is used to ensure that all released versions are free of warnings.
 
 #normal compile
-#OPTIMIZATIONS= -O6 -fexpensive-optimizations
-#CFLAGS= -I/usr/include/SDL -MD -Wall -Werror $(OPTIMIZATIONS) $(PROFILEOPTION)
+OPTIMIZATIONS= -O2 -fexpensive-optimizations
+CFLAGS= -MD -Wall -Werror $(OPTIMIZATIONS) $(PROFILEOPTION) `$(SDL_CONFIG) --cflags`
 #debug compile
-OPTIMIZATIONS=
-CFLAGS= -I/usr/include/SDL -MD -Wall -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION)
+#OPTIMIZATIONS=
+#CFLAGS= -MD -Wall -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION) `$(SDL_CONFIG) --cflags`
 
-LDFLAGS= -lm $(PROFILEOPTION)
+LDFLAGS= -lm $(PROFILEOPTION) `$(SDL_CONFIG) --libs`
 
 TARGETS= dpmviewer
 
 all: $(TARGETS)
 
 .c.o:
-	gcc $(CFLAGS) -c $*.c
+	$(CC) $(CFLAGS) -c $*.c
 
 dpmviewer: dpmviewer.o
-	gcc -o $@ $^ $(LDFLAGS) -lSDL -lSDLmain -lpthread
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 
 clean:
