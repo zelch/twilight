@@ -25,6 +25,7 @@ LDFLAGS= -lm $(PROFILEOPTION) `$(SDL_CONFIG) --libs`
 TARGETS= dpmviewer
 
 all: $(TARGETS)
+mingw: dpmviewer.exe
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
@@ -32,6 +33,8 @@ all: $(TARGETS)
 dpmviewer: dpmviewer.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+dpmviewer.exe: dpmviewer.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
 	-rm -f $(TARGETS) *.exe *.o *.d
