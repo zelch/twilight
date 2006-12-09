@@ -112,7 +112,8 @@ void() SV_PlayerPhysics =
 		wishvel = v_right * self.movement_y;
 	else
 	{
-		if (self.flags & FL_ONGROUND)
+		// LordHavoc: this NOCLIP check is a fix for the 'not moving while looking straight up/down when noclipping' bug in Quake
+		if ((self.flags & FL_ONGROUND) || (self.movetype == MOVETYPE_NOCLIP))
 			makevectors (self.v_angle_y * '0 1 0');
 
 		wishvel = v_forward * self.movement_x + v_right * self.movement_y;
