@@ -1348,6 +1348,6 @@ int main(int argc, char **argv)
 		printf("usage: dpmviewer <filename.dpm>\n");
 		return 1;
 	}
-	dpmviewer(argv[1], 1024, 768, 16, 0);
+	dpmviewer(argv[1], 800, 600, 16, 0);
 	return 0;
 }
