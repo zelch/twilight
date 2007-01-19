@@ -1013,7 +1013,7 @@ SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
 		exit(1);
 	}
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
-	surface = SDL_SetVideoMode(640, 480, 16, SDL_OPENGL | (fullscreen ? (SDL_FULLSCREEN | SDL_DOUBLEBUF) : 0));
+	surface = SDL_SetVideoMode(width, height, bpp, SDL_OPENGL | (fullscreen ? (SDL_FULLSCREEN | SDL_DOUBLEBUF) : 0));
 	if (!surface)
 		return NULL;
 
@@ -1055,11 +1055,11 @@ SDL_Surface *initvideo(int width, int height, int bpp, int fullscreen)
 	glBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
 	glBufferSubDataARB = SDL_GL_GetProcAddress("glBufferSubDataARB");
 
-	ext_string = glGetString(GL_EXTENSIONS);
+	ext_string = (const char *)glGetString(GL_EXTENSIONS);
 	ext_drawrangeelements = strstr(ext_string, "GL_EXT_draw_range_elements") != NULL;
 	ext_vbo = strstr(ext_string, "GL_ARB_vertex_buffer_object") != NULL;
 
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxtexturesize);
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&maxtexturesize);
 	return surface;
 }
 
@@ -1136,7 +1136,7 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 
 	origin[0] = 0;
 	origin[1] = 0;
-	origin[2] = -(dpm->allradius * 0.5 + 1);
+	origin[2] = -floor(dpm->allradius * 1 + 1);
 
 	printf("SDL initialized.\n");
 
@@ -1195,6 +1195,12 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 				case SDLK_PERIOD:
 					scenenum++;
 					sceneframe = 0;
+					break;
+				case SDLK_LEFTBRACKET:
+					origin[2]++;
+					break;
+				case SDLK_RIGHTBRACKET:
+					origin[2]--;
 					break;
 				case SDLK_0:
 				case SDLK_1:
@@ -1292,7 +1298,7 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 
 		glMatrixMode(GL_PROJECTION);CHECKGLERROR
 		glLoadIdentity();CHECKGLERROR
-		glOrtho(0, 640, 480, 0, -100, 100);CHECKGLERROR
+		glOrtho(0, width, height, 0, -100, 100);CHECKGLERROR
 		glMatrixMode(GL_MODELVIEW);CHECKGLERROR
 		glLoadIdentity();
 		glEnable(GL_TEXTURE_2D);
@@ -1307,12 +1313,12 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 			fpsbasetime = currenttime;
 			fpsframecount = 0;
 		}
-		sprintf(tempstring, "V: VBO %s   arrows/pgup/pgdn: rotate", vbo_enable ? "enabled " : "disabled");
+		sprintf(tempstring, "V: VBO %s   arrows/pgup/pgdn: rotate   [/]: viewdistance", vbo_enable ? "enabled " : "disabled");
 		drawstring(tempstring, 0, 0, 8, 8);
 		sprintf(tempstring, "0-9: type in framerate    space: pause    escape: quit");
 		drawstring(tempstring, 0, 8, 8, 8);
-		sprintf(tempstring, "fps%5i angles %3.0f %3.0f %3.0f playrate %02d frame %s", fps, angles[0], angles[1], angles[2], sceneframerate, ((dpmframe_t *)((unsigned char *)dpm + dpm->ofs_frames))[scenefirstframe + ((int) sceneframe) % scenenumframes].name);
-		drawstring(tempstring, 0, 480 - 8, 8, 8);
+		sprintf(tempstring, "fps%5i angles %3.0f %3.0f %3.0f viewdistance %3.0f playrate %02d frame %s", fps, angles[0], angles[1], angles[2], origin[2], sceneframerate, ((dpmframe_t *)((unsigned char *)dpm + dpm->ofs_frames))[scenefirstframe + ((int) sceneframe) % scenenumframes].name);
+		drawstring(tempstring, 0, height - 8, 8, 8);
 		// note: SDL_GL_SwapBuffers does a glFinish for us
 		SDL_GL_SwapBuffers();
 
@@ -1342,6 +1348,6 @@ int main(int argc, char **argv)
 		printf("usage: dpmviewer <filename.dpm>\n");
 		return 1;
 	}
-	dpmviewer(argv[1], 640, 480, 16, 0);
+	dpmviewer(argv[1], 1024, 768, 16, 0);
 	return 0;
 }
