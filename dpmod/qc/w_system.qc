@@ -970,13 +970,13 @@ float(float request) w_nailgun =
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
-				w_muzzleflash(shotorg, 0);//2);
+				w_muzzleflash(shotorg, 0.5);
 				Inventory_AdjustQuantity(self, "nails", -1);
 				v = shotorg;
 				if (self.weaponframe & 1)
 				{
 					shotorg = shotorg + v_right;
-					FireBullets(self, self, 4, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_BODYDAMAGE, 0, 0, shotdir * 10000, 0.01, "NAILGUN", DT_NAIL, Obituary_Nailgun);
+					FireBullets(self, self, 4, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_BODYDAMAGE, 0, 0, shotdir * 10000, 0, "NAILGUN", DT_NAIL, Obituary_Nailgun);
 					//ejectcasing(shotorg + v_forward * -5, v_right *  150 + v_up * 50, 50, self.v_angle_x * '-1 0 0' + self.v_angle_y * '0 1 0', '0 250 0', 100, 0);
 				}
 				else
@@ -1159,9 +1159,9 @@ float(float request) w_supernailgun =
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
-				w_muzzleflash(shotorg, 0);//2);
+				w_muzzleflash(shotorg, 1);
 				Inventory_AdjustQuantity(self, "nails", -1);
-				FireBullets(self, self, 4, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_BODYDAMAGE, 0, 0, shotdir * 10000, 0.05, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
+				FireBullets(self, self, 4, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_BODYDAMAGE, 0, 0, shotdir * 10000, 0, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
 				if (cvar("dpmod_qcphysics_casings"))
 					Ragdoll_ThrowCasing(shotorg + v_forward * -5, v_right * 200 + v_up * 75, shotorg + v_forward * -3, v_right * 150 + v_up * 50, "progs/casing_bronze.mdl");
 				else
@@ -1465,7 +1465,7 @@ float(float request) w_plasmarifle =
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "plasma/plasma.wav", 1, ATTN_NORM);
-				w_muzzleflash(shotorg, 0);
+				w_muzzleflash(shotorg, 0.5);
 				cells = Inventory_Quantity(self, "cells");
 				if (cells > PLASMARIFLE_NORMAL_AMMO)
 					cells = PLASMARIFLE_NORMAL_AMMO;
@@ -1646,6 +1646,7 @@ float(float request) w_thunderbolt =
 				self.wfiretime = time;
 				W_Hostile();
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
+				w_muzzleflash(shotorg, 0.5);
 				v = W_BeamDamage(self, self, shotorg, shotorg + shotdir * 100000, AMMO_CELL_DAMAGE * cells, AMMO_CELL_BODYDAMAGE * cells, "LIGHTNING", DT_LIGHTNING, Obituary_Lightning);
 				te_lightning2(self, shotorg, v);
 				// update the player animation
