@@ -400,21 +400,14 @@ void(vector org, float c1, float c2, string cname, void() spawnfunc, vector m1, 
 
 		newmis = spawn();
 		newmis.cnt = time + 10;
+		if (cname == "monster_wizard")
+			newmis.cnt = time + 2;
 		newmis.lefty = 10;
 		newmis.dest = org;
 		newmis.classname = "spawningmonster";
 		newmis.netname = cname;
 		newmis.solid = SOLID_TRIGGER;
-		if (cname == "monster_wizard")
-		{
-			newmis.flags = FL_FLY;
-			newmis.movetype = MOVETYPE_FLY;
-		}
-		else
-		{
-			newmis.flags = 0;
-			newmis.movetype = MOVETYPE_TOSS;
-		}
+		newmis.movetype = MOVETYPE_TOSS;
 		newmis.velocity = randomvec() * 700 + '0 0 1000';
 		newmis.th_run = spawnfunc;
 		newmis.think = spawnmonster_think;
@@ -444,34 +437,64 @@ void() spawnmonsters =
 {
 	local float r;
 	local vector org;
-	local entity head;
-	if (find(world, classname, "info_player_deathmatch") == world)
-		return;
-	r = random() * 50 + 1;
-	head = world;
+	local entity head, e;
+	head = findchain(classname, "info_player_deathmatch");
+	if (head == world)
+	{
+		head = findchain(classname, "info_player_coop");
+		if (head == world)
+		{
+			head = findchain(classname, "info_player_start");
+			if (head == world)
+				return;
+		}
+	}
+
+	// count the spawn points
+	r = 0;
+	e = head;
+	while (e)
+	{
+		r = r + 1;
+		e = e.chain;
+	}
+
+	// pick a random one
+	r = random() * r;
+	e = head;
 	while (r > 0)
 	{
 		r = r - 1;
-		head = find(head, classname, "info_player_deathmatch");
-		if (head == world)
-			head = find(head, classname, "info_player_deathmatch");
+		org = head.origin;
+		e = e.chain;
 	}
-	org = head.origin;
 
-	r = random() * 13;
-	     if (r <  1) spawnmonster(org,  5, 10, "monster_army"       , monster_army       , '-16 -16 -24', '16 16 32');
-	else if (r <  2) spawnmonster(org,  3,  6, "monster_demon1"     , monster_demon1     , '-32 -32 -24', '32 32 64');
-	else if (r <  3) spawnmonster(org,  6, 12, "monster_dog"        , monster_dog        , '-16 -16 -24', '16 16 32');
-	else if (r <  4) spawnmonster(org,  4,  8, "monster_enforcer"   , monster_enforcer   , '-16 -16 -24', '16 16 32');
-	else if (r <  5) spawnmonster(org,  4,  8, "monster_hell_knight", monster_hell_knight, '-16 -16 -24', '16 16 32');
-	else if (r <  6) spawnmonster(org,  6, 12, "monster_knight"     , monster_knight     , '-16 -16 -24', '16 16 32');
-	else if (r <  7) spawnmonster(org,  3,  6, "monster_ogre"       , monster_ogre       , '-32 -32 -24', '32 32 64');
-	else if (r <  8) spawnmonster(org,  1,  3, "monster_shalrath"   , monster_shalrath   , '-32 -32 -24', '32 32 64');
-	else if (r <  9) spawnmonster(org,  1,  1, "monster_shambler"   , monster_shambler   , '-32 -32 -24', '32 32 64');
-	else if (r < 10) spawnmonster(org, 10, 15, "monster_tarbaby"    , monster_tarbaby    , '-16 -16 -24', '16 16 32');
-	else if (r < 11) spawnmonster(org,  6, 10, "monster_wizard"     , monster_wizard     , '-16 -16 -24', '16 16 32');
-	else if (r < 12) spawnmonster(org,  4,  8, "monster_zombie"     , monster_zombie     , '-16 -16 -24', '16 16 32');
-	else if (r < 13) spawnmonster(org,  4,  8, "monster_fish"       , monster_fish       , '-16 -16 -24', '16 16 32');
+	// pick a type of monster
+	if (cvar("registered"))
+	{
+		r = floor(random() * 13);
+		if (r > 12)
+			r = 12;
+	}
+	else
+	{
+		r = floor(random() * 8);
+		if (r > 7)
+			r = 7;
+	}
+	     if (r ==  0) spawnmonster(org,  5, 10, "monster_army"       , monster_army       , '-16 -16 -24', '16 16 32');
+	else if (r ==  1) spawnmonster(org,  3,  6, "monster_demon1"     , monster_demon1     , '-32 -32 -24', '32 32 64');
+	else if (r ==  2) spawnmonster(org,  6, 12, "monster_dog"        , monster_dog        , '-16 -16 -24', '16 16 32');
+	else if (r ==  3) spawnmonster(org,  6, 12, "monster_knight"     , monster_knight     , '-16 -16 -24', '16 16 32');
+	else if (r ==  4) spawnmonster(org,  3,  6, "monster_ogre"       , monster_ogre       , '-32 -32 -24', '32 32 64');
+	else if (r ==  5) spawnmonster(org,  1,  1, "monster_shambler"   , monster_shambler   , '-32 -32 -24', '32 32 64');
+	else if (r ==  6) spawnmonster(org,  6, 10, "monster_wizard"     , monster_wizard     , '-16 -16 -24', '16 16 32');
+	else if (r ==  7) spawnmonster(org,  8, 16, "monster_zombie"     , monster_zombie     , '-16 -16 -24', '16 16 32');
+	else if (r ==  8) spawnmonster(org,  4,  8, "monster_enforcer"   , monster_enforcer   , '-16 -16 -24', '16 16 32');
+	else if (r ==  9) spawnmonster(org,  4,  8, "monster_hell_knight", monster_hell_knight, '-16 -16 -24', '16 16 32');
+	else if (r == 10) spawnmonster(org,  1,  3, "monster_shalrath"   , monster_shalrath   , '-32 -32 -24', '32 32 64');
+	else if (r == 11) spawnmonster(org, 10, 15, "monster_tarbaby"    , monster_tarbaby    , '-16 -16 -24', '16 16 32');
+	else if (r == 12) spawnmonster(org,  4,  8, "monster_fish"       , monster_fish       , '-16 -16 -24', '16 16 32');
 };
 
 float monstersprecached;
@@ -494,16 +517,19 @@ void() precachemonsters =
 	precachemonster_army();
 	precachemonster_demon1();
 	precachemonster_dog();
-	precachemonster_enforcer();
-	precachemonster_hell_knight();
 	precachemonster_knight();
 	precachemonster_ogre();
-	precachemonster_shalrath();
 	precachemonster_shambler();
-	precachemonster_tarbaby();
 	precachemonster_wizard();
 	precachemonster_zombie();
-	precachemonster_fish();
+	if (cvar("registered"))
+	{
+		precachemonster_enforcer();
+		precachemonster_hell_knight();
+		precachemonster_shalrath();
+		precachemonster_tarbaby();
+		precachemonster_fish();
+	}
 	monstersprecached = TRUE;
 };
 
