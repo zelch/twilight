@@ -635,7 +635,16 @@ float(float minimum, float val, float maximum) bound = #96;
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
 //description:
-//this extension makes all builtins returning tempstrings (ftos for example) cycle through a pool of multiple tempstrings (at least 16), allowing multiple ftos results to be gathered before putting them to use, normal quake only had 1 tempstring, causing many headaches.  Note that for longer term storage (or compatibility on engines having FRIK_FILE but not this extension) the FRIK_FILE extension's strzone/strunzone builtins provide similar functionality (slower though).
+//this extension makes all builtins returning tempstrings (ftos for example)
+//cycle through a pool of multiple tempstrings (at least 16), allowing
+//multiple ftos results to be gathered before putting them to use, normal
+//quake only had 1 tempstring, causing many headaches.
+//
+//Note that for longer term storage (or compatibility on engines having
+//FRIK_FILE but not this extension) the FRIK_FILE extension's
+//strzone/strunzone builtins provide similar functionality (slower though).
+//
+//NOTE: this extension is superseded by DP_QC_UNLIMITEDTEMPSTRINGS
 
 //DP_QC_RANDOMVEC
 //idea: LordHavoc
@@ -1240,6 +1249,31 @@ string(string s) strdecolorize = #477; // returns a string minus the color codes
 //description:
 //provides additional functionality to strings by supporting functions that isolate and identify strings with color codes
 
+//DP_QC_UNLIMITEDTEMPSTRINGS
+//idea: div0
+//darkplaces implementation: LordHavoc
+//description:
+//this extension alters Quake behavior such that instead of reusing a single
+//tempstring (or multiple) there are an unlimited number of tempstrings, which
+//are removed only when a QC function invoked by the engine returns,
+//eliminating almost all imaginable concerns with string handling in QuakeC.
+//
+//in short:
+//you can now use and abuse tempstrings as much as you like, you still have to
+//use strzone (FRIK_FILE) for permanent storage however.
+//
+//
+//
+//implementation notes for other engine coders:
+//these tempstrings are expected to be stored in a contiguous buffer in memory
+//which may be fixed size or controlled by a cvar, or automatically grown on
+//demand (in the case of DarkPlaces).
+//
+//this concept is similar to quake's Zone system, however these are all freed
+//when the QC interpreter returns.
+//
+//this is basically a poor man's garbage collection system for strings.
+
 //EXT_BITSHIFT
 //idea: Spike
 //darkplaces implementation: [515]
@@ -1272,6 +1306,9 @@ float FILE_WRITE = 2;
 //pr_zone_min_strings : default 64 (64k), min 64 (64k), max 8192 (8mb)
 //description:
 //provides text file access functions and string manipulation functions, note that you may want to set pr_zone_min_strings in the worldspawn function if 64k is not enough string zone space.
+//
+//NOTE: strzone functionality is partially superseded by
+//DP_QC_UNLIMITEDTEMPSTRINGS when longterm storage is not needed
 
 //KRIMZON_SV_PARSECLIENTCOMMAND
 //idea: KrimZon
