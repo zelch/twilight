@@ -24,6 +24,13 @@ float(string s) checkextension = #99;
 //	ext_setcolor = TRUE;
 //from then on you can check ext_setcolor to know if that extension is available
 
+//BX_WAL_SUPPORT
+//idea: id Software
+//darkplaces implementation: LordHavoc
+//description:
+//indicates the engine supports .wal textures for filenames in the textures/ directory
+//(note: DarkPlaces has supported this since 2001 or 2002, but did not advertise it as an extension, then I noticed Betwix was advertising it and added the extension accordingly)
+
 //DP_BUTTONCHAT
 //idea: Vermeulen
 //darkplaces implementation: LordHavoc
