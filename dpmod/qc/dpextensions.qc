@@ -15,7 +15,7 @@ float MOVE_MISSILE = 2; // save as movement with .movetype == MOVETYPE_FLYMISSIL
 float(string s) checkextension = #99;
 //description:
 //check if (cvar("pr_checkextension")) before calling this, this is the only
-//guarenteed extension to be present in the extension system, it allows you
+//guaranteed extension to be present in the extension system, it allows you
 //to check if an extension is available, by name, to check for an extension
 //use code like this:
 //// (it is recommended this code be placed in worldspawn or a worldspawn called function somewhere)
@@ -280,7 +280,7 @@ type 10 (RLE compressed 24bit/32bit true color, glquake supported this)
 type 11 (RLE compressed 8bit greyscale)
 attribute bit 0x20 (Origin At Top Left, top to bottom, left to right)
 
-image formats guarenteed to be supported: tga, pcx, lmp
+image formats guaranteed to be supported: tga, pcx, lmp
 image formats that are optional: png, jpg
 
 mdl/spr/spr32 examples:
