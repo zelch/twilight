@@ -665,6 +665,36 @@ float(float a, float b) pow = #97;
 //description:
 //useful math functions, sine of val, cosine of val, square root of val, and raise a to power b, respectively.
 
+//DP_QC_STRFTIME
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//builtin definitions:
+string(float uselocaltime, string format, ...) strftime = #478;
+//description:
+//provides the ability to get the local (in your timezone) or world (Universal Coordinated Time) time as a string using the formatting of your choice:
+//example: "%Y-%m-%d %H:%M:%S"   (result looks like: 2007-02-08 01:03:15)
+//note: "%F %T" gives the same result as "%Y-%m-%d %H:%M:%S" (ISO 8601 date format and 24-hour time)
+//for more format codes please do a web search for strftime 3 and you should find the man(3) pages for this standard C function.
+//
+//practical uses:
+//changing day/night cycle (shops closing, monsters going on the prowl) in an RPG, for this you probably want to use s = strftime(TRUE, "%H");hour = ftos(s);
+//printing current date/time for competitive multiplayer games, such as the beginning/end of each round in real world time.
+//activating eastereggs in singleplayer games on certain dates.
+//
+//note: some codes such as %x and %X use your locale settings and thus may not make sense to international users, it is not advisable to use these as the server and clients may be in different countries.
+//note: if you display local time to a player, it would be a good idea to note whether it is local time using a string like "%F %T (local)", and otherwise use "%F %T (UTC)".
+//note: be aware that if the game is saved and reloaded a week later the date and time will be different, so if activating eastereggs in a singleplayer game or something you may want to only check when a level is loaded and then keep the same easteregg state throughout the level so that the easteregg does not deactivate when reloading from a savegame (also be aware that precaches should not depend on such date/time code because reloading a savegame often scrambles the precaches if so!).
+//note: this function can return a NULL string (you can check for it with if (!s)) if the localtime/gmtime functions returned NULL in the engine code, such as if those functions don't work on this platform (consoles perhaps?), so be aware that this may return nothing.
+
+//DP_QC_STRINGCOLORFUNCTIONS
+//idea: Dresk
+//darkplaces implementation: Dresk
+//builtin definitions:
+float(string s) strlennocol = #476; // returns how many characters are in a string, minus color codes
+string(string s) strdecolorize = #477; // returns a string minus the color codes of the string provided
+//description:
+//provides additional functionality to strings by supporting functions that isolate and identify strings with color codes
+
 //DP_QC_TRACEBOX
 //idea: id Software
 //darkplaces implementation: id Software
@@ -696,6 +726,31 @@ float MOVE_HITMODEL = 4;
 float MOVE_WORLDONLY = 3;
 //description:
 //allows traces to hit only world (ignoring all entities, unlike MOVE_NOMONSTERS which hits all bmodels), use as the nomonsters parameter to trace functions
+
+//DP_QC_UNLIMITEDTEMPSTRINGS
+//idea: div0
+//darkplaces implementation: LordHavoc
+//description:
+//this extension alters Quake behavior such that instead of reusing a single
+//tempstring (or multiple) there are an unlimited number of tempstrings, which
+//are removed only when a QC function invoked by the engine returns,
+//eliminating almost all imaginable concerns with string handling in QuakeC.
+//
+//in short:
+//you can now use and abuse tempstrings as much as you like, you still have to
+//use strzone (FRIK_FILE) for permanent storage however.
+//
+//
+//
+//implementation notes for other engine coders:
+//these tempstrings are expected to be stored in a contiguous buffer in memory
+//which may be fixed size or controlled by a cvar, or automatically grown on
+//demand (in the case of DarkPlaces).
+//
+//this concept is similar to quake's Zone system, however these are all freed
+//when the QC interpreter returns.
+//
+//this is basically a poor man's garbage collection system for strings.
 
 //DP_QC_VECTORVECTORS
 //idea: LordHavoc
@@ -1246,40 +1301,6 @@ float Q3SURFACEFLAG_NOSTEPS = 8192; // walking on this surface should not make f
 .float viewzoom;
 //description:
 //scales fov and sensitivity of player, valid range is 0 to 1 (intended for sniper rifle zooming, and such)
-
-//DP_QC_STRINGCOLORFUNCTIONS
-//idea: Dresk
-//darkplaces implementation: Dresk
-//builtin definitions:
-float(string s) strlennocol = #476; // returns how many characters are in a string, minus color codes
-string(string s) strdecolorize = #477; // returns a string minus the color codes of the string provided
-//description:
-//provides additional functionality to strings by supporting functions that isolate and identify strings with color codes
-
-//DP_QC_UNLIMITEDTEMPSTRINGS
-//idea: div0
-//darkplaces implementation: LordHavoc
-//description:
-//this extension alters Quake behavior such that instead of reusing a single
-//tempstring (or multiple) there are an unlimited number of tempstrings, which
-//are removed only when a QC function invoked by the engine returns,
-//eliminating almost all imaginable concerns with string handling in QuakeC.
-//
-//in short:
-//you can now use and abuse tempstrings as much as you like, you still have to
-//use strzone (FRIK_FILE) for permanent storage however.
-//
-//
-//
-//implementation notes for other engine coders:
-//these tempstrings are expected to be stored in a contiguous buffer in memory
-//which may be fixed size or controlled by a cvar, or automatically grown on
-//demand (in the case of DarkPlaces).
-//
-//this concept is similar to quake's Zone system, however these are all freed
-//when the QC interpreter returns.
-//
-//this is basically a poor man's garbage collection system for strings.
 
 //EXT_BITSHIFT
 //idea: Spike
