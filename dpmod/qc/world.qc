@@ -486,8 +486,8 @@ void() worldspawn =
 		//precache_model ("progs/playerrl.mdl"); // used for visible weapons
 		//precache_model ("progs/playerli.mdl"); // used for visible weapons
 
-		precache_model ("progs/playernogun.mdl");
-		precache_model ("progs/playergun.mdl");
+		//precache_model ("progs/playernogun.mdl");
+		//precache_model ("progs/playergun.mdl");
 
 		precache_model ("progs/player.mdl");
 		precache_model ("progs/eyes.mdl");
