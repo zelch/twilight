@@ -419,6 +419,7 @@ entity() SelectSpawnPoint =
 	local entity thing;
 	local float pcount;
 	local string cname;
+	local float picknext;
 
 	// testinfo_player_start is only found in regioned levels
 	spot = find(world, classname, "testplayerstart");
@@ -483,13 +484,12 @@ entity() SelectSpawnPoint =
 		if (find(world, classname, cname) == world)
 			error ("PutClientInServer: no info_player_start on level");
 		spot = lastspawn;
+		picknext = FALSE;
 		while (1)
 		{
 			spot = find(spot, classname, cname);
 			if (spot != world)
 			{
-				if (spot == lastspawn)
-					return lastspawn;
 				pcount = 0;
 				thing = findradius(spot.origin, 100);
 				while(thing)
@@ -498,24 +498,26 @@ entity() SelectSpawnPoint =
 						pcount = pcount + 1;
 					thing = thing.chain;
 				}
-				if (pcount == 0)
+				// if we failed to find a spot, at least pick the next one
+				if (pcount == 0 || picknext)
 				{
 					lastspawn = spot;
 					return spot;
 				}
+				else if (spot == lastspawn)
+					picknext = TRUE;
 			}
 		}
 	}
 	else if (deathmatch && find(world, classname, "info_player_deathmatch") != world)
 	{
 		spot = lastspawn;
+		picknext = FALSE;
 		while (1)
 		{
 			spot = find(spot, classname, "info_player_deathmatch");
 			if (spot != world)
 			{
-				if (spot == lastspawn)
-					return lastspawn;
 				pcount = 0;
 				thing = findradius(spot.origin, 100);
 				while(thing)
@@ -524,11 +526,14 @@ entity() SelectSpawnPoint =
 						pcount = pcount + 1;
 					thing = thing.chain;
 				}
-				if (pcount == 0)
+				// if we failed to find a spot, at least pick the next one
+				if (pcount == 0 || picknext)
 				{
 					lastspawn = spot;
 					return spot;
 				}
+				else if (spot == lastspawn)
+					picknext = TRUE;
 			}
 		}
 	}
@@ -550,6 +555,16 @@ entity() SelectSpawnPoint =
 	return spot;
 };
 
+//
+.float cameramode;
+.entity actor;
+void() CycleCameraMode =
+{
+	self.cameramode = self.cameramode + 1;
+	if (self.cameramode >= 4)
+		self.cameramode = 0;
+};
+
 // .entity lastwaypoint;
 .float bubble_count;
 .float candrown;
@@ -569,6 +584,22 @@ void() havocbot_chooserole;
 void() PutClientInServer =
 {
 	local entity spot;
+
+	/*
+	if (self.cameramode)
+	{
+		if (!self.actor)
+		{
+			self.actor = spawn();
+			self.actor.classname = self.classname;
+			self.classname = "clientcamera";
+			copyent
+		}
+	}
+	else
+	{
+	}
+	*/
 
 	self.classname = "player";
 
@@ -2306,7 +2337,7 @@ void() ImpulseCommands =
 			lhfp_test();
 		if (self.impulse == 52)
 			lhbitparms_test();
-		if (self.impulse >= 30 && self.impulse <= 39)
+		if (self.impulse == 53)
 		{
 			n = 0;
 			while (n < 30)
@@ -2421,6 +2452,7 @@ void() ImpulseCommands =
 	else if (self.impulse == 10) CycleWeaponCommand ();
 	else if (self.impulse == 12) CycleWeaponReverseCommand ();
 	else if (self.impulse == 30) ToggleFlashLight();
+	else if (self.impulse == 31) CycleCameraMode();
 	superdomination_impulses();
 
 	self.impulse = 0;

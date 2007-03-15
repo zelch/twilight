@@ -465,7 +465,7 @@ void() spawnmonsters =
 	while (r > 0)
 	{
 		r = r - 1;
-		org = head.origin;
+		org = e.origin;
 		e = e.chain;
 	}
 
