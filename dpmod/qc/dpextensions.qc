@@ -2,6 +2,7 @@
 //DarkPlaces supported extension list, draft version 1.04
 
 //things that don't have extensions yet:
+.float disableclientprediction;
 
 //definitions that id Software left out:
 //these are passed as the 'nomonsters' parameter to traceline/tracebox (yes really this was supported in all quake engines, nomonsters is misnamed)
@@ -694,6 +695,17 @@ float(string s) strlennocol = #476; // returns how many characters are in a stri
 string(string s) strdecolorize = #477; // returns a string minus the color codes of the string provided
 //description:
 //provides additional functionality to strings by supporting functions that isolate and identify strings with color codes
+
+//DP_QC_TOKENIZEBYSEPARATOR
+//idea: Electro, SavageX, LordHavoc
+//darkplaces implementation: LordHavoc
+//builtin definitions:
+float(string s, string separator1, ...) tokenizebyseparator = #479;
+//description:
+//this function returns tokens separated by any of the supplied separator strings, example:
+//numnumbers = tokenizebyseparator("10.2.3.4", ".");
+//returns 4 and the tokens are "10" "2" "3" "4"
+//possibly useful for parsing IPv4 addresses (such as "1.2.3.4") and IPv6 addresses (such as "[1234:5678:9abc:def0:1234:5678:9abc:def0]:26000")
 
 //DP_QC_TRACEBOX
 //idea: id Software
