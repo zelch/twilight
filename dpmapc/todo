@@ -1,0 +1,15 @@
+
+dpmapc step by step todo:  (* is done, ? is partially done, - is not done yet)
+* load the .map file (store as entities which own brushes, patches, brushes which own brush sides, brush sides contain texture names and a plane and such)
+* generate triangles from the brush sides
+* generate a one leaf bsp tree (no vis) and a vis lump that has only one bit
+* insert surfaces and brushes into the bsp tree and submodels, with clipping of surface polygons (to avoid spanning leafs)
+? write the bsp
+- build bsp tree from brushes
+- implement surface merging within a leaf (merge only triangles with the same primary axis, this should produce up to 6 surfaces per leaf per texture)
+- implement shader parsing (only information parts of the syntax need be supported)
+- implement vertex lighting (patches will be slightly difficult)
+- implement lightmap allocation and lighting (patches will be somewhat difficult)
+- generate leaf portals from bsp nodes
+- implement vis (recursively flow outward from the leaf through leaf portals, when reviewing at least 3 portals, clip the third portal with all planes that can be formed from one vertex and one edge from the first two portals that do not clip the first or second portals)
+
