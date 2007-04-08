@@ -559,7 +559,8 @@ float ROCKETLAUNCHER_LOADTIME = 0.2;
 float ROCKETLAUNCHER_MAXLOAD = 2;
 float ROCKETLAUNCHER_VELOCITY = 3000;
 float ROCKETLAUNCHER_MULTI_VELOCITY = 3000;
-float THUNDERBOLT_REFIRE = 0.1;
+float THUNDERBOLT_AMMO = 0.5;
+float THUNDERBOLT_REFIRE = 0.05;
 float PLASMARIFLE_NORMAL_AMMO = 1;
 float PLASMARIFLE_NORMAL_RADIUS = 80;
 float PLASMARIFLE_NORMAL_VELOCITY = 5000;
@@ -970,7 +971,7 @@ float(float request) w_nailgun =
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "weapons/rocket1i.wav", 1, ATTN_NORM);
-				w_muzzleflash(shotorg, 0.5);
+				w_muzzleflash(shotorg, 0.25);
 				Inventory_AdjustQuantity(self, "nails", -1);
 				v = shotorg;
 				if (self.weaponframe & 1)
@@ -1159,7 +1160,7 @@ float(float request) w_supernailgun =
 			{
 				W_Hostile();
 				sound(self, CHAN_WEAPON, "weapons/spike2.wav", 1, ATTN_NORM);
-				w_muzzleflash(shotorg, 1);
+				w_muzzleflash(shotorg, 0.5);
 				Inventory_AdjustQuantity(self, "nails", -1);
 				FireBullets(self, self, 4, 1, AMMO_NAIL_DAMAGE, AMMO_NAIL_BODYDAMAGE, 0, 0, shotdir * 10000, 0, "SUPERNAILGUN", DT_NAIL, Obituary_SuperNailgun);
 				if (cvar("dpmod_qcphysics_casings"))
@@ -1616,7 +1617,7 @@ float(float request) w_thunderbolt =
 		precache_model("progs/bolt2.mdl");
 		precache_sound("weapons/lstart.wav");
 		precache_sound("weapons/lhit.wav");
-		registerweapon(8, "Thunderbolt", w_thunderbolt, "thunderbolt", "progs/v_dplight.mdl", IT_CELLS, 0, 1500, AMMO_CELL_DAMAGE / THUNDERBOLT_REFIRE);
+		registerweapon(8, "Thunderbolt", w_thunderbolt, "thunderbolt", "progs/v_dplight.mdl", IT_CELLS, 0, 1500, AMMO_CELL_DAMAGE * THUNDERBOLT_AMMO / THUNDERBOLT_REFIRE);
 		return TRUE;
 	}
 	if (request == WR_HASAMMO)
@@ -1642,7 +1643,7 @@ float(float request) w_thunderbolt =
 			if (self.button0)
 			if (cells > 0)
 			{
-				cells = min(cells, 1);
+				cells = min(cells, THUNDERBOLT_AMMO);
 				self.wfiretime = time;
 				W_Hostile();
 				Inventory_AdjustQuantity(self, "cells", 0 - cells);
