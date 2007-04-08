@@ -512,7 +512,7 @@ void() monster_shambler =
 	if (!monsterspawn)
 		precachemonster_shambler();
 
-	self.forcescale = 1.5; // much heavier than a player
+	self.forcescale = 0.1; // much heavier than a player
 	self.netname = "a shambler";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

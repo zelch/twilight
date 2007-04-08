@@ -659,7 +659,7 @@ void() monster_zombie =
 		return;
 	}
 
-	self.forcescale = 6;
+	self.forcescale = 2;
 	self.netname = "Zombie";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

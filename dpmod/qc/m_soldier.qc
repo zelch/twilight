@@ -473,7 +473,7 @@ void() monster_army =
 	if (!monsterspawn)
 		precachemonster_army();
 
-	self.forcescale = 6;
+	self.forcescale = 1.2;
 	self.netname = "a grunt";
 	// self.doobits = 1;
 

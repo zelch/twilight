@@ -349,7 +349,7 @@ void() monster_wizard =
 	if (!monsterspawn)
 		precachemonster_wizard();
 
-	self.forcescale = 6;
+	self.forcescale = 2;
 	self.netname = "a scrag";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

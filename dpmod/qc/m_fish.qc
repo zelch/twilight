@@ -219,7 +219,7 @@ void() monster_fish =
 	if (!monsterspawn)
 		precachemonster_fish();
 
-	self.forcescale = 6;
+	self.forcescale = 8;
 	self.netname = "Rotfish";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;
@@ -263,7 +263,7 @@ void() monster_hellfish =
 	if (!monsterspawn)
 		precachemonster_fish();
 
-	self.forcescale = 6;
+	self.forcescale = 8;
 	self.netname = "Hellfish";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

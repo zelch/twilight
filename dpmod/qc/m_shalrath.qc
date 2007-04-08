@@ -236,7 +236,7 @@ void() monster_shalrath =
 	if (!monsterspawn)
 		precachemonster_shalrath();
 
-	self.forcescale = 3;
+	self.forcescale = 0.3;
 	self.netname = "a shalrath";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

@@ -463,7 +463,7 @@ void() monster_enforcer =
 	if (!monsterspawn)
 		precachemonster_enforcer();
 
-	self.forcescale = 4;
+	self.forcescale = 0.5;
 	self.netname = "an enforcer";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

@@ -253,7 +253,7 @@ void() monster_tarbaby =
 	if (!monsterspawn)
 		precachemonster_tarbaby();
 
-	self.forcescale = 6;
+	self.forcescale = 2;
 	self.netname = "a spawn";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

@@ -373,7 +373,7 @@ void() monster_dog =
 	if (!monsterspawn)
 		precachemonster_dog();
 
-	self.forcescale = 8;
+	self.forcescale = 4;
 	self.netname = "a dog";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

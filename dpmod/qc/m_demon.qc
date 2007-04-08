@@ -387,7 +387,7 @@ void() monster_demon1 =
 	if (!monsterspawn)
 		precachemonster_demon1();
 
-	self.forcescale = 4;
+	self.forcescale = 1;
 	self.netname = "a fiend";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;

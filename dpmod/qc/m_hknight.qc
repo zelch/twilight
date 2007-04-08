@@ -770,7 +770,7 @@ void() monster_hell_knight =
 	if (!monsterspawn)
 		precachemonster_hell_knight();
 
-	self.forcescale = 4;
+	self.forcescale = 0.5;
 	self.netname = "a Hell-Knight";
 	// self.doobits = 1;
 	self.solid = SOLID_SLIDEBOX;
