@@ -425,7 +425,7 @@ void(entity realbulletowner, entity bulletowner, float bullettype, float shotcou
 		//if (self.lefty >= 0)
 		//	newmis.movetype = MOVETYPE_TOSS;
 		//if (self.lefty >= 0)
-		if (maxclients == 1)
+		if (shotcount < 3 || maxclients == 1)
 		if (game != GAME_NEXUIZ)
 		{
 			// only visible in singleplayer (network bandwidth reasons)
