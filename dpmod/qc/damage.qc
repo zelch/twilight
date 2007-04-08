@@ -72,17 +72,17 @@ float AMMO_ENFORCER_LASERRIFLE          =    5;
 float AMMO_OGRE_GRENADELAUNCHER         =    5;
 */
 // darkplaces mod values
-float AMMO_AXE_DAMAGE                   =   80;
-float AMMO_AXE_BODYDAMAGE               =   80;
-float AMMO_SHELL_DAMAGE                 =   56;
-float AMMO_SHELL_BODYDAMAGE             =   56;
+float AMMO_AXE_DAMAGE                   =   60;
+float AMMO_AXE_BODYDAMAGE               =   60;
+float AMMO_SHELL_DAMAGE                 =   48;
+float AMMO_SHELL_BODYDAMAGE             =   48;
 float AMMO_NAIL_DAMAGE                  =   15;
 float AMMO_NAIL_BODYDAMAGE              =   15;
-float AMMO_ROCKET_DAMAGE                =  150;
-float AMMO_ROCKET_FORCE                 =  200;
-float AMMO_ROCKET_RADIUS                =  200;
-float AMMO_CELL_DAMAGE                  =   30;
-float AMMO_CELL_BODYDAMAGE              =   30;
+float AMMO_ROCKET_DAMAGE                =  110;
+float AMMO_ROCKET_FORCE                 =  880;
+float AMMO_ROCKET_RADIUS                =  240;
+float AMMO_CELL_DAMAGE                  =   25;
+float AMMO_CELL_BODYDAMAGE              =   25;
 // ammo boxes (double if big box)
 float AMMO_SHELLS                       =   40;
 float AMMO_NAILS                        =   50;
@@ -251,7 +251,7 @@ float DT_FIRE             =       17;
 float DT_BURN             =       17;
 float DT_PLASMA           =        9;
 float DT_PARTICLEBEAM     =        9;
-float DT_LIGHTNING        =        8;
+float DT_LIGHTNING        =        9; // DTF_ARMOR | DTF_RESIST_ENERGY
 float DT_LASER            =       41;
 float DT_SHOTGUN          =       35;
 float DT_NAIL             =       35;
