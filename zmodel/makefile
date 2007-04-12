@@ -11,10 +11,10 @@ PROFILEOPTION=
 
 #normal compile
 OPTIMIZATIONS= -O6 -ffast-math -fexpensive-optimizations
-CFLAGS= -MD -Wall -Werror $(OPTIMIZATIONS) $(PROFILEOPTION)
+CFLAGS= -MD -Wall $(OPTIMIZATIONS) $(PROFILEOPTION)
 #debug compile
 #OPTIMIZATIONS= -O -g
-#CFLAGS= -MD -Wall -Werror -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION)
+#CFLAGS= -MD -Wall -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION)
 
 LDFLAGS= -lm $(PROFILEOPTION)
 
