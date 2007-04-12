@@ -8,6 +8,7 @@ CFLAGS= -Wall -Wno-trigraphs $(OPTIMIZATIONS)
 LDFLAGS= -lm
 
 all: lhnqserver
+mingw: lhnqserver.exe
 
 .c.o:
 	gcc $(CFLAGS) -c $*.c
@@ -15,5 +16,8 @@ all: lhnqserver
 lhnqserver: $(OBJECTS)
 	gcc -o $@ $(OBJECTS) $(LDFLAGS)
 
+lhnqserver.exe: $(OBJECTS)
+	gcc -o $@ $(OBJECTS) $(LDFLAGS)
+
 clean:
-	rm -f lhnqserver $(OBJECTS)
+	rm -f lhnqserver lhnqserver.exe $(OBJECTS)
