@@ -1,8 +1,13 @@
 
-float AMMOMAX_SHELLS          =  100;
-float AMMOMAX_NAILS           =  500;
-float AMMOMAX_ROCKETS         =  100;
-float AMMOMAX_CELLS           =  300;
+float AMMOMAXSP_SHELLS          =  4000;
+float AMMOMAXSP_NAILS           =  4000;
+float AMMOMAXSP_ROCKETS         =  4000;
+float AMMOMAXSP_CELLS           =  4000;
+
+float AMMOMAXDM_SHELLS          =  100;
+float AMMOMAXDM_NAILS           =  500;
+float AMMOMAXDM_ROCKETS         =  100;
+float AMMOMAXDM_CELLS           =  200;
 
 // LordHavoc: since constants can't have math in them, the ITEMS are inlined in client.qc :(
 float STARTPARMSDM_AMMO_SHELLS     =   50; // 20
@@ -52,7 +57,7 @@ float AMMO_NAIL_DAMAGE                  =    9;
 float AMMO_NAIL_BODYDAMAGE              =    9;
 float AMMO_ROCKET_DAMAGE                =  110;
 float AMMO_ROCKET_FORCE                 =  110;
-float AMMO_ROCKET_RADIUS                =  110;
+float AMMO_ROCKET_RADIUS                =  240;
 float AMMO_CELL_DAMAGE                  =   30;
 float AMMO_CELL_BODYDAMAGE              =   30;
 // ammo boxes (double if big box)
@@ -74,20 +79,20 @@ float AMMO_OGRE_GRENADELAUNCHER         =    5;
 // darkplaces mod values
 float AMMO_AXE_DAMAGE                   =   60;
 float AMMO_AXE_BODYDAMAGE               =   60;
-float AMMO_SHELL_DAMAGE                 =   48;
-float AMMO_SHELL_BODYDAMAGE             =   48;
+float AMMO_SHELL_DAMAGE                 =   42;
+float AMMO_SHELL_BODYDAMAGE             =   42;
 float AMMO_NAIL_DAMAGE                  =   15;
 float AMMO_NAIL_BODYDAMAGE              =   15;
 float AMMO_ROCKET_DAMAGE                =  110;
 float AMMO_ROCKET_FORCE                 =  880;
-float AMMO_ROCKET_RADIUS                =  240;
+float AMMO_ROCKET_RADIUS                =  200;
 float AMMO_CELL_DAMAGE                  =   25;
 float AMMO_CELL_BODYDAMAGE              =   25;
 // ammo boxes (double if big box)
-float AMMO_SHELLS                       =   40;
-float AMMO_NAILS                        =   50;
-float AMMO_ROCKETS                      =   10;
-float AMMO_CELLS                        =   30;
+float AMMO_SHELLS                       =   20;
+float AMMO_NAILS                        =   25;
+float AMMO_ROCKETS                      =    5;
+float AMMO_CELLS                        =   12;
 // ammo dropped by monsters
 float AMMO_GRUNT_PISTOL                 =   10;
 float AMMO_GRUNT_SHOTGUN                =   10;

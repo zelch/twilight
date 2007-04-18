@@ -1039,10 +1039,10 @@ void() PlayerPreThink =
 
 	if (cvar("temp1") & 4096)
 	{
-		Inventory_SetQuantity(self, "shells", AMMOMAX_SHELLS);
-		Inventory_SetQuantity(self, "nails", AMMOMAX_NAILS);
-		Inventory_SetQuantity(self, "rockets", AMMOMAX_ROCKETS);
-		Inventory_SetQuantity(self, "cells", AMMOMAX_CELLS);
+		Inventory_SetQuantity(self, "shells", AMMOMAXSP_SHELLS);
+		Inventory_SetQuantity(self, "nails", AMMOMAXSP_NAILS);
+		Inventory_SetQuantity(self, "rockets", AMMOMAXSP_ROCKETS);
+		Inventory_SetQuantity(self, "cells", AMMOMAXSP_CELLS);
 	}
 
 	if (intermission_running)

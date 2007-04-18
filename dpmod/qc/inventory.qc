@@ -17,6 +17,8 @@ float(entity item, float adjust) Item_AdjustQuantity;
 
 float(entity character) Inventory_GetBulk;
 float(entity character) Inventory_GetBulkLimit;
+float(entity character, string name) Inventory_GetMaxQuantity;
+float(entity character, string name) Inventory_GetCarriableQuantity;
 
 entity(entity character, entity item) Inventory_GetNextItem;
 entity(entity character, string name) Inventory_ItemByName;
@@ -125,10 +127,20 @@ void() ItemClass_RegisterDefaultClasses =
 	ItemClass_Register("plasmawave", "progs/backpack.mdl", 1, IT_WEAPON8);
 	ItemClass_Register("laserrifle", "progs/backpack.mdl", 1, IT_WEAPON8);
 
-	ItemClass_Register("shells", "progs/backpack.mdl", AMMOMAX_SHELLS, 0);
-	ItemClass_Register("nails", "progs/backpack.mdl", AMMOMAX_NAILS, 0);
-	ItemClass_Register("rockets", "progs/backpack.mdl", AMMOMAX_ROCKETS, 0);
-	ItemClass_Register("cells", "progs/backpack.mdl", AMMOMAX_CELLS, 0);
+	if (deathmatch)
+	{
+		ItemClass_Register("shells", "progs/backpack.mdl", AMMOMAXDM_SHELLS, 0);
+		ItemClass_Register("nails", "progs/backpack.mdl", AMMOMAXDM_NAILS, 0);
+		ItemClass_Register("rockets", "progs/backpack.mdl", AMMOMAXDM_ROCKETS, 0);
+		ItemClass_Register("cells", "progs/backpack.mdl", AMMOMAXDM_CELLS, 0);
+	}
+	else
+	{
+		ItemClass_Register("shells", "progs/backpack.mdl", AMMOMAXSP_SHELLS, 0);
+		ItemClass_Register("nails", "progs/backpack.mdl", AMMOMAXSP_NAILS, 0);
+		ItemClass_Register("rockets", "progs/backpack.mdl", AMMOMAXSP_ROCKETS, 0);
+		ItemClass_Register("cells", "progs/backpack.mdl", AMMOMAXSP_CELLS, 0);
+	}
 };
 
 entity(string name) ItemClass_FindByName =
@@ -284,6 +296,22 @@ float(entity character) Inventory_GetBulk =
 float(entity character) Inventory_GetBulkLimit =
 {
 	return character.bulklimit;
+};
+
+float(entity character, string name) Inventory_GetMaxQuantity =
+{
+	local entity iclass;
+	iclass = ItemClass_FindByName(name);
+	return iclass.count1;
+};
+
+float(entity character, string name) Inventory_GetCarriableQuantity =
+{
+	local float f;
+	f = Inventory_GetMaxQuantity(character, name) - Inventory_Quantity(character, name);
+	if (f < 0)
+		f = 0;
+	return f;
 };
 
 entity(entity character, entity item) Inventory_GetNextItem =

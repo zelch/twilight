@@ -69,19 +69,21 @@ void() PlaceItem =
 		self.havocpickup = TRUE;
 
 	tracebox(self.origin + '0 0 1', self.mins, self.maxs, self.origin + '0 0 -256', FALSE, self);
-	if (trace_startsolid || trace_fraction == 1)
+	if (trace_startsolid)
 	{
 		dprint (self.classname);
-		if (trace_startsolid)
-			dprint (" spawned in solid at ");
-		else
-			dprint (" fell out of level at ");
+		dprint (" spawned in solid at ");
 		dprint (vtos(self.origin));
 		dprint ("\n");
-		self.movetype = MOVETYPE_NONE;
 	}
-	else // all is well
-		setorigin(self, trace_endpos);
+
+	if (!droptofloor())
+	{
+		dprint (self.classname);
+		dprint (" could not find floor at ");
+		dprint (vtos(self.origin));
+		dprint ("\n");
+	}
 
 	waypointspawnforitem(self);
 };
@@ -686,10 +688,10 @@ float WEAPON_BIG2 = 1;
 
 // TODO: Nexuiz items
 
-float(entity player, entity item) item_shells_pickupeval = {if (Inventory_Quantity(player, "shells") < AMMOMAX_SHELLS) return (AMMOMAX_SHELLS - Inventory_Quantity(player, "shells")) * (AMMOMAX_SHELLS - Inventory_Quantity(player, "shells")) * item.dmg;else return 0;};
-float(entity player, entity item) item_nails_pickupeval = {if (Inventory_Quantity(player, "nails") < AMMOMAX_NAILS) return (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * (AMMOMAX_NAILS - Inventory_Quantity(player, "nails")) * item.dmg;else return 0;};
-float(entity player, entity item) item_rockets_pickupeval = {if (Inventory_Quantity(player, "rockets") < AMMOMAX_ROCKETS) return (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * (AMMOMAX_ROCKETS - Inventory_Quantity(player, "rockets")) * item.dmg;else return 0;};
-float(entity player, entity item) item_cells_pickupeval = {if (Inventory_Quantity(player, "cells") < AMMOMAX_CELLS) return (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * (AMMOMAX_CELLS - Inventory_Quantity(player, "cells")) * item.dmg;else return 0;};
+float(entity player, entity item) item_shells_pickupeval  = {local float f;f = Inventory_GetCarriableQuantity(player, "shells")  / self.aflag;return f * f * AMMO_SHELL_DAMAGE ;};
+float(entity player, entity item) item_nails_pickupeval   = {local float f;f = Inventory_GetCarriableQuantity(player, "nails")   / self.aflag;return f * f * AMMO_NAIL_DAMAGE  ;};
+float(entity player, entity item) item_rockets_pickupeval = {local float f;f = Inventory_GetCarriableQuantity(player, "rockets") / self.aflag;return f * f * AMMO_ROCKET_DAMAGE;};
+float(entity player, entity item) item_cells_pickupeval   = {local float f;f = Inventory_GetCarriableQuantity(player, "cells")   / self.aflag;return f * f * AMMO_CELL_DAMAGE  ;};
 
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32) big
 */
@@ -734,7 +736,6 @@ void() item_shells =
 	setsize (self, '-16 -16 0', '16 16 8');
 	setorigin(self, self.origin + '16 16 0');
 	self.ammo_typestring = "shells";
-	self.dmg = 60 * self.aflag / (AMMOMAX_SHELLS * AMMOMAX_SHELLS);
 	self.pickupevalfunc = item_shells_pickupeval;
 	StartItem ();
 };
@@ -782,7 +783,6 @@ void() item_spikes =
 	}
 	self.weapon = 2;
 	self.ammo_typestring = "nails";
-	self.dmg = 15 * self.aflag / (AMMOMAX_NAILS * AMMOMAX_NAILS);
 	self.pickupevalfunc = item_nails_pickupeval;
 	StartItem ();
 };
@@ -830,7 +830,6 @@ void() item_rockets =
 	self.ammo_typestring = "rockets";
 	setsize (self, '-16 -16 0', '16 16 16');
 	setorigin(self, self.origin + '16 16 0');
-	self.dmg = 120 * self.aflag / (AMMOMAX_ROCKETS * AMMOMAX_ROCKETS);
 	self.pickupevalfunc = item_rockets_pickupeval;
 	StartItem ();
 };
@@ -878,7 +877,6 @@ void() item_cells =
 	}
 	self.weapon = 4;
 	self.ammo_typestring = "cells";
-	self.dmg = 30 * self.aflag / (AMMOMAX_CELLS * AMMOMAX_CELLS);
 	self.pickupevalfunc = item_cells_pickupeval;
 	StartItem ();
 };
