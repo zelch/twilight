@@ -809,13 +809,13 @@ void() damagescaleupdate =
 	// monster damage multiplier
 	monsterdamagescale = 1;
 	// skill 0 =  50% of Quake values
-	// skill 1 = 100% of Quake values
-	// skill 2 = 150% of Quake values
-	// skill 3 = 200% of Quake values
+	// skill 1 =  75% of Quake values
+	// skill 2 = 100% of Quake values
+	// skill 3 = 125% of Quake values
 	if (skill >= 5)
-		monsterdamagescale = monsterdamagescale * (bound(0, skill - 3, 3) * 0.5 + 0.5);
+		monsterdamagescale = monsterdamagescale * (bound(0, skill - 3, 3) * 0.25 + 0.5);
 	else
-		monsterdamagescale = monsterdamagescale * (bound(0, skill, 3) * 0.5 + 0.5);
+		monsterdamagescale = monsterdamagescale * (bound(0, skill, 3) * 0.25 + 0.5);
 	f = f * cvar("damagescale_monsterdamage");
 
 	// monster health multiplier (implemented by resisting player damage)
