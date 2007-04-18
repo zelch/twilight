@@ -168,19 +168,27 @@ void() monsterinwall =
 
 void() walkmonster_start_go =
 {
-	//self.origin_z = self.origin_z + 1;
-	//droptofloor();
-	setorigin(self, self.origin + '0 0 1');      // raise off floor a bit
-	tracebox(self.origin, self.mins, self.maxs, self.origin + '0 0 -256', TRUE, self);
-	if (!trace_startsolid)
-		setorigin(self, trace_endpos);
+	self.origin_z = self.origin_z + 1; // raise off floor a bit
 
-	if (!walkmove(0,0))
+	tracebox(self.origin, self.mins, self.maxs, self.origin, TRUE, self);
+	if (trace_startsolid)
 	{
 		dprint("walkmonster in wall at: ");
 		dprintvector(self.origin);
 		dprint("\n");
 		monsterinwall();
+		droptofloor();
+	}
+	else
+	{
+		droptofloor();
+		if (!walkmove(0,0))
+		{
+			dprint("walkmonster in wall at: ");
+			dprintvector(self.origin);
+			dprint("\n");
+			monsterinwall();
+		}
 	}
 
 	//self.cantrigger = TRUE;
