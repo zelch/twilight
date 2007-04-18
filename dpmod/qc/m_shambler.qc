@@ -543,6 +543,7 @@ void() monster_shambler =
 	sham_spawnglowingclaws();
 
 	walkmonster_start();
+	self.radsuit_finished = 99999999; // allow them to travel through slime
 };
 
 /*QUAKED dead_shambler (1 0 0) (-32 -32 -24) (32 32 -8)

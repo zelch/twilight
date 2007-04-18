@@ -279,6 +279,7 @@ void() monster_tarbaby =
 
 	walkmonster_start ();
 	self.candrown = 0;
+	self.radsuit_finished = 99999999; // allow them to travel through slime
 };
 
 /*QUAKED dead_tarbaby (1 0 0) (-16 -16 -24) (16 16 24)

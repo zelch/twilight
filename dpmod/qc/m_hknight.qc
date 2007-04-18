@@ -801,8 +801,8 @@ void() monster_hell_knight =
 	self.th_sightsound = hknight_sightsound;
 
 	walkmonster_start ();
-	//self.radsuit_finished = 9999999; // that suit ain't just for looks
 	self.candrown = FALSE;
+	self.radsuit_finished = 99999999; // allow them to travel through slime
 };
 
 /*QUAKED dead_hell_knight (1 0 0) (-16 -16 -24) (16 16 -12)

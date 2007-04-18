@@ -245,6 +245,7 @@ void() monster_fish =
 	self.th_gib = fish_gib;
 
 	swimmonster_start ();
+	self.radsuit_finished = 99999999; // allow them to travel through slime
 };
 
 /*QUAKED monster_hellfish (1 0 0) (-16 -16 -24) (16 16 24) Ambush
@@ -289,6 +290,7 @@ void() monster_hellfish =
 	self.th_gib = fish_gib;
 
 	flymonster_start ();
+	self.radsuit_finished = 99999999; // allow them to travel through slime
 };
 
 /*QUAKED dead_fish (1 0 0) (-16 -16 -24) (16 16 -14)
