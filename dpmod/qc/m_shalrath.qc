@@ -182,7 +182,8 @@ void() ShalMissile =
 	newmis.solid = SOLID_BBOX;
 	newmis.movetype = MOVETYPE_FLYMISSILE;
 	setmodel (newmis, "progs/v_spike.mdl");
-	setsize (newmis, '-16 -16 -16', '16 16 16');
+	//setsize (newmis, '-16 -16 -16', '16 16 16');
+	setsize(newmis, '-1 -1 -1', '1 1 1');
 	setorigin(newmis, self.origin + '0 0 10');
 	newmis.velocity = dir * 400;
 	newmis.avelocity = '300 300 300';
@@ -261,6 +262,7 @@ void() monster_shalrath =
 	self.th_sightsound = shalrath_sightsound;
 
 	walkmonster_start();
+	self.radsuit_finished = 99999999; // allow them to travel through slime
 };
 
 /*QUAKED dead_shalrath (1 0 0) (-32 -32 -24) (32 32 -12)
