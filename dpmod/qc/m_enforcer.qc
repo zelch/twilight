@@ -502,7 +502,7 @@ void() monster_enforcer =
 	{
 		self.th_missile = enf_missile_dbshotgun;
 		Inventory_SetQuantity(self, "shells", AMMO_ENFORCER_DBSHOTGUN);
-		Inventory_SetQuantity(self, "dbshotgun", 1);
+		Inventory_SetQuantity(self, "supershotgun", 1);
 		if (!self.deathtype) // map makers can override this
 			self.deathtype = " was scorched by an enforcer";
 	}
