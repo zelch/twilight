@@ -980,6 +980,14 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //description:
 //continuously updated field indicating client's ping (based on average of last 16 packet time differences).
 
+//DP_SV_NETADDRESS
+//idea: Dresk
+//darkplaces implementation: Dresk
+//field definitions:
+.string netaddress;
+//description:
+// provides the netaddress of the associated entity (ie. 127.0.0.1) and "null/botclient" if the netconnection of the entity is invalid
+
 //DP_SV_PUNCHVECTOR
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
