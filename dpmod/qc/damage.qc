@@ -71,10 +71,10 @@ float AMMO_GRUNT_SHOTGUN                =    5;
 float AMMO_GRUNT_NAILGUN                =   10;
 float AMMO_ENFORCER_DBSHOTGUN           =   10;
 float AMMO_ENFORCER_SUPERNAILGUN        =   20;
-float AMMO_ENFORCER_ROCKETLAUNCHER      =    5;
+float AMMO_ENFORCER_ROCKETLAUNCHER      =    2;
 float AMMO_ENFORCER_PLASMARIFLE         =    5;
 float AMMO_ENFORCER_LASERRIFLE          =    5;
-float AMMO_OGRE_GRENADELAUNCHER         =    5;
+float AMMO_OGRE_GRENADELAUNCHER         =    2;
 */
 // darkplaces mod values
 float AMMO_AXE_DAMAGE                   =   60;
@@ -86,23 +86,23 @@ float AMMO_NAIL_BODYDAMAGE              =   15;
 float AMMO_ROCKET_DAMAGE                =  110;
 float AMMO_ROCKET_FORCE                 =  880;
 float AMMO_ROCKET_RADIUS                =  200;
-float AMMO_CELL_DAMAGE                  =   25;
-float AMMO_CELL_BODYDAMAGE              =   25;
+float AMMO_CELL_DAMAGE                  =   30;
+float AMMO_CELL_BODYDAMAGE              =   30;
 // ammo boxes (double if big box)
 float AMMO_SHELLS                       =   20;
 float AMMO_NAILS                        =   25;
 float AMMO_ROCKETS                      =    5;
 float AMMO_CELLS                        =   12;
 // ammo dropped by monsters
-float AMMO_GRUNT_PISTOL                 =   10;
-float AMMO_GRUNT_SHOTGUN                =   10;
-float AMMO_GRUNT_NAILGUN                =   25;
-float AMMO_ENFORCER_DBSHOTGUN           =   20;
-float AMMO_ENFORCER_SUPERNAILGUN        =   50;
-float AMMO_ENFORCER_ROCKETLAUNCHER      =   10;
-float AMMO_ENFORCER_PLASMARIFLE         =   10;
-float AMMO_ENFORCER_LASERRIFLE          =   10;
-float AMMO_OGRE_GRENADELAUNCHER         =   10;
+float AMMO_GRUNT_PISTOL                 =    5;
+float AMMO_GRUNT_SHOTGUN                =    5;
+float AMMO_GRUNT_NAILGUN                =   10;
+float AMMO_ENFORCER_DBSHOTGUN           =   10;
+float AMMO_ENFORCER_SUPERNAILGUN        =   20;
+float AMMO_ENFORCER_ROCKETLAUNCHER      =    4;
+float AMMO_ENFORCER_PLASMARIFLE         =    5;
+float AMMO_ENFORCER_LASERRIFLE          =    5;
+float AMMO_OGRE_GRENADELAUNCHER         =    4;
 
 // respawn times
 float RESPAWNTIME_AMMO        =  20;
