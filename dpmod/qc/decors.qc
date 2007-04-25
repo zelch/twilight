@@ -236,12 +236,14 @@ void() InitDecors =
 	if (maxclients > 1)
 		maxdecors = 32;
 	else
-		maxdecors = 100;
+		maxdecors = 1000;
 	// overridable by saved2 cvar on server console
 	if (cvar("decors"))
 		maxdecors = cvar("decors");
 	if (maxdecors < 1)
 		maxdecors = 1;
+	if (cvar("ekg"))
+		maxdecors = maxdecors * 5;
 };
 
 
@@ -443,7 +445,7 @@ void(vector org, vector vel, float randomvel, vector ang, vector avel, float ran
 	e.alpha = 1;
 	e.angles = ang;
 	e.avelocity = avel + randomvec() * randomavel;
-	e.forcescale = 15;
+	e.forcescale = 5;
 	e.knockedloosefunc = casingknockedloosefunc;
 	e.movetype = MOVETYPE_BOUNCE;
 	e.nextthink = time;
@@ -599,7 +601,7 @@ void(vector org, entity en, vector dir) newwallspike =
 	e.cnt = time + 10;
 	e.effects = EF_LOWPRECISION;
 	e.flags = FL_ONGROUND;
-	e.forcescale = 15;
+	e.forcescale = 5;
 	e.groundentity = en;
 	e.knockedloosefunc = casingknockedloosefunc;
 	e.movetype = MOVETYPE_BOUNCE;
@@ -700,7 +702,7 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 	if (e == world)
 		e = newdecor();
 	e.isdecor = TRUE; // let explosions find it
-	e.forcescale = 6;
+	e.forcescale = 2;
 	e.createdtime = time;
 	setorigin(e, org);
 	setmodel (e, gibname);
@@ -731,6 +733,68 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 };
 
 entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib;
+
+void() meatspraytouch =
+{
+	local entity e;
+	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
+	{
+		remove(self);
+		return;
+	}
+	if (other.solid != SOLID_BSP)
+		return;
+	if (trace_plane_normal_z > 0.7)
+	{
+		remove(self);
+		return;
+	}
+	if (trace_plane_normal_z == 0)
+	{
+		sound(self, CHAN_WEAPON, "zombie/z_miss.wav", 1, ATTN_NORM);
+		self.nextthink = self.nextthink + 5;
+		self.velocity = '0 0 -0.1' * cvar("sv_gravity");
+		self.gravity = 0.01;
+		//self.touch = debristouch;
+		//e = newdecor();
+		//copyentity(self, e);
+		//remove(self);
+	}
+};
+
+void() ThrowMeatSpray =
+{
+	local vector org;
+	local entity e;
+	// don't throw a gib if in a NODROP zone (such as lava)
+	traceline(self.origin, self.origin, MOVE_NORMAL, self);
+	if (trace_dpstartcontents & DPCONTENTS_NODROP)
+		return;
+	org = self.origin + randompos(self.mins, self.maxs);
+	e = newdecor();
+	e.isdecor = TRUE; // let explosions find it
+	e.forcescale = 4;
+	e.createdtime = time;
+	setorigin(e, org);
+	setmodel (e, "progs/zom_gib.mdl");
+	setsize (e, '0 0 0', '0 0 0');
+	e.velocity = randomvec() * 500;
+	e.avelocity = randomvec()*300;
+	e.movetype = MOVETYPE_BOUNCE;
+	e.solid = SOLID_TRIGGER;
+	e.knockedloosefunc = gibknockedloosefunc;
+	e.effects = EF_LOWPRECISION;
+	e.alpha = 1;
+	e.think = SUB_Remove;
+	e.nextthink = time + 1;
+	e.takedamage = DAMAGE_YES;
+	e.bleedfunc = genericbleedfunc;
+	e.touch = meatspraytouch;
+	e.th_die = SUB_Null;
+	e.th_gib = SUB_Null;
+	e.th_pain = SUB_Null;
+	e.cnt = time + 1;
+};
 
 void(string gibname) ThrowGib =
 {
@@ -819,7 +883,7 @@ void() bodyfirstthink =
 	self.movetype = MOVETYPE_TOSS;
 	setorigin(self, self.oldorigin); // relink
 	self.flags = 0; // clear FL_ONGROUND etc
-	if (self.bodyhealth < 1)
+	if (self.bodyhealth < 1 || cvar("ekg"))
 		self.th_die();
 	else
 	{
@@ -866,7 +930,7 @@ void(entity c, void() framefunc) BecomeCorpse =
 	self.flags = 0;
 	self.oldorigin = self.origin + '0 0 1';
 
-	if (self.bodyhealth < 1)
+	if (self.bodyhealth < 1 || cvar("ekg"))
 		self.th_die();
 	self = saveself;
 };
@@ -933,20 +997,24 @@ void(string headname, float gibs, string gibname1, float gibs1, string gibname2,
 {
 	// gibs is generic gibs, headname is the head,
 	// gibs1/gibname1 and gibs2/gibname2 are specialty debris
-	local float r;
+	local float r, gibmultiplier;
 	// make self non-solid while spawning gibs
 	self.solid = SOLID_NOT;
 	setorigin(self, self.origin);
 	// prevent gibs from replacing their corpse if their corpse is a decor
 	self.createdtime = time + 1;
+	gibmultiplier = cvar("dpmod_gibbagemultiplier");
+	if (cvar("ekg"))
+		gibmultiplier = gibmultiplier * 5;
+	gibs = gibs * gibmultiplier;
 	// spawn gibs
 	if (game == GAME_NEXUIZ)
 	{
-		while (gibs > 0) {gibs = gibs - 1;r = random() * 4;if (r < 1) ThrowGib("models/gibs/gib1.mdl");else if (r < 2) ThrowGib("models/gibs/gib2.mdl");else if (r < 3) ThrowGib("models/gibs/gib3.mdl");else ThrowGib("models/gibs/gib4.mdl");}
+		while (gibs > 0) {gibs = gibs - 1;ThrowMeatSpray();r = random() * 4;if (r < 1) ThrowGib("models/gibs/gib1.mdl");else if (r < 2) ThrowGib("models/gibs/gib2.mdl");else if (r < 3) ThrowGib("models/gibs/gib3.mdl");else ThrowGib("models/gibs/gib4.mdl");}
 	}
 	else
 	{
-		while (gibs > 0) {gibs = gibs - 1;r = random() * 3;if (r < 1) ThrowGib("progs/gib1.mdl");else if (r < 2) ThrowGib("progs/gib2.mdl");else ThrowGib("progs/gib3.mdl");}
+		while (gibs > 0) {gibs = gibs - 1;ThrowMeatSpray();r = random() * 3;if (r < 1) ThrowGib("progs/gib1.mdl");else if (r < 2) ThrowGib("progs/gib2.mdl");else ThrowGib("progs/gib3.mdl");}
 	}
 	while (gibs1 > 0) {gibs1 = gibs1 - 1;ThrowGib(gibname1);}
 	while (gibs2 > 0) {gibs2 = gibs2 - 1;ThrowGib(gibname2);}
