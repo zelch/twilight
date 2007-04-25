@@ -230,6 +230,7 @@ void() InitDecors =
 		precache_model("progs/rubble3.mdl");
 		precache_model("progs/zom_gib.mdl");
 		//precache_model("progs/dust.mdl"); // little metal piece
+		precache_sound ("zombie/z_miss.wav");
 	}
 
 	// different number of decors in multi-player (to avoid lag on modems)
@@ -736,7 +737,6 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib;
 
 void() meatspraytouch =
 {
-	local entity e;
 	if (trace_dphitq3surfaceflags & Q3SURFACEFLAG_NOIMPACT)
 	{
 		remove(self);
