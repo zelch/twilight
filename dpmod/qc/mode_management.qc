@@ -1,10 +1,4 @@
 
-float mode_shirtmustmatchpants;
-
-entity team0, team1, team2, team3, team4, team5, team6, team7, team8, team9, team10, team11, team12, team13, team14, team15;
-
-entity() weakestteam;
-
 string(float c) colorname =
 {
 	// yikes, the quake color set is HARD to describe
@@ -32,159 +26,103 @@ string(float c) colorname =
 	else              return "INVALID COLOR";
 };
 
-entity(float c) spawnteam =
-{
-	newmis = spawn();
-	newmis.classname = "teamentity";
-	newmis.team = c + 1;
-	newmis.frags = 0;
-	newmis.count = 0; // how many players on this team
-	newmis.netname = colorname(c);
-	return newmis;
-};
+float mode_shirtmustmatchpants;
+float mode_numteams;
+float mode_allowedteams[17];
+float mode_teamcount[17];
+float mode_teamscore[17];
 
-void() spawnteams =
+void() mode_initallowedteams =
 {
-	team0 = world;
-	team1 = world;
-	team2 = world;
-	team3 = world;
-	team4 = world;
-	team5 = world;
-	team6 = world;
-	team7 = world;
-	team8 = world;
-	team9 = world;
-	team10 = world;
-	team11 = world;
-	team12 = world;
-	team13 = world;
-	team14 = world;
-	team15 = world;
-	if (deathmatch == DM_CTF_3TEAM)
+	local float c;
+	c = 0;
+	while(c < 17)
 	{
-		team4  = spawnteam( 4);
-		team12 = spawnteam(12);
-		team13 = spawnteam(13);
+		mode_allowedteams[c] = FALSE;
+		c = c + 1;
 	}
-	else if (deathmatch >= DM_TEAM_MODS_START && deathmatch < DM_TEAM_MODS_END)
+	mode_allowedteams[5] = TRUE; // red
+	mode_allowedteams[14] = TRUE; // blue
+	if (deathmatch == DM_ELIM
+	 || deathmatch == DM_ONEVSALL
+	 || deathmatch == DM_CTF_2TEAM
+	 || deathmatch == DM_DOMINATION
+	 || deathmatch == DM_SUPERDOMINATION)
+		mode_numteams = 2;
+	else if (deathmatch == DM_CTF_3TEAM)
 	{
-		team4  = spawnteam( 4);
-		team13 = spawnteam(13);
+		mode_numteams = 3;
+		mode_allowedteams[13] = TRUE; // yellow
 	}
 	else
 	{
-		team0  = spawnteam( 0);
-		team1  = spawnteam( 1);
-		team2  = spawnteam( 2);
-		team3  = spawnteam( 3);
-		team4  = spawnteam( 4);
-		team5  = spawnteam( 5);
-		team6  = spawnteam( 6);
-		team7  = spawnteam( 7);
-		team8  = spawnteam( 8);
-		team9  = spawnteam( 9);
-		team10 = spawnteam(10);
-		team11 = spawnteam(11);
-		team12 = spawnteam(12);
-		team13 = spawnteam(13);
-		team14 = spawnteam(14);
-		team15 = spawnteam(15);
+		mode_numteams = 16;
+		c = 1;
+		while(c < 17)
+		{
+			mode_allowedteams[c] = TRUE;
+			c = c + 1;
+		}
 	}
 };
 
-entity(float c) teamentityforcolor =
+float(float t) validteam =
 {
-	if (c ==  0) return team0;
-	if (c ==  1) return team1;
-	if (c ==  2) return team2;
-	if (c ==  3) return team3;
-	if (c ==  4) return team4;
-	if (c ==  5) return team5;
-	if (c ==  6) return team6;
-	if (c ==  7) return team7;
-	if (c ==  8) return team8;
-	if (c ==  9) return team9;
-	if (c == 10) return team10;
-	if (c == 11) return team11;
-	if (c == 12) return team12;
-	if (c == 13) return team13;
-	if (c == 14) return team14;
-	if (c == 15) return team15;
-	return world;
+	return mode_allowedteams[t];
 };
 
-void() checkinvalidteam =
+float() weakestteam =
 {
-	local entity e;
-	if (teamentityforcolor(self.team - 1) == world)
+	local float bestteam;
+	local float bestteamcount;
+	local float headcount;
+	local float c;
+	bestteam = -1;
+	bestteamcount = 0;
+	c = 1;
+	while (c < 17)
 	{
-		// team not allowed, reassign team
-		e = weakestteam();
-		setcolor(self, (e.team - 1) + (e.team - 1) * 16);
+		if (mode_allowedteams[c])
+		{
+			headcount = mode_teamcount[c];
+			if (bestteamcount > headcount || bestteam == -1)
+			{
+				bestteamcount = headcount;
+				bestteam = c;
+			}
+		}
+		c = c + 1;
 	}
+	return bestteam;
 };
 
-void() resetteams =
-{
-	local entity head;
-	head = findchain(classname, "teamentity");
-	while(head)
-	{
-		head.frags = 0;
-		head.dmg = 0;
-		head = head.chain;
-	}
-};
-
-float(float t) countteammembers =
+void() updateteams =
 {
 	local entity head;
 	local float c;
+	c = 1;
+	while (c < 17)
+	{
+		mode_teamcount[c] = 0;
+		mode_teamscore[c] = 0;
+		c = c + 1;
+	}
 	c = 0;
-	head = findchain(classname, "player");
-	while (head != world)
+	head = nextent(world);
+	while (c < maxclients)
 	{
-		if (head.team == t)
-			c = c + 1;
-		head = head.chain;
+		mode_teamcount[head.team] = mode_teamcount[head.team] + 1;
+		mode_teamscore[head.team] = mode_teamscore[head.team] + head.frags;
+		c = c + 1;
+		head = nextent(head);
 	}
-	return  c;
-};
-
-entity() weakestteam =
-{
-	local entity head, best;
-	local float bestcount;
-	best = world;
-	bestcount = 1000000000;
-	head = findchain(classname, "teamentity");
-	while (head)
-	{
-		/*
-		bprint("teamentity: color ");
-		bprintfloat(head.team - 1);
-		bprint(", players ");
-		bprintfloat(head.count);
-		bprint("\n");
-		*/
-		if (bestcount > head.count)
-		{
-			best = head;
-			bestcount = head.count;
-		}
-		head = head.chain;
-	}
-	return best;
 };
 
 float(float p) checkteamcolor =
 {
-	local entity t;
-	t = teamentityforcolor(p);
-	if (t == world)
-		t = weakestteam();
-	return t.team - 1;
+	if (!validteam(p + 1))
+		p = weakestteam() - 1;
+	return p;
 };
 
 void(float c) SV_ChangeTeam =
@@ -211,6 +149,13 @@ void(float c) SV_ChangeTeam =
 		self.frags = 0;
 		PutClientInServer ();
 	}
+};
+
+void() checkinvalidteam =
+{
+	// call SV_ChangeTeam to trigger the weakestteam change
+	if (!validteam(self.team))
+		SV_ChangeTeam(self.team - 1);
 };
 
 
@@ -293,7 +238,7 @@ void() superdomination_precache;
 void() modesetup =
 {
 	mode_shirtmustmatchpants = deathmatch >= DM_TEAM_MODS_START && deathmatch < DM_TEAM_MODS_END;
-	spawnteams();
+	mode_initallowedteams();
 
 	itemrespawn = cvar("deathmatch") + cvar("coop");
 

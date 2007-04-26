@@ -22,7 +22,6 @@ void(float color) modeelimteam =
 		return;
 	}
 	setcolor(color);
-	updateteament(self);
 };
 void() modeelimplayer = {};
 
@@ -186,33 +185,6 @@ void() DM_Elimination =
 		if (teamsactive >= 2)
 		{
 			elimstate = ELIM_MATCH;
-			// show rounds won as frags
-			head = findchain(classname, "player");
-			while (head)
-			{
-					if (head.chosenteam == 1 ) head.frags = team1.cnt2 ;
-				else if (head.chosenteam == 2 ) head.frags = team2.cnt2 ;
-				else if (head.chosenteam == 3 ) head.frags = team3.cnt2 ;
-				else if (head.chosenteam == 4 ) head.frags = team4.cnt2 ;
-				else if (head.chosenteam == 5 ) head.frags = team5.cnt2 ;
-				else if (head.chosenteam == 6 ) head.frags = team6.cnt2 ;
-				else if (head.chosenteam == 7 ) head.frags = team7.cnt2 ;
-				else if (head.chosenteam == 8 ) head.frags = team8.cnt2 ;
-				else if (head.chosenteam == 9 ) head.frags = team9.cnt2 ;
-				else if (head.chosenteam == 10) head.frags = team10.cnt2;
-				else if (head.chosenteam == 11) head.frags = team11.cnt2;
-				else if (head.chosenteam == 12) head.frags = team12.cnt2;
-				else if (head.chosenteam == 13) head.frags = team13.cnt2;
-				else if (head.chosenteam == 14) head.frags = team14.cnt2;
-				else head.frags = 0;
-				head = head.chain;
-			}
-			head = findchain(classname, "teamscore");
-			while (head)
-			{
-				head.frags = head.cnt2;
-				head = head.chain;
-			}
 			bprint("Round ");
 			bprintfloat(elimround);
 			bprint(", best ");

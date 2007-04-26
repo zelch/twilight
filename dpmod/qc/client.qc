@@ -603,6 +603,8 @@ void() PutClientInServer =
 
 	self.classname = "player";
 
+	updateteams();
+
 	// apply physics stuff (bleeding, drowning, slime, lava, etc)
 	self.iscreature = TRUE;
 	self.forcescale = 5; // for damage kick calculations
@@ -1418,6 +1420,8 @@ void() ClientConnect =
 	if (intermission_running)
 		ExitIntermission ();
 	havocbot_clientconnect();
+
+	updateteams();
 };
 
 
@@ -1430,8 +1434,12 @@ called when a player disconnects from a server
 */
 void() ClientDisconnect =
 {
+	self.team = 0;
+	updateteams();
+
 	if (gameover)
 		return;
+
 	// if the level end trigger has been activated, just return since they aren't *really* leaving
 	self.isadmin = FALSE;
 	self.adminnumber = 0;
@@ -1454,28 +1462,8 @@ void() ClientDisconnect =
 
 void(entity e, float f) ChangeFrags =
 {
-	local entity head;
 	e.frags = e.frags + f; // update frags
-	// now update the info on the team
-	head = findchain(classname, "teamscore");
-	while (head != world)
-	{
-		if (head.team == e.team)
-		{
-			head.frags = head.frags + f;
-			if (teamplay)
-			{
-				bprint(head.netname);
-				bprint(" team now has ");
-				bprintfloat(head.frags);
-				bprint(" frags\n");
-			}
-			head = world;
-		}
-		else
-			head = head.chain;
-	}
-	//onevsallupdateteams();
+	updateteams();
 };
 
 void(entity e, float f, float tf) ChangeTeamFrags =
@@ -1506,24 +1494,7 @@ void(entity e, float f, float tf) ChangeTeamFrags =
 		}
 		head = head.chain;
 	}
-	// now update the info on the team
-	head = findchain(classname, "teamscore");
-	while (head != world)
-	{
-		if (head.team == e.team)
-		{
-			head.frags = head.frags + f + tf;
-			if (teamplay)
-			{
-				bprint(head.netname);
-				bprint(" team now has ");
-				bprintfloat(head.frags);
-				bprint(" frags\n");
-			}
-		}
-		head = head.chain;
-	}
-	//onevsallupdateteams();
+	updateteams();
 };
 
 void(float teamnum, float tf) ChangeTeamFrags2 =
@@ -1541,24 +1512,7 @@ void(float teamnum, float tf) ChangeTeamFrags2 =
 		}
 		head = head.chain;
 	}
-	// now update the info on the team
-	head = findchain(classname, "teamscore");
-	while (head != world)
-	{
-		if (head.team == teamnum)
-		{
-			head.frags = head.frags + tt;
-			if (teamplay)
-			{
-				bprint(head.netname);
-				bprint(" team now has ");
-				bprintfloat(head.frags);
-				bprint(" frags\n");
-			}
-		}
-		head = head.chain;
-	}
-	//onevsallupdateteams();
+	updateteams();
 };
 
 void() ObituaryEntity_Think =

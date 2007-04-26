@@ -27,18 +27,11 @@ void() respawnplayers =
 	}
 };
 
-entity(float color) teamentity;
-void(entity e) updateteament =
-{
-	e.teament = teamentity(self.team - 1);
-};
-
 // setup in world.qc
 entity team1, team2, team3, team4, team5, team6, team7, team8, team9, team10, team11, team12, team13, team14;
 
 // set only by various team changing code
 .float currentteam, desiredteam;
-.entity teament; // the team entity that matchs the current .currentteam
 
 entity modecode;
 .void() framethink;
