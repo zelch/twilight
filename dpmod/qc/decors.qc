@@ -1014,6 +1014,8 @@ void(string headname, float gibs, string gibname1, float gibs1, string gibname2,
 	if (cvar("ekg"))
 		gibmultiplier = gibmultiplier * 5;
 	gibs = gibs * gibmultiplier;
+	gibs1 = gibs1 * gibmultiplier;
+	gibs2 = gibs2 * gibmultiplier;
 	// spawn gibs
 	if (game == GAME_NEXUIZ)
 	{
