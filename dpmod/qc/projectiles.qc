@@ -317,7 +317,6 @@ void(vector org, vector vel, entity own, float damg, float force, float blastrad
 	newmis.shoulddodge = TRUE;
 	newmis.dangerrating = blastradius;
 	newmis.owner = own;
-	newmis.createdtime = time;
 	newmis.movetype = MOVETYPE_FLYMISSILE;
 	newmis.solid = SOLID_BBOX;
 	newmis.classname = "fireball";
@@ -707,7 +706,6 @@ void(vector org, vector vel, entity own, float damg, float force, float blastrad
 	newmis.shoulddodge = TRUE;
 	newmis.dangerrating = 150;
 	newmis.owner = own;
-	newmis.createdtime = time;
 	newmis.movetype = MOVETYPE_FLY;
 	newmis.solid = SOLID_BBOX; // only solid so it can be shot
 	newmis.classname = "missile";
@@ -772,7 +770,8 @@ void(vector p1, vector p2, entity from, float damage, string dethtype, void(enti
 	local entity e1, e2;
 
 	f = p2 - p1;
-	normalize (f);
+	// note: in Quake this line was bugged, it was normalize (f); with no f =
+	f = normalize (f);
 	f_x = 0 - f_y;
 	f_y = f_x;
 	f_z = 0;

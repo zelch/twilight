@@ -226,6 +226,9 @@ returns 1 if the entity is visible to self, even if not infront ()
 */
 float (entity targ) visible =
 {
+	if (vlen(targ.origin - self.origin) > 1000) // long traces are slow
+		return FALSE;
+
 	traceline ((self.origin + self.view_ofs), (targ.origin + targ.view_ofs), TRUE, self);   // see through other monsters
 
 	if (trace_inopen && trace_inwater)

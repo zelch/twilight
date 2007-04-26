@@ -460,9 +460,7 @@ void() zombie_die =
 {
 	// setup for recycling
 	self.classname = "decor";
-	numdecors++;
-
-	self.createdtime = time + 30; // make sure it won't be replaced anytime soon
+	newdecor(self);
 	sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
 	MonsterGibs("progs/h_zombie.mdl", 4, "", 0, "", 0);
 };

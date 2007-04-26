@@ -108,6 +108,9 @@ float() SoldierCheckAttack =
 		return FALSE;
 	targ = self.enemy;
 
+	if (vlen(targ.origin - self.origin) > 1000) // long traces are slow
+		return FALSE;
+
 	// see if any entities are in the way of the shot
 	spot1 = self.origin + self.view_ofs;
 	spot2 = targ.origin + targ.view_ofs;

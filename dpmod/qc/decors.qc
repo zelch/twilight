@@ -6,11 +6,66 @@ DECORS (shell casings, gibs, decals, nails stuck in walls...)
 ==============================================================================
 */
 
+void(entity e) removedecor =
+{
+	if (e.classname != "decor")
+	{
+		// if this is not a decor, just make it invisible
+		e.model = "";
+		return;
+	}
+	numdecors = numdecors - 1;
+	remove(e);
+};
+
+entity(entity e) newdecor =
+{
+	if (e == world)
+	{
+		e = spawn();
+		e.classname = "decor";
+	}
+	if (e.classname == "decor")
+		numdecors = numdecors + 1;
+	// set up common defaults
+	e.isdecor = TRUE;
+	//e.createdtime = time;
+	e.cnt = 10 * (0.5 + random());
+	e.alpha = 1;
+	e.effects = EF_LOWPRECISION;
+	e.flags = e.flags - (e.flags & FL_ONGROUND);
+	e.groundentity = world;
+	e.movetype = MOVETYPE_NONE;
+	e.solid = SOLID_NOT;
+	e.frame = 0;
+	e.havocattack = FALSE;
+	e.touch = SUB_Null;
+	return e;
+};
+
+//.float createdtime;
+
 // removes the oldest decors each frame to maintain a certain maximum decors
 void() decorframe =
 {
-	local entity estart, e, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10;
-	local float bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, bt10, iterations;
+	local entity estart, e;
+	local float decay;
+	//local entity b1, b2, b3, b4, b5, b6, b7, b8, b9, b10;
+	//local float bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, bt10, iterations;
+
+	// different number of decors in multi-player (to avoid lag on modems)
+	if (maxclients > 1)
+		maxdecors = 32;
+	else if (cvar("spawnmonsters"))
+		maxdecors = 500;
+	else
+		maxdecors = 10000;
+	if (cvar("ekg"))
+		maxdecors = maxdecors * 5;
+	// overridable by saved2 cvar on server console
+	if (cvar("decors"))
+		maxdecors = cvar("decors");
+	maxdecors = bound(1, maxdecors, 16384);
 
 	// numdecors is allowed to be bogus as long as it is >= the real number of decors
 	// (but perfection is clearly preferable)
@@ -28,6 +83,31 @@ void() decorframe =
 	if (numdecors <= maxdecors)
 		return; // nothing to do
 
+	// changed decor removal policy to simply make them have timeouts that only apply when the decor limit has been reached
+	// the timeout rate depends on how far over the limit it is, so this does adapt to sudden excess
+	decay = frametime * (numdecors / maxdecors);
+	e = estart;
+	while(e)
+	{
+		if (e.cnt > 0)
+			e.cnt = e.cnt - decay;
+		else
+			removedecor(e);
+		e = e.chain;
+	}
+
+/*
+	// simply halve the remaining life time on all the decors so they will
+	// disappear sooner
+	e = estart;
+	while(e)
+	{
+		if (e.cnt > time)
+			e.cnt = e.cnt * 0.5 + time * 0.5;
+		e = e.chain;
+	}
+*/
+/*
 	// limit it to considering 10000 entities per frame,
 	// otherwise it can cause a runaway loop error
 	iterations = 0;
@@ -170,21 +250,7 @@ void() decorframe =
 		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b9);}
 		if (numdecors > maxdecors) {numdecors = numdecors - 1;remove(b10);}
 	}
-};
-
-entity() newdecor =
-{
-	local entity e;
-	numdecors++;
-	e = spawn();
-	e.classname = "decor";
-	return e;
-};
-
-void(entity e) removedecor =
-{
-	numdecors--;
-	remove(e);
+*/
 };
 
 // used for various little bouncing debris to avoid getting stuck in the air
@@ -195,8 +261,6 @@ void() DecorThink =
 	if (pointcontents(self.origin) == CONTENT_SOLID)
 		removedecor(self);
 };
-
-.float createdtime;
 
 void() InitDecors =
 {
@@ -232,19 +296,6 @@ void() InitDecors =
 		//precache_model("progs/dust.mdl"); // little metal piece
 		precache_sound ("zombie/z_miss.wav");
 	}
-
-	// different number of decors in multi-player (to avoid lag on modems)
-	if (maxclients > 1)
-		maxdecors = 32;
-	else
-		maxdecors = 1000;
-	// overridable by saved2 cvar on server console
-	if (cvar("decors"))
-		maxdecors = cvar("decors");
-	if (maxdecors < 1)
-		maxdecors = 1;
-	if (cvar("ekg"))
-		maxdecors = maxdecors * 5;
 };
 
 
@@ -414,13 +465,6 @@ void() casingthink =
 		removedecor(self);
 		return;
 	}
-	if (time > self.cnt)
-	{
-		self.nextthink = time;
-		self.alpha = self.alpha - frametime;
-		if (self.alpha < 0.0625)
-			removedecor(self);
-	}
 };
 
 // knock loose the casing when disturbed
@@ -440,10 +484,11 @@ void(vector org, vector vel, float randomvel, vector ang, vector avel, float ran
 	if (cvar("temp1") & 2048)
 		return;
 
-	e = newdecor();
-	e.isdecor = TRUE;
-	e.createdtime = time;
-	e.alpha = 1;
+	// if in danger of running out of entities, don't spawn any new ones
+	if (numdecors >= 16384)
+		return;
+
+	e = newdecor(world);
 	e.angles = ang;
 	e.avelocity = avel + randomvec() * randomavel;
 	e.forcescale = 5;
@@ -454,34 +499,29 @@ void(vector org, vector vel, float randomvel, vector ang, vector avel, float ran
 	e.think = casingthink;
 	e.touch = casingtouch;
 	e.velocity = vel + randomvec() * randomvel;
-	//e.effects = EF_LOWPRECISION;
 	if (game == GAME_NEXUIZ)
 	{
 		setmodel (e, "models/casing.mdl");
-		e.cnt = time + 10;
+		e.cnt = 10 * (0.5 + random());
 	}
 	else
 	{
 		if (casingtype == 1)
 		{
 			setmodel (e, "progs/casing_shell.mdl");
-			e.cnt = time + 30;
-			// bias to make these be considered more important than other things
-			e.createdtime = time + 1;
+			e.cnt = 30 * (0.5 + random());
 		}
 		else if (casingtype == 2)
 		{
 			setmodel (e, "progs/casing_steel.mdl");
-			e.cnt = time + 10;
+			e.cnt = 10 * (0.5 + random());
 		}
 		else
 		{
 			setmodel (e, "progs/casing_bronze.mdl");
-			e.cnt = time + 10;
+			e.cnt = 10 * (0.5 + random());
 		}
 	}
-	if (maxclients == 1)
-		e.cnt = time + 3000;
 	setsize (e, '0 0 -1', '0 0 -1');
 	setorigin (e, org);
 };
@@ -530,22 +570,21 @@ void(vector org, entity en, vector dir, string dmodel, float dskin, float dframe
 	{
 		e = spawn();
 		e.classname = "permanentdecal";
-		e.createdtime = time;
 	}
 	else
 	{
-		e = newdecor();
-		e.createdtime = time + importance;
+		// if in danger of running out of entities, don't spawn any new ones
+		if (numdecors >= 16384)
+			return;
+		e = newdecor(world);
+		e.cnt = importance * (0.5 + random());
 	}
-	setmodel (e, dmodel);
 	e.skin = dskin;
 	e.frame = dframe;
 	e.angles = dirangles;
-	setorigin (e, org);
-	e.solid = SOLID_NOT;
-	e.movetype = MOVETYPE_NONE;
-	//e.effects = EF_DELTA;
+	setmodel (e, dmodel);
 	setsize (e, '0 0 0', '0 0 0');
+	setorigin (e, org);
 	if (en != world) // might be a mobile surface, follow it
 	{
 		e.aiment = en;
@@ -592,15 +631,14 @@ void(vector org, entity en, vector dir) newwallspike =
 		return;
 	if (en.solid != SOLID_BSP || en.model == "")
 		return;
+	// if in danger of running out of entities, don't spawn any new ones
+	if (numdecors >= 16384)
+		return;
 	dir = normalize(dir);
 
-	e = newdecor();
-	e.isdecor = TRUE;
-	e.createdtime = time;
-	e.alpha = 1;
+	e = newdecor(world);
+	e.cnt = 10 * (0.5 + random());
 	e.angles = vectoangles(dir);
-	e.cnt = time + 10;
-	e.effects = EF_LOWPRECISION;
 	e.flags = FL_ONGROUND;
 	e.forcescale = 5;
 	e.groundentity = en;
@@ -679,58 +717,37 @@ void() debristouch =
 
 void() debristhink =
 {
-	//local float p;
+	self.nextthink = time + 0.5;
 	self.flags = self.flags - (self.flags & FL_ONGROUND);
-	self.nextthink = time + 0.1;
-	if (time > self.cnt)
-	{
-		self.nextthink = time;
-		self.alpha = self.alpha - frametime * 0.5;
-		if (self.alpha < 0.0625)
-		{
-			self.nextthink = 0;
-			if (self.classname == "decor")
-				removedecor(self);
-			else
-				self.model = "";
-		}
-	}
-};
+}
 
 .float isdecor;
 void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 {
+	// if in danger of running out of entities, don't spawn any new ones
+	if (numdecors >= 16384)
 	if (e == world)
-		e = newdecor();
-	e.isdecor = TRUE; // let explosions find it
+		return;
+	e = newdecor(e);
 	e.forcescale = 2;
-	e.createdtime = time;
+	e.cnt = 30 * (0.5 + random());
 	setorigin(e, org);
 	setmodel (e, gibname);
 	setsize (e, '0 0 -8', '0 0 -8');
 	e.view_ofs = '0 0 -1';
 	e.velocity = vel + randomvec() * 150;
 	e.movetype = MOVETYPE_BOUNCE;
-	e.havocattack = FALSE;
-	e.solid = SOLID_NOT;
 	e.avelocity = randomvec()*300;
 	e.knockedloosefunc = gibknockedloosefunc;
-	e.frame = 0;
 	e.skin = s; // style of rubble (see func_xplowall for info)
-	e.effects = EF_LOWPRECISION;
-	e.alpha = 1;
-	e.think = debristhink;
-	e.nextthink = time;
 	e.takedamage = DAMAGE_YES;
 	e.bleedfunc = genericbleedfunc;
 	e.touch = debristouch;
 	e.th_die = SUB_Null;
 	e.th_gib = SUB_Null;
 	e.th_pain = SUB_Null;
-	if (maxclients == 1)
-		e.cnt = time + 3000;
-	else
-		e.cnt = time + 30; // + random() * 50;
+	e.think = debristhink;
+	e.nextthink = time;
 };
 
 entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib;
@@ -755,10 +772,6 @@ void() meatspraytouch =
 		self.nextthink = self.nextthink + 5;
 		self.velocity = '0 0 -0.1' * cvar("sv_gravity");
 		self.gravity = 0.01;
-		//self.touch = debristouch;
-		//e = newdecor();
-		//copyentity(self, e);
-		//remove(self);
 	}
 };
 
@@ -770,11 +783,12 @@ void() ThrowMeatSpray =
 	traceline(self.origin, self.origin, MOVE_NORMAL, self);
 	if (trace_dpstartcontents & DPCONTENTS_NODROP)
 		return;
+	// if in danger of running out of entities, don't spawn any new ones
+	if (numdecors >= 16384)
+		return;
 	org = self.origin + randompos(self.mins, self.maxs);
-	e = newdecor();
-	e.isdecor = TRUE; // let explosions find it
+	e = newdecor(world);
 	e.forcescale = 4;
-	e.createdtime = time;
 	setorigin(e, org);
 	setmodel (e, "progs/zom_gib.mdl");
 	setsize (e, '0 0 0', '0 0 0');
@@ -783,17 +797,9 @@ void() ThrowMeatSpray =
 	e.movetype = MOVETYPE_BOUNCE;
 	e.solid = SOLID_TRIGGER;
 	e.knockedloosefunc = gibknockedloosefunc;
-	e.effects = EF_LOWPRECISION;
-	e.alpha = 1;
 	e.think = SUB_Remove;
 	e.nextthink = time + 1;
-	e.takedamage = DAMAGE_YES;
-	e.bleedfunc = genericbleedfunc;
 	e.touch = meatspraytouch;
-	e.th_die = SUB_Null;
-	e.th_gib = SUB_Null;
-	e.th_pain = SUB_Null;
-	e.cnt = time + 1;
 };
 
 void(string gibname) ThrowGib =
@@ -938,8 +944,11 @@ void(entity c, void() framefunc) BecomeCorpse =
 void(entity t) CopyToBodyQue =
 {
 	local entity c;
-	c = newdecor();
-	c.createdtime = time + 10; // give priority over bullet holes and such
+	// if in danger of running out of entities, don't spawn any new ones
+	if (numdecors >= 16384)
+		return;
+	c = newdecor(world);
+	c.cnt = 100 * (0.5 + random());
 	c.iscorpse = TRUE;
 
 	c.angles = t.angles;
@@ -987,9 +996,7 @@ void(entity t, void() framefunc) MonsterCorpse =
 {
 	// setup for recycling
 	t.classname = "decor";
-	numdecors++;
-	// make sure it won't be replaced anytime soon
-	t.createdtime = time + 30;
+	newdecor(t);
 	BecomeCorpse(t, framefunc);
 };
 
@@ -1002,7 +1009,7 @@ void(string headname, float gibs, string gibname1, float gibs1, string gibname2,
 	self.solid = SOLID_NOT;
 	setorigin(self, self.origin);
 	// prevent gibs from replacing their corpse if their corpse is a decor
-	self.createdtime = time + 1;
+	self.cnt = self.cnt + 10;
 	gibmultiplier = cvar("dpmod_gibbagemultiplier");
 	if (cvar("ekg"))
 		gibmultiplier = gibmultiplier * 5;

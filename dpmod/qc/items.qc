@@ -1437,28 +1437,36 @@ void() DropBackpack =
 	if (trace_dpstartcontents & DPCONTENTS_NODROP)
 		return;
 
-	c = 0;t = time + 5;
 	head = findchain(classname, "backpack");
-	while (head != world)
+	if (head)
 	{
-		c = c + 1;
-		if (head.createdtime < t)
-		{
-			t = head.createdtime;
-			killent = head;
-		}
+		// pick the first one
+		killent = head;
+		t = killent.nextthink;
 		head = head.chain;
-	}
-	if (c >= 30) // 30 backpacks?  remove one
-	{
-		killent.solid = SOLID_NOT;
-		killent.classname = "";
-		killent.think = BackpackRemove;
-		killent.nextthink = time;
+		// then see if any others are older
+		c = 1;
+		while (head != world)
+		{
+			c = c + 1;
+			if (head.nextthink < t)
+			{
+				t = head.nextthink;
+				killent = head;
+			}
+			head = head.chain;
+		}
+		// if there are at least 30 backpacks, remove the oldest
+		if (c >= 30)
+		{
+			killent.solid = SOLID_NOT;
+			killent.classname = "";
+			killent.think = BackpackRemove;
+			killent.nextthink = time;
+		}
 	}
 
 	item = spawn();
-	item.createdtime = time;
 	//item.owner = item;
 	//item.enemy = item;
 	item.classname = "backpack";
