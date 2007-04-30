@@ -696,6 +696,15 @@ string(string s) strdecolorize = #477; // returns a string minus the color codes
 //description:
 //provides additional functionality to strings by supporting functions that isolate and identify strings with color codes
 
+//DP_QC_STRING_CASE_FUNCTIONS
+//idea: Dresk
+//darkplaces implementation: LordHavoc / Dresk
+//builtin definitions:
+string(string s) strtolower = #480; // returns the passed in string in pure lowercase form
+string(string s) strtoupper = #481; // returns the passed in string in pure uppercase form
+//description:
+//provides simple string uppercase and lowercase functions
+
 //DP_QC_TOKENIZEBYSEPARATOR
 //idea: Electro, SavageX, LordHavoc
 //darkplaces implementation: LordHavoc
