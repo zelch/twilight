@@ -808,7 +808,7 @@ void wad_cleanname(char *in, char *out)
 void ConvertWAD(char *filename)
 {
 	char tempname[4096];
-	int wadsize, size, numlumps, i, width, height;
+	int wadsize, i, width, height;
 	void *waddata;
 	unsigned char *data;
 	wadinfo_t *wad;
@@ -824,25 +824,27 @@ void ConvertWAD(char *filename)
 		printf("ConvertWAD: \"%s\" is not a quake wad2 file\n", filename);
 		return;
 	}
-	numlumps = LittleLong(wad->numlumps);
-	printf("ConvertWAD: converting \"%s\" (%i lumps)\n", filename, numlumps);
-	lump = (void *)((int) waddata + wad->infotableofs);
-	for (i = 0;i < numlumps;i++, lump++)
+	wad->numlumps = LittleLong(wad->numlumps);
+	wad->infotableofs = LittleLong(wad->infotableofs);
+	printf("ConvertWAD: converting \"%s\" (%i lumps)\n", filename, wad->numlumps);
+	lump = (void *)((unsigned char *) waddata + wad->infotableofs);
+	for (i = 0;i < wad->numlumps;i++, lump++)
 	{
 		if (lump->compression != CMP_NONE)
 		{
 			printf("lump \"%s\" is compressed, compression is unsupported\n", lump->name);
 			continue;
 		}
+		lump->filepos = LittleLong(lump->filepos);
+		lump->disksize = LittleLong(lump->disksize);
 		data = lump->filepos + (unsigned char *) waddata;
-		size = lump->disksize;
 		wad_cleanname(lump->name, tempname);
 		// conchars = weird
 		if (!strcmp(tempname, "conchars"))
 		{
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".bin");
-			writefile(tempname, data, size);
+			writefile(tempname, data, lump->disksize);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".pcx");
 			WritePCX(tempname, data, 128, 128, quakepalette);
@@ -863,7 +865,7 @@ void ConvertWAD(char *filename)
 //			printf("encountered lump type 'LUMPY' named \"%s\"\n", lump->name);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".bin");
-			writefile(tempname, data, size);
+			writefile(tempname, data, lump->disksize);
 			break;
 		case TYP_QTEX:
 			printf("encountered lump type 'QTEX' named \"%s\"\n", lump->name);
@@ -879,7 +881,7 @@ void ConvertWAD(char *filename)
 			}
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".lmp");
-			writefile(tempname, data, size);
+			writefile(tempname, data, lump->disksize);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".pcx");
 			WritePCX(tempname, data+8, width, height, quakepalette);
@@ -901,7 +903,7 @@ void ConvertWAD(char *filename)
 			}
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".mip");
-			writefile(tempname, data, size);
+			writefile(tempname, data, lump->disksize);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".pcx");
 			WritePCX(tempname, data+40, width, height, quakepalette);
