@@ -181,7 +181,9 @@ stringlist *listdirectory(char *path)
 			current = stringlistappend(current, n_file.name);
 		_findclose(hFile);
 		// sort the list alphanumerically
-		return stringlistsort(start);
+		//return stringlistsort(start);
+		// don't sort the list, it takes too long
+		return start;
 	}
 	else
 		return NULL;
@@ -207,7 +209,9 @@ stringlist *listdirectory(char *path)
 		current = stringlistappend(current, ent->d_name);
 	closedir(dir);
 	// sort the list alphanumerically
-	return stringlistsort(start);
+	//return stringlistsort(start);
+	// don't sort the list, it takes too long
+	return start;
 }
 #endif
 
