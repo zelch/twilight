@@ -601,8 +601,7 @@ void WriteTGA(char *filename, unsigned char *data, int width, int height, const 
 	free(buffer);
 }
 
-
-unsigned char quakepalette[768] =
+const unsigned char quakepalette[768] =
 {
 	0x00,0x00,0x00,0x0F,0x0F,0x0F,0x1F,0x1F,0x1F,0x2F,0x2F,0x2F,0x3F,0x3F,0x3F,0x4B,
 	0x4B,0x4B,0x5B,0x5B,0x5B,0x6B,0x6B,0x6B,0x7B,0x7B,0x7B,0x8B,0x8B,0x8B,0x9B,0x9B,
@@ -654,6 +653,31 @@ unsigned char quakepalette[768] =
 	0x00,0xFF,0x00,0x00,0xFF,0xF3,0x93,0xFF,0xF7,0xC7,0xFF,0xFF,0xFF,0x9F,0x5B,0x53
 };
 
+// loaded palette.lmp file, or a copy of quakepalette (see above)
+unsigned char palette[768];
+
+/*
+=============
+LoadPaletteLMP
+=============
+*/
+void LoadPaletteLMP (char *filename)
+{
+	int lmpsize;
+	void *lmpdata;
+	memcpy(palette, quakepalette, sizeof(palette));
+	if (readfile(filename, &lmpdata, &lmpsize))
+	{
+		printf("LoadPaletteLMP: unable to load \"%s\", assuming quake palette\n", filename);
+		return;
+	}
+	if (lmpsize == 768)
+		memcpy(palette, lmpdata, lmpsize);
+	else
+		printf("LoadPaletteLMP: \"%s\" is not 768 bytes, assuming quake palette\n", filename);
+	free(lmpdata);
+}
+
 /*
 =============
 LoadLMP
@@ -698,10 +722,10 @@ void ConvertLMP(char *filename)
 		return;
 	StripExtension(filename, tempname);
 	strcat(tempname, ".pcx");
-	WritePCX(tempname, data, image_width, image_height, quakepalette);
+	WritePCX(tempname, data, image_width, image_height, palette);
 	StripExtension(filename, tempname);
 	strcat(tempname, ".tga");
-	WriteTGA(tempname, data, image_width, image_height, quakepalette);
+	WriteTGA(tempname, data, image_width, image_height, palette);
 	free(data);
 }
 
@@ -749,10 +773,10 @@ void ConvertMIP(char *filename)
 		return;
 	StripExtension(filename, tempname);
 	strcat(tempname, ".pcx");
-	WritePCX(tempname, data, image_width, image_height, quakepalette);
+	WritePCX(tempname, data, image_width, image_height, palette);
 	StripExtension(filename, tempname);
 	strcat(tempname, ".tga");
-	WriteTGA(tempname, data, image_width, image_height, quakepalette);
+	WriteTGA(tempname, data, image_width, image_height, palette);
 	free(data);
 }
 
@@ -851,10 +875,10 @@ void ConvertWAD(char *filename)
 			writefile(tempname, data, lump->disksize);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".pcx");
-			WritePCX(tempname, data, 128, 128, quakepalette);
+			WritePCX(tempname, data, 128, 128, palette);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".tga");
-			WriteTGA(tempname, data, 128, 128, quakepalette);
+			WriteTGA(tempname, data, 128, 128, palette);
 			continue;
 		}
 		switch(lump->type)
@@ -888,10 +912,10 @@ void ConvertWAD(char *filename)
 			writefile(tempname, data, lump->disksize);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".pcx");
-			WritePCX(tempname, data+8, width, height, quakepalette);
+			WritePCX(tempname, data+8, width, height, palette);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".tga");
-			WriteTGA(tempname, data+8, width, height, quakepalette);
+			WriteTGA(tempname, data+8, width, height, palette);
 			break;
 		case TYP_SOUND:
 			printf("encountered lump type 'SOUND' named \"%s\"\n", lump->name);
@@ -910,10 +934,10 @@ void ConvertWAD(char *filename)
 			writefile(tempname, data, lump->disksize);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".pcx");
-			WritePCX(tempname, data+40, width, height, quakepalette);
+			WritePCX(tempname, data+40, width, height, palette);
 			wad_cleanname(lump->name, tempname);
 			strcat(tempname, ".tga");
-			WriteTGA(tempname, data+40, width, height, quakepalette);
+			WriteTGA(tempname, data+40, width, height, palette);
 			break;
 		default:
 			printf("encountered unknown lump type named \"%s\"\n", lump->name);
@@ -926,6 +950,8 @@ void ConvertWAD(char *filename)
 void lmp2pcx()
 {
 	stringlist *s, *slstart;
+	// see if there is a palette.lmp file to load
+	LoadPaletteLMP("palette.lmp");
 	// get the directory listing
 	slstart = s = listdirectory(".");
 	// iterate through the string chain
