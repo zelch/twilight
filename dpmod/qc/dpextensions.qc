@@ -973,6 +973,14 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //The first parameter provides the entities original contents, prior to the transition.  The second parameter provides the new contents.
 //NOTE: If this field function is provided on an entity, the standard watersplash sound IS SUPPRESSED to allow for authors to create their own transition sounds.
 
+//DP_SV_NETADDRESS
+//idea: Dresk
+//darkplaces implementation: Dresk
+//field definitions:
+.string netaddress;
+//description:
+// provides the netaddress of the associated entity (ie. 127.0.0.1) and "null/botclient" if the netconnection of the entity is invalid
+
 //DP_SV_NODRAWTOCLIENT
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -989,13 +997,17 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //description:
 //continuously updated field indicating client's ping (based on average of last 16 packet time differences).
 
-//DP_SV_NETADDRESS
-//idea: Dresk
-//darkplaces implementation: Dresk
-//field definitions:
-.string netaddress;
+//DP_SV_POINTPARTICLES
+//idea: Spike
+//darkplaces implementation: LordHavoc
+//function definitions:
+float(string effectname) particleeffectnum = #335; // same as in CSQC
+void(entity ent, float effectnum, vector start, vector end) trailparticles = #336; // same as in CSQC
+void(float effectnum, vector org, vector vel, float howmany) pointparticles = #337; // same as in CSQC
 //description:
-// provides the netaddress of the associated entity (ie. 127.0.0.1) and "null/botclient" if the netconnection of the entity is invalid
+//provides the ability to spawn non-standard particle effects, typically these are defined in a particle effect information file such as effectinfo.txt in darkplaces.
+//this is a port of particle effect features from clientside QC (EXT_CSQC) to server QC, as these effects are potentially useful to all games even if they do not make use of EXT_CSQC.
+//warning: server must have same order of effects in effectinfo.txt as client does or the numbers would not match up, except for standard quake effects which are always the same numbers.
 
 //DP_SV_PUNCHVECTOR
 //idea: LordHavoc
