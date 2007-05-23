@@ -505,6 +505,14 @@ void(entity from, entity to) copyentity = #400;
 //description:
 //copies all data in the entity to another entity.
 
+//DP_QC_CVAR_DEFSTRING
+//idea: id Software (Doom3), LordHavoc
+//darkplaces implementation: LordHavoc
+//builtin definitions:
+string(string s) cvar_defstring = #482;
+//description:
+//returns the default value of a cvar, as a tempstring.
+
 //DP_QC_CVAR_STRING
 //idea: VorteX
 //DarkPlaces implementation: VorteX, LordHavoc
