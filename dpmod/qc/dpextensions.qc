@@ -979,16 +979,26 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //field definitions:
 .float modelflags;
 //constant definitions:
+float EF_NOMODELFLAGS = 8388608; // ignore any effects in a model file and substitute your own
 float MF_ROCKET  =   1; // leave a trail
 float MF_GRENADE =   2; // leave a trail
 float MF_GIB     =   4; // leave a trail
 float MF_ROTATE  =   8; // rotate (bonus items)
 float MF_TRACER  =  16; // green split trail
 float MF_ZOMGIB  =  32; // small blood trail
-float MF_TRACER2 =  64; // orange split trail + rotate
+float MF_TRACER2 =  64; // orange split trail
 float MF_TRACER3 = 128; // purple trail
 //description:
 //this extension allows model flags to be specified on entities so you can add a rocket trail and glow to any entity, etc.
+//setting any of these will override the flags the model already has, to disable the model's flags without supplying any of your own you must use EF_NOMODELFLAGS.
+//
+//silly example modification #1 to W_FireRocket in weapons.qc:
+//missile.effects = EF_NOMODELFLAGS; // rocket without a glow/fire trail
+//silly example modification #2 to W_FireRocket in weapons.qc:
+//missile.modelflags = MF_GIB; // leave a blood trail instead of glow/fire trail
+//
+//note: you can not combine multiple kinds of trail, only one of them will be active, you can combine MF_ROTATE and the other MF_ flags however, and using EF_NOMODELFLAGS along with these does no harm.
+//
 //note to engine coders: they are internally encoded in the protocol as extra EF_ flags (shift the values left 24 bits and send them in the protocol that way), so no protocol change was required (however 32bit effects is a protocol extension itself), within the engine they are referred to as EF_ for the 24bit shifted values.
 
 //DP_SV_NETADDRESS
