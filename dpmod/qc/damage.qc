@@ -221,7 +221,7 @@ float MH_SHALRATH  =   400;float MB_SHALRATH  =   400;
 float MH_SHAMBLER  =   600;float MB_SHAMBLER  =   600;
 float MH_TARBABY   =    80;
 float MH_WIZARD    =    80;float MB_WIZARD    =    70;
-float MH_ZOMBIE    =   200; // explosives do more damage than normal
+float MH_ZOMBIE    =   310; // special vulnerability to explosives/axe, all else is ineffective (except with quad)
 
 // new monsters
 float MH_HELLFISH  =    90;float MB_HELLFISH  =   150;
@@ -237,6 +237,7 @@ float DTF_RESIST_EXPLOSIVE =       4; // explosive damage
 float DTF_RESIST_ENERGY    =       8; // energy damage
 float DTF_RESIST_FIRE      =      16; // fire damage
 float DTF_RESIST_ICE       =    2048; // ice damage
+float DTF_RESIST_AXE       =   16384; // axe damage
 float DTF_BLOOD            =      32; // this kind of damage causes blood splatters
 float DTF_INDIRECT         =      64; // not a direct hit
 // no recursive shield damage
@@ -263,7 +264,7 @@ float DT_NAIL             =       35;
 float DT_CUT              =       33;
 float DT_HURT             =        1;
 float DT_TELEFRAG         = 33554432; // can not be combined with other flags
-float DT_AX               =     8225;
+float DT_AX               =    24609;
 
 float DT_FALL             =        0; // no armor damage
 

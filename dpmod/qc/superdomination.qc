@@ -26,12 +26,12 @@ void() superdomination_turretgun_muzzleflash_think =
 
 float SUPERDOMINATION_POINTENERGYRATE = 100;
 float SUPERDOMINATION_POINTENERGYCAP = 100;
-float SUPERDOMINATION_POINTTURRETS = 3;
-float PLASMATURRET_VELOCITY = 1000;
-float PLASMATURRET_DAMAGE = 40;
+float SUPERDOMINATION_POINTTURRETS = 1;
+float PLASMATURRET_VELOCITY = 5000;
+float PLASMATURRET_DAMAGE = 9;
 float PLASMATURRET_FORCE = 0;
 float PLASMATURRET_RADIUS = 100;
-float PLASMATURRET_REFIRE = 0.5;
+float PLASMATURRET_REFIRE = 0.1;
 float PLASMATURRET_AMMO = 1;
 float PLASMATURRET_RELOADCOST = 10;
 float PLASMATURRET_TIMECOST = 0;
@@ -296,6 +296,7 @@ void() superdomination_createturret =
 	newmis.havocattack = TRUE;
 	newmis.dangerrating = 200;
 	newmis.realowner = self;
+	newmis.team = self.domteam.team;
 	newmis.domteam = self.domteam;
 	newmis.think = superdomination_turretbase_think;
 	newmis.nextthink = time;
@@ -313,6 +314,7 @@ void() superdomination_createturret =
 	newmis.goalentity = turretbase;
 	newmis.realowner = self;
 	newmis.domteam = self.domteam;
+	newmis.team = self.domteam.team;
 	setmodel(newmis, "progs/turgun.mdl");
 	setsize(newmis, '-16 -16 -24', '16 16 8');
 	setorigin(newmis, org);
@@ -336,6 +338,8 @@ void() superdomination_startframe =
 		return;
 	teams = findchain(classname, "dom_team");
 	controlpoints = findchain(classname, "dom_controlpoint");
+	if (teams == world || controlpoints == world)
+		return;
 	players = findchain(classname, "player");
 	winner = world;
 	head = teams;
@@ -348,7 +352,8 @@ void() superdomination_startframe =
 	head = controlpoints;
 	while (head)
 	{
-		head.goalentity.frags = head.goalentity.frags + 1;
+		if (head.goalentity)
+			head.goalentity.frags = head.goalentity.frags + 1;
 		numcontrolpoints = numcontrolpoints + 1;
 		head = head.chain;
 	}
@@ -378,6 +383,7 @@ void() superdomination_startframe =
 	}
 	if (time >= 5)
 	if (winner)
+	if (winner.netname != "")
 	if (!gameover)
 		NextLevel ();
 };

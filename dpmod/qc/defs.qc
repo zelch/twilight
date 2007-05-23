@@ -1129,7 +1129,7 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 
 
 // resistances to 4 kinds of damage:
-.float resist_bullet, resist_explosive, resist_energy, resist_fire, resist_ice;
+.float resist_bullet, resist_explosive, resist_energy, resist_fire, resist_ice, resist_axe;
 // every monster can have resistances
 // note: -1 means immune, as 0.0 can't be used
 
@@ -1178,6 +1178,8 @@ vector raddamage_lasthit;
 
 .float health; // if this goes below 1 the thing is dead
 .float bodyhealth; // used for gibbing
+.float healthregen; // regenerate this much health per second
+.float healthlostthisframe; // reset by iscreature code each frame
 
 // adjustable monster damage settings
 float monsterdamagescale;

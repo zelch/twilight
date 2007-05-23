@@ -264,6 +264,7 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 		if (targ.resist_explosive) if (damgtype & DTF_RESIST_EXPLOSIVE) ratio = ratio * targ.resist_explosive;
 		if (targ.resist_energy   ) if (damgtype & DTF_RESIST_ENERGY   ) ratio = ratio * targ.resist_energy;
 		if (targ.resist_fire     ) if (damgtype & DTF_RESIST_FIRE     ) ratio = ratio * targ.resist_fire;
+		if (targ.resist_axe      ) if (damgtype & DTF_RESIST_AXE      ) ratio = ratio * targ.resist_axe;
 		if (targ.flags & FL_MONSTER) ratio = ratio * monsterresistancescale;
 
 		if (ratio <= 0) // resistance prevented damage
@@ -377,7 +378,8 @@ void(entity targ, entity inflictor, entity attacker, float healthdamage, float d
 	if (self.th_pain)
 	if (!self.frozen)
 	{
-		self.th_pain (attacker, htake, damgtype, dethtype);
+		self.healthlostthisframe = self.healthlostthisframe + htake;
+		self.th_pain (attacker, self.healthlostthisframe, damgtype, dethtype);
 		// nightmare mode monsters don't go into pain frames often
 		if (skill >= 3)
 		if (self.flags & FL_MONSTER)

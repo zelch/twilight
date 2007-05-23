@@ -348,6 +348,22 @@ void() worldspawn =
 	local float c;
 	local entity head;
 
+/*
+	// test code for tokenizebyseparator
+	local string s;
+	local float result;
+	s = "10.2.3.4";
+	result = tokenizebyseparator(s, ".");
+	print("tokenizebyseparator(\"", s, "\") = ", ftos(result), " (");
+	c = 0;
+	while (c < result)
+	{
+		print(" ", argv(c));
+		c = c + 1;
+	}
+	print(")\n");
+*/
+
 	game = GAME_QUAKE;
 
 	c = 0;
@@ -845,6 +861,9 @@ void() startframe_creaturecode =
 		{
 			if (self.takedamage || self.health > 0)
 			{
+				if (self.health < self.max_health)
+					self.health = min(self.health + frametime * self.healthregen, self.max_health);
+				self.healthlostthisframe = 0; // used by th_pain calls
 				if (self.findtarget)
 				{
 					self.findtarget = FALSE;
