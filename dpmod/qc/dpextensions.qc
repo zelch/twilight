@@ -154,6 +154,20 @@ float   EF_NODRAW       = 16;
 //description:
 //prevents server from sending entity to client (forced invisible, even if it would have been a light source or other such things)
 
+//DP_EF_NOGUNBOB
+//idea: Chris Page, Dresk
+//darkplaces implementation: LordHAvoc
+//effects bit:
+float   EF_NOGUNBOB     = 256;
+//description:
+//this has different meanings depending on the entity it is used on:
+//player entity - prevents gun bobbing on player.viewmodel
+//viewmodelforclient entity - prevents gun bobbing on an entity attached to the player's view
+//other entities - no effect
+//uses:
+//disabling gun bobbing on a diving mask or other model used as a .viewmodel.
+//disabling gun bobbing on view-relative models meant to be part of the heads up display.  (note: if fov is changed these entities may be off-screen, or too near the center of the screen, so use fov 90 in this case)
+
 //DP_EF_NOSHADOW
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
