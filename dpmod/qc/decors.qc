@@ -1162,121 +1162,257 @@ PHYSICS EXPERIMENTS
 .float ragdoll_mass;
 .float ragdoll_inversemass;
 .float ragdoll_preferredlength; // preferred length of this stick
-void(entity ragdoll) Ragdoll_Remove;
-// implicit euler/verlet hybrid
-void() Ragdoll_Think =
-{
-	local float bump;
-	local float iftime;
-	local float ftime;
-	local float t;
-	local float f;
-	local vector force;
-	local vector offset;
-	local vector org1, org2, org3;
-	local entity part, stick, p1, p2;
-	self.nextthink = time;
-	if (time >= self.lefty)
-	{
-		Ragdoll_Remove(self);
-		return;
-	}
+.float ragdoll_lockdown;
 
-	// run at least a certain framerate for robustness
-	iftime = 100;
-	ftime = 1 / iftime;
-	while (self.ltime < time)
+void(float fscale) Ragdoll_ApplyAcceleration =
+{
+	local entity part;
+	local float grav;
+	grav = sv_gravity * fscale;
+	part = self.ragdoll_particlelist;
+	while (part)
 	{
-		self.ltime = self.ltime + ftime;
-		// apply stick constraints to the velocities
+		part.velocity_z = part.velocity_z - grav;
+		// go to the next particle
+		part = part.ragdoll_next;
+	}
+}
+
+void() Ragdoll_ClearLockdownFlags =
+{
+	local entity part;
+	part = self.ragdoll_particlelist;
+	while (part)
+	{
+		part.ragdoll_lockdown = FALSE;
+		// go to the next particle
+		part = part.ragdoll_next;
+	}
+}
+
+void(float ftime, float iterations) Ragdoll_ApplyConstraints =
+{
+	local float iftime, iter;
+	local entity stick, p1, p2, part;
+	local vector offset, diff;
+	iftime = 1 / ftime;
+	part = self.ragdoll_particlelist;
+	while (part)
+	{
+		part.dest = part.origin + part.velocity * ftime;
+		part = part.ragdoll_next;
+	}
+	iter = 0;
+	while (iter < iterations)
+	{
+		iter = iter + 1;
 		stick = self.ragdoll_sticklist;
 		while (stick)
 		{
 			p1 = stick.ragdoll_p1;
 			p2 = stick.ragdoll_p2;
-			offset = ((normalize((p2.origin - p1.origin) * iftime + (p2.velocity - p1.velocity)) * stick.ragdoll_preferredlength - (p2.origin - p1.origin)) * iftime - (p2.velocity - p1.velocity)) * 0.5;
-			p1.velocity = p1.velocity - offset;
-			p2.velocity = p2.velocity + offset;
+			if (p1.ragdoll_lockdown)
+			{
+				if (!p2.ragdoll_lockdown)
+				{
+					diff = p2.dest - p1.dest;
+					offset = normalize(diff) * stick.ragdoll_preferredlength - diff;
+					p2.dest = p2.dest + offset;
+				}
+			}
+			else if (p2.ragdoll_lockdown)
+			{
+				diff = p2.dest - p1.dest;
+				offset = normalize(diff) * stick.ragdoll_preferredlength - diff;
+				p1.dest = p1.dest - offset;
+			}
+			else
+			{
+				diff = p2.dest - p1.dest;
+				offset = (normalize(diff) * stick.ragdoll_preferredlength - diff) * 0.5;
+				p1.dest = p1.dest - offset;
+				p2.dest = p2.dest + offset;
+			}
 			stick = stick.ragdoll_next;
 		}
-		// move the particles to the new proposed locations, and bounce off any
-		// surfaces in the way
+	}
+	part = self.ragdoll_particlelist;
+	while (part)
+	{
+		part.velocity = (part.dest - part.origin) * iftime;
+		part = part.ragdoll_next;
+	}
+/*
+	stick = self.ragdoll_sticklist;
+	while (stick)
+	{
+		p1 = stick.ragdoll_p1;
+		p2 = stick.ragdoll_p2;
+		if (p1.ragdoll_lockdown)
+		{
+			if (!p2.ragdoll_lockdown)
+			{
+				p1new = p1.origin;
+				p2new = p2.origin + p2.velocity * ftime;
+				offset = (normalize(p2new - p1new) * stick.ragdoll_preferredlength - (p2new - p1new)) * iftime;
+				p2.velocity = p2.velocity + offset;
+			}
+		}
+		else if (p2.ragdoll_lockdown)
+		{
+			p1new = p1.origin + p1.velocity * ftime;
+			p2new = p2.origin;
+			offset = (normalize(p2new - p1new) * stick.ragdoll_preferredlength - (p2new - p1new)) * iftime;
+			p1.velocity = p1.velocity - offset;
+		}
+		else
+		{
+			p1new = p1.origin + p1.velocity * ftime;
+			p2new = p2.origin + p2.velocity * ftime;
+			offset = (normalize(p2new - p1new) * stick.ragdoll_preferredlength - (p2new - p1new)) * iftime * 0.5;
+			p1.velocity = p1.velocity - offset;
+			p2.velocity = p2.velocity + offset;
+		}
+		stick = stick.ragdoll_next;
+	}
+*/
+}
+
+void(float ftime) Ragdoll_ApplySequentialConstraints =
+{
+	local entity part;
+	part = self.ragdoll_particlelist;
+	while (part)
+	{
+		Ragdoll_ApplyConstraints(ftime, 1);
+		part.ragdoll_lockdown = TRUE;
+		part = part.ragdoll_next;
+	}
+}
+
+void(float ftime) Ragdoll_ApplyFriction =
+{
+	local entity part;
+	local float f;
+	local vector o;
+	// counteract some units of velocity based on friction for any particles
+	// that are currently held against a surface by acceleration
+	part = self.ragdoll_particlelist;
+	while (part)
+	{
+		o = part.origin + '0 0 1' * part.mins_z;
+		traceline(o, o - '0 0 1', MOVE_NORMAL, self);
+		if (trace_fraction < 1)
+		{
+/*
+			f = bound(0, 1 - part.ragdoll_friction * 0.1, 1);
+			if (f > 0)
+				part.velocity = part.velocity * f;
+*/
+			f = bound(0, vlen(part.velocity), part.ragdoll_friction * 300 * ftime);
+			if (f > 0)
+				part.velocity = part.velocity - normalize(part.velocity) * f;
+		}
+		// go to the next particle
+		part = part.ragdoll_next;
+	}
+}
+
+float(float ftime, float restlimit) Ragdoll_Move =
+{
+	local entity part;
+	local float t, bump, resting;
+	local vector force;
+	resting = TRUE;
+	part = self.ragdoll_particlelist;
+	while (part)
+	{
+		// move particle repeatedly until the time slice is used up
+		// (deals with bounces)
+		part.oldorigin = part.origin;
+		t = ftime;
+		bump = 0;
+		while (bump < 16)
+		{
+			bump = bump + 1;
+			// check if there was an impact
+			tracebox(part.origin, part.mins, part.maxs, part.origin + part.velocity * t, MOVE_NORMAL, self);
+			if (trace_fraction == 1)
+			{
+				// ignore successful moves over short distances after the
+				// first bump, as they tend to destabilize the constraints
+				// no impact, update origin to the new position
+				setorigin(part, trace_endpos);
+				// we're done!
+				break;
+			}
+			// impact detected
+			if (part.velocity * trace_plane_normal < 0)
+			{
+				// reflect the velocity off the plane (bounce)
+				// BUG: ragdoll_bounce occurs in addition to the natural spring back of the sticks when flattened against a surface...
+				if (trace_ent.classname == "ragdoll_particle")
+				{
+					// hack to make particles behave sort of spherically
+					trace_plane_normal = normalize(part.origin - trace_ent.origin);
+					// calculate impulse (impact force)
+					force = trace_plane_normal * (trace_plane_normal * (part.velocity * part.ragdoll_mass - trace_ent.velocity * trace_ent.ragdoll_mass));
+					// apply to both particles (in opposite directions)
+					part.velocity = part.velocity - force * part.ragdoll_inversemass * part.ragdoll_bounce;
+					trace_ent.velocity = part.velocity + force * part.ragdoll_inversemass * part.ragdoll_bounce;
+				}
+				else
+					part.velocity = part.velocity - (trace_plane_normal * (trace_plane_normal * part.velocity)) * part.ragdoll_bounce;
+			}
+			// reduce remaining time
+			t = t * (1 - trace_fraction);
+			// if at least a little progress was made, update origin
+			// don't accept very short moves as they tend to cause jitter
+			if (trace_fraction >= 0.0001)
+			{
+				// update origin to the new position
+				setorigin(part, trace_endpos);
+			}
+		}
+		if (vlen(part.origin - part.oldorigin) >= restlimit)
+			resting = FALSE;
+		// lock down this particle now that it has moved
+		//part.ragdoll_lockdown = TRUE;
+		// apply constraints again, honoring this newly locked particle
+		//Ragdoll_ApplyConstraints(ftime);
+		// go to the next particle
+		part = part.ragdoll_next;
+	}
+	// if not significantly disturbed, reset the whole system back to the old
+	// values, this hides minor jitter when resting
+	if (resting)
+	{
 		part = self.ragdoll_particlelist;
 		while (part)
 		{
-			// apply acceleration to the particles
-			// integration method: semi-implicit euler
-			//part.velocity = part.velocity + '0 0 -1' * sv_gravity * ftime;
-			// integration method: half-step implicit euler
-			part.velocity = part.velocity + '0 0 -0.5' * sv_gravity * ftime;
-			t = ftime;
-			bump = 0;
-			while (bump < 16)
-			{
-				bump = bump + 1;
-				// check if there was an impact
-				tracebox(part.origin, part.mins, part.maxs, part.origin + part.velocity * t, FALSE, part);
-				if (trace_fraction == 1)
-				{
-					// ignore successful moves over short distances after the
-					// first bump, as they tend to destabilize the constraints
-					//if (bump == 0 || vlen(part.velocity) >= 10)
-					{
-						// no impact, update origin to the new position
-						setorigin(part, trace_endpos);
-					}
-					// we're done!
-					break;
-				}
-				// impact detected
-				if (part.velocity * trace_plane_normal < 0)
-				{
-					// reflect the velocity off the plane (bounce), and reduce velocity by a percentage (friction)
-					f = 1 - part.ragdoll_friction * 0.1;
-					if (f < 0)
-						f = 0;
-					// BUG: ragdoll_bounce occurs in addition to the natural spring back of the sticks when flattened against a surface...
-					if (trace_ent.classname == "ragdoll_particle")
-					{
-						// hack to make particles behave sort of spherically
-						//trace_plane_normal = normalize(part.origin - trace_ent.origin);
-						// calculate impulse (impact force)
-						force = trace_plane_normal * (trace_plane_normal * (part.velocity * part.ragdoll_mass - trace_ent.velocity * trace_ent.ragdoll_mass));
-						// apply to both particles (in opposite directions)
-						part.velocity = (part.velocity - force * part.ragdoll_inversemass * part.ragdoll_bounce) * f;
-						trace_ent.velocity = (part.velocity + force * part.ragdoll_inversemass * part.ragdoll_bounce) * f;
-					}
-					else
-						part.velocity = (part.velocity - (trace_plane_normal * (trace_plane_normal * part.velocity)) * part.ragdoll_bounce) * f;
-				}
-				// if at least a little progress was made, update origin
-				if (trace_fraction >= 0.0001)
-				{
-					// reduce remaining time
-					t = t * (1 - trace_fraction);
-					// update origin to the new position
-					setorigin(part, trace_endpos);
-				}
-			}
-			// apply the rest of the acceleration now
-			part.velocity = part.velocity + '0 0 -0.5' * sv_gravity * ftime;
-			// go to the next particle
+			setorigin(part, part.oldorigin);
 			part = part.ragdoll_next;
 		}
 	}
-	// update stick models
+	return resting;
+}
+
+void() Ragdoll_UpdateStickModels =
+{
+	local entity stick;
+	local vector org1, org2, org3, offset;
 	stick = self.ragdoll_sticklist;
 	while (stick)
 	{
 		if (stick.modelindex)
 		{
-			org1 = stick.ragdoll_p1.origin + stick.ragdoll_p1.velocity * ftime;
-			org2 = stick.ragdoll_p2.origin + stick.ragdoll_p2.velocity * ftime;
+			org1 = stick.ragdoll_p1.origin;
+			org2 = stick.ragdoll_p2.origin;
 			setorigin(stick, (org1 + org2) * 0.5);
 			stick.angles = vectoangles(org2 - org1);
 			if (stick.ragdoll_p3)
 			{
-				org3 = stick.ragdoll_p3.origin + stick.ragdoll_p3.velocity * ftime;
+				org3 = stick.ragdoll_p3.origin;
 				makevectors(stick.angles_x * '-1 0 0' + stick.angles_y * '0 1 0');
 				offset = org3 - org1;
 				stick.angles_z = vectoyaw((offset * v_right) * '-1 0 0' + (offset * v_up) * '0 1 0');
@@ -1284,9 +1420,73 @@ void() Ragdoll_Think =
 		}
 		stick = stick.ragdoll_next;
 	}
+}
+
+void(entity ragdoll) Ragdoll_Remove;
+// implicit euler/verlet hybrid
+void() Ragdoll_Think =
+{
+	local float iftime;
+	local float ftime;
+	local float resting;
+	self.nextthink = time;
+	if (time >= self.lefty)
+	{
+		Ragdoll_Remove(self);
+		return;
+	}
+	if (time <= self.ltime)
+		return;
+
+	resting = FALSE;
+	// run at least a certain framerate for robustness but allow higher
+	// only choose powers of 2 for numerical stability reasons
+	// this chooses 64, 128, 256, 512, or 1024fps simulation depending on the
+	// delta time since the last update
+	iftime = 64;
+	ftime = time - self.ltime;
+	while (iftime < 1024 && ftime * iftime < 1)
+		iftime = iftime * 2;
+	iftime = 128;
+	ftime = 1 / iftime;
+	while (self.ltime < time)
+	{
+		self.ltime = self.ltime + ftime;
+		if (resting)
+			continue;
+		// prepare for an update
+		// basically, we clear the lockdown flags, then apply impulses and
+		// accelerations, then we constrain all the particles so that their
+		// future position at the end of the frame is sensible
+		// then we move each particle in turn and lock down its position,
+		// altering all other particles to conform
+		//
+		// this method of impulse and acceleration is what I call half-step
+		// velocity verlet integration, which applies half the acceleration
+		// before the move and half after, giving exactly the same result as
+		// standard velocity verlet if no constraints or collisions occur, but
+		// allowing constraints and movement to be performed on velocity
+		// rather than extrapolated position (which changes often during this)
+		Ragdoll_ClearLockdownFlags();
+		// add half of the acceleration before constraints and movement
+		Ragdoll_ApplyAcceleration(ftime * 0.5);
+		// apply constraints to the velocities
+		Ragdoll_ApplyConstraints(ftime, 2);
+		// apply constraints again
+		//Ragdoll_ApplySequentialConstraints(ftime);
+		// apply friction to any particles currently stuck to the floor
+		Ragdoll_ApplyFriction(ftime);
+		// move particles to new proposed locations based on velocity, and
+		// deal with any impacts along the way,
+		resting = Ragdoll_Move(ftime, ftime * 10);
+		// add the other part of the acceleration
+		Ragdoll_ApplyAcceleration(ftime * 0.5);
+	}
+	// update stick models
+	Ragdoll_UpdateStickModels();
 };
 
-entity(float expirationdate) Ragdoll_Spawn =
+entity(float expirationdate, entity own) Ragdoll_Spawn =
 {
 	local entity e;
 	e = spawn();
@@ -1295,6 +1495,7 @@ entity(float expirationdate) Ragdoll_Spawn =
 	e.nextthink = time;
 	e.ltime = time;
 	e.lefty = time + expirationdate;
+	e.owner = own;
 	return e;
 };
 
@@ -1364,9 +1565,9 @@ entity(entity ragdoll, entity p1, entity p2, entity p3, string modelname) Ragdol
 entity(vector org1, vector vel1, vector org2, vector vel2, string modelname) Ragdoll_ThrowCasing =
 {
 	local entity r, p1, p2;
-	r = Ragdoll_Spawn(60);
-	p1 = Ragdoll_AddParticle(r, org1, vel1, '-1 -1 -3', '1 1 3', 1, 6, 1.5, 0.2);
-	p2 = Ragdoll_AddParticle(r, org2, vel2, '-1 -1 -3', '1 1 3', 1, 6, 1.5, 0.2);
+	r = Ragdoll_Spawn(60, self);
+	p1 = Ragdoll_AddParticle(r, org1, vel1, '-1 -1 -1', '1 1 1', 1, 6, 1.5, 0.2);
+	p2 = Ragdoll_AddParticle(r, org2, vel2, '-1 -1 -1', '1 1 1', 1, 6, 1.5, 0.2);
 	Ragdoll_AddStick(r, p1, p2, world, modelname);
 	return r;
 };
@@ -1374,7 +1575,7 @@ entity(vector org1, vector vel1, vector org2, vector vel2, string modelname) Rag
 entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 {
 	local entity r, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
-	r = Ragdoll_Spawn(60);
+	r = Ragdoll_Spawn(60, world);
 	makevectors(randomvec() * 360);
 	if (modelname == "progs/gib1.mdl")
 	{

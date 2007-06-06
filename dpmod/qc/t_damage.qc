@@ -485,11 +485,13 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 	damgtype = damgtype | DTF_INDIRECT; // splash not direct damage
 
 	// first count the damage
+	// (we can't apply it here because th_pain or th_die functions might call findradius, messing up the chain)
 	head = findradius(inflictor.origin, radius + 4);
 	while (head)
 	{
 		if (head.takedamage)
 		if (!head.isdecor)
+		if (head.classname != "ragdoll_particle")
 		if (head != ignore)
 		{
 			points = LinearRadDamage(head, ignore, inflictor.origin, radius, 3);
@@ -524,60 +526,22 @@ void(entity inflictor, entity attacker, float damage, float force, float radius,
 		head = findfloat(head, radiusdamage_hit, 1);
 	}
 
-	// now push around gibs and such
+	// now push around gibs and ragdolls and such
 	// (such as those made by a corpse which was just gibbed)
-	head = findchainfloat(isdecor, TRUE);
+	head = findradius(inflictor.origin, radius + 4);
 	while (head)
 	{
-		points = LinearRadDamage(head, ignore, inflictor.origin, radius, 1);
-		if (points > 0)
+		if (head.isdecor || head.classname == "ragdoll_particle")
 		{
-			damagepoints = damage * points;
-			forcepoints = force * points;
-			if (head == attacker)
-				damagepoints = damagepoints * ownerdamagescale;
-			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
-			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
-			head.radiusdamage_hit = 1;
-			head.radiusdamage_lasthit = raddamage_lasthit;
+			points = LinearRadDamage(head, ignore, inflictor.origin, radius, 1);
+			if (points > 0)
+			{
+				d = damage * points;
+				v = normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * (force * points);
+				T_Damage (head, inflictor, attacker, d, d, dethtype, damgtype, head.radiusdamage_lasthit, v, obitfunc);
+			}
 		}
 		head = head.chain;
-	}
-
-	// now push around ragdolls
-	// (may be a corpse or gibs of what was just killed)
-	head = findchain(classname, "ragdoll_particle");
-	while (head)
-	{
-		points = LinearRadDamage(head, ignore, inflictor.origin, radius, 1);
-		if (points > 0)
-		{
-			damagepoints = damage * points;
-			forcepoints = force * points;
-			if (head == attacker)
-				damagepoints = damagepoints * ownerdamagescale;
-			head.radiusdamage_amount = head.radiusdamage_amount + damagepoints;
-			head.radiusdamage_force = head.radiusdamage_force + normalize((head.absmin + head.absmax) * 0.5 - inflictor.origin) * forcepoints;
-			head.radiusdamage_hit = 1;
-			head.radiusdamage_lasthit = raddamage_lasthit;
-		}
-		head = head.chain;
-	}
-
-	// then apply it
-	head = findfloat(world, radiusdamage_hit, 1);
-	while (head)
-	{
-		d = head.radiusdamage_amount;
-		v = head.radiusdamage_force;
-		l = head.radiusdamage_lasthit;
-		head.radiusdamage_amount = 0;
-		head.radiusdamage_hit = 0;
-		head.radiusdamage_force = '0 0 0';
-		head.radiusdamage_lasthit = '0 0 0';
-		if (d > 0 || v != '0 0 0')
-			T_Damage (head, inflictor, attacker, d, d, dethtype, damgtype, l, v, obitfunc);
-		head = findfloat(head, radiusdamage_hit, 1);
 	}
 };
 
