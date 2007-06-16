@@ -1173,6 +1173,9 @@ void(float fscale) Ragdoll_ApplyAcceleration =
 	while (part)
 	{
 		part.velocity_z = part.velocity_z - grav;
+		// apply a very slight damping effect to cause the system to lose
+		// energy
+		part.velocity = part.velocity * (1 - 0.25 * fscale);
 		// go to the next particle
 		part = part.ragdoll_next;
 	}
@@ -1422,23 +1425,32 @@ void() Ragdoll_UpdateStickModels =
 	}
 }
 
+void() Ragdoll_KnockedLooseFunc =
+{
+	// clear parent's rest state so it will start moving again
+	self.owner.dmg = FALSE;
+};
+
 void(entity ragdoll) Ragdoll_Remove;
 // implicit euler/verlet hybrid
 void() Ragdoll_Think =
 {
 	local float iftime;
 	local float ftime;
-	local float resting;
-	self.nextthink = time;
 	if (time >= self.lefty)
 	{
 		Ragdoll_Remove(self);
 		return;
 	}
-	if (time <= self.ltime)
-		return;
 
-	resting = FALSE;
+	iftime = 64;
+	ftime = 1 / iftime;
+	self.nextthink = time + ftime;
+
+	// see if this ragdoll has achieved a resting state
+	if (self.dmg)
+		return;
+	/*
 	// run at least a certain framerate for robustness but allow higher
 	// only choose powers of 2 for numerical stability reasons
 	// this chooses 64, 128, 256, 512, or 1024fps simulation depending on the
@@ -1449,11 +1461,12 @@ void() Ragdoll_Think =
 		iftime = iftime * 2;
 	iftime = 128;
 	ftime = 1 / iftime;
-	while (self.ltime < time)
+	*/
+	//while (self.ltime < time)
 	{
-		self.ltime = self.ltime + ftime;
-		if (resting)
-			continue;
+		//self.ltime = self.ltime + ftime;
+		//if (self.dmg)
+		//	continue;
 		// prepare for an update
 		// basically, we clear the lockdown flags, then apply impulses and
 		// accelerations, then we constrain all the particles so that their
@@ -1478,7 +1491,7 @@ void() Ragdoll_Think =
 		Ragdoll_ApplyFriction(ftime);
 		// move particles to new proposed locations based on velocity, and
 		// deal with any impacts along the way,
-		resting = Ragdoll_Move(ftime, ftime * 10);
+		self.dmg = Ragdoll_Move(ftime, ftime * 10);
 		// add the other part of the acceleration
 		Ragdoll_ApplyAcceleration(ftime * 0.5);
 	}
@@ -1536,6 +1549,7 @@ entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float mas, 
 	e.th_die = SUB_Null;
 	e.th_gib = SUB_Null;
 	e.th_pain = SUB_Null;
+	e.knockedloosefunc = Ragdoll_KnockedLooseFunc;
 	e.solid = SOLID_TRIGGER;//BBOX;
 	e.movetype = MOVETYPE_NONE;
 	e.velocity = vel;
