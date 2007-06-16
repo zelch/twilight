@@ -1173,9 +1173,6 @@ void(float fscale) Ragdoll_ApplyAcceleration =
 	while (part)
 	{
 		part.velocity_z = part.velocity_z - grav;
-		// apply a very slight damping effect to cause the system to lose
-		// energy
-		part.velocity = part.velocity * (1 - 0.25 * fscale);
 		// go to the next particle
 		part = part.ragdoll_next;
 	}
@@ -1297,9 +1294,11 @@ void(float ftime) Ragdoll_ApplyFriction =
 {
 	local entity part;
 	local float f;
+	local float applied;
 	local vector o;
 	// counteract some units of velocity based on friction for any particles
 	// that are currently held against a surface by acceleration
+	applied = FALSE;
 	part = self.ragdoll_particlelist;
 	while (part)
 	{
@@ -1315,11 +1314,28 @@ void(float ftime) Ragdoll_ApplyFriction =
 			f = bound(0, vlen(part.velocity), part.ragdoll_friction * 300 * ftime);
 			if (f > 0)
 				part.velocity = part.velocity - normalize(part.velocity) * f;
+			applied = TRUE;
 		}
 		// go to the next particle
 		part = part.ragdoll_next;
 	}
-}
+
+	// damping does not seem to help with unstable systems and serves no other real purpose
+/*
+	// if friction is applied, we also apply a damping effect to cause the
+	// entire system to lose energy
+	if (applied)
+	{
+		part = self.ragdoll_particlelist;
+		while (part)
+		{
+			part.velocity = part.velocity * (1 - ftime);
+			// go to the next particle
+			part = part.ragdoll_next;
+		}
+	}
+*/
+};
 
 float(float ftime, float restlimit) Ragdoll_Move =
 {
@@ -1366,6 +1382,9 @@ float(float ftime, float restlimit) Ragdoll_Move =
 				}
 				else
 					part.velocity = part.velocity - (trace_plane_normal * (trace_plane_normal * part.velocity)) * part.ragdoll_bounce;
+				// never come to rest on a pusher
+				if (trace_ent != world)
+					resting = FALSE;
 			}
 			// reduce remaining time
 			t = t * (1 - trace_fraction);
@@ -1578,17 +1597,19 @@ entity(entity ragdoll, entity p1, entity p2, entity p3, string modelname) Ragdol
 
 entity(vector org1, vector vel1, vector org2, vector vel2, string modelname) Ragdoll_ThrowCasing =
 {
-	local entity r, p1, p2;
+	local entity r, p1, p2, s;
 	r = Ragdoll_Spawn(60, self);
 	p1 = Ragdoll_AddParticle(r, org1, vel1, '-1 -1 -1', '1 1 1', 1, 6, 1.5, 0.2);
 	p2 = Ragdoll_AddParticle(r, org2, vel2, '-1 -1 -1', '1 1 1', 1, 6, 1.5, 0.2);
-	Ragdoll_AddStick(r, p1, p2, world, modelname);
+	s = Ragdoll_AddStick(r, p1, p2, world, modelname);
+	s.solid = SOLID_CORPSE;
+	setsize(s, '-3 -3 -1', '3 3 1');
 	return r;
 };
 
 entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 {
-	local entity r, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
+	local entity r, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, s;
 	r = Ragdoll_Spawn(60, world);
 	makevectors(randomvec() * 360);
 	if (modelname == "progs/gib1.mdl")
@@ -1603,7 +1624,9 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 		Ragdoll_AddStick(r, p1, p4, world, "");
 		//Ragdoll_AddStick(r, p2, p3, world, "");
 		//Ragdoll_AddStick(r, p2, p4, world, "");
-		Ragdoll_AddStick(r, p3, p4, p1, modelname);
+		s = Ragdoll_AddStick(r, p3, p4, p1, modelname);
+		s.solid = SOLID_CORPSE;
+		setsize(s, '-8 -8 -2', '8 8 2');
 	}
 	else if (modelname == "progs/gib2.mdl")
 	{
@@ -1614,7 +1637,7 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 		p4 = Ragdoll_AddParticle(r, org + v_forward * 8 + v_right   * -12, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
 		p5 = Ragdoll_AddParticle(r, org + v_up      *  6, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
 		p6 = Ragdoll_AddParticle(r, org + v_up      * -6, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 1.5, 5, 1.5, 1.0);
-		Ragdoll_AddStick(r, p1, p2, p3, modelname);
+		s = Ragdoll_AddStick(r, p1, p2, p3, modelname);
 		Ragdoll_AddStick(r, p1, p3, world, "");
 		Ragdoll_AddStick(r, p1, p4, world, "");
 		Ragdoll_AddStick(r, p1, p5, world, "");
@@ -1629,6 +1652,8 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 		Ragdoll_AddStick(r, p4, p5, world, "");
 		Ragdoll_AddStick(r, p4, p6, world, "");
 		Ragdoll_AddStick(r, p5, p6, world, "");
+		s.solid = SOLID_CORPSE;
+		setsize(s, '-12 -12 -6', '12 12 6');
 	}
 	else if (modelname == "progs/gib3.mdl")
 	{
@@ -1637,12 +1662,14 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 		p2 = Ragdoll_AddParticle(r, org + v_forward * -12, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 10, 5, 1.5, 1.0);
 		p3 = Ragdoll_AddParticle(r, org + v_right   *  12, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 10, 5, 1.5, 1.0);
 		//p4 = Ragdoll_AddParticle(r, org + v_right   * -12, vel + randomvec() * 150, '-1 -1 -3', '1 1 3', 10, 5, 1.5, 1.0);
-		Ragdoll_AddStick(r, p1, p2, p3, modelname);
+		s = Ragdoll_AddStick(r, p1, p2, p3, modelname);
 		Ragdoll_AddStick(r, p1, p3, world, "");
 		//Ragdoll_AddStick(r, p1, p4, world, "");
 		Ragdoll_AddStick(r, p2, p3, world, "");
 		//Ragdoll_AddStick(r, p2, p4, world, "");
 		//Ragdoll_AddStick(r, p3, p4, world, "");
+		s.solid = SOLID_CORPSE;
+		setsize(s, '-12 -12 -3', '12 12 3');
 	}
 	else
 	{
@@ -1651,57 +1678,59 @@ entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib =
 		p2 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_forward * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
 		p3 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_right   *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
 		p4 = Ragdoll_AddParticle(r, org + v_up      *  0 + v_right   * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
-		p5 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_forward *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
-		p6 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_forward * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
-		p7 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_right   *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
-		p8 = Ragdoll_AddParticle(r, org + v_up      * 12 + v_right   * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
-		p9 = Ragdoll_AddParticle(r, org + v_up      *  0, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p5= Ragdoll_AddParticle(r, org + v_up      *  0, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p6= Ragdoll_AddParticle(r, org + v_up      * 12 + v_forward *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p7= Ragdoll_AddParticle(r, org + v_up      * 12 + v_forward * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p8= Ragdoll_AddParticle(r, org + v_up      * 12 + v_right   *  5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
+		p9= Ragdoll_AddParticle(r, org + v_up      * 12 + v_right   * -5, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
 		p10= Ragdoll_AddParticle(r, org + v_up      * 12, vel + randomvec() * 150, '-1 -1 -1', '1 1 1', 7, 5, 1.5, 1.0);
-		Ragdoll_AddStick(r, p1, p2, p3, modelname);
-		Ragdoll_AddStick(r, p1, p3, world, "");
-		Ragdoll_AddStick(r, p1, p4, world, "");
-		Ragdoll_AddStick(r, p1, p5, world, "");
-		Ragdoll_AddStick(r, p1, p6, world, "");
-		Ragdoll_AddStick(r, p1, p7, world, "");
-		Ragdoll_AddStick(r, p1, p8, world, "");
-		Ragdoll_AddStick(r, p1, p9, world, "");
-		Ragdoll_AddStick(r, p1, p10, world, "");
-		Ragdoll_AddStick(r, p2, p3, world, "");
-		Ragdoll_AddStick(r, p2, p4, world, "");
-		Ragdoll_AddStick(r, p2, p5, world, "");
-		Ragdoll_AddStick(r, p2, p6, world, "");
-		Ragdoll_AddStick(r, p2, p7, world, "");
-		Ragdoll_AddStick(r, p2, p8, world, "");
-		Ragdoll_AddStick(r, p2, p9, world, "");
-		Ragdoll_AddStick(r, p2, p10, world, "");
-		Ragdoll_AddStick(r, p3, p4, world, "");
-		Ragdoll_AddStick(r, p3, p5, world, "");
-		Ragdoll_AddStick(r, p3, p6, world, "");
-		Ragdoll_AddStick(r, p3, p7, world, "");
-		Ragdoll_AddStick(r, p3, p8, world, "");
-		Ragdoll_AddStick(r, p3, p9, world, "");
-		Ragdoll_AddStick(r, p3, p10, world, "");
-		Ragdoll_AddStick(r, p4, p5, world, "");
-		Ragdoll_AddStick(r, p4, p6, world, "");
-		Ragdoll_AddStick(r, p4, p7, world, "");
-		Ragdoll_AddStick(r, p4, p8, world, "");
-		Ragdoll_AddStick(r, p4, p9, world, "");
-		Ragdoll_AddStick(r, p4, p10, world, "");
-		Ragdoll_AddStick(r, p5, p6, world, "");
-		Ragdoll_AddStick(r, p5, p7, world, "");
-		Ragdoll_AddStick(r, p5, p8, world, "");
-		Ragdoll_AddStick(r, p5, p9, world, "");
-		Ragdoll_AddStick(r, p5, p10, world, "");
-		Ragdoll_AddStick(r, p6, p7, world, "");
-		Ragdoll_AddStick(r, p6, p8, world, "");
-		Ragdoll_AddStick(r, p6, p9, world, "");
-		Ragdoll_AddStick(r, p6, p10, world, "");
-		Ragdoll_AddStick(r, p7, p8, world, "");
-		Ragdoll_AddStick(r, p7, p9, world, "");
-		Ragdoll_AddStick(r, p7, p10, world, "");
-		Ragdoll_AddStick(r, p8, p9, world, "");
-		Ragdoll_AddStick(r, p8, p10, world, "");
 		Ragdoll_AddStick(r, p9, p10, world, "");
+		Ragdoll_AddStick(r, p9, p5, world, "");
+		Ragdoll_AddStick(r, p8, p10, world, "");
+		Ragdoll_AddStick(r, p8, p9, world, "");
+		Ragdoll_AddStick(r, p8, p5, world, "");
+		Ragdoll_AddStick(r, p7, p10, world, "");
+		Ragdoll_AddStick(r, p7, p9, world, "");
+		Ragdoll_AddStick(r, p7, p8, world, "");
+		Ragdoll_AddStick(r, p7, p5, world, "");
+		Ragdoll_AddStick(r, p6, p10, world, "");
+		Ragdoll_AddStick(r, p6, p9, world, "");
+		Ragdoll_AddStick(r, p6, p8, world, "");
+		Ragdoll_AddStick(r, p6, p7, world, "");
+		Ragdoll_AddStick(r, p6, p5, world, "");
+		Ragdoll_AddStick(r, p5, p10, world, "");
+		Ragdoll_AddStick(r, p4, p10, world, "");
+		Ragdoll_AddStick(r, p4, p9, world, "");
+		Ragdoll_AddStick(r, p4, p8, world, "");
+		Ragdoll_AddStick(r, p4, p7, world, "");
+		Ragdoll_AddStick(r, p4, p6, world, "");
+		Ragdoll_AddStick(r, p4, p5, world, "");
+		Ragdoll_AddStick(r, p3, p10, world, "");
+		Ragdoll_AddStick(r, p3, p9, world, "");
+		Ragdoll_AddStick(r, p3, p8, world, "");
+		Ragdoll_AddStick(r, p3, p7, world, "");
+		Ragdoll_AddStick(r, p3, p6, world, "");
+		Ragdoll_AddStick(r, p3, p5, world, "");
+		Ragdoll_AddStick(r, p3, p4, world, "");
+		Ragdoll_AddStick(r, p2, p10, world, "");
+		Ragdoll_AddStick(r, p2, p9, world, "");
+		Ragdoll_AddStick(r, p2, p8, world, "");
+		Ragdoll_AddStick(r, p2, p7, world, "");
+		Ragdoll_AddStick(r, p2, p6, world, "");
+		Ragdoll_AddStick(r, p2, p5, world, "");
+		Ragdoll_AddStick(r, p2, p4, world, "");
+		Ragdoll_AddStick(r, p2, p3, world, "");
+		Ragdoll_AddStick(r, p1, p10, world, "");
+		Ragdoll_AddStick(r, p1, p9, world, "");
+		Ragdoll_AddStick(r, p1, p8, world, "");
+		Ragdoll_AddStick(r, p1, p7, world, "");
+		Ragdoll_AddStick(r, p1, p6, world, "");
+		Ragdoll_AddStick(r, p1, p5, world, "");
+		Ragdoll_AddStick(r, p1, p4, world, "");
+		Ragdoll_AddStick(r, p1, p3, world, "");
+		s = Ragdoll_AddStick(r, p1, p2, p3, modelname);
+		s.solid = SOLID_CORPSE;
+		setsize(s, '-12 -12 -5', '12 12 5');
 	}
 	return r;
 };
