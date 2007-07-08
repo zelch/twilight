@@ -768,6 +768,17 @@ float(float request) w_shotgun =
 		if (self.button0)
 		if (Inventory_Quantity(self, "shells") > 0)
 		{
+/*
+			// raytracing performance test
+			local float c;
+			c = 0;
+			while (c < 1000000)
+			{
+				c = c + 1;
+				//traceline(randompos(world.mins, world.maxs), randompos(world.mins, world.maxs), MOVE_WORLDONLY, self);
+				traceline(self.origin + (randomvec() + '0 0 1') * 65536, self.origin, MOVE_WORLDONLY, self);
+			}
+*/
 			W_Hostile();
 			sound(self, CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);
 			Inventory_AdjustQuantity(self, "shells", -1);
