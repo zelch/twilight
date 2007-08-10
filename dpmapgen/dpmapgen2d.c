@@ -745,13 +745,13 @@ void generatelevels()
 				{
 					entx = lhrandom(-192, 193) + x * cellsize - leveldist + (cellsize/2);
 					enty = lhrandom(-192, 193) + y * cellsize - leveldist + (cellsize/2);
-					entz = level * -192 - 128 - placeobjectminz;
-					if (checkbox(entx + placeobjectminx - 1, enty + placeobjectminy - 1, entz + placeobjectminz, entx + placeobjectmaxx + 1, enty + placeobjectmaxy + 1, entz + placeobjectmaxz))
+					entz = level * -192 - 128 - placeobject->minz;
+					if (checkbox(entx + placeobject->minx - 1, enty + placeobject->miny - 1, entz + placeobject->minz, entx + placeobject->maxx + 1, enty + placeobject->maxy + 1, entz + placeobject->maxz))
 					{
 						// found a spot
-						makeentity(placeobjectname, entx, enty, entz, placeobjectminx, placeobjectminy, placeobjectminz, placeobjectmaxx, placeobjectmaxy, placeobjectmaxz, placeobjectrandomangle ? rand() % 360 : 0, ENT_MONSTER);
-						monsterhealth += placeobjecthealth;
-						monsterdamage += placeobjectdamage;
+						makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, ENT_MONSTER);
+						monsterhealth += placeobject->health;
+						monsterdamage += placeobject->damage;
 						i++;
 						break;
 					}
@@ -780,15 +780,15 @@ void generatelevels()
 				{
 					entx = lhrandom(-192, 193) + x * cellsize - leveldist + (cellsize/2);
 					enty = lhrandom(-192, 193) + y * cellsize - leveldist + (cellsize/2);
-					entz = level * -192 - 128 - placeobjectminz;
-					if (checkbox(entx + placeobjectminx - 1, enty + placeobjectminy - 1, entz + placeobjectminz, entx + placeobjectmaxx + 1, enty + placeobjectmaxy + 1, entz + placeobjectmaxz))
+					entz = level * -192 - 128 - placeobject->minz;
+					if (checkbox(entx + placeobject->minx - 1, enty + placeobject->miny - 1, entz + placeobject->minz, entx + placeobject->maxx + 1, enty + placeobject->maxy + 1, entz + placeobject->maxz))
 					{
 						// found a spot
-						if (!strcmp(placeobjectname, "item_shells") || !strcmp(placeobjectname, "item_spikes") || !strcmp(placeobjectname, "item_rockets") || !strcmp(placeobjectname, "item_cells"))
-							makeentity(placeobjectname, entx, enty, entz, placeobjectminx, placeobjectminy, placeobjectminz, placeobjectmaxx, placeobjectmaxy, placeobjectmaxz, placeobjectrandomangle ? rand() % 360 : 0, ENT_AMMO);
+						if (!strcmp(placeobject->name, "item_shells") || !strcmp(placeobject->name, "item_spikes") || !strcmp(placeobject->name, "item_rockets") || !strcmp(placeobject->name, "item_cells"))
+							makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, ENT_AMMO);
 						else
-							makeentity(placeobjectname, entx, enty, entz, placeobjectminx, placeobjectminy, placeobjectminz, placeobjectmaxx, placeobjectmaxy, placeobjectmaxz, placeobjectrandomangle ? rand() % 360 : 0, 0);
-						i += placeobjectdamage;
+							makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, 0);
+						i += placeobject->damage;
 						break;
 					}
 				}
@@ -807,12 +807,12 @@ void generatelevels()
 				{
 					entx = lhrandom(-192, 193) + x * cellsize - leveldist + (cellsize/2);
 					enty = lhrandom(-192, 193) + y * cellsize - leveldist + (cellsize/2);
-					entz = level * -192 - 128 - placeobjectminz;
-					if (checkbox(entx + placeobjectminx - 1, enty + placeobjectminy - 1, entz + placeobjectminz, entx + placeobjectmaxx + 1, enty + placeobjectmaxy + 1, entz + placeobjectmaxz))
+					entz = level * -192 - 128 - placeobject->minz;
+					if (checkbox(entx + placeobject->minx - 1, enty + placeobject->miny - 1, entz + placeobject->minz, entx + placeobject->maxx + 1, enty + placeobject->maxy + 1, entz + placeobject->maxz))
 					{
 						// found a spot
-						makeentity(placeobjectname, entx, enty, entz, placeobjectminx, placeobjectminy, placeobjectminz, placeobjectmaxx, placeobjectmaxy, placeobjectmaxz, placeobjectrandomangle ? rand() % 360 : 0, 0);
-						i += placeobjecthealth;
+						makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, 0);
+						i += placeobject->health;
 						break;
 					}
 				}
