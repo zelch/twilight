@@ -512,7 +512,6 @@ typedef struct
 objecttype_t;
 
 objecttype_t *placeobject;
-int placeobjects;
 
 objecttype_t monstertypes[] =
 {
@@ -772,7 +771,6 @@ void generatelevels()
 		{
 			pickammotype(level);
 			randomemptyarea(&x, &y, 1, 1, levelsize-1, levelsize-1, 3, 3, level);
-			placeobjects = lhrandom(placeobject->minimum, placeobject->maximum + 1);
 			place = lhrandom(placeobject->minimum, placeobject->maximum + 1);
 			for (j = 0;j < place;j++)
 			{
