@@ -4,16 +4,15 @@
 #include <math.h>
 #include <string.h>
 
+#define NULL ((void *)0)
 #define TRUE 1
 #define FALSE 0
 #define true 1
 #define false 0
 
-long lhrandom(int min, int max)
+double lhrandom(double min, double max)
 {
-	if (max <= min)
-		return min;
-	return ((rand() % (max-min)) + min);
+	return min + (max - min) * ((double)rand() / ((double)RAND_MAX + 1));
 }
 
 char *filename = "dpgen.map";
@@ -59,9 +58,6 @@ typedef enum specialtype
 }
 specialtype_t;
 
-#define ENT_MONSTER 1
-#define ENT_AMMO 2
-
 // very basic entity data
 typedef struct entity
 {
@@ -72,7 +68,8 @@ typedef struct entity
 	int minx, miny, minz, maxx, maxy, maxz; // these are absolute (already adjusted by origin)
 	int angle;
 	int light;
-	int flags;
+	int spawnflags;
+	const char *extrakeys;
 } entity_t;
 
 int maxentities = 0;
@@ -234,7 +231,7 @@ int makelight(char* classname, int x, int y, int z, int light)
 	return TRUE;
 }
 
-int makeentity(char* classname, int ox, int oy, int oz, int minx, int miny, int minz, int maxx, int maxy, int maxz, int angle, int flags)
+int makeentity(char* classname, int ox, int oy, int oz, int minx, int miny, int minz, int maxx, int maxy, int maxz, int angle, int spawnflags, const char *extrakeys)
 {
 	entity_t* e;
 	e = newentity();
@@ -256,7 +253,8 @@ int makeentity(char* classname, int ox, int oy, int oz, int minx, int miny, int 
 		e->maxz = maxz + oz;
 	}
 	e->angle = angle;
-	e->flags = flags;
+	e->spawnflags = spawnflags;
+	e->extrakeys = extrakeys;
 	return TRUE;
 }
 
@@ -508,6 +506,8 @@ typedef struct
 	int health; // for a monster this is how much health they have (used in placing ammo), for a healthbox it is how much it restores
 	int damage; // for a monster this is how much damage they are likely to do to the player (used in placing health/armor), for a ammo box it is how much damage it does
 	int minx, miny, minz, maxx, maxy, maxz;
+	int spawnflags;
+	char *extrakeys;
 }
 objecttype_t;
 
@@ -515,57 +515,75 @@ objecttype_t *placeobject;
 
 objecttype_t monstertypes[] =
 {
-	{"monster_army"					,  4,  8, 5000, 20, true ,   50,    10, -16, -16, -24, 16, 16, 32},
-	{"monster_dog"					,  3,  8, 5000,  0, true ,   25,     4, -16, -16, -24, 16, 16, 32},
-	{"monster_enforcer"				,  3,  6, 5000, 30, true ,   80,    10, -16, -16, -24, 16, 16, 32},
-	{"monster_demon1"				,  3,  6, 5000, 60, true ,  300,     8, -32, -32, -24, 32, 32, 64},
-	{"monster_knight"				,  4,  9, 5000, 40, true ,   75,     4, -16, -16, -24, 16, 16, 32},
-	{"monster_ogre"					,  3,  5, 5000, 50, true ,  200,    15, -32, -32, -24, 32, 32, 64},
-	{"monster_hell_knight"			,  2,  5, 5000, 70, true ,  250,    25, -16, -16, -24, 16, 16, 32},
-	{"monster_wizard"				,  3,  8, 5000, 50, true ,   80,     8, -16, -16, -24, 16, 16, 32},
-	{"monster_zombie"				,  3, 10, 5000, 70, true ,  100,     6, -16, -16, -24, 16, 16, 32},
-	{"monster_shalrath"				,  1,  3, 5000,100, true ,  400,    20, -32, -32, -24, 32, 32, 64},
-	{"monster_tarbaby"				,  6, 10, 5000, 90, true ,   50,    20, -16, -16, -24, 16, 16, 32},
-	{"monster_shambler"				,  1,  1, 5000,100, true ,  600,    60, -32, -32, -24, 32, 32, 64},
-	{"monster_army"					, 12, 24,  500, 40, true ,   50,    10, -16, -16, -24, 16, 16, 32},
-	{"monster_dog"					, 18, 36,  500,  0, true ,   25,     4, -16, -16, -24, 16, 16, 32},
-	{"monster_enforcer"				, 12, 24,  500, 60, true ,   80,    10, -16, -16, -24, 16, 16, 32},
-	{"monster_demon1"				,  9, 18,  500,120, true ,  300,     8, -32, -32, -24, 32, 32, 64},
-	{"monster_knight"				, 12, 27,  500, 80, true ,   75,     4, -16, -16, -24, 16, 16, 32},
-	{"monster_ogre"					,  9, 15,  500,100, true ,  200,    15, -32, -32, -24, 32, 32, 64},
-	{"monster_hell_knight"			,  6, 15,  500,140, true ,  250,    25, -16, -16, -24, 16, 16, 32},
-	{"monster_wizard"				, 15, 24,  500,100, true ,   80,     8, -16, -16, -24, 16, 16, 32},
-	{"monster_zombie"				, 30, 45,  500,140, true ,  100,     6, -16, -16, -24, 16, 16, 32},
-	{"monster_shalrath"				,  6, 12,  500,200, true ,  400,    20, -32, -32, -24, 32, 32, 64},
-	{"monster_tarbaby"				, 18, 30,  500,180, true ,   50,    20, -16, -16, -24, 16, 16, 32},
-	{"monster_shambler"				,  3,  6,  500,200, true ,  600,    60, -32, -32, -24, 32, 32, 64},
+	{"monster_army"					,  4,  8,  87, 20, true ,   50,      6, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_dog"					,  3,  8,  87,  0, true ,   25,      1, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_enforcer"				,  3,  6,  87, 30, true ,   80,     15, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_demon1"				,  3,  6,  87, 60, true ,  300,      8, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_knight"				,  4,  9,  87, 40, true ,   75,      3, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_ogre"					,  3,  5,  87, 50, true ,  200,     10, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_hell_knight"			,  2,  5,  87, 70, true ,  250,     10, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_wizard"				,  3,  8,  87, 50, true ,   80,      4, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_zombie"				,  3, 10,  87, 70, true ,  100,      2, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_shalrath"				,  1,  3,  87,100, true ,  400,     30, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_tarbaby"				,  6, 10,  87, 90, true ,   50,     10, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_shambler"				,  1,  2,  87,100, true ,  600,     30, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_army"					, 12, 24,  10, 20, true ,   50,      6, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_dog"					, 18, 36,  10,  0, true ,   25,      1, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_enforcer"				, 12, 24,  10, 30, true ,   80,     15, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_demon1"				,  9, 18,  10, 60, true ,  300,      8, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_knight"				, 12, 27,  10, 40, true ,   75,      3, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_ogre"					,  9, 15,  10, 50, true ,  200,     10, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_hell_knight"			,  6, 15,  10, 70, true ,  250,     10, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_wizard"				, 15, 24,  10, 50, true ,   80,      4, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_zombie"				, 30, 45,  10, 70, true ,  100,      2, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_shalrath"				,  6, 12,  10,100, true ,  400,     30, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_tarbaby"				, 18, 30,  10, 90, true ,   50,     10, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_shambler"				,  0,  0,  10,100, true ,  600,     30, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_army"					,  3,  3,   1, 20, true ,   50,      6, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_dog"					,  3,  3,   1,  0, true ,   25,      1, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_enforcer"				,  3,  3,   1, 30, true ,   80,     15, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_demon1"				,  3,  3,   1, 60, true ,  300,      8, -32, -32, -24, 32, 32, 64, 64, ""},
+	{"monster_knight"				,  3,  3,   1, 40, true ,   75,      3, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_ogre"					,  3,  3,   1, 50, true ,  200,     10, -32, -32, -24, 32, 32, 64, 64, ""},
+	{"monster_hell_knight"			,  3,  3,   1, 70, true ,  250,     10, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_wizard"				,  3,  3,   1, 50, true ,   80,      4, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_zombie"				,  3,  3,   1, 70, true ,  100,      2, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_shalrath"				,  3,  3,   1,100, true ,  400,     30, -32, -32, -24, 32, 32, 64, 64, ""},
+	{"monster_tarbaby"				,  3,  3,   1, 90, true ,   50,     10, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_shambler"				,  3,  3,   1,100, true ,  600,     30, -32, -32, -24, 32, 32, 64, 64, ""},
 };
 
 objecttype_t ammotypes[] =
 {
-	{"weapon_supershotgun"			,  1,  1, 6000, -1, false,    0,  5* 14, -16, -16,   0, 16, 16, 56},
-	{"weapon_nailgun"				,  1,  1, 4000, -1, false,    0, 30*  8, -16, -16,   0, 16, 16, 56},
-	{"weapon_supernailgun"			,  1,  1, 1200, -1, false,    0, 30*  8, -16, -16,   0, 16, 16, 56},
-	{"weapon_grenadelauncher"		,  1,  1, 1600, -1, false,    0,  5* 90, -16, -16,   0, 16, 16, 56},
-	{"weapon_rocketlauncher"		,  1,  1,  800, -1, false,    0,  5* 90, -16, -16,   0, 16, 16, 56},
-	{"weapon_lightning"				,  1,  1,  400, -1, false,    0, 15* 20, -16, -16,   0, 16, 16, 56},
-	{"item_shells"					,  1,  4,10000, -1, false,    0, 40* 14,   0,   0,   0, 32, 32, 56},
-	{"item_spikes"					,  1,  4, 8000, -1, false,    0, 50*  8,   0,   0,   0, 32, 32, 56},
-	{"item_rockets"					,  1,  4, 6000, -1, false,    0, 10* 90,   0,   0,   0, 32, 32, 56},
-	{"item_cells"					,  1,  4, 4000, -1, false,    0, 12* 20,   0,   0,   0, 32, 32, 56},
-	{"item_artifact_super_damage"	,  1,  1,  100, -1, false,    0,    200, -16, -16, -24, 16, 16, 32},
+	{"weapon_supershotgun"			,  1,  1,   5, -1, false,    0,  5* 14, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"weapon_nailgun"				,  1,  1,   5, -1, false,    0, 30*  8, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"weapon_supernailgun"			,  1,  1,   4, -1, false,    0, 30*  8, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"weapon_grenadelauncher"		,  1,  1,   3, -1, false,    0,  5*100, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"weapon_rocketlauncher"		,  1,  1,   2, -1, false,    0,  5*100, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"weapon_lightning"				,  1,  1,   1, -1, false,    0, 15* 30, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"item_shells"					,  1,  4,  40, -1, false,    0, 20* 14,   0,   0,   0, 32, 32, 56,  0, ""},
+	{"item_spikes"					,  1,  4,  30, -1, false,    0, 25*  8,   0,   0,   0, 32, 32, 56,  0, ""},
+	{"item_rockets"					,  1,  4,  20, -1, false,    0,  5*100,   0,   0,   0, 32, 32, 56,  0, ""},
+	{"item_cells"					,  1,  4,  10, -1, false,    0,  6* 30,   0,   0,   0, 32, 32, 56,  0, ""},
+	{"item_shells"					,  1,  4,  20, -1, false,    0, 40* 14,   0,   0,   0, 32, 32, 56,  1, ""},
+	{"item_spikes"					,  1,  4,  15, -1, false,    0, 50*  8,   0,   0,   0, 32, 32, 56,  1, ""},
+	{"item_rockets"					,  1,  4,  10, -1, false,    0, 10*100,   0,   0,   0, 32, 32, 56,  1, ""},
+	{"item_cells"					,  1,  4,   5, -1, false,    0, 12* 30,   0,   0,   0, 32, 32, 56,  1, ""},
+	{"item_artifact_super_damage"	,  1,  1,   1, -1, false,    0,    200, -16, -16, -24, 16, 16, 32,  1, ""},
 };
 
 objecttype_t healthtypes[] =
 {
-	{"item_health"					,  1,  2, 1000, -1, false,   25,      0,   0,   0,   0, 32, 32, 56},
-	{"item_armor1"					,  1,  1,  100, -1, false,   30,      0, -16, -16,   0, 16, 16, 56},
-	{"item_armor2"					,  1,  1,  150, -1, false,   90,      0, -16, -16,   0, 16, 16, 56},
-	{"item_armorInv"				,  1,  1,  200, -1, false,  160,      0, -16, -16,   0, 16, 16, 56},
-	{"item_artifact_invulnerability",  1,  1,   10, -1, false,  250,      0, -16, -16, -24, 16, 16, 32},
+	{"item_health"					,  1,  2, 100, -1, false,   15,      0,   0,   0,   0, 32, 32, 56,  1, ""},
+	{"item_health"					,  1,  2,  40, -1, false,   25,      0,   0,   0,   0, 32, 32, 56,  0, ""},
+	{"item_health"					,  1,  2,  10, -1, false,  100,      0,   0,   0,   0, 32, 32, 56,  2, ""},
+	{"item_armor1"					,  1,  1, 100, -1, false,   60,      0, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"item_armor2"					,  1,  1,  40, -1, false,  150,      0, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"item_armorInv"				,  1,  1,  10, -1, false,  200,      0, -16, -16,   0, 16, 16, 56,  0, ""},
+	{"item_artifact_invulnerability",  1,  1,   1, -1, false,  250,      0, -16, -16, -24, 16, 16, 32,  0, ""},
 };
 
-int totalobjectchance, objecttypelevel = -1000, objecttypechoices, objectchances[1000];
+double totalobjectchance, objecttypelevel = -1000, objecttypechoices, objectchances[1000];
 objecttype_t *objecttypetypes;
 
 void pickobjecttype(objecttype_t *types, int choices, int level)
@@ -585,7 +603,7 @@ void pickobjecttype(objecttype_t *types, int choices, int level)
 				if (j < 0)
 					j = -j;
 				j += 1;
-				objectchances[i] = types[i].chance / j;
+				objectchances[i] = types[i].chance / (double)j;
 			}
 			else
 			{
@@ -596,7 +614,7 @@ void pickobjecttype(objecttype_t *types, int choices, int level)
 		}
 	}
 	i = 0;
-	r = ((rand() * 32768 + rand()) & 0x7FFFFFFF) % totalobjectchance;
+	r = lhrandom(0, totalobjectchance);
 	while (r >= objectchances[i])
 	{
 		r -= objectchances[i];
@@ -631,13 +649,13 @@ void generatelevels()
 	x = ex * cellsize - leveldist + (cellsize/2);
 	y = ey * cellsize - leveldist + (cellsize/2);
 	z = -128 + 24;
-	makeentity("info_player_start", x, y, z, -16, -16, -24, 16, 16, 32, 0, 0);
-	makeentity("weapon_supershotgun", x + 40, y - 100, z, -16, -16, 0, 16, 16, 56, 0, 0);
-	makeentity("weapon_nailgun", x + 40, y - 60, z, -16, -16, 0, 16, 16, 56, 0, 0);
-	makeentity("weapon_supernailgun", x + 40, y - 20, z, -16, -16, 0, 16, 16, 56, 0, 0);
-	makeentity("weapon_grenadelauncher", x + 40, y + 20, z, -16, -16, 0, 16, 16, 56, 0, 0);
-	makeentity("weapon_rocketlauncher", x + 40, y + 60, z, -16, -16, 0, 16, 16, 56, 0, 0);
-	makeentity("weapon_lightning", x + 40, y + 100, z, -16, -16, 0, 16, 16, 56, 0, 0);
+	makeentity("info_player_start", x, y, z, -16, -16, -24, 16, 16, 32, 0, 0, NULL);
+	makeentity("weapon_supershotgun", x + 40, y - 100, z, -16, -16, 0, 16, 16, 56, 0, 0, NULL);
+	makeentity("weapon_nailgun", x + 40, y - 60, z, -16, -16, 0, 16, 16, 56, 0, 0, NULL);
+	makeentity("weapon_supernailgun", x + 40, y - 20, z, -16, -16, 0, 16, 16, 56, 0, 0, NULL);
+	makeentity("weapon_grenadelauncher", x + 40, y + 20, z, -16, -16, 0, 16, 16, 56, 0, 0, NULL);
+	makeentity("weapon_rocketlauncher", x + 40, y + 60, z, -16, -16, 0, 16, 16, 56, 0, 0, NULL);
+	makeentity("weapon_lightning", x + 40, y + 100, z, -16, -16, 0, 16, 16, 56, 0, 0, NULL);
 	for (level = 0;level < levels;level++)
 	{
 		roomcount = 0;
@@ -748,7 +766,7 @@ void generatelevels()
 					if (checkbox(entx + placeobject->minx - 1, enty + placeobject->miny - 1, entz + placeobject->minz, entx + placeobject->maxx + 1, enty + placeobject->maxy + 1, entz + placeobject->maxz))
 					{
 						// found a spot
-						makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, ENT_MONSTER);
+						makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, placeobject->spawnflags, placeobject->extrakeys);
 						monsterhealth += placeobject->health;
 						monsterdamage += placeobject->damage;
 						i++;
@@ -757,10 +775,8 @@ void generatelevels()
 				}
 			}
 		}
-		monsterhealtharray[level] = (int) (monsterhealth * 1.20); // place 20% more ammo than needed
+		monsterhealtharray[level] = monsterhealth; // how much ammo to place
 		monsterdamagearray[level] = monsterdamage; // how much health to place
-		// place enough ammo to handle those monsters
-		monsterhealth = (int) (monsterhealth * 1.20); // place 20% more ammo than needed
 	}
 	for (level = 0;level < levels;level++)
 	{
@@ -782,10 +798,7 @@ void generatelevels()
 					if (checkbox(entx + placeobject->minx - 1, enty + placeobject->miny - 1, entz + placeobject->minz, entx + placeobject->maxx + 1, enty + placeobject->maxy + 1, entz + placeobject->maxz))
 					{
 						// found a spot
-						if (!strcmp(placeobject->name, "item_shells") || !strcmp(placeobject->name, "item_spikes") || !strcmp(placeobject->name, "item_rockets") || !strcmp(placeobject->name, "item_cells"))
-							makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, ENT_AMMO);
-						else
-							makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, 0);
+						makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, placeobject->spawnflags, placeobject->extrakeys);
 						i += placeobject->damage;
 						break;
 					}
@@ -809,7 +822,7 @@ void generatelevels()
 					if (checkbox(entx + placeobject->minx - 1, enty + placeobject->miny - 1, entz + placeobject->minz, entx + placeobject->maxx + 1, enty + placeobject->maxy + 1, entz + placeobject->maxz))
 					{
 						// found a spot
-						makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, 0);
+						makeentity(placeobject->name, entx, enty, entz, placeobject->minx, placeobject->miny, placeobject->minz, placeobject->maxx, placeobject->maxy, placeobject->maxz, placeobject->randomangle ? rand() % 360 : 0, placeobject->spawnflags, placeobject->extrakeys);
 						i += placeobject->health;
 						break;
 					}
@@ -1139,8 +1152,10 @@ void savemap()
 					map_kvfloat("light", (float) ent->light);
 				if (ent->angle)
 					map_kvfloat("angle", (float) ent->angle);
-				if (ent->flags & ENT_AMMO)
-					map_kvtext("spawnflags", "1"); // big box
+				if (ent->spawnflags)
+					map_kvfloat("spawnflags", (float) ent->spawnflags);
+				if (ent->extrakeys && ent->extrakeys[0])
+					fprintf(outfile, "// extra settings for this entity type\n%s", ent->extrakeys);
 				map_endentity();
 			}
 		}
