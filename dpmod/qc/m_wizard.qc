@@ -38,6 +38,9 @@ float() WizardCheckAttack =
 	local entity targ;
 	local float chance;
 
+	//if (vlen(targ.origin - self.origin) > 5000) // long traces are slow
+	//	return FALSE;
+
 	if (time < self.attack_finished)
 		return FALSE;
 
@@ -374,6 +377,7 @@ void() monster_wizard =
 	self.th_gib = wiz_gib;
 	self.th_sightsound = wizard_sightsound;
 
+	monster_checkbossflag();
 	flymonster_start ();
 	self.candrown = 0;
 	self.radsuit_finished = 99999999; // allow them to travel through slime

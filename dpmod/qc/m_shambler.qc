@@ -94,6 +94,9 @@ float() ShamCheckAttack =
 	local vector spot1, spot2;
 	local entity targ;
 
+	//if (vlen(targ.origin - self.origin) > 5000) // long traces are slow
+	//	return FALSE;
+
 	if (self.health < 1)
 		return FALSE;
 	if (enemy_range == RANGE_MELEE)
@@ -542,6 +545,7 @@ void() monster_shambler =
 
 	sham_spawnglowingclaws();
 
+	monster_checkbossflag();
 	walkmonster_start();
 	self.radsuit_finished = 99999999; // allow them to travel through slime
 };

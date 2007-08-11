@@ -552,6 +552,7 @@ void() monster_enforcer =
 	self.th_gib = enf_gib;
 	self.th_sightsound = enforcer_sightsound;
 
+	monster_checkbossflag();
 	walkmonster_start();
 };
 

@@ -57,20 +57,60 @@ void() shal_run10    =[      $walk11,       shal_run11    ] {ai_run(0);};
 void() shal_run11    =[      $walk12,       shal_run12    ] {ai_run(4);};
 void() shal_run12    =[      $walk1,       shal_run1    ] {ai_run(5);};
 
+void() ShalUpdateTarget =
+{
+	traceline(self.origin + '0 0 10', self.enemy.origin + '0 0 10', FALSE, self);
+	if (trace_ent == self.enemy || trace_fraction < 1)
+		self.dest = self.enemy.origin + '0 0 10';
+};
+
 void() shal_attack1     =[      $attack1,       shal_attack2    ] {
 sound (self, CHAN_VOICE, "shalrath/attack.wav", 1, ATTN_NORM);
 ai_face();
+self.dest = self.enemy.origin + '0 0 10';
 };
-void() shal_attack2     =[      $attack2,       shal_attack3    ] {ai_face();};
+void() shal_attack2     =[      $attack2,       shal_attack3    ] {ai_face();ShalUpdateTarget();};
 void() shal_attack3     =[      $attack3,       shal_attack4    ] {ai_face();};
 void() shal_attack4     =[      $attack4,       shal_attack5    ] {ai_face();};
-void() shal_attack5     =[      $attack5,       shal_attack6    ] {ai_face();};
+void() shal_attack5     =[      $attack5,       shal_attack6    ] {ai_face();ShalUpdateTarget();};
 void() shal_attack6     =[      $attack6,       shal_attack7    ] {monster_setalpha(0.5);ai_face();};
 void() shal_attack7     =[      $attack7,       shal_attack8    ] {monster_setalpha(1.0);ai_face();};
-void() shal_attack8     =[      $attack8,       shal_attack9    ] {monster_setalpha(1.0);ai_face();};
+void() shal_attack8     =[      $attack8,       shal_attack9    ] {monster_setalpha(1.0);ShalUpdateTarget();};
 void() shal_attack9     =[      $attack9,       shal_attack10   ] {monster_setalpha(1.0);ShalMissile();};
 void() shal_attack10    =[      $attack10,      shal_attack11   ] {monster_setalpha(1.0);ai_face();};
 void() shal_attack11    =[      $attack11,      shal_run1   ] {monster_setalpha(0.0);};
+
+void() shal_melee =
+{
+	local vector delta;
+	local float ldmg;
+
+	if (!self.enemy)
+		return;
+
+	ai_charge(10);
+
+	if (!CanDamage (self.enemy, self))
+		return;
+
+	delta = self.enemy.origin - self.origin;
+
+	if (vlen(delta) > 120)
+		return;
+
+	ldmg = DMG_SHALRATH_MELEE_BASE + DMG_SHALRATH_MELEE_RANDOM1 * random();
+	ldmg = ldmg + DMG_SHALRATH_MELEE_RANDOM2 * random();
+	ldmg = ldmg + DMG_SHALRATH_MELEE_RANDOM3 * random();
+	if (self.enemy.classname == "monster_zombie")
+		ldmg = self.enemy.health;
+	T_Damage (self.enemy, self, self, ldmg, ldmg, self.deathtype, DT_CUT, self.origin, '0 0 0', Obituary_Generic);
+};
+
+void() shal_melee1      =[      $attack2,       shal_melee2     ] {ai_face();};
+void() shal_melee2      =[      $attack4,       shal_melee3     ] {monster_setalpha(1.0);ai_face();};
+void() shal_melee3      =[      $attack6,       shal_melee4     ] {monster_setalpha(1.0);ai_face();};
+void() shal_melee4      =[      $attack8,       shal_melee5     ] {monster_setalpha(1.0);shal_melee();};
+void() shal_melee5      =[      $attack10,      shal_run1       ] {monster_setalpha(0.0);ai_face();};
 
 float() shal_missile =
 {
@@ -129,23 +169,28 @@ ShalMissile
 
 void() ShalMissileDie =
 {
-	T_RadiusDamage(self, self.owner, DMG_SHALRATH_MISSILE_DAMAGE, DMG_SHALRATH_MISSILE_FORCE, DMG_SHALRATH_MISSILE_RADIUS, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
+	T_RadiusDamage(self, self.owner, DMG_SHALRATH_MISSILE_DAMAGE, DMG_SHALRATH_MISSILE_FORCE, DMG_SHALRATH_MISSILE_RADIUS, self.owner, self.deathtype, DT_EXPLOSION, Obituary_Generic);
 	BecomeExplosion(self, '0.8 0.5 1', FALSE);
 };
 
 void() ShalHome =
 {
 	local vector dir, vtemp;
-	vtemp = self.enemy.origin + '0 0 10';
-	if (self.enemy.health < 1 || self.enemy.deadflag)
+	self.health = self.health - 0.2;
+	if (self.enemy.health < 1 || self.enemy.deadflag || self.health <= 0)
 	{
 		ShalMissileDie();
 		return;
 	}
-	dir = normalize(vtemp - self.origin);
-	// fast
-	self.velocity = dir * (150 * skill + 400);
-	self.nextthink = time + 0.2;
+	// only home while target is visible
+	vtemp = self.enemy.origin + '0 0 10';
+	traceline(self.origin, vtemp, FALSE, self);
+	if (trace_ent == self.enemy || trace_fraction == 1)
+	{
+		dir = normalize(vtemp - self.origin);
+		self.velocity = self.velocity * 0.875 + dir * (0.125 * self.speed);
+	}
+	self.nextthink = time + 0.1;
 	self.think = ShalHome;
 };
 
@@ -164,12 +209,12 @@ void() ShalMissile =
 	local float dist;
 
 	// don't throw if it is blocked
-	traceline(self.origin + '0 0 10', self.enemy.origin + '0 0 10', FALSE, self);
-	if (trace_ent != self.enemy)
+	traceline(self.origin + '0 0 10', self.dest, FALSE, self);
+	if (trace_ent != self.enemy && trace_fraction < 1)
 		return;
 
-	dir = normalize((self.enemy.origin + '0 0 10') - self.origin);
-	dist = vlen (self.enemy.origin - self.origin);
+	dir = normalize(self.dest - self.origin);
+	dist = vlen (self.dest - self.origin);
 
 	self.effects = self.effects | EF_MUZZLEFLASH;
 	sound (self, CHAN_WEAPON, "shalrath/attack2.wav", 1, ATTN_NORM);
@@ -185,7 +230,8 @@ void() ShalMissile =
 	//setsize (newmis, '-16 -16 -16', '16 16 16');
 	setsize(newmis, '-1 -1 -1', '1 1 1');
 	setorigin(newmis, self.origin + '0 0 10');
-	newmis.velocity = dir * 400;
+	newmis.speed = 150 * skill + 300;
+	newmis.velocity = dir * newmis.speed * 2;
 	newmis.avelocity = '300 300 300';
 	newmis.nextthink = time;
 	newmis.think = ShalHome;
@@ -194,10 +240,48 @@ void() ShalMissile =
 	newmis.deathtype = self.deathtype;
 	newmis.glow_color = 144;
 	newmis.glow_size = 200;
-	newmis.health = 50;
+	newmis.health = 2 * (3 + ceil(dist / newmis.speed));
 	newmis.takedamage = DAMAGE_YES;
 	newmis.th_die = ShalMissileDie;
 	newmis.havocattack = TRUE;
+};
+
+float() ShalrathCheckAttack =
+{
+	local vector spot1, spot2;
+	local entity targ;
+
+	if (self.health < 1)
+		return FALSE;
+	targ = self.enemy;
+
+	//if (vlen(targ.origin - self.origin) > 5000) // long traces are slow
+	//	return FALSE;
+
+// see if any entities are in the way of the shot
+	spot1 = self.origin + '0 0 10';
+	spot2 = targ.origin + '0 0 10';
+
+	traceline (spot1, spot2, FALSE, self);
+
+	if (trace_ent != targ && trace_fraction < 1)
+		return FALSE; // don't have a clear shot
+
+	//if (trace_inopen && trace_inwater)
+	//	return FALSE; // sight line crossed contents
+
+// missile attack
+	if (time < self.attack_finished)
+		return FALSE;
+
+	if (random () < 0.2)
+	if (self.th_missile ())
+	{
+		SUB_AttackFinished (2*random());
+		return TRUE;
+	}
+
+	return FALSE;
 };
 
 void() shalrath_sightsound =
@@ -256,11 +340,13 @@ void() monster_shalrath =
 	self.th_run = shal_run1;
 	self.th_die = shalrath_die;
 	self.th_pain = shalrath_pain;
-	self.th_checkattack = GenericCheckAttack;
+	self.th_checkattack = ShalrathCheckAttack;
 	self.th_missile = shal_missile;
+	self.th_melee = shal_melee1;
 	self.th_gib = shal_gib;
 	self.th_sightsound = shalrath_sightsound;
 
+	monster_checkbossflag();
 	walkmonster_start();
 	self.radsuit_finished = 99999999; // allow them to travel through slime
 };

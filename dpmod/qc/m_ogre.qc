@@ -66,6 +66,9 @@ Returns FALSE if movement should continue
 */
 float() OgreCheckAttack =
 {
+	if (vlen(self.enemy.origin - self.origin) > 2000) // long traces are slow
+		return FALSE;
+
 	if (self.health < 1)
 		return FALSE;
 	if (enemy_range == RANGE_MELEE)
@@ -510,6 +513,7 @@ void() monster_ogre =
 	self.th_gib = ogre_gib;
 	self.th_sightsound = ogre_sightsound;
 
+	monster_checkbossflag();
 	walkmonster_start();
 };
 

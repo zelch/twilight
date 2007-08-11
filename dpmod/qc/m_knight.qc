@@ -301,6 +301,7 @@ void() monster_knight =
 	self.th_gib = knight_gib;
 	self.th_sightsound = knight_sightsound;
 
+	monster_checkbossflag();
 	walkmonster_start ();
 };
 

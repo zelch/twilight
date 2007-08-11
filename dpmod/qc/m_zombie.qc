@@ -661,6 +661,7 @@ void() monster_zombie =
 	self.th_missile = zombie_missile;
 	self.th_sightsound = zombie_sightsound;
 
+	monster_checkbossflag();
 	walkmonster_start();
 	self.candrown = 0;
 	self.radsuit_finished = 99999999; // allow them to travel through slime

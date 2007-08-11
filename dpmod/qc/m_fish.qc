@@ -244,6 +244,7 @@ void() monster_fish =
 	self.th_melee = f_attack1;
 	self.th_gib = fish_gib;
 
+	monster_checkbossflag();
 	swimmonster_start ();
 	self.radsuit_finished = 99999999; // allow them to travel through slime
 };
@@ -289,6 +290,7 @@ void() monster_hellfish =
 	self.th_melee = f_attack1;
 	self.th_gib = fish_gib;
 
+	monster_checkbossflag();
 	flymonster_start ();
 	self.radsuit_finished = 99999999; // allow them to travel through slime
 };

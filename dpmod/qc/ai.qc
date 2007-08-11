@@ -189,6 +189,30 @@ void() monster_spawnwanderpath =
 	self.goalentity = self.movetarget = newmis;
 };
 
+void() monster_checkbossflag =
+{
+	local float healthboost;
+	if ((self.spawnflags & 64) || (random() * random() * skill >= 2.8))
+	{
+		self.radsuit_finished = time + 1000000000;
+		self.super_damage_finished = time + 1000000000;
+		healthboost = 200 + self.health * 3;
+		self.health = self.health + healthboost;
+		self.max_health = self.health;
+		self.bodyhealth = self.bodyhealth + healthboost;
+		if (self.healthregen < 50)
+			self.healthregen = 50;
+		do
+		{
+			self.colormod_x = random();
+			self.colormod_y = random();
+			self.colormod_z = random();
+			self.colormod =  normalize(self.colormod);
+		}
+		while (self.colormod_x > 0.6 && self.colormod_y > 0.6 && self.colormod_z > 0.6);
+		self.effects = self.effects | (EF_FULLBRIGHT | EF_BLUE);
+	}
+};
 
 
 //============================================================================
@@ -226,7 +250,7 @@ returns 1 if the entity is visible to self, even if not infront ()
 */
 float (entity targ) visible =
 {
-	if (vlen(targ.origin - self.origin) > 1000) // long traces are slow
+	if (vlen(targ.origin - self.origin) > 5000) // long traces are slow
 		return FALSE;
 
 	traceline ((self.origin + self.view_ofs), (targ.origin + targ.view_ofs), TRUE, self);   // see through other monsters
@@ -814,12 +838,11 @@ void(float dist) ai_run =
 		return;
 	}
 
+	if (self.th_checkattack())
+		return;					// beginning an attack
+
 	if (visible(self.enemy))
-	{
 		self.search_time = time + 5;
-		if (self.th_checkattack())
-			return;					// beginning an attack
-	}
 	else if (coop)
 	{
 		// look for other coop players

@@ -260,23 +260,6 @@ void() dog_die =
 
 /*
 ==============
-CheckDogMelee
-
-Returns TRUE if a melee attack would hit right now
-==============
-*/
-float() CheckDogMelee =
-{
-	if (enemy_range == RANGE_MELEE)
-	{	// FIXME: check canreach
-		self.attack_state = AS_MELEE;
-		return TRUE;
-	}
-	return FALSE;
-};
-
-/*
-==============
 CheckDogJump
 
 ==============
@@ -317,9 +300,12 @@ float() CheckDogJump =
 
 float() DogCheckAttack =
 {
+	if (vlen(self.enemy.origin - self.origin) > 500) // long traces are slow
+		return FALSE;
+
 // if close enough for slashing, go for it
-	if (CheckDogMelee ())
-	{
+	if (enemy_range == RANGE_MELEE)
+	{	// FIXME: check canreach
 		self.attack_state = AS_MELEE;
 		return TRUE;
 	}
@@ -399,6 +385,7 @@ void() monster_dog =
 	self.th_gib = dog_gib;
 	self.th_sightsound = dog_sightsound;
 
+	monster_checkbossflag();
 	walkmonster_start();
 };
 

@@ -185,23 +185,6 @@ DEMON
 
 /*
 ==============
-CheckDemonMelee
-
-Returns TRUE if a melee attack would hit right now
-==============
-*/
-float() CheckDemonMelee =
-{
-	if (enemy_range == RANGE_MELEE)
-	{	// FIXME: check canreach
-		self.attack_state = AS_MELEE;
-		return TRUE;
-	}
-	return FALSE;
-};
-
-/*
-==============
 CheckDemonJump
 
 ==============
@@ -256,9 +239,12 @@ float() demon1_missile =
 
 float() DemonCheckAttack =
 {
+	if (vlen(self.enemy.origin - self.origin) > 1000) // long traces are slow
+		return FALSE;
+
 // if close enough for slashing, go for it
-	if (CheckDemonMelee ())
-	{
+	if (enemy_range == RANGE_MELEE)
+	{	// FIXME: check canreach
 		self.attack_state = AS_MELEE;
 		return TRUE;
 	}
@@ -413,6 +399,7 @@ void() monster_demon1 =
 	self.th_gib = demon_gib;
 	self.th_sightsound = demon1_sightsound;
 
+	monster_checkbossflag();
 	walkmonster_start();
 };
 

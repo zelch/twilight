@@ -277,6 +277,7 @@ void() monster_tarbaby =
 	self.th_die = tbaby_die1;
 	self.th_sightsound = tarbaby_sightsound;
 
+	monster_checkbossflag();
 	walkmonster_start ();
 	self.candrown = 0;
 	self.radsuit_finished = 99999999; // allow them to travel through slime
