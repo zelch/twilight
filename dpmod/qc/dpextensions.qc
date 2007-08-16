@@ -995,6 +995,16 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //The first parameter provides the entities original contents, prior to the transition.  The second parameter provides the new contents.
 //NOTE: If this field function is provided on an entity, the standard watersplash sound IS SUPPRESSED to allow for authors to create their own transition sounds.
 
+//DP_SV_ONENTITYNOSPAWNFUNCTION
+//idea: Dresk
+//darkplaces implementation: Dresk
+//engine-called QC prototypes:
+//void() SV_OnEntityNoSpawnFunction;
+//description:
+// This function is called whenever an entity on the server has no spawn function, and therefore has no defined QC behavior.
+// You may as such dictate the behavior as to what happens to the entity.
+// To mimic the engine's default behavior, simply call remove(self).
+
 //DP_SV_MODELFLAGS_AS_EFFECTS
 //idea: LordHavoc, Dresk
 //darkplaces implementation: LordHavoc
