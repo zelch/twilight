@@ -192,7 +192,9 @@ void() monster_spawnwanderpath =
 void() monster_checkbossflag =
 {
 	local float healthboost;
-	if ((self.spawnflags & 64) || (random() * random() * skill >= 2.8))
+	// use the first line if you want to have random boss monsters on nightmare and higher difficulties
+	//if ((self.spawnflags & 64) || (random() * random() * skill >= 2.8))
+	if (self.spawnflags & 64)
 	{
 		self.radsuit_finished = time + 1000000000;
 		self.super_damage_finished = time + 1000000000;
