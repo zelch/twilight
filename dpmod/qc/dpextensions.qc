@@ -995,6 +995,15 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //The first parameter provides the entities original contents, prior to the transition.  The second parameter provides the new contents.
 //NOTE: If this field function is provided on an entity, the standard watersplash sound IS SUPPRESSED to allow for authors to create their own transition sounds.
 
+//DP_SV_POINTSOUND
+//idea: Dresk
+//darkplaces implementation: Dresk
+//builtin definitions:
+void(vector origin, string sample, float volume, float attenuation) pointsound = #483;
+//description:
+//Similar to the standard QC sound function, this function takes an origin instead of an entity and omits the channel parameter.
+// This allows sounds to be played at arbitrary origins without spawning entities.
+
 //DP_SV_ONENTITYNOSPAWNFUNCTION
 //idea: Dresk
 //darkplaces implementation: Dresk
