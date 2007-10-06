@@ -1557,3 +1557,24 @@ string(string info, string key) infoget = #227;
 float(string s1, string s2, float len) strncmp = #228;
 float(string s1, string s2) strcasecmp = #229;
 float(string s1, string s2, float len) strncasecmp = #230;
+
+//DP_CON_BESTWEAPON
+//idea: many
+//darkplaces implementation: div0
+//description:
+//allows QC to register weapon properties for use by the bestweapon command, for mods that change required ammo count or type for the weapons
+//it is done using console commands sent via stuffcmd:
+//  register_bestweapon quake
+//  register_bestweapon clear
+//  register_bestweapon <shortname> <impulse> <itemcode> <activeweaponcode> <ammostat> <ammomin>
+//for example, this is what Quake uses:
+//  register_bestweapon 1 1 4096 4096 6 0 // STAT_SHELLS is 6
+//  register_bestweapon 2 2    1    1 6 1
+//  register_bestweapon 3 3    2    2 6 1
+//  register_bestweapon 4 4    4    4 7 1 // STAT_NAILS is 7
+//  register_bestweapon 5 5    8    8 7 1
+//  register_bestweapon 6 6   16   16 8 1 // STAT_ROCKETS is 8
+//  register_bestweapon 7 7   32   32 8 1
+//  register_bestweapon 8 8   64   64 9 1 // STAT_CELLS is 9
+//after each map client initialization, this is reset back to Quake settings. So you should send these data in ClientConnect.
+//also, this extension introduces a new "cycleweapon" command to the user.
