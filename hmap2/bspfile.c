@@ -469,7 +469,7 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 	// allocate as much memory is needed for the buffer -- sorry about this! Please do something about this!
 		if (ismcbsp)
-			bspsize = 5+4+4+hullinfo.numhulls*24;
+			bspsize = 8+4+4+(hullinfo.numhulls-1)*24;
 		else
 			bspsize = 4;
 		bspsize += sizeof(lumps)+20*numplanes+(24+NUM_AMBIENTS)*numleafs+12*numvertexes;
