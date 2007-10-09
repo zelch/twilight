@@ -1578,3 +1578,13 @@ float(string s1, string s2, float len) strncasecmp = #230;
 //  register_bestweapon 8 8   64   64 9 1 // STAT_CELLS is 9
 //after each map client initialization, this is reset back to Quake settings. So you should send these data in ClientConnect.
 //also, this extension introduces a new "cycleweapon" command to the user.
+
+//DP_QC_STRREPLACE
+//idea: Sajt
+//darkplaces implementation: Sajt
+//builtin definitions:
+string(string search, string replace, string subject) strreplace = #484;
+string(string search, string replace, string subject) strireplace = #485;
+//description:
+//strreplace replaces all occurrences of 'search' with 'replace' in the string 'subject', and returns the result as a tempstring.
+//strireplace does the same but uses case-insensitive matching of the 'search' term
