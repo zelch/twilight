@@ -12,8 +12,8 @@ else
 CMD_RM=rm -f
 endif
 
-WIN32_EXES=modeltool.exe makesp2.exe
-UNIX_EXES=modeltool makesp2
+WIN32_EXES=modeltool.exe makesp2.exe dumpiff.exe
+UNIX_EXES=modeltool makesp2 dumpiff
 
 ##### Commands #####
 
@@ -42,6 +42,12 @@ makesp2.exe: makesp2.o $(COMMON)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 makesp2: makesp2.o $(COMMON)
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+
+dumpiff.exe: dumpiff.o $(COMMON)
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+
+dumpiff: dumpiff.o $(COMMON)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 clean:
