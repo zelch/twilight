@@ -694,7 +694,7 @@ float() hknight_missile =
 			hknight_mtype = 3;
 			if (self.health >= 100)
 			if (vlen(self.enemy.origin - self.origin) >= 400)
-			if (findtrajectorywithleading(self.origin, self.mins, self.maxs, self.enemy, 1000, 10, 0, self))
+			if (findtrajectorywithleading(self.origin, self.mins, self.maxs, self.enemy, 1000, 0, 10, 0, self))
 			{
 				self.velocity = findtrajectory_velocity;
 				T_Damage(self, self, self, 25, 25, "JUMP", DT_FALL, self.origin, '0 0 0', Obituary_Generic);

@@ -767,7 +767,7 @@ float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxt
 
 // returns TRUE if it was able to calculate a trajectory which would hit,
 // FALSE if not
-float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxtime, float shotdelay, entity ignore) findtrajectorywithleading =
+float(vector org, vector m1, vector m2, entity targ, float shotspeed, float shotupspeed, float maxtime, float shotdelay, entity ignore) findtrajectorywithleading =
 {
 	local float c, savesolid, shottime;
 	local vector dir, end, v;
@@ -810,7 +810,7 @@ float(vector org, vector m1, vector m2, entity targ, float shotspeed, float maxt
 	while (c < 10) // 10 traces
 	{
 		setorigin(tracetossent, org); // reset
-		tracetossent.velocity = findtrajectory_velocity = normalize(dir) * shotspeed;
+		tracetossent.velocity = findtrajectory_velocity = normalize(dir) * shotspeed + '0 0 1' * shotupspeed;
 		tracetoss(tracetossent, ignore); // love builtin functions...
 		if (trace_ent == tracetossfaketarget) // done
 		{

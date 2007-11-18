@@ -27,27 +27,27 @@ void(vector muzzleorg, float kickback) w_muzzleflash =
 	self.punchangle_z = 0; // don't want roll
 };
 
-float(entity e) w_shouldattack =
+float(entity e) w_canattack =
 {
 	if (!e.takedamage)
-		return FALSE;
+		return 0;
 	if (e.team == self.team)
 	{
 		if (teamplay)
-			return FALSE;
+			return -1;
 		if (e == self)
-			return FALSE;
+			return -1;
 	}
 	if (coop)
 	if (e.classname == self.classname)
-		return FALSE;
+		return -1;
 	if (e.health <= 0)
-		return FALSE;
+		return 0;
 	if (e.deadflag)
-		return FALSE;
+		return 0;
 	if (e.flags & FL_NOTARGET)
-		return FALSE;
-	return TRUE;
+		return -1;
+	return 1;
 };
 
 .float painintensity;
@@ -56,10 +56,14 @@ float(entity e) w_shouldattack =
 .vector aimtargorigin;
 .vector aimtargvelocity;
 .float firetimer;
+.vector bot_anglemotion;
 float(vector v, float maxfiredeviation) w_aimdir =
 {
-	local float dist;
 	local vector desiredang, diffang;
+
+	///////////////////////////////////
+	// setup
+	///////////////////////////////////
 
 	// make sure v_angle is sane first
 	//while (self.v_angle_x < -180) self.v_angle_x = self.v_angle_x + 360;
@@ -76,48 +80,60 @@ float(vector v, float maxfiredeviation) w_aimdir =
 	if (desiredang_x >= 180)
 		desiredang_x = desiredang_x - 360;
 
-	// pain throws off aim
-	if (self.painintensity)
-	{
-		// shake from pain
-		desiredang = desiredang + randomvec() * self.painintensity * 0.2;
-	}
 
-	// calculate turn angles
+
+	///////////////////////////////////
+	// motion tracking
+	///////////////////////////////////
+
+	// calculate needed motion to aim this direction
 	diffang = desiredang - self.v_angle;
 
-	// wrap yaw turn
+	// wrap yaw difference to make sure we don't have any silly +/- 180 degree values on yaw
 	while (diffang_y < -180)
 		diffang_y = diffang_y + 360;
 	while (diffang_y >  180)
 		diffang_y = diffang_y - 360;
 
-	// jitter tracking
-	dist = vlen(diffang);
-	//diffang = diffang + randomvec() * (dist * 0.05 * (3.5 - bound(0, skill, 3)));
+	// pain throws off aim
+	if (self.painintensity)
+	{
+		diffang = diffang + randomvec() * self.painintensity * 0.2;
+		diffang_z = 0;
+	}
 
-	// turn
-	self.v_angle = self.v_angle + diffang * min(1, (6 * (skill + 1)) * frametime);
+	// adjust motion tracking toward this new ideal motion
+	diffang = diffang * (1.0 / frametime) - self.bot_anglemotion;
+	self.bot_anglemotion = self.bot_anglemotion + diffang * bound(frametime, (4 + skill * 2) * frametime, 1);
+
+	// apply current motion tracking
+	self.v_angle = self.v_angle + self.bot_anglemotion * frametime;
+
+	// wrap yaw aiming angle
 	while (self.v_angle_y < -180)
 		self.v_angle_y = self.v_angle_y + 360;
 	while (self.v_angle_y >= 180)
 		self.v_angle_y = self.v_angle_y - 360;
 
+
+
+	///////////////////////////////////
+	// decide whether to fire
+	///////////////////////////////////
+
 	// since v_angle changed, we need to call W_SetupShot again
 	W_SetupShot();
 
-	// calculate turn angles again
-	diffang = desiredang - self.v_angle;
-	while (diffang_y < -180)
-		diffang_y = diffang_y + 360;
-	while (diffang_y >  180)
-		diffang_y = diffang_y - 360;
+	if (maxfiredeviation > 0)
+	{
+		//bprint("e ");bprintfloat(vlen(diffang));bprint(" < ");bprintfloat(maxfiredeviation);bprint("\n");
 
-	//bprint("e ");bprintvector(diffang);bprint(" < ");bprintfloat(maxfiredeviation);bprint("\n");
+		// decide whether to fire this time
+		if (vlen(diffang) < maxfiredeviation)
+			self.firetimer = time + 0.3;
+	}
 
-	// decide whether to fire this time
-	if (vlen(diffang) < maxfiredeviation)
-		self.firetimer = time + 0.3;
+	// tell caller if it's a good time to fire
 	return time < self.firetimer;
 };
 
@@ -126,26 +142,29 @@ vector(vector targorigin, vector targvelocity, float shotspeed, float shotdelay)
 	return targorigin + targvelocity * (shotdelay + vlen(targorigin - shotorg) / shotspeed);
 };
 
-float(float shotspeed, float maxshottime, float applygravity) w_aim =
+float(float shotspeed, float shotupspeed, float maxshottime, float applygravity, float spreaddev) w_aim =
 {
-	local float f, r;
+	local float f, r, maxdev;
 	local vector v;
 	W_SetupShot();
 	v = w_shotlead(self.aimtargorigin, self.aimtargvelocity, shotspeed, self.aimlatency);
 	r = vlen(v - shotorg);
+	// calculate maxdev (the maximum degrees per second of motion tracking error that will still cause shots to be fired)
+	maxdev = bound(0.5, 3 - skill, 3) * spreaddev * 20;
 	if (applygravity)
 	{
-		if (!findtrajectorywithleading(shotorg, '0 0 0', '0 0 0', self.aimtarg, shotspeed, maxshottime, 0, self))
+		if (!findtrajectorywithleading(shotorg, '0 0 0', '0 0 0', self.aimtarg, shotspeed, shotupspeed, maxshottime, 0, self))
 			return FALSE;
-		f = w_aimdir(findtrajectory_velocity, min(10, 720 / r));
+		f = w_aimdir(findtrajectory_velocity - shotupspeed * '0 0 1', maxdev);
 	}
 	else
 	{
-		f = w_aimdir(v - shotorg, min(10, 720 / r));
+		f = w_aimdir(v - shotorg, maxdev);
 		//dprint("AIM: ");dprint(vtos(self.aimtargorigin));dprint(" + ");dprint(vtos(self.aimtargvelocity));dprint(" * ");dprint(ftos(self.aimlatency + vlen(self.aimtargorigin - shotorg) / shotspeed));dprint(" = ");dprint(vtos(v));dprint(" : aimdir = ");dprint(vtos(normalize(v - shotorg)));dprint(" : ");dprint(vtos(shotdir));dprint("\n");
+		// don't fire a shot if it would hit something friendly
 		traceline(shotorg, shotorg + shotdir * 10000, FALSE, self);
 		if (trace_fraction < 1)
-		if (!w_shouldattack(trace_ent))
+		if (w_canattack(trace_ent) < 0)
 			return FALSE;
 	}
 	if (r > maxshottime * shotspeed)
@@ -557,8 +576,8 @@ float GRENADELAUNCHER_REFIRE = 0.6;
 float ROCKETLAUNCHER_REFIRE = 0.8;
 float ROCKETLAUNCHER_LOADTIME = 0.2;
 float ROCKETLAUNCHER_MAXLOAD = 2;
-float ROCKETLAUNCHER_VELOCITY = 3000;
-float ROCKETLAUNCHER_MULTI_VELOCITY = 3000;
+float ROCKETLAUNCHER_VELOCITY = 2000;
+float ROCKETLAUNCHER_MULTI_VELOCITY = 2000;
 float THUNDERBOLT_AMMO = 0.5;
 float THUNDERBOLT_REFIRE = 0.05;
 float PLASMARIFLE_NORMAL_AMMO = 1;
@@ -583,7 +602,8 @@ float PLASMAWAVE_WAVE_REFIRE = 2;
 float PLASMAWAVE_WAVE_BURNRADIUS = 120;
 float PLASMAWAVE_WAVE_SPREADANGLEPERSHOT = 6;
 float PLASMAWAVE_WAVE_SPEED = 400;
-float LASERRIFLE_REFIRE = 0.2;
+float LASERRIFLE_DAMAGEMULTIPLIER = 1.5;
+float LASERRIFLE_REFIRE = 0.3;
 
 void(entity targ, entity attacker, string dmsg, float dtype) Obituary_Axe =
 {
@@ -646,7 +666,7 @@ float(float request) w_axe =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(10000, 1, FALSE);
+		self.button0 = w_aim(10000, 0, 1, FALSE, 5);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -752,7 +772,7 @@ float(float request) w_shotgun =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(10000, 1, FALSE);
+		self.button0 = w_aim(10000, 0, 1, FALSE, 1);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -868,7 +888,7 @@ float(float request) w_dbshotgun =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(10000, 1, FALSE);
+		self.button0 = w_aim(10000, 0, 1, FALSE, 2);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1018,7 +1038,7 @@ float(float request) w_nailgun =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(10000, 1, FALSE);
+		self.button0 = w_aim(10000, 0, 1, FALSE, 3);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1197,7 +1217,7 @@ float(float request) w_supernailgun =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(10000, 1, FALSE);
+		self.button0 = w_aim(10000, 0, 1, FALSE, 4);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1280,7 +1300,7 @@ float(float request) w_grenadelauncher =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(1000, 2, TRUE);
+		self.button0 = w_aim(1000, 200, 2, TRUE, 2);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1362,7 +1382,7 @@ float(float request) w_rocketlauncher =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(ROCKETLAUNCHER_VELOCITY, 1, FALSE);
+		self.button0 = w_aim(ROCKETLAUNCHER_VELOCITY, 0, 1, FALSE, 1);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1507,7 +1527,7 @@ float(float request) w_plasmarifle =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(10000, 1, FALSE);
+		self.button0 = w_aim(10000, 0, 1, FALSE, 3);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1682,7 +1702,7 @@ float(float request) w_thunderbolt =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(100000, 1, FALSE);
+		self.button0 = w_aim(100000, 0, 1, FALSE, 3);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1813,9 +1833,9 @@ float(float request) w_plasmawave =
 	if (request == WR_AIM)
 	{
 		if (random() < 0.2)
-			self.button3 = w_aim(PLASMAWAVE_WAVE_SPEED, 1, FALSE);
+			self.button3 = w_aim(PLASMAWAVE_WAVE_SPEED, 0, 1, FALSE, 10);
 		else
-			self.button0 = w_aim(PLASMAWAVE_SINGLE_SPEED, 1, FALSE);
+			self.button0 = w_aim(PLASMAWAVE_SINGLE_SPEED, 0, 1, FALSE, 10);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1904,7 +1924,7 @@ float(float request) w_laserrifle =
 	}
 	if (request == WR_AIM)
 	{
-		self.button0 = w_aim(10000, 1, FALSE);
+		self.button0 = w_aim(10000, 0, 1, FALSE, 1);
 		return TRUE;
 	}
 	if (request != WR_FRAME)
@@ -1924,7 +1944,7 @@ float(float request) w_laserrifle =
 			sound(self, CHAN_WEAPON, "enforcer/enfire.wav", 1, ATTN_NORM);
 			Inventory_AdjustQuantity(self, "cells", -1);
 			w_muzzleflash(shotorg, 0.5);
-			LaunchLaser(self, shotorg, shotdir * 10000, AMMO_CELL_DAMAGE, "LASERRIFLE", Obituary_LaserRifle);
+			LaunchLaser(self, shotorg, shotdir * 10000, AMMO_CELL_DAMAGE * LASERRIFLE_DAMAGEMULTIPLIER, "LASERRIFLE", Obituary_LaserRifle);
 			wsetanim(WANIM_FIRE1, 1, 0, LASERRIFLE_REFIRE);
 			// update the player animation
 			player_shot1();

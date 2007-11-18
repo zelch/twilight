@@ -1228,7 +1228,7 @@ void() havocbot_chooseenemy =
 	{
 		rating = vlen((head.absmin + head.absmax) * 0.5 - (self.origin + self.view_ofs));
 		if (bestrating > rating)
-		if (w_shouldattack(head))
+		if (w_canattack(head) > 0)
 		{
 			traceline(self.origin + self.view_ofs, (head.absmin + head.absmax) * 0.5, FALSE, self);
 			if (trace_ent == head || trace_fraction >= 1)

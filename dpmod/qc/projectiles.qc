@@ -674,12 +674,12 @@ void() MissileTouch =
 
 void() MissileThink =
 {
-	local float p, deltatime;
-	local vector neworg;
-
 	self.nextthink = time;
 	fightdone = time + 1; // delay stuff until fighting is over
 
+/*
+	local float deltatime;
+	local vector neworg;
 	deltatime = (time - self.weapon);
 	if (deltatime < 1)
 		deltatime = deltatime * deltatime;
@@ -690,11 +690,18 @@ void() MissileThink =
 	tracebox(self.origin, self.mins, self.maxs, neworg, FALSE, self);
 
 	setorigin(self, trace_endpos);
+	if (trace_fraction < 1 && trace_ent != self.owner)
+	{
+		self.th_gib();
+		return;
+	}
+*/
 
+	local float p;
 	p = pointcontents(self.origin);
 	if (p == CONTENT_SKY)
 		remove(self);
-	else if (time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA || (trace_fraction < 1 && trace_ent != self.owner) || (time < self.owner.detonatetimeout))
+	else if (time > self.cnt || p == CONTENT_SOLID || p == CONTENT_LAVA || (time < self.owner.detonatetimeout))
 		self.th_gib();
 };
 

@@ -89,7 +89,7 @@ float() OgreCheckAttack =
 		return FALSE;
 
 	// see if any entities are in the way of the shot
-	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 800, 2.5, 0, self))
+	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 800, 0, 2.5, 0, self))
 		return FALSE;
 
 	self.attack_state = AS_MISSILE;
@@ -124,7 +124,7 @@ float() OgreFireGrenade =
 	local vector v;
 	if (Inventory_Quantity(self, "rockets") < 1)
 		return FALSE;
-	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 800, 2.5, 0, self))
+	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 800, 0, 2.5, 0, self))
 		return FALSE;
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
@@ -278,7 +278,7 @@ void() ogre_gren7	=[	$shoot6,	ogre_run1	] {monster_setalpha(0.0);ai_face();};
 
 float() ogre_missile =
 {
-	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 1000, 5, 0, self))
+	if (!findtrajectorywithleading(self.origin, '0 0 0', '0 0 0', self.enemy, 1000, 0, 5, 0, self))
 		return FALSE;
 	ogre_gren1();
 	return TRUE;

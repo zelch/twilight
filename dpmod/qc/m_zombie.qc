@@ -180,7 +180,7 @@ void(vector st) ZombieFireGrenade =
 
 	makevectors (self.angles);
 	org = self.origin + st_x * v_forward + st_y * v_right + (st_z - 24) * v_up;
-	if (!findtrajectorywithleading(org, '0 0 0', '0 0 0', self.enemy, 800, 2.5, 0, self))
+	if (!findtrajectorywithleading(org, '0 0 0', '0 0 0', self.enemy, 800, 0, 2.5, 0, self))
 		return;
 	/*
 	self.dest = monster_shotlead(0, 600);
@@ -228,7 +228,7 @@ float(vector st) ZombieTestFireGrenade =
 
 	makevectors (self.angles);
 	org = self.origin + st_x * v_forward + st_y * v_right + (st_z - 24) * v_up;
-	return findtrajectorywithleading(org, '0 0 0', '0 0 0', self.enemy, 800, 2.5, 0, self);
+	return findtrajectorywithleading(org, '0 0 0', '0 0 0', self.enemy, 800, 0, 2.5, 0, self);
 };
 
 
