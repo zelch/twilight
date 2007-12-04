@@ -487,7 +487,9 @@ int makerooms(int level, int ox1, int oy1, int ox2, int oy2)
 			c += makerooms(level, nx1, ny1, nx2, ny2); // add in how many were made
 			x = lhrandom(nx1+1, nx2-1);
 			y = lhrandom(ny1+1, ny2-1);
-			if ((rand() & 3) < 1)
+			if (level == 0)
+				;
+			else if ((rand() & 3) < 1)
 				setspecial(x, y, level, special_torchstand);
 			else
 				setspecial(x, y, level, special_elderceilinglight);
@@ -515,42 +517,42 @@ objecttype_t *placeobject;
 
 objecttype_t monstertypes[] =
 {
-	{"monster_army"					,  4,  8,  87, 20, true ,   50,      6, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_dog"					,  3,  8,  87,  0, true ,   25,      1, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_enforcer"				,  3,  6,  87, 30, true ,   80,     15, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_demon1"				,  3,  6,  87, 60, true ,  300,      8, -32, -32, -24, 32, 32, 64,  0, ""},
-	{"monster_knight"				,  4,  9,  87, 40, true ,   75,      3, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_ogre"					,  3,  5,  87, 50, true ,  200,     10, -32, -32, -24, 32, 32, 64,  0, ""},
-	{"monster_hell_knight"			,  2,  5,  87, 70, true ,  250,     10, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_wizard"				,  3,  8,  87, 50, true ,   80,      4, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_zombie"				,  3, 10,  87, 70, true ,  100,      2, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_shalrath"				,  1,  3,  87,100, true ,  400,     30, -32, -32, -24, 32, 32, 64,  0, ""},
-	{"monster_tarbaby"				,  6, 10,  87, 90, true ,   50,     10, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_shambler"				,  1,  2,  87,100, true ,  600,     30, -32, -32, -24, 32, 32, 64,  0, ""},
-	{"monster_army"					, 12, 24,  10, 20, true ,   50,      6, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_dog"					, 18, 36,  10,  0, true ,   25,      1, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_enforcer"				, 12, 24,  10, 30, true ,   80,     15, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_demon1"				,  9, 18,  10, 60, true ,  300,      8, -32, -32, -24, 32, 32, 64,  0, ""},
-	{"monster_knight"				, 12, 27,  10, 40, true ,   75,      3, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_ogre"					,  9, 15,  10, 50, true ,  200,     10, -32, -32, -24, 32, 32, 64,  0, ""},
-	{"monster_hell_knight"			,  6, 15,  10, 70, true ,  250,     10, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_wizard"				, 15, 24,  10, 50, true ,   80,      4, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_zombie"				, 30, 45,  10, 70, true ,  100,      2, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_shalrath"				,  6, 12,  10,100, true ,  400,     30, -32, -32, -24, 32, 32, 64,  0, ""},
-	{"monster_tarbaby"				, 18, 30,  10, 90, true ,   50,     10, -16, -16, -24, 16, 16, 32,  0, ""},
-	{"monster_shambler"				,  0,  0,  10,100, true ,  600,     30, -32, -32, -24, 32, 32, 64,  0, ""},
-	{"monster_army"					,  3,  3,   1, 20, true ,   50,      6, -16, -16, -24, 16, 16, 32, 64, ""},
-	{"monster_dog"					,  3,  3,   1,  0, true ,   25,      1, -16, -16, -24, 16, 16, 32, 64, ""},
-	{"monster_enforcer"				,  3,  3,   1, 30, true ,   80,     15, -16, -16, -24, 16, 16, 32, 64, ""},
-	{"monster_demon1"				,  3,  3,   1, 60, true ,  300,      8, -32, -32, -24, 32, 32, 64, 64, ""},
-	{"monster_knight"				,  3,  3,   1, 40, true ,   75,      3, -16, -16, -24, 16, 16, 32, 64, ""},
-	{"monster_ogre"					,  3,  3,   1, 50, true ,  200,     10, -32, -32, -24, 32, 32, 64, 64, ""},
-	{"monster_hell_knight"			,  3,  3,   1, 70, true ,  250,     10, -16, -16, -24, 16, 16, 32, 64, ""},
-	{"monster_wizard"				,  3,  3,   1, 50, true ,   80,      4, -16, -16, -24, 16, 16, 32, 64, ""},
-	{"monster_zombie"				,  3,  3,   1, 70, true ,  100,      2, -16, -16, -24, 16, 16, 32, 64, ""},
-	{"monster_shalrath"				,  3,  3,   1,100, true ,  400,     30, -32, -32, -24, 32, 32, 64, 64, ""},
-	{"monster_tarbaby"				,  3,  3,   1, 90, true ,   50,     10, -16, -16, -24, 16, 16, 32, 64, ""},
-	{"monster_shambler"				,  3,  3,   1,100, true ,  600,     30, -32, -32, -24, 32, 32, 64, 64, ""},
+	{"monster_army"					,  4,  8,  800, 20, true ,   50,      6, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_dog"					,  3,  8,  800,  0, true ,   25,      1, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_enforcer"				,  3,  6,  800, 30, true ,   80,     15, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_demon1"				,  3,  6,  800, 60, true ,  300,      8, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_knight"				,  4,  9,  800, 40, true ,   75,      3, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_ogre"					,  3,  5,  800, 50, true ,  200,     10, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_hell_knight"			,  2,  5,  800, 70, true ,  250,     10, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_wizard"				,  3,  8,  800, 50, true ,   80,      4, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_zombie"				,  3, 10,  800, 70, true ,  100,      2, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_shalrath"				,  1,  3,  800,100, true ,  400,     30, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_tarbaby"				,  6, 10,  800, 90, true ,   50,     10, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_shambler"				,  1,  2,  800,100, true ,  600,     30, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_army"					, 12, 24,  150, 20, true ,   50,      6, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_dog"					, 18, 36,  150,  0, true ,   25,      1, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_enforcer"				, 12, 24,  150, 30, true ,   80,     15, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_demon1"				,  9, 18,  150, 60, true ,  300,      8, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_knight"				, 12, 27,  150, 40, true ,   75,      3, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_ogre"					,  9, 15,  150, 50, true ,  200,     10, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_hell_knight"			,  6, 15,  150, 70, true ,  250,     10, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_wizard"				, 15, 24,  150, 50, true ,   80,      4, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_zombie"				, 30, 45,  150, 70, true ,  100,      2, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_shalrath"				,  6, 12,  150,100, true ,  400,     30, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_tarbaby"				, 18, 30,  150, 90, true ,   50,     10, -16, -16, -24, 16, 16, 32,  0, ""},
+	{"monster_shambler"				,  0,  0,  150,100, true ,  600,     30, -32, -32, -24, 32, 32, 64,  0, ""},
+	{"monster_army"					,  3,  3,   50, 20, true ,  400,      6, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_dog"					,  3,  3,   50,  0, true ,  300,      1, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_enforcer"				,  3,  3,   50, 30, true ,  520,     15, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_demon1"				,  3,  3,   50, 60, true , 1400,      8, -32, -32, -24, 32, 32, 64, 64, ""},
+	{"monster_knight"				,  3,  3,   50, 40, true ,  500,      3, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_ogre"					,  3,  3,   50, 50, true , 1000,     10, -32, -32, -24, 32, 32, 64, 64, ""},
+	{"monster_hell_knight"			,  3,  3,   50, 70, true , 1200,     10, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_wizard"				,  3,  3,   50, 50, true ,  520,      4, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_zombie"				,  3,  3,   50, 70, true ,  600,      2, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_shalrath"				,  3,  3,   50,100, true , 1800,     30, -32, -32, -24, 32, 32, 64, 64, ""},
+	{"monster_tarbaby"				,  3,  3,   50, 90, true ,  400,     10, -16, -16, -24, 16, 16, 32, 64, ""},
+	{"monster_shambler"				,  3,  3,   50,100, true , 2600,     30, -32, -32, -24, 32, 32, 64, 64, ""},
 };
 
 objecttype_t ammotypes[] =
@@ -670,26 +672,14 @@ void generatelevels()
 			if (ry2 > (levelsize-2)) {i = ry2 - (levelsize-2);ry1 -= i;ry2 -= i;}
 			clearlevel(level);
 			clearroom(level, rx1, ry1, rx2, ry2);
-			setwall(ex-1, ey-1, level, walltype_empty);
-			setwall(ex  , ey-1, level, walltype_empty);
-			setwall(ex+1, ey-1, level, walltype_empty);
-			setwall(ex-1, ey  , level, walltype_empty);
-			setwall(ex  , ey  , level, walltype_empty);
-			setwall(ex+1, ey  , level, walltype_empty);
-			setwall(ex-1, ey+1, level, walltype_empty);
-			setwall(ex  , ey+1, level, walltype_empty);
-			setwall(ex+1, ey+1, level, walltype_empty);
-			setspecial(ex-1, ey-1, level, special_entranceexit);
-			setspecial(ex  , ey-1, level, special_entranceexit);
-			setspecial(ex+1, ey-1, level, special_entranceexit);
-			setspecial(ex-1, ey  , level, special_entranceexit);
-			setspecial(ex  , ey  , level, special_entranceexit);
-			setspecial(ex+1, ey  , level, special_entranceexit);
-			setspecial(ex-1, ey+1, level, special_entranceexit);
-			setspecial(ex  , ey+1, level, special_entranceexit);
-			setspecial(ex+1, ey+1, level, special_entranceexit);
-			randomemptyarea(&x, &y, rx1+1, ry1+1, rx2-1, ry2-1, 1, 1, level);
-			setspecial(x, y, level, special_elderceilinglight);
+			for (y = -1;y <= 1;y++)
+				for (x = -1;x <= 1;x++)
+					setspecial(ex+x, ey+y, level, special_entranceexit);
+			if (level > 0)
+			{
+				randomemptyarea(&x, &y, rx1+1, ry1+1, rx2-1, ry2-1, 1, 1, level);
+				setspecial(x, y, level, special_elderceilinglight);
+			}
 			printf("rooms: *");
 			roomcount = makerooms(level, rx1, ry1, rx2, ry2);
 			printf("\n");
@@ -703,7 +693,7 @@ void generatelevels()
 			setspecial(x+1, y+1, level, special_torchstand);
 		}
 		*/
-		if (level < (levels-1)) // on the final level there is no exit
+		//if (level < (levels-1)) // on the final level there is no exit
 		{
 			// find a distant location for the exit
 			int bestx = -1;
@@ -1006,7 +996,16 @@ void savemap()
 		map_kvtext("classname", "worldspawn");
 		map_kvtext("wad", "quake101.wad");
 		// top ceiling
-		map_cube(-leveldist,-leveldist,0, leveldist,leveldist,64, "WBRICK1_5", "WALL9_8", "CITY4_2");
+		//map_cube(-leveldist,-leveldist,  0, leveldist,leveldist,64, "WBRICK1_5", "WALL9_8", "CITY4_2");
+		// sky
+		map_cube(-leveldist         ,-leveldist         ,          1024,  leveldist         , leveldist         ,1088, "SKY4", "SKY4", "SKY4");
+		// ceiling above sky (required by qbsp to make the sky eat projectiles)
+		map_cube(-leveldist         ,-leveldist         ,          1088,  leveldist         , leveldist         ,1152, "WBRICK1_5", "WALL9_8", "CITY4_2");
+		// sides
+		map_cube(-leveldist         ,-leveldist         , levels * -192,  leveldist         ,-leveldist+cellsize,1088, "WBRICK1_5", "WALL9_8", "CITY4_2");
+		map_cube(-leveldist         , leveldist-cellsize, levels * -192,  leveldist         , leveldist         ,1088, "WBRICK1_5", "WALL9_8", "CITY4_2");
+		map_cube(-leveldist         ,-leveldist+cellsize, levels * -192, -leveldist+cellsize, leveldist-cellsize,1088, "WBRICK1_5", "WALL9_8", "CITY4_2");
+		map_cube( leveldist-cellsize,-leveldist         , levels * -192,  leveldist         , leveldist         ,1088, "WBRICK1_5", "WALL9_8", "CITY4_2");
 		// bottom floor - this is a little below the natural floor, so you can see an exit but it's sealed off, and you can hop back out of it
 		map_cube(-leveldist,-leveldist,levels * -192, leveldist,leveldist,levels * -192 + 48, "WBRICK1_5", "WALL9_8", "CITY4_2");
 		for (level = 0;level < levels;level++)
@@ -1050,11 +1049,13 @@ void savemap()
 						x = x2-1;
 						break;
 					case walltype_levelwall:
+#if 0
 						for (x2 = x+1;x2 < levelsize;x2++)
 							if (getwall(x2, y, level) != walltype_levelwall)
 								break;
 						map_cube(ox, oy, oz-128, x2 * cellsize - leveldist, oy + cellsize, oz, "WBRICK1_5", "WBRICK1_5", "WBRICK1_5");
 						x = x2-1;
+#endif
 						break;
 					default:
 					case walltype_hole: // hole in the floor
@@ -1103,6 +1104,33 @@ void savemap()
 			}
 		}
 		map_endentity();
+		map_beginentity();
+		map_kvtext("classname", "info_null");
+		map_kvtext("origin", "0 0 752");
+		map_kvtext("targetname", "suntarget");
+		map_endentity();
+		map_beginentity();
+		map_kvtext("classname", "light");
+		map_kvtext("origin", "-64 -96 1008");
+		map_kvtext("delay", "4"); // hmap2 sun light
+		map_kvtext("_color", "1 1 1");
+		map_kvtext("light", "192");
+		map_kvtext("target", "suntarget");
+		map_endentity();
+		for (y = -leveldist + cellsize*4;y < leveldist;y += cellsize*8)
+		{
+			for (x = -leveldist + cellsize*4;x < leveldist;x += cellsize*8)
+			{
+				map_beginentity();
+				map_kvtext("classname", "light");
+				map_kvvector("origin", x, y, 1008);
+				//map_kvtext("delay", "3"); // hmap2/tyrlite non-attenuating light
+				map_kvtext("wait", "0.00001"); // arghlite non-attenuating light
+				map_kvtext("_color", "1 1 1");
+				map_kvtext("light", "32");
+				map_endentity();
+			}
+		}
 		for (level = 0;level < levels;level++)
 		{
 			printf("writing level %d doors... ", level + 1);
@@ -1180,7 +1208,10 @@ int main(int argc, char** argv)
 		levels = atoi(argv[8]);
 	}
 	else
-		printf("usage: %s <filename> <monsters per level> <smallest room size> <biggest room size> <level size> <cell size> <levels>\n", argv[0]);
+	{
+		printf("usage: %s <filename> <monsters per level> <minimum number of rooms per level> <smallest room size> <biggest room size> <level size> <cell size> <levels>\n", argv[0]);
+		return 1;
+	}
 	leveldist = levelsize * cellsize / 2;
 	mapcells = calloc(levelsize * levelsize * levels, sizeof(*mapcells));
 	srand(time(NULL));
