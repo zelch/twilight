@@ -1,4 +1,7 @@
 
+// worldspawn properties added for dpmod:
+.string gametype;
+
 float darkmode;
 
 float maxclients; // how many player slots there actually are
@@ -347,6 +350,14 @@ void() worldspawn =
 {
 	local float c;
 	local entity head;
+
+	mapgametype = MAPGAME_NORMAL;
+	if (self.gametype == "towerdefense")
+	{
+		mapgametype = MAPGAME_TOWERDEFENSE;
+		deathmatch = DM_TOWERDEFENSE;
+		coop = 1;
+	}
 
 /*
 	// test code for tokenizebyseparator

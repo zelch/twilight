@@ -27,3 +27,9 @@ float DM_TEAM_MODS_END                = 20;
 
 float DM_RPG                          = 30;
 
+float DM_TOWERDEFENSE                 = -1;
+
+float MAPGAME_NORMAL = 0;
+float MAPGAME_TOWERDEFENSE = 1;
+float mapgametype;
+

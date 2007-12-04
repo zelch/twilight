@@ -314,7 +314,7 @@ void() changelevel_touch =
 
 	SUB_UseTargets ();
 
-	if ( (self.spawnflags & 1) && (deathmatch == 0) )
+	if ( (self.spawnflags & 1) && (deathmatch == DM_NONE) )
 	{
 		// NO_INTERMISSION
 		GotoNextMap();
@@ -581,7 +581,7 @@ called each time a player is spawned
 void() DecodeLevelParms;
 void() PlayerDie;
 void() havocbot_chooserole;
-void() PutClientInServer =
+void() PutClientInServer_Player =
 {
 	local entity spot;
 
@@ -749,6 +749,115 @@ void() PutClientInServer =
 	if (darkmode)
 	if (self.flashlight == world)
 		ToggleFlashLight();
+};
+
+void() PutClientInServer_TowerDefense =
+{
+	local entity spot;
+
+	self.classname = "commander";
+
+	updateteams();
+
+	// apply physics stuff (bleeding, drowning, slime, lava, etc)
+	self.iscreature = FALSE;
+	self.forcescale = 0; // for damage kick calculations
+	self.cantrigger = FALSE; // can trigger buttons etc
+	self.iscorpse = FALSE;
+	self.isdecor = FALSE;
+	self.bleedratio = 0; // 100% bleeding damage (see t_damage.qc)
+	// make self completely visible
+	self.alpha = 0;
+
+	self.flags = FL_CLIENT;
+
+	self.th_pain = SUB_Null;
+	self.th_die = SUB_Null;
+	self.th_gib = SUB_Null;
+
+	self.bubble_count = 0;
+	self.candrown = FALSE;
+
+	self.combo_amount = 0;
+	self.combo_time = 0;
+
+	self.spree_amount = 0;
+	self.spree_count = 0;
+
+	self.show_hostile = 0;
+	self.air_finished = 0;
+	self.dmg = 0;   // initial water damage
+	self.super_damage_finished = 0;
+	self.radsuit_finished = 0;
+	self.invisible_finished = 0;
+	self.invincible_finished = 0;
+	self.effects = 0;
+	self.invincible_time = 0;
+	self.velocity = '0 0 0'; // don't continue movement from death etc
+	self.jump_flag = 0; // clear jump velocity to prevent falling damage
+	self.avelocity = '0 0 0';
+	self.punchangle = '0 0 0';
+	self.frozen = FALSE;
+	self.spawnshieldtime = 0;
+
+	// set up health and equipment
+	self.items = IT_WEAPON1 | IT_WEAPON2 | IT_WEAPON4 | IT_WEAPON6;
+	self.health = 20;
+	self.max_health = 100;
+	self.bodyhealth = 0;
+	self.armorvalue = 0;
+	self.armortype = 0;
+	self.weaponclass = world;
+
+	self.keys_silver = 0; // clear silver key count
+	self.keys_gold = 0;   // clear gold key count
+
+	self.bleedfunc = SUB_Null;
+
+	self.think = SUB_Null;
+	self.nextthink = 0;
+	self.weaponmodel = "";
+	self.weaponframe = 0;
+
+	self.doobits = 0;
+	self.havocattack = FALSE;
+	self.takedamage = DAMAGE_NO;
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_NONE;
+	self.touch = SUB_Null;
+
+	self.attack_finished = 0;
+
+	self.deadflag = DEAD_NO;
+	self.pausetime = 0;
+
+	spot = SelectSpawnPoint ();
+
+	self.angles = '90 0 0';
+	self.v_angle = self.angles;
+	self.fixangle = TRUE;           // turn this way immediately
+	self.teleport_time = 0;
+
+	self.model = "";
+	self.modelindex = 0;
+
+	setsize (self, '0 0 0', '0 0 0');
+
+	self.view_ofs = '0 0 0';
+
+	setorigin(self, spot.origin);
+	// don't snap back to where you died (oldorigin) if the map has a misplaced spawn entity
+	self.oldorigin = self.origin;
+
+	self.iscorpse = FALSE;
+};
+
+void() PutClientInServer =
+{
+	if (mapgametype == MAPGAME_TOWERDEFENSE)
+		PutClientInServer_TowerDefense();
+	else
+		PutClientInServer_Player();
 };
 
 
@@ -1007,6 +1116,25 @@ void() PlayerPreThink =
 {
 	local float r, a;
 
+	// fade pain view kick
+	a = vlen(self.punchvector);
+	if (a)
+	{
+		r = a - frametime * 15;
+		if (r < 0)
+			r = 0;
+		self.punchvector = self.punchvector * (r / a);
+	}
+
+	if (intermission_running)
+	{
+		IntermissionThink (); // otherwise a button could be missed
+		return;               // between the think tics
+	}
+
+	if (self.view_ofs == '0 0 0')
+		return;		// intermission or finale
+
 	/*
 	bprint("pre : ");
 	bprintvector(self.origin);
@@ -1023,22 +1151,6 @@ void() PlayerPreThink =
 
 	checkinvalidteam();
 
-	// fade pain view kick
-	a = vlen(self.punchvector);
-	if (a)
-	{
-		r = a - frametime * 15;
-		if (r < 0)
-			r = 0;
-		self.punchvector = self.punchvector * (r / a);
-	}
-
-	if (!self.solid) // observer
-	{
-		self.frame = 0;
-//		return;
-	}
-
 	if (cvar("temp1") & 4096)
 	{
 		Inventory_SetQuantity(self, "shells", AMMOMAXSP_SHELLS);
@@ -1046,15 +1158,6 @@ void() PlayerPreThink =
 		Inventory_SetQuantity(self, "rockets", AMMOMAXSP_ROCKETS);
 		Inventory_SetQuantity(self, "cells", AMMOMAXSP_CELLS);
 	}
-
-	if (intermission_running)
-	{
-		IntermissionThink (); // otherwise a button could be missed
-		return;               // between the think tics
-	}
-
-	if (self.view_ofs == '0 0 0')
-		return;		// intermission or finale
 
 	if (self.waterlevel == 2)
 		CheckWaterJump ();
@@ -1275,10 +1378,7 @@ void() RegenStuff =
 		}
 		if (time > self.regenthink)
 		{
-			if (deathmatch)
-				self.regenthink = time + 0.1;
-			else
-				self.regenthink = time + 0.25;
+			self.regenthink = time + 0.25;
 			if (self.health < self.max_health)
 			{
 				self.health = self.health + 1;
@@ -1293,8 +1393,6 @@ void() RegenStuff =
 			}
 		}
 	}
-	if (self.health > self.max_health + 1000)
-		self.health = self.max_health + 1000;
 	if (self.health > self.max_health)
 		self.items = self.items | IT_SUPERHEALTH;
 	else
@@ -1336,6 +1434,102 @@ void() playerfootstep =
 	}
 };
 
+.entity td_towercursor;
+void() Player_TowerDefenseFrame =
+{
+	local vector p;
+	local vector dir;
+	local vector buildposition;
+	local float buildpositionvalid;
+	local entity head;
+	local entity start;
+	local string m;
+	local float cost;
+	if (self.deadflag)
+	{
+		if (self.deadflag == DEAD_DYING)
+		if (time > self.pain_finished)
+			self.deadflag = DEAD_DEAD;
+		if (self.deadflag == DEAD_DEAD)
+		if (!self.button0)
+		if (!self.button2)
+			self.deadflag = DEAD_RESPAWNABLE;
+		if (self.deadflag == DEAD_RESPAWNABLE)
+		if (self.button0 || self.button2)
+			respawn();
+		return;
+	}
+
+	buildpositionvalid = FALSE;
+	dir = normalize(self.cursor_trace_endpos - self.cursor_trace_start);
+	traceline(self.origin, self.origin + dir * 8192, MOVE_NOMONSTERS, self);
+	buildposition_x = floor(trace_endpos_x / 64) * 64;
+	buildposition_y = floor(trace_endpos_y / 64) * 64;
+	buildposition_z = trace_endpos_z;
+	if (trace_fraction < 1)
+	if (trace_ent == world)
+	{
+		buildpositionvalid = TRUE;
+		tracebox(buildposition, '0 0 0.03125', '64 64 64.03125', buildposition, MOVE_NORMAL, self);
+		if (trace_startsolid)
+			buildpositionvalid = FALSE;
+		else
+		{
+			start = findchain(classname, "towerdefense_buildarea");
+			head = start;
+			while (head)
+			{
+				head.solid = SOLID_BSP;
+				setorigin(head, head.origin);
+				head = head.chain;
+			}
+			traceline(p +   '1 1 10', p +   '1 1 -1', MOVE_NOMONSTERS, self);if (trace_ent.classname != "towerdefense_buildarea") buildpositionvalid = FALSE;
+			traceline(p +  '63 1 10', p +  '63 1 -1', MOVE_NOMONSTERS, self);if (trace_ent.classname != "towerdefense_buildarea") buildpositionvalid = FALSE;
+			traceline(p +  '1 63 10', p +  '1 63 -1', MOVE_NOMONSTERS, self);if (trace_ent.classname != "towerdefense_buildarea") buildpositionvalid = FALSE;
+			traceline(p + '63 63 10', p + '63 63 -1', MOVE_NOMONSTERS, self);if (trace_ent.classname != "towerdefense_buildarea") buildpositionvalid = FALSE;
+			head = start;
+			while (head)
+			{
+				head.solid = SOLID_NOT;
+				setorigin(head, head.origin);
+				head = head.chain;
+			}
+		}
+	}
+
+	if (!self.td_towercursor)
+		self.td_towercursor = spawn();
+
+	self.td_towercursor.classname = "td_towercursor";
+	self.td_towercursor.think = SUB_Remove;
+	self.td_towercursor.nextthink = time + 0.11;
+
+	setorigin(self.td_towercursor, buildposition);
+	     if (self.weapon == IT_WEAPON2) {m = "progs/td_tshotgun.md3"  ;cost =   15;}
+	else if (self.weapon == IT_WEAPON3) {m = "progs/td_tshotgun2.md3" ;cost =   50;}
+	else if (self.weapon == IT_WEAPON4) {m = "progs/td_tnailgun.md3"  ;cost =   40;}
+	else if (self.weapon == IT_WEAPON5) {m = "progs/td_tnailgun2.md3" ;cost =  170;}
+	else if (self.weapon == IT_WEAPON6) {m = "progs/td_tgrenade.md3"  ;cost =  150;}
+	else if (self.weapon == IT_WEAPON7) {m = "progs/td_trocket.md3"   ;cost =  250;}
+	else if (self.weapon == IT_WEAPON8) {m = "progs/td_tlightning.md3";cost =  400;}
+	else                                {m = "progs/td_cursor.md3"    ;cost =    0;}
+
+	if (self.td_towercursor.model != m)
+		setmodel(self.td_towercursor, m);
+
+	if (buildpositionvalid)
+		self.td_towercursor.colormod = '0 0 0';
+	else
+		self.td_towercursor.colormod = '1 0 0';
+
+	if (self.button0)
+	if (buildpositionvalid)
+	if (cost)
+	if (self.currentammo >= cost)
+	{
+	}
+};
+
 /*
 ================
 PlayerPostThink
@@ -1360,11 +1554,17 @@ void() PlayerPostThink =
 	bprint("\n");
 	*/
 
-	if (self.view_ofs == '0 0 0')
-		return; // intermission or finale
-
 	if (self.impulse)
 		ImpulseCommands();
+
+	if (deathmatch == DM_TOWERDEFENSE)
+	{
+		Player_TowerDefenseFrame();
+		return;
+	}
+
+	if (self.view_ofs == '0 0 0')
+		return; // intermission or finale
 
 	if (self.solid)
 	if (!self.frozen)
