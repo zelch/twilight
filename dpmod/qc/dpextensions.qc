@@ -795,6 +795,15 @@ float MOVE_WORLDONLY = 3;
 //
 //this is basically a poor man's garbage collection system for strings.
 
+//DP_QC_VECTOANGLES_WITH_ROLL
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//builtin definitions:
+vector(vector forward, vector up) vectoangles2 = #51; // same number as vectoangles
+//description:
+//variant of vectoangles that takes an up vector to calculate roll angle (also uses this to calculate yaw correctly if the forward is straight up or straight down)
+//note: just like normal vectoangles you need to negate the pitch of the returned angles if you want to feed them to makevectors or assign to self.v_angle
+
 //DP_QC_VECTORVECTORS
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
