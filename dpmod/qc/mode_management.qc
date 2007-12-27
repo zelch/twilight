@@ -353,6 +353,7 @@ void(vector org, float c1, float c2, string cname, void() spawnfunc, vector m1, 
 		newmis.netname = cname;
 		newmis.solid = SOLID_TRIGGER;
 		newmis.movetype = MOVETYPE_TOSS;
+		newmis.flags = FL_MONSTER; // make this count as a monster even though it hasn't spawned in yet
 		newmis.velocity = randomvec() * 700 + '0 0 1000';
 		newmis.th_run = spawnfunc;
 		newmis.think = spawnmonster_think;
@@ -513,16 +514,7 @@ void() deathmatch7update =
 	if (monsters < 1)
 		return;
 	monster_count = 0;
-	e = findchainfloat(iscreature, TRUE);
-	while (e)
-	{
-		if (e.flags & FL_MONSTER)
-			monster_count = monster_count + 1;
-		e = e.chain;
-	}
-	if (monster_count >= monsters)
-		return;
-	e = findchain(classname, "spawningmonster");
+	e = findchainflags(flags, FL_MONSTER);
 	while (e)
 	{
 		monster_count = monster_count + 1;
