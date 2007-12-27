@@ -984,9 +984,9 @@ void(entity t) CopyToBodyQue =
 		c.flame.enemy = c;
 	}
 
-	c.flags = 0;
 	setorigin (c, t.origin);
 	setsize (c, t.mins, t.maxs);
+	c.oldorigin = t.origin;
 	c.flags = 0; // clear FL_ONGROUND etc
 };
 
@@ -995,9 +995,9 @@ void(entity t) CopyToBodyQue =
 void(entity t, void() framefunc) MonsterCorpse =
 {
 	// setup for recycling
-	t.classname = "decor";
-	newdecor(t);
 	BecomeCorpse(t, framefunc);
+	CopyToBodyQue(t);
+	remove(t);
 };
 
 void(string headname, float gibs, string gibname1, float gibs1, string gibname2, float gibs2) MonsterGibs =
@@ -1431,14 +1431,26 @@ void() Ragdoll_UpdateStickModels =
 			org1 = stick.ragdoll_p1.origin;
 			org2 = stick.ragdoll_p2.origin;
 			setorigin(stick, (org1 + org2) * 0.5);
-			stick.angles = vectoangles(org2 - org1);
 			if (stick.ragdoll_p3)
 			{
+				stick.angles = vectoangles(org2 - org1);
 				org3 = stick.ragdoll_p3.origin;
 				makevectors(stick.angles_x * '-1 0 0' + stick.angles_y * '0 1 0');
 				offset = org3 - org1;
 				stick.angles_z = vectoyaw((offset * v_right) * '-1 0 0' + (offset * v_up) * '0 1 0');
+				//stick.angles = vectoangles2(org2 - org1, org3 - org1);
+				makevectors(stick.angles_x * '-1 0 0' + stick.angles_y * '0 1 0' + stick.angles_z * '0 0 1');
+				stick.angles = vectoangles2(v_forward, v_up);
+				vectoangles2('0 0 1', '231 8943 0');
+				vectoangles('0 0 1');
+				offset = randomvec() * 360;
+				offset_x = 90;
+				makevectors(offset);
+				vectoangles2(v_forward, v_up);
+				vectoangles(v_forward);
 			}
+			else
+				stick.angles = vectoangles(org2 - org1);
 		}
 		stick = stick.ragdoll_next;
 	}
@@ -1454,7 +1466,6 @@ void(entity ragdoll) Ragdoll_Remove;
 // implicit euler/verlet hybrid
 void() Ragdoll_Think =
 {
-	local float iftime;
 	local float ftime;
 	if (time >= self.lefty)
 	{
@@ -1462,30 +1473,14 @@ void() Ragdoll_Think =
 		return;
 	}
 
-	iftime = 64;
-	ftime = 1 / iftime;
-	self.nextthink = time + ftime;
+	self.nextthink = time;
 
-	// see if this ragdoll has achieved a resting state
-	if (self.dmg)
-		return;
-	/*
-	// run at least a certain framerate for robustness but allow higher
-	// only choose powers of 2 for numerical stability reasons
-	// this chooses 64, 128, 256, 512, or 1024fps simulation depending on the
-	// delta time since the last update
-	iftime = 64;
-	ftime = time - self.ltime;
-	while (iftime < 1024 && ftime * iftime < 1)
-		iftime = iftime * 2;
-	iftime = 128;
-	ftime = 1 / iftime;
-	*/
-	//while (self.ltime < time)
+	while (self.ltime < time)
 	{
-		//self.ltime = self.ltime + ftime;
-		//if (self.dmg)
-		//	continue;
+		ftime = bound(1.0 / 1024.0, time - self.ltime, 1.0 / 128.0);
+		self.ltime = self.ltime + ftime;
+		if (self.dmg)
+			continue;
 		// prepare for an update
 		// basically, we clear the lockdown flags, then apply impulses and
 		// accelerations, then we constrain all the particles so that their
@@ -1573,7 +1568,7 @@ entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float mas, 
 	e.movetype = MOVETYPE_NONE;
 	e.velocity = vel;
 	setorigin(e, org);
-	//setmodel(e, "progs/s_bubble.spr"); // debugging
+	setmodel(e, "progs/s_bubble.spr"); // debugging
 	setsize(e, m1, m2);
 	return e;
 };

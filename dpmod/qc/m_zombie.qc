@@ -441,11 +441,10 @@ void() zombie_paine30 =[$paine30, zombie_run1   ] {};
 
 void() zombie_die =
 {
-	// setup for recycling
-	self.classname = "decor";
-	newdecor(self);
 	sound (self, CHAN_VOICE, "zombie/z_gib.wav", 1, ATTN_NORM);
 	MonsterGibs("progs/h_zombie.mdl", 4, "", 0, "", 0);
+	CopyToBodyQue(self);
+	remove(self);
 };
 
 /*
