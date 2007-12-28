@@ -37,6 +37,8 @@ const float VF_CL_VIEWANGLES_X	= 34;	//(float)
 const float VF_CL_VIEWANGLES_Y	= 35;	//(float)
 const float VF_CL_VIEWANGLES_Z	= 36;	//(float) 
 
+const float VF_PERSPECTIVE      = 200;
+
 const float STAT_HEALTH		= 0;
 const float STAT_WEAPONMODEL	= 2;
 const float STAT_AMMO		= 3;

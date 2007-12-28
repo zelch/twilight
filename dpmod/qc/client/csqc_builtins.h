@@ -79,7 +79,13 @@ void (entity e)								R_AddEntity = #302;
 float (float property, ...)						R_SetView = #303;
 void ()									R_RenderScene = #304;
 void (vector org, float radius, vector rgb)				R_AddDynamicLight = #305;
-void ()									R_CalcRefDef = #306;
+
+//QC POLYGON functions
+//void(string texturename, float flag[, float 2d[, float lines]])
+void(string texturename, float flag, ...)                               R_BeginPolygon = #306;
+void(vector org, vector texcoords, vector rgb, float alpha)             R_PolygonVertex = #307;
+void()                                                                  R_EndPolygon = #308;
+
 
 vector (vector v)							cs_unproject = #310;
 vector (vector v)							cs_project = #311;
