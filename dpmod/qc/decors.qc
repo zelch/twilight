@@ -1568,7 +1568,7 @@ entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float mas, 
 	e.movetype = MOVETYPE_NONE;
 	e.velocity = vel;
 	setorigin(e, org);
-	setmodel(e, "progs/s_bubble.spr"); // debugging
+//	setmodel(e, "progs/s_bubble.spr"); // debugging
 	setsize(e, m1, m2);
 	return e;
 };
