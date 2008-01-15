@@ -933,9 +933,6 @@ void() startframe_creaturecode =
 					}
 				}
 				self.jump_flag = self.velocity_z;
-				if (self.movetype == MOVETYPE_STEP || self.movetype == MOVETYPE_WALK)
-				if (pointcontents(self.origin) == CONTENT_SOLID)
-					T_Damage(self, world, world, 0, 0, " was in solid", DT_TELEFRAG, self.origin, '0 0 0', Obituary_Generic);
 			}
 			else
 				self.iscreature = FALSE;
