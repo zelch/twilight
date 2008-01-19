@@ -1588,6 +1588,21 @@ float(string s1, string s2, float len) strncasecmp = #230;
 //after each map client initialization, this is reset back to Quake settings. So you should send these data in ClientConnect.
 //also, this extension introduces a new "cycleweapon" command to the user.
 
+//DP_QC_STRINGBUFFERS
+//idea: ??
+//darkplaces implementation: LordHavoc
+//functions to manage string buffer objects - that is, arbitrary length string arrays that are handled by the engine
+float() buf_create = #460;
+void(float bufhandle) buf_del = #461;
+float(float bufhandle) buf_getsize = #462;
+void(float bufhandle_from, float bufhandle_to) buf_copy = #463;
+void(float bufhandle, float sortpower, float backward) buf_sort = #464;
+string(float bufhandle, string glue) buf_implode = #465;
+string(float bufhandle, float string_index) bufstr_get = #466;
+void(float bufhandle, float string_index, string str) bufstr_set = #467;
+float(float bufhandle, string str, float order) bufstr_add = #468;
+void(float bufhandle, float string_index) bufstr_free = #469;
+
 //DP_QC_STRREPLACE
 //idea: Sajt
 //darkplaces implementation: Sajt
@@ -1597,3 +1612,17 @@ string(string search, string replace, string subject) strireplace = #485;
 //description:
 //strreplace replaces all occurrences of 'search' with 'replace' in the string 'subject', and returns the result as a tempstring.
 //strireplace does the same but uses case-insensitive matching of the 'search' term
+//
+//DP_QC_CRC16
+//idea: div0
+//darkplaces implementation: div0
+//Some hash function to build hash tables with. This has to be be the CRC-16-CCITT that is also required for the QuakeWorld download protocol.
+//When caseinsensitive is set, the CRC is calculated of the lower cased string.
+float(float caseinsensitive, string s, ...) crc16 = #494;
+
+//DP_SV_SHUTDOWN
+//idea: div0
+//darkplaces implementation: div0
+//A function that gets called just before progs exit. To save persistent data from.
+//It is not called on a crash or error.
+//void SV_Shutdown();
