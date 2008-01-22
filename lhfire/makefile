@@ -27,19 +27,22 @@ endif
 
 all:
 ifdef windir
-	$(MAKE) EXE=$(WIN32_EXE) LDFLAGS="$(WIN32_LDFLAGS)" $(WIN32_EXE)
+	$(MAKE) EXE=$(WIN32_EXE) LDFLAGS="$(WIN32_LDFLAGS)" $(WIN32_EXE lhfire_gui.exe)
 else
 	$(MAKE) EXE=$(UNIX_EXE) LDFLAGS="$(UNIX_LDFLAGS)" $(UNIX_EXE)
 endif
 
 mingw:
-	$(MAKE) EXE=$(WIN32_EXE) LDFLAGS="$(WIN32_LDFLAGS)" $(WIN32_EXE)
+	$(MAKE) EXE=$(WIN32_EXE) LDFLAGS="$(WIN32_LDFLAGS)" $(WIN32_EXE) lhfire_gui.exe
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c -o $*.o
 
 $(EXE): $(OBJECTS)
 	$(CC) -o $@ $^ $(LDFLAGS)
+
+lhfire_gui.exe: lhfire_gui.o
+	$(CC) -o $@ $^ $(WIN32_LDFLAGS) -lcomdlg32
 
 clean:
 	-$(CMD_RM) $(WIN32_EXE)
