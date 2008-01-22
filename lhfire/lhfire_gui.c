@@ -1,376 +1,406 @@
+/*
+2008 Tomas "Tomaz" Jakobsson Tension Graphics
+
+lhfire_gui.c
+*/
+
 #include	<windows.h>
 #include	<stdio.h>
-
-#pragma optimize ("gsy",on)
 
 #define		WIN32_LEAN_AND_MEAN
 #define		WIN32_EXTRA_LEAN
 #define		VC_EXTRALEAN
 
-typedef BOOL	bool;
+#define		DIALOG_LOAD		0x0000
+#define		DIALOG_SAVE		0x0001
+#define		DIALOG_COMPILE	0x0002
+#define		DIALOG_QUIT		0x0003
+#define		DIALOG_STATIC	0x0004
+#define		DIALOG_EDIT		0x0005
 
-#define true	1
-#define false	0
+static OPENFILENAME	g_OFN;
 
-#define	DIALOG_LOAD		0x00
-#define	DIALOG_SAVE		0x01
-#define	DIALOG_COMPILE	0x02
-#define	DIALOG_QUIT		0x03
-#define	DIALOG_STATIC	0x04
-#define	DIALOG_EDIT		0x05
+static char			g_Script[ 65535 ];
 
-OPENFILENAME	ofn;
+static char			g_Dir[ 260 ];
+static char			g_StartDir[ 260 ];
+static char			g_FilePath[ 260 ];
+static char			g_FileName[ 260 ];
 
-char	script[65535];
-
-char	dir[260];
-char	startdir[260];
-char	filepath[260];
-char	filename[260];
-
-void OpenScriptForCompilation (HWND hwnd)
+/*
+========================
+OpenScriptForCompilation
+========================
+*/
+void OpenScriptForCompilation( HWND hWindow )
 {
-	GetCurrentDirectory (260, dir);
+	GetCurrentDirectory( 260, g_Dir );
 
-	filepath[0]			= '\0';
-	filename[0]			= '\0';
+	g_FilePath[ 0 ]			= '\0';
+	g_FileName[ 0 ]			= '\0';
 
-	ofn.lStructSize		= sizeof(OPENFILENAME);
-	ofn.hwndOwner		= hwnd;
-	ofn.lpstrFilter		= "Scripts\0*.txt;";
-	ofn.nFilterIndex	= 1;
-	ofn.lpstrFile		= filepath;
-	ofn.nMaxFile		= 260;
-	ofn.lpstrTitle		= "Open Script for Compilation\0";
-	ofn.lpstrFileTitle	= filename;
-	ofn.nMaxFileTitle	= 260;
-	ofn.lpstrInitialDir	= dir;
-	ofn.Flags			= OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	g_OFN.lStructSize		= sizeof( OPENFILENAME );
+	g_OFN.hwndOwner			= hWindow;
+	g_OFN.lpstrFilter		= "Scripts\0*.txt;";
+	g_OFN.nFilterIndex		= 1;
+	g_OFN.lpstrFile			= g_FilePath;
+	g_OFN.nMaxFile			= 260;
+	g_OFN.lpstrTitle		= "Open Script for Compilation\0";
+	g_OFN.lpstrFileTitle	= g_FileName;
+	g_OFN.nMaxFileTitle		= 260;
+	g_OFN.lpstrInitialDir	= g_Dir;
+	g_OFN.Flags				= OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
-	if (GetOpenFileName (&ofn))
+	if( GetOpenFileName( &g_OFN ) )
 	{
+
 	}
+
 }
 
-void OpenScript (HWND hwnd)
+/*
+==========
+OpenScript
+==========
+*/
+void OpenScript( HWND hWindow )
 {
-	GetCurrentDirectory (260, dir);
+	GetCurrentDirectory( 260, g_Dir );
 
-	filepath[0]			= '\0';
-	filename[0]			= '\0';
+	g_FilePath[ 0 ]			= '\0';
+	g_FileName[ 0 ]			= '\0';
 
-	ofn.lStructSize		= sizeof(OPENFILENAME);
-	ofn.hwndOwner		= hwnd;
-	ofn.lpstrFilter		= "Scripts\0*.txt;";
-	ofn.nFilterIndex	= 1;
-	ofn.lpstrFile		= filepath;
-	ofn.nMaxFile		= 260;
-	ofn.lpstrTitle		= "Open Script\0";
-	ofn.lpstrFileTitle	= filename;
-	ofn.nMaxFileTitle	= 260;
-	ofn.lpstrInitialDir	= dir;
-	ofn.Flags			= OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	g_OFN.lStructSize		= sizeof( OPENFILENAME );
+	g_OFN.hwndOwner			= hWindow;
+	g_OFN.lpstrFilter		= "Scripts\0*.txt;";
+	g_OFN.nFilterIndex		= 1;
+	g_OFN.lpstrFile			= g_FilePath;
+	g_OFN.nMaxFile			= 260;
+	g_OFN.lpstrTitle		= "Open Script\0";
+	g_OFN.lpstrFileTitle	= g_FileName;
+	g_OFN.nMaxFileTitle		= 260;
+	g_OFN.lpstrInitialDir	= g_Dir;
+	g_OFN.Flags				= OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
-	if (GetOpenFileName (&ofn))
+	if( GetOpenFileName( &g_OFN ) )
 	{
-		FILE*	f;
-		int		size;
+		FILE*	pFile;
+		int		Size;
 
-		memset (script, 0, 65535);
+		memset( g_Script, 0, 65535 );
 
-		f = fopen (filepath, "rb");
-
-		if (!f)
+		if( !( pFile = fopen( g_FilePath, "rb" ) ) )
 			return;
 
-		fseek (f, 0, SEEK_END);
+		fseek( pFile, 0, SEEK_END );
+		Size	= ftell( pFile );
+		fseek( pFile, 0, SEEK_SET );
 
-		size = ftell (f);
+		fread( g_Script, 1, Size, pFile );
 
-		fseek (f, 0, SEEK_SET);
+		fclose( pFile );
 
-		fread (script, 1, size, f);
-
-		fclose (f);
-
-		SetDlgItemText (hwnd, DIALOG_STATIC, filename);
-		SetDlgItemText (hwnd, DIALOG_EDIT, script);
+		SetDlgItemText( hWindow, DIALOG_STATIC, g_FileName );
+		SetDlgItemText( hWindow, DIALOG_EDIT, g_Script );
 	}
+
 }
 
-void SaveScript (HWND hwnd)
+/*
+==========
+SaveScript
+==========
+*/
+void SaveScript( HWND hWindow )
 {
-	GetCurrentDirectory (260, dir);
+	GetCurrentDirectory( 260, g_Dir );
 
-	filepath[0]			= '\0';
-	filename[0]			= '\0';
+	g_FilePath[ 0 ]			= '\0';
+	g_FileName[ 0 ]			= '\0';
 
-	ofn.lStructSize		= sizeof(OPENFILENAME);
-	ofn.hwndOwner		= hwnd;
-	ofn.lpstrFilter		= "Scripts\0*.txt;";
-	ofn.nFilterIndex	= 1;
-	ofn.lpstrFile		= filepath;
-	ofn.nMaxFile		= 260;
-	ofn.lpstrTitle		= "Save Script\0";
-	ofn.lpstrFileTitle	= filename;
-	ofn.nMaxFileTitle	= 260;
-	ofn.lpstrInitialDir	= dir;
-	ofn.Flags			= OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	g_OFN.lStructSize		= sizeof( OPENFILENAME );
+	g_OFN.hwndOwner			= hWindow;
+	g_OFN.lpstrFilter		= "Scripts\0*.txt;";
+	g_OFN.nFilterIndex		= 1;
+	g_OFN.lpstrFile			= g_FilePath;
+	g_OFN.nMaxFile			= 260;
+	g_OFN.lpstrTitle		= "Save Script\0";
+	g_OFN.lpstrFileTitle	= g_FileName;
+	g_OFN.nMaxFileTitle		= 260;
+	g_OFN.lpstrInitialDir	= g_Dir;
+	g_OFN.Flags				= OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
-	if (GetSaveFileName (&ofn))
+	if( GetSaveFileName( &g_OFN ) )
 	{
-		FILE*	f;
-		int		size;
+		FILE*	pFile;
+		int		Size;
 
-		memset (script, 0, 65535);
+		memset( g_Script, 0, 65535 );
 
-		size = GetDlgItemText (hwnd, DIALOG_EDIT, script, 65535);
+		Size	= GetDlgItemText( hWindow, DIALOG_EDIT, g_Script, 65535 );
 
-		f = fopen (filepath, "wb");
-
-		if (!f)
+		if( !( pFile = fopen( g_FilePath, "wb" ) ) )
 			return;
 
-		fwrite (script, 1, size, f);
+		fwrite( g_Script, 1, Size, pFile );
 
-		fclose (f);
+		fclose( pFile );
 
-		SetDlgItemText (hwnd, DIALOG_STATIC, filename);
+		SetDlgItemText( hWindow, DIALOG_STATIC, g_FileName );
 	}
+
 }
 
-bool CALLBACK ScreenDlgProc (HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+/*
+================
+ScreenDialogProc
+================
+*/
+static HRESULT CALLBACK ScreenDialogProc( HWND hWindow, const UINT Message, const WPARAM wParam, const LPARAM lParam )
 { 
-	switch (message) 
+	switch( Message )
 	{ 
 		case WM_COMMAND:
 		{
-			switch (LOWORD(wParam))
+			switch( LOWORD( wParam ) )
 			{ 
 				case DIALOG_LOAD:
 				{
-					OpenScript (hwndDlg);
-					return true;
+					OpenScript( hWindow );
+					return TRUE;
 				}
 
 				case DIALOG_SAVE:
 				{
-					SaveScript (hwndDlg);
-					return true;
+					SaveScript( hWindow );
+
+					return TRUE;
 				}
 
 				case DIALOG_COMPILE:
 				{
-					OpenScriptForCompilation (hwndDlg);
-					SetCurrentDirectory (startdir);
-					ShellExecute (HWND_DESKTOP, NULL, "lhfire.exe", filepath, "", SW_SHOW);
-					return true;
+					OpenScriptForCompilation( hWindow );
+
+					SetCurrentDirectory( g_StartDir );
+
+					ShellExecute( HWND_DESKTOP, NULL, "lhfire.exe", g_FilePath, "", SW_SHOW );
+
+					return TRUE;
 				}
 
 				case DIALOG_QUIT:
 				{
-					EndDialog (hwndDlg, wParam);
-					return true;
+					EndDialog( hWindow, wParam );
+
+					return TRUE;
 				}
 			}
-			return true;
+
+			return TRUE;
 		}
 
 		case WM_CLOSE:
 		{
-			EndDialog (hwndDlg, wParam);
-			return true;
+			EndDialog( hWindow, wParam );
+
+			return TRUE;
 		}
 	}
 
-	return false;
+	return FALSE;
+
 }
 
-#define ID_HELP   150
-#define ID_EDIT	  180
-#define ID_TEXT   200
-
-LPWORD WordAlign (LPWORD In)
+/*
+=========
+WordAlign
+=========
+*/
+LPWORD WordAlign( LPWORD pIn )
 {
-	ULONG	ul = (ULONG) In;
+	ULONG	UL	= ( ULONG )pIn;
 
-	ul +=3;
-	ul >>=2;
-	ul <<=2;
+	UL	 += 3;
+	UL	>>= 2;
+	UL	<<= 2;
 
-	return (LPWORD) ul;
+	return ( LPWORD )UL;
 }
 
-void MakeGUI (void)
+/*
+=======
+MakeGUI
+=======
+*/
+void MakeGUI( void )
 {
-	LPDLGTEMPLATE		Dialog;
-	LPDLGITEMTEMPLATE	DialogItem;
-	LPWORD				Word;
-	LPWSTR				String;
+	LPDLGTEMPLATE		pDialog;
+	LPDLGITEMTEMPLATE	pDialogItem;
+	LPWORD				pWord;
+	LPWSTR				pString;
 	int					NumChars;
-	char				Global[1024];
+	char				Global[ 1024 ];
 
-	memset (Global, 0 ,1024);
+	memset( Global, 0 ,1024 );
 
-	Dialog = (LPDLGTEMPLATE) Global;
+	pDialog	= ( LPDLGTEMPLATE )Global;
 
 	// Dialog Box
+	pDialog->style	= DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU;
+	pDialog->cdit	= 6;
+	pDialog->x		= 0;
+	pDialog->y		= 0;
+	pDialog->cx		= 138;
+	pDialog->cy		= 200;
 
-	Dialog->style	= DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU;
-	Dialog->cdit	= 6;
-	Dialog->x		= 0;
-	Dialog->y		= 0;
-	Dialog->cx		= 138;
-	Dialog->cy		= 200;
+	 pWord		= ( LPWORD )( pDialog + 1 );
+	*pWord++	= 0x0000;
+	*pWord++	= 0x0000;
 
-	Word	= (LPWORD) (Dialog + 1);
-	*Word++	= 0x0000;
-	*Word++	= 0x0000;
+	pString		= ( LPWSTR )pWord;
+	NumChars	= 1 + MultiByteToWideChar( CP_ACP, 0, "lhFire GUI   ", -1, pString, 50 );
 
-	String		= (LPWSTR) Word;
-	NumChars	= 1 + MultiByteToWideChar (CP_ACP, 0, "lhFire GUI   ", -1, String, 50);
-
-	Word	+= NumChars;
-	Word	= WordAlign (Word);
+	pWord	+= NumChars;
+	pWord	= WordAlign( pWord );
 
 	// Load Button
+	pDialogItem			= ( LPDLGITEMTEMPLATE )pWord;
+	pDialogItem->style	= WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON;
+	pDialogItem->id		= DIALOG_LOAD;
+	pDialogItem->x		= 2;
+	pDialogItem->y		= 2;
+	pDialogItem->cx		= 32;
+	pDialogItem->cy		= 12;
 
-	DialogItem			= (LPDLGITEMTEMPLATE) Word;
-	DialogItem->style	= WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON;
-	DialogItem->id		= DIALOG_LOAD;
-	DialogItem->x		= 2;
-	DialogItem->y		= 2;
-	DialogItem->cx		= 32;
-	DialogItem->cy		= 12;
+	 pWord		= ( LPWORD )( pDialogItem + 1 );
+	*pWord++	= 0xFFFF;
+	*pWord++	= 0x0080;
 
-	Word	= (LPWORD) (DialogItem + 1);
-	*Word++	= 0xFFFF;
-	*Word++	= 0x0080;
+	pString		= ( LPWSTR )pWord;
+	NumChars	= 1 + MultiByteToWideChar( CP_ACP, 0, "Load", -1, pString, 50 );
 
-	String		= (LPWSTR) Word;
-	NumChars	= 1 + MultiByteToWideChar (CP_ACP, 0, "Load", -1, String, 50);
-
-	Word	+= NumChars;
-	*Word++	= 0;
-	Word	= WordAlign (Word);
+	 pWord		+= NumChars;
+	*pWord++	= 0;
+	 pWord		= WordAlign( pWord );
 
 	// Save Button
+	pDialogItem			= ( LPDLGITEMTEMPLATE )pWord;
+	pDialogItem->style	= WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON;
+	pDialogItem->id		= DIALOG_SAVE;
+	pDialogItem->x		= 36;
+	pDialogItem->y		= 2;
+	pDialogItem->cx		= 32;
+	pDialogItem->cy		= 12;
 
-	DialogItem			= (LPDLGITEMTEMPLATE) Word;
-	DialogItem->style	= WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON;
-	DialogItem->id		= DIALOG_SAVE;
-	DialogItem->x		= 36;
-	DialogItem->y		= 2;
-	DialogItem->cx		= 32;
-	DialogItem->cy		= 12;
+	 pWord		= ( LPWORD )( pDialogItem + 1 );
+	*pWord++	= 0xFFFF;
+	*pWord++	= 0x0080;
 
-	Word	= (LPWORD) (DialogItem + 1);
-	*Word++	= 0xFFFF;
-	*Word++	= 0x0080;
+	pString		= ( LPWSTR )pWord;
+	NumChars	= 1 + MultiByteToWideChar( CP_ACP, 0, "Save", -1, pString, 50 );
 
-	String		= (LPWSTR) Word;
-	NumChars	= 1 + MultiByteToWideChar (CP_ACP, 0, "Save", -1, String, 50);
-
-	Word	+= NumChars;
-	*Word++	= 0;
-	Word	= WordAlign (Word);
-
-	// Compile Button
-
-	DialogItem			= (LPDLGITEMTEMPLATE) Word;
-	DialogItem->style	= WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON;
-	DialogItem->id		= DIALOG_COMPILE;
-	DialogItem->x		= 70;
-	DialogItem->y		= 2;
-	DialogItem->cx		= 32;
-	DialogItem->cy		= 12;
-
-	Word	= (LPWORD) (DialogItem + 1);
-	*Word++	= 0xFFFF;
-	*Word++	= 0x0080;
-
-	String		= (LPWSTR) Word;
-	NumChars	= 1 + MultiByteToWideChar (CP_ACP, 0, "Compile ", -1, String, 50);
-
-	Word	+= NumChars;
-	*Word++	= 0;
-	Word	= WordAlign (Word);
+	 pWord		+= NumChars;
+	*pWord++	= 0;
+	 pWord		= WordAlign( pWord );
 
 	// Compile Button
+	pDialogItem			= ( LPDLGITEMTEMPLATE )pWord;
+	pDialogItem->style	= WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON;
+	pDialogItem->id		= DIALOG_COMPILE;
+	pDialogItem->x		= 70;
+	pDialogItem->y		= 2;
+	pDialogItem->cx		= 32;
+	pDialogItem->cy		= 12;
 
-	DialogItem			= (LPDLGITEMTEMPLATE) Word;
-	DialogItem->style	= WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON;
-	DialogItem->id		= DIALOG_QUIT;
-	DialogItem->x		= 104;
-	DialogItem->y		= 2;
-	DialogItem->cx		= 32;
-	DialogItem->cy		= 12;
+	 pWord		= ( LPWORD )( pDialogItem + 1 );
+	*pWord++	= 0xFFFF;
+	*pWord++	= 0x0080;
 
-	Word	= (LPWORD) (DialogItem + 1);
-	*Word++	= 0xFFFF;
-	*Word++	= 0x0080;
+	pString		= ( LPWSTR )pWord;
+	NumChars	= 1 + MultiByteToWideChar( CP_ACP, 0, "Compile ", -1, pString, 50 );
 
-	String		= (LPWSTR) Word;
-	NumChars	= 1 + MultiByteToWideChar (CP_ACP, 0, "Quit", -1, String, 50);
+	 pWord		+= NumChars;
+	*pWord++	= 0;
+	 pWord		= WordAlign( pWord );
 
-	Word	+= NumChars;
-	*Word++	= 0;
-	Word	= WordAlign (Word);
+	// Quit Button
+	pDialogItem			= ( LPDLGITEMTEMPLATE )pWord;
+	pDialogItem->style	= WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON;
+	pDialogItem->id		= DIALOG_QUIT;
+	pDialogItem->x		= 104;
+	pDialogItem->y		= 2;
+	pDialogItem->cx		= 32;
+	pDialogItem->cy		= 12;
+
+	 pWord		= ( LPWORD )( pDialogItem + 1 );
+	*pWord++	= 0xFFFF;
+	*pWord++	= 0x0080;
+
+	pString		= ( LPWSTR )pWord;
+	NumChars	= 1 + MultiByteToWideChar( CP_ACP, 0, "Quit", -1, pString, 50 );
+
+	 pWord		+= NumChars;
+	*pWord++	= 0;
+	 pWord		= WordAlign( pWord );
 
 	// Static Text
+	pDialogItem			= ( LPDLGITEMTEMPLATE )pWord;
+	pDialogItem->style	= WS_CHILD | WS_VISIBLE | ES_CENTER | ES_AUTOHSCROLL;
+	pDialogItem->id		= DIALOG_STATIC;
+	pDialogItem->x		= 2;
+	pDialogItem->y		= 16;
+	pDialogItem->cx		= 134;
+	pDialogItem->cy		= 12;
 
-	DialogItem			= (LPDLGITEMTEMPLATE) Word;
-	DialogItem->style	= WS_CHILD | WS_VISIBLE | ES_CENTER | ES_AUTOHSCROLL;
-	DialogItem->id		= DIALOG_STATIC;
-	DialogItem->x		= 2;
-	DialogItem->y		= 16;
-	DialogItem->cx		= 134;
-	DialogItem->cy		= 12;
+	 pWord		= ( LPWORD )( pDialogItem + 1 );
+	*pWord++	= 0xFFFF;
+	*pWord++	= 0x0082;
 
-	Word	= (LPWORD) (DialogItem + 1);
-	*Word++	= 0xFFFF;
-	*Word++	= 0x0082;
+	pString		= ( LPWSTR )pWord;
+	NumChars	= 1 + MultiByteToWideChar( CP_ACP, 0, "", -1, pString, 50 );
 
-	String		= (LPWSTR) Word;
-	NumChars	= 1 + MultiByteToWideChar (CP_ACP, 0, "", -1, String, 50);
-
-	Word	+= NumChars;
-	*Word++	= 0;
-	Word	= WordAlign (Word);
+	 pWord		+= NumChars;
+	*pWord++	= 0;
+	 pWord		= WordAlign( pWord );
 
 	// Edit Box
+	pDialogItem			= ( LPDLGITEMTEMPLATE )pWord;
+	pDialogItem->style	= WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL;
+	pDialogItem->id		= DIALOG_EDIT;
+	pDialogItem->x		= 2;
+	pDialogItem->y		= 26;
+	pDialogItem->cx		= 134;
+	pDialogItem->cy		= 172;
 
-	DialogItem			= (LPDLGITEMTEMPLATE) Word;
-	DialogItem->style	= WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL;
-	DialogItem->id		= DIALOG_EDIT;
-	DialogItem->x		= 2;
-	DialogItem->y		= 26;
-	DialogItem->cx		= 134;
-	DialogItem->cy		= 172;
+	 pWord		= ( LPWORD )( pDialogItem + 1 );
+	*pWord++	= 0xFFFF;
+	*pWord++	= 0x0081;
 
-	Word	= (LPWORD) (DialogItem + 1);
-	*Word++	= 0xFFFF;
-	*Word++	= 0x0081;
+	pString		= ( LPWSTR )pWord;
+	NumChars	= 1 + MultiByteToWideChar( CP_ACP, 0, "", -1, pString, 50 );
 
-	String		= (LPWSTR) Word;
-	NumChars	= 1 + MultiByteToWideChar (CP_ACP, 0, "", -1, String, 50);
-
-	Word	+= NumChars;
-	*Word++	= 0;
-	Word	= WordAlign (Word);
+	 pWord		+= NumChars;
+	*pWord++	= 0;
+	 pWord		= WordAlign( pWord );
 
 	// Create It
+	DialogBoxIndirect( NULL, ( LPDLGTEMPLATE )Global, NULL, ( DLGPROC )ScreenDialogProc );
 
-	DialogBoxIndirect (NULL, (LPDLGTEMPLATE) Global, NULL, (DLGPROC) ScreenDlgProc);
 }
 
-int main (int argc, char** argv)
+/*
+====
+main
+====
+*/
+int main( int argc, char** argv )
 {
-	fflush (stdout);
+	fflush( stdout );
 
-	GetCurrentDirectory (260, startdir);
+	GetCurrentDirectory( 260, g_StartDir );
 
-	MakeGUI ();
+	MakeGUI();
 
 	return 0;
+
 }
