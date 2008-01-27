@@ -258,6 +258,29 @@ float EF_LOWPRECISION = 4194304;
 //description:
 //this is a very special capability, attachs the entity to the view of the client specified, origin and angles become relative to the view of that client, all effects can be used (multiple skins on a weapon model etc)...  the entity is not visible to any other client.
 
+//DP_GECKO_SUPPORT
+//idea: Res2k, BlackHC
+//darkplaces implementation: Res2k, BlackHC
+//constant definitions:
+float GECKO_BUTTON_DOWN         = 0;
+float GECKO_BUTTON_UP           = 1;
+// either use down and up or just press but not all of them!
+float GECKO_BUTTON_PRESS        = 2;
+// use this for mouse events if needed?
+float GECKO_BUTTON_DOUBLECLICK  = 3;
+//builtin definitions:
+float(string name) gecko_create( string name ) = #487;
+void(string name) gecko_destroy( string name ) = #488;
+void(string name) gecko_navigate( string name, string URI ) = #489;
+float(string name) gecko_keyevent( string name, float key, float eventtype ) = #490;
+void gecko_mousemove( string name, float x, float y ) = #491;
+void gecko_resize( string name, float w, float h ) = #492;
+vector gecko_get_texture_extent( string name ) = #493;
+//engine-called QC prototypes:
+//string(string name, string query) Qecko_Query;
+//description:
+//provides an interface to the offscreengecko library and allows for internet browsing in games
+
 //DP_GFX_EXTERNALTEXTURES
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -610,6 +633,23 @@ float(entity e, vector p) getsurfacenearpoint = #438;
 vector(entity e, float s, vector p) getsurfaceclippedpoint = #439;
 //description:
 //functions to query surface information.
+
+//DP_QC_GETSURFACEPOINTATTRIBUTE
+//idea: BlackHC
+//darkplaces implementation: BlackHC
+// constants
+float SPA_POSITION = 0;
+float SPA_S_AXIS = 1;
+float SPA_T_AXIS = 2;
+float SPA_R_AXIS = 3; // same as SPA_NORMAL
+float SPA_TEXCOORDS0 = 4;
+float SPA_LIGHTMAP0_TEXCOORDS = 5;
+float SPA_LIGHTMAP0_COLOR = 6;
+//builtin definitions:
+vector(entity e, float s, float n, float a) getsurfacepointattribute = #486;
+
+//description:
+//function to query extended information about a point on a certain surface
 
 //DP_QC_GETTAGINFO
 //idea: VorteX, LordHavoc (somebody else?)
