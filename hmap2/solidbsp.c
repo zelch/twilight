@@ -54,7 +54,7 @@ surface_t *ChooseMidPlaneFromList( surface_t *surfaces, vec3_t mins, vec3_t maxs
 	plane_t		*plane;
 	
 	// pick the plane that splits the least
-	bestvalue = 8*8192*8192;
+	bestvalue = 8*(double)BOGUS_RANGE*(double)BOGUS_RANGE;
 	bestsurface = NULL;
 
 	for( p = surfaces; p; p = p->next ) {
@@ -114,7 +114,7 @@ surface_t *ChoosePlaneFromList( surface_t *surfaces, vec3_t mins, vec3_t maxs )
 	face_t		*f;
 
 	// pick the plane that splits the least
-	bestvalue = 8*8192*8192;
+	bestvalue = 8*(double)BOGUS_RANGE*(double)BOGUS_RANGE;
 	bestsurface = NULL;
 	bestdistribution = 9e30;
 
