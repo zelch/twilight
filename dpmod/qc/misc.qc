@@ -2228,8 +2228,6 @@ void() rotate_blocked =
 
 void(float notsolid) rotate_setup =
 {
-	local entity e;
-
 	if (notsolid)
 		self.solid = SOLID_NOT;
 	else
@@ -2237,10 +2235,6 @@ void(float notsolid) rotate_setup =
 	self.movetype = MOVETYPE_PUSH;
 	setmodel(self, self.model);
 
-	e = find(world, targetname, self.target);
-	if (e.classname != "info_rotate")
-		objerror("rotate_object: must target an info_rotate\nto define center of rotation");
-	setorigin(self, e.origin);
 	self.oldorigin = self.origin;
 
 	if (self.spawnflags & ROTATE_TOUCHDMG)
@@ -2250,10 +2244,15 @@ void(float notsolid) rotate_setup =
 
 void(vector destangles) rotate_calculatemove =
 {
+	local vector ang;
+	ang = destangles - self.angles;
+	ang_x = ang_x - 360 * floor(ang_x / 360);if (ang_x >= 180) ang_x = ang_x - 360;
+	ang_y = ang_y - 360 * floor(ang_y / 360);if (ang_y >= 180) ang_y = ang_y - 360;
+	ang_z = ang_z - 360 * floor(ang_z / 360);if (ang_z >= 180) ang_z = ang_z - 360;
 	self.ltime = time;
-	self.nextthink = time + (vlen(destangles - self.angles) / self.speed);
+	self.nextthink = time + (vlen(ang) / self.speed);
 	if (self.nextthink >= time + 0.01)
-		self.avelocity = normalize(destangles - self.angles) * self.speed;
+		self.avelocity = normalize(ang) * self.speed;
 	else
 	{
 		self.nextthink = time + 0.01;
@@ -2441,8 +2440,6 @@ void() func_rotatingdoor =
 {
 	if (!self.deathtype) // map makers can override this
 		self.deathtype = " got in the way";
-	if (!self.target)
-		objerror("func_rotateingdoor: must have targets.");
 
 	self.dest1 = self.angles;
 
@@ -2609,8 +2606,6 @@ void() func_rotatingobject =
 {
 	if (!self.deathtype) // map makers can override this
 		self.deathtype = " got in the way";
-	if (!self.target)
-		objerror("func_rotatingobject: must target info_rotate.");
 
 	if (self.delay < 0.01)
 		self.delay = 0;
