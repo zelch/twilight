@@ -189,7 +189,9 @@ void(vector o, float f) waypoint_spawn =
 // waypoint map entity
 void() waypoint =
 {
-	setorigin(self, self.origin);
+	// if these are waypoints dumped by the omicron bot, move them out of the floor
+	tracebox(self.origin + '0 0 24', '-16 -16 -24', '16 16 24', self.origin, MOVE_WORLDONLY, self);
+	setorigin(self, trace_endpos);
 	waypoint_relink(self);
 };
 
