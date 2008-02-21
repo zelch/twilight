@@ -287,16 +287,15 @@ vector gecko_get_texture_extent( string name ) = #493;
 //description:
 //loads external textures found in various directories (tenebrae compatible)...
 /*
-in all examples .tga is merely the base texture, it can be any of these:
-.tga (base texture)
-_glow.tga (fullbrights or other glowing overlay stuff, NOTE: this is done using additive blend, not alpha)
-_pants.tga (pants overlay for colormapping on models, this should be shades of grey (it is tinted by pants color) and black wherever the base texture is not black, as this is an additive blend)
-_shirt.tga (same idea as pants, but for shirt color)
-_diffuse.tga (this may be used instead of base texture for per pixel lighting)
-_gloss.tga (specular texture for per pixel lighting, note this can be in color (tenebrae only supports greyscale))
-_norm.tga (normalmap texture for per pixel lighting)
-_bump.tga (bumpmap, converted to normalmap at load time, supported only for reasons of tenebrae compatibility)
-_luma.tga (same as _glow but supported only for reasons of tenebrae compatibility)
+in all examples .tga is merely the base texture, it can be any of these (using progs/player.mdl as an example):
+progs/player.mdl_0.tga - diffuse
+progs/player.mdl_0_norm.tga - normalmap (can have alpha channel with bumpmap height for offsetmapping/reliefmapping)
+progs/player.mdl_0_bump.tga - bumpmap (not loaded if normalmap is present)
+progs/player.mdl_0_gloss.tga - gloss map, also known as specular color map (the color of reflected light)
+progs/player.mdl_0_glow.tga - glow map (use _luma if tenebrae compatibility is a concern)
+progs/player.mdl_0_luma.tga - alternate tenebrae-compatible name for glow map (use one or the other)
+progs/player.mdl_0_pants.tga - pants image, greyscale and does not cover the same pixels as the diffuse texture (this is additive blended ('Screen' mode in photoshop) ontop of the diffuse texture with a color tint according to your pants color), make sure you have black pixels in the diffuse image otherwise you get 'ghosting' (washed out and too bright because both layers are being combined on these pixels)
+progs/player.mdl_0_shirt.tga - shirt image, same type as pants
 
 due to glquake's incomplete Targa(r) loader, this section describes
 required Targa(r) features support:
@@ -309,8 +308,8 @@ type 10 (RLE compressed 24bit/32bit true color, glquake supported this)
 type 11 (RLE compressed 8bit greyscale)
 attribute bit 0x20 (Origin At Top Left, top to bottom, left to right)
 
-image formats guaranteed to be supported: tga, pcx, lmp
-image formats that are optional: png, jpg
+image formats guaranteed to be supported for models/sprites: tga
+image formats that are optional: png, jpg, pcx, lmp
 
 mdl/spr/spr32 examples:
 skins are named _A (A being a number) and skingroups are named like _A_B
