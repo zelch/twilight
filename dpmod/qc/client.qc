@@ -557,7 +557,6 @@ entity() SelectSpawnPoint =
 
 //
 .float cameramode;
-.entity actor;
 void() CycleCameraMode =
 {
 	self.cameramode = self.cameramode + 1;
