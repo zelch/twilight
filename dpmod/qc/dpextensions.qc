@@ -549,6 +549,16 @@ string(string s) cvar_string = #448;
 //description:
 //returns the value of a cvar, as a tempstring.
 
+//DP_QC_EDICT_NUM
+//idea: 515
+//DarkPlaces implementation: LordHavoc
+//builtin definitions:
+entity(float entnum) edict_num = #459;
+float(entity ent) wasfreed = #353; // same as in EXT_CSQC extension
+//description:
+//edict_num returns the entity corresponding to a given number, this works even for freed entities, but you should call wasfreed(ent) to see if is currently active.
+//wasfreed returns whether an entity slot is currently free (entities that have never spawned are free, entities that have had remove called on them are also free).
+
 //DP_QC_ETOS
 //idea: id Software
 //darkplaces implementation: id Software
