@@ -719,6 +719,12 @@ float(float minimum, float val, float maximum) bound = #96;
 //
 //NOTE: this extension is superseded by DP_QC_UNLIMITEDTEMPSTRINGS
 
+//DP_QC_NUM_FOR_EDICT
+//idea: Blub\0
+//darkplaces implementation: Blub\0
+//Function to get the number of an entity - a clean way.
+float(entity num) num_for_edict = #512;
+
 //DP_QC_RANDOMVEC
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
