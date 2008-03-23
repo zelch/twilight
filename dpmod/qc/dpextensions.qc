@@ -1060,6 +1060,17 @@ void(vector org, string modelname, float startframe, float endframe, float frame
 //The first parameter provides the entities original contents, prior to the transition.  The second parameter provides the new contents.
 //NOTE: If this field function is provided on an entity, the standard watersplash sound IS SUPPRESSED to allow for authors to create their own transition sounds.
 
+//DP_SV_MOVETYPESTEP_LANDEVENT
+//idea: Dresk
+//darkplaces implementation: Dresk
+//field definitions:
+.void(vector vImpactVelocity) movetypesteplandevent;
+//description:
+//This field function, when provided, is triggered on a MOVETYPE_STEP entity when it experiences  "land event".
+// The standard engine behavior for this event is to play the sv_sound_land CVar sound.
+//The parameter provides the velocity of the entity at the time of the impact.  The z value may therefore be used to calculate how "hard" the entity struck the surface.
+//NOTE: If this field function is provided on a MOVETYPE_STEP entity, the standard sv_sound_land sound IS SUPPRESSED to allow for authors to create their own feedback.
+
 //DP_SV_POINTSOUND
 //idea: Dresk
 //darkplaces implementation: Dresk
