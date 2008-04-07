@@ -27,6 +27,7 @@ void Mesh::ResizeVertices(int newmax)
 	array_texcoord2f = (float *)realloc(array_texcoord2f, max_vertices * sizeof(float[2]));
 	array_textureblendindex2i = (int *)realloc(array_textureblendindex2i, max_vertices * sizeof(int[2]));
 	array_textureblendfactor1f = (float *)realloc(array_textureblendfactor1f, max_vertices * sizeof(float[1]));
+	array_cornerflag = (unsigned char *)realloc(array_cornerflag, max_vertices * sizeof(unsigned char));
 }
 
 void Mesh::ResizeTriangles(int newmax)
@@ -36,7 +37,7 @@ void Mesh::ResizeTriangles(int newmax)
 	array_neighbor3i = (int *)realloc(array_neighbor3i, max_triangles * sizeof(int[3]));
 }
 
-int Mesh::AddVertex(float x, float y, float z, float nx, float ny, float nz, float s, float t, int tex1, int tex2, float texfactor)
+int Mesh::AddVertex(float x, float y, float z, float nx, float ny, float nz, float s, float t, int tex1, int tex2, float texfactor, int cornerflag)
 {
 	if (max_vertices <= num_vertices)
 		ResizeVertices(max_vertices * 2 > 256 ? max_vertices * 2 : 256);
@@ -57,7 +58,31 @@ int Mesh::AddVertex(float x, float y, float z, float nx, float ny, float nz, flo
 	array_textureblendindex2i[num_vertices*2+0] = tex1;
 	array_textureblendindex2i[num_vertices*2+1] = tex2;
 	array_textureblendfactor1f[num_vertices*1+0] = texfactor;
+	array_cornerflag[num_vertices] = cornerflag;
 	return num_vertices++;
+}
+
+int Mesh::AddUniqueVertex(float x, float y, float z, float nx, float ny, float nz, float s, float t, int tex1, int tex2, float texfactor, int cornerflag)
+{
+	// TODO: optimize with hash table
+	int i;
+	for (i = 0;i < num_vertices;i++)
+	{
+		if (array_vertex3f[i*3+0] == x
+		 && array_vertex3f[i*3+1] == y
+		 && array_vertex3f[i*3+2] == z
+		 && array_normal3f[i*3+0] == nx
+		 && array_normal3f[i*3+1] == ny
+		 && array_normal3f[i*3+2] == nz
+		 && array_texcoord2f[i*2+0] == s
+		 && array_texcoord2f[i*2+1] == t
+		 && array_textureblendindex2i[i*2+0] == tex1
+		 && array_textureblendindex2i[i*2+1] == tex2
+		 && array_textureblendfactor1f[i*1+0] == texfactor
+		 && array_cornerflagi*1+0] == cornerflag)
+			return i;
+	}
+	AddVertex(x, y, z, nx, ny, nz, s, t, tex1, tex2, texfactor, cornerflag);
 }
 
 int Mesh::AddTriangle(int a, int b, int c)
@@ -71,6 +96,18 @@ int Mesh::AddTriangle(int a, int b, int c)
 	array_neighbor3i[num_triangles*3+1] = -1;
 	array_neighbor3i[num_triangles*3+2] = -1;
 	return num_triangles++;
+}
+
+int Mesh::AddMesh(Mesh *other)
+{
+	int i;
+	unsigned int *remap;
+	remap = malloc(other->num_vertices * sizeof(int));
+	for (i = 0;i < other->num_vertices;i++)
+		remap[i] = AddUniqueVertex(other->array_vertex3f[i*3+0], other->array_vertex3f[i*3+1], other->array_vertex3f[i*3+2], other->array_normal3f[i*3+0], other->array_normal3f[i*3+1], other->array_normal3f[i*3+2], other->array_texcoord2f[i*2+0], other->array_texcoord2f[i*2+1], other->array_textureblendindex2i[i*2+0], other->array_textureblendindex2i[i*2+1], other->array_textureblendfactor1f[i*1+0], other->array_cornerflag[i*1+0]);
+	for (i = 0;i < other->num_triangles;i++)
+		AddTriangle(remap[other->array_element3i[i*3+0]], remap[other->array_element3i[i*3+1]], remap[other->array_element3i[i*3+2]]);
+	free(remap);
 }
 
 void Mesh::CompileTangentVectors(void)
@@ -161,6 +198,8 @@ void Mesh::Compile(void)
 	int i, j, n;
 	char *vertexused;
 
+	// TODO: modify elements to remove duplicate vertices
+
 	// modify the arrays to remove any degenerate triangles
 	// (such as those produced by CollapseEdges)
 	// note: this corrupts the neighbors array
@@ -195,6 +234,7 @@ void Mesh::Compile(void)
 		array_textureblendindex2i[num_vertices*2+0]  = array_textureblendindex2i[i*2+0];
 		array_textureblendindex2i[num_vertices*2+1]  = array_textureblendindex2i[i*2+1];
 		array_textureblendfactor1f[num_vertices*1+0] = array_textureblendfactor1f[i*1+0];
+		array_cornerflag[num_vertices*1+0]           = array_cornerflag[i*1+0];
 		num_vertices++;
 	}
 
@@ -580,6 +620,7 @@ void Mesh::CollapseEdges(float tolerance)
 			//else
 			//	collapse if this edge has no border vertices (neighboring triangles using it as part of a no-far-side edge)
 
+			FIXME finish rewriting cornerflag stuff
 			if (array_neighbor3i[edge] < 0)
 			{
 				int n;
@@ -611,6 +652,140 @@ void Mesh::CollapseEdges(float tolerance)
 
 		// modify the two vertices to the midpoint of the edge
 		CollapseEdges_CalculateMidPoint(vertex1, vertex1, vertex2);
+
+		// modify all connected triangles referring to vertex2 to instead refer to vertex1
+		CollapseEdges_RecursiveReplaceVertex(thistriangle, vertex2, vertex1);
+
+		// if there is a far-side triangle, collapse it
+		CollapseEdges_CollapseTriangle(fartriangle, thistriangle);
+
+		// now collapse this triangle
+		CollapseEdges_CollapseTriangle(thistriangle, fartriangle);
+
+		// bubble sort the edge error metrics incase any have changed place
+		// note: this always has to move the collapsed triangles to the end of the index array
+		// note: doing this each triangle is inefficient, but the use of the array_edgesortindex array does not allow backwards referencing of individual indices when the error metrics are changed, so the entire array needs to be checked...
+		for (i = 0;i < num_triangles * 3;i++)
+		{
+			for (j = i;j > 0 && EdgeCompare(array_edgesortindex[j - 1], array_edgesortindex[j]) > 0;j--)
+			{
+				int k = array_edgesortindex[j - 1];
+				array_edgesortindex[j - 1] = array_edgesortindex[j];
+				array_edgesortindex[j] = k;
+			}
+			for (j = i + 1;j < (num_triangles * 3) && EdgeCompare(array_edgesortindex[j - 1], array_edgesortindex[j]) > 0;j++)
+			{
+				int k = array_edgesortindex[j - 1];
+				array_edgesortindex[j - 1] = array_edgesortindex[j];
+				array_edgesortindex[j] = k;
+			}
+		}
+	}
+
+	free(array_originalvertex3f);array_originalvertex3f = NULL;
+	free(array_edgeerror);array_edgeerror = NULL;
+	free(array_edgesortindex);array_edgesortindex = NULL;
+
+	// now recompile the mesh to remove the deleted elements
+	Compile();
+}
+
+
+void Mesh::CollapseEdges2(float tolerance)
+{
+	int i, j;
+
+	array_cornervertex = (unsigned char *)malloc(num_vertices * sizeof(unsigned char));
+	array_edgeerror = (float *)malloc(num_triangles * 3 * sizeof(float));
+	array_originalvertex3f = (float *)malloc(num_vertices * 3 + sizeof(float));
+	memcpy(array_originalvertex3f, array_vertex3f, num_vertices * 3 + sizeof(float));
+
+	// we need the triangle neighbors for edge information
+	CompileTriangleNeighbors();
+
+	// mark usage of vertices to decide which ones can be collapsed and which ones can not be, only vertices that are used by a completely interior triangle are allowed to be collapsed
+	for (i = 0;i < num_vertices;i++)
+		array_interiorvertex[i] = 0;
+	for (i = 0;i < num_triangles;i++)
+	{
+		if (array_neighbor3i[i * 3 + 0] >= 0 && array_neighbor3i[i * 3 + 1] >= 0 && array_neighbor3i[i * 3 + 2] >= 0)
+		{
+			array_interiorvertex[array_element3i[i * 3 + 0]]++;
+			array_interiorvertex[array_element3i[i * 3 + 1]]++;
+			array_interiorvertex[array_element3i[i * 3 + 2]]++;
+		}
+	}
+
+	// compute edge error metrics
+	for (i = 0;i < num_triangles;i++)
+	{
+		array_edgeerror[i * 3 + 0] = Mesh::EdgeErrorMetric(array_element3i[i * 3 + 0], array_element3i[i * 3 + 1]);
+		array_edgeerror[i * 3 + 1] = Mesh::EdgeErrorMetric(array_element3i[i * 3 + 1], array_element3i[i * 3 + 2]);
+		array_edgeerror[i * 3 + 2] = Mesh::EdgeErrorMetric(array_element3i[i * 3 + 2], array_element3i[i * 3 + 0]);
+	}
+
+	// repeatedly evaluate all triangles to find edges that can be collapsed until we have a minimal set
+	for(;;)
+	{
+		// don't collapse any more edges if we reached the tolerance
+		int thistriangle, fartriangle;
+		int vertex1, vertex2;
+		int edgeindex;
+		int repeat = 0;
+		for (thistriangle = 0;thistriangle < num_triangles;thistriangle++)
+		{
+			// if this triangle has multiple boundary edges then it is not possible to collapse it (as it would change the corner
+			if (array_neighbor3i[edge] < 0)
+			{
+				int n;
+				n = array_neighbor3i[thistriangle * 3 + 0] < 0;
+				n += array_neighbor3i[thistriangle * 3 + 1] < 0;
+				n += array_neighbor3i[thistriangle * 3 + 2] < 0;
+				if (n > 1)
+					continue;
+			}
+			for (edgeindex = 0, edge = thistriangle * 3;edgeindex < 3;edgeindex++, edge++)
+			{
+				// skip edges that would cause an unacceptable quality reduction
+				if (array_edgeerror[edge] > tolerance)
+					continue;
+
+				// the boundary edge rule:
+				// if this edge has no far side triangle:
+				//     collapse if this triangle has no other edges without far side triangles
+				// else
+				//     collapse if this edge has no border vertices (neighboring triangles using it as part of a no-far-side edge)
+
+				if (array_neighbor3i[edge] >= 0 && CollapseEdges_RecursiveCheckEdgeVertices(thistriangle, vertex1, vertex2))
+					continue;
+
+				// we found an edge that can be collapsed
+				fartriangle = array_neighbor3i[edge];
+				vertex1 = array_element3i[edge];
+				vertex2 = array_element3i[edge - thistriangle * 3 == 2 ? edge - 2 : edge + 1];
+
+				// we now know this is not a minimal mesh, and will have to make
+				// another pass to check for more edges to collapse
+				repeat = 1;
+				break; // this triangle has been destroyed
+			}
+		}
+
+		// if the tolerance was reached, we're done
+		if (edgeindex == num_triangles * 3)
+			break;
+
+		// we found an edge to collapse
+		// set up some index variables
+		thistriangle = edge / 3;
+		fartriangle = array_neighbor3i[edge];
+		vertex1 = array_element3i[edge];
+		vertex2 = array_element3i[edge - thistriangle * 3 == 2 ? edge - 2 : edge + 1];
+
+		// modify the two vertices to the midpoint of the edge
+		// FIXME: this second call to CalculateMidPoint is just copying the data from the first one, and that could be done more efficiently with an actual copyvertex function
+		CollapseEdges_CalculateMidPoint(vertex1, vertex1, vertex2);
+		CollapseEdges_CalculateMidPoint(vertex2, vertex1, vertex1);
 
 		// modify all connected triangles referring to vertex2 to instead refer to vertex1
 		CollapseEdges_RecursiveReplaceVertex(thistriangle, vertex2, vertex1);
