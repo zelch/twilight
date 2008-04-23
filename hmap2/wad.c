@@ -222,11 +222,13 @@ int ReadMipTexFile(miptexfile_t *m, byte *out)
 static char wadname[2048], wadfilename[2048];
 void WriteMiptex (void)
 {
-	int i, success;
+	int i, success, blanktex;
 	byte *miptex_data;
 	dmiptexlump_t *miptex_lumps;
 	char *path, *currentpath;
 	miptexfile_t *m;
+
+	blanktex = CheckParm("-notex") != 0;
 
 	path = ValueForKey (&entities[0], "_wad");
 	if (!path || !path[0])
@@ -314,6 +316,8 @@ void WriteMiptex (void)
 			else
 			{
 				miptex_lumps->dataofs[i] = miptex_data - (byte *)miptex_lumps;
+				if (blanktex && m->size > (int)sizeof(miptex_t))
+					memset(miptex_data + sizeof(miptex_t), 255, m->size - sizeof(miptex_t));
 				printf("\n");
 				miptex_data += m->size;
 			}

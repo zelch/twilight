@@ -359,6 +359,7 @@ error:
 "-darkplaces allow really big polygons\n"
 "-noforcevis don't make a .prt if the map leaks\n"
 "-nowaterlightmap disable darkplaces lightmapped water feature\n"
+"-notex      store blank textures instead of real ones, smaller bsp if zipped\n"
 		);
 
 	printf("inputfile: %s\n", filename_map);
