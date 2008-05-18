@@ -756,7 +756,7 @@ string(float uselocaltime, string format, ...) strftime = #478;
 //for more format codes please do a web search for strftime 3 and you should find the man(3) pages for this standard C function.
 //
 //practical uses:
-//changing day/night cycle (shops closing, monsters going on the prowl) in an RPG, for this you probably want to use s = strftime(TRUE, "%H");hour = ftos(s);
+//changing day/night cycle (shops closing, monsters going on the prowl) in an RPG, for this you probably want to use s = strftime(TRUE, "%H");hour = stof(s);
 //printing current date/time for competitive multiplayer games, such as the beginning/end of each round in real world time.
 //activating eastereggs in singleplayer games on certain dates.
 //
