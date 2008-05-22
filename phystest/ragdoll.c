@@ -4,6 +4,10 @@
 #include <memory.h>
 #include <math.h>
 
+#ifdef _MSC_VER
+#pragma warning(disable : 4244)
+#endif
+
 #define RAGDOLL_MAX_PARTICLES_PER_BODY 256
 
 typedef enum RagdollStickType_e
@@ -14,7 +18,7 @@ typedef enum RagdollStickType_e
 }
 RagdollStickType;
 
-typedef double RagdollScalar;
+typedef float RagdollScalar;
 
 typedef struct RagdollVector
 {
@@ -528,6 +532,27 @@ int main(int argc, char **argv)
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_t:
+					if (numbodies == MAX_BODIES)
+						break;
+					// create a tetrahedron
+					x = lhrandom(-3, 3);
+					y = lhrandom(-3, 3);
+					z = -20 + lhrandom(-3, 3);
+					body = bodies + numbodies++;
+					Ragdoll_NewBody(body, 4, 6);
+					Ragdoll_SetParticle(body, 0, x+0, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
+					Ragdoll_SetParticle(body, 1, x+1, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
+					Ragdoll_SetParticle(body, 2, x+0, y+1, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
+					Ragdoll_SetParticle(body, 3, x+0, y+0, z+1, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
+					Ragdoll_SetStick(body, 0, type, 0, 1, 0.0f, 1);
+					Ragdoll_SetStick(body, 1, type, 0, 2, 0.0f, 1);
+					Ragdoll_SetStick(body, 2, type, 0, 3, 0.0f, 1);
+					Ragdoll_SetStick(body, 3, type, 1, 2, 0.0f, 1);
+					Ragdoll_SetStick(body, 4, type, 1, 3, 0.0f, 1);
+					Ragdoll_SetStick(body, 5, type, 2, 3, 0.0f, 1);
+					Ragdoll_RecalculateBounds(body);
+					break;
+				case SDLK_h:
 					if (numbodies == MAX_BODIES)
 						break;
 					// create a tetrahedron
