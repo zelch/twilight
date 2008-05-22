@@ -447,7 +447,7 @@ void Ragdoll_PointImpulseBody(RagdollBody *body, RagdollScalar impactx, RagdollS
 #include <SDL_main.h>
 #include <SDL_opengl.h>
 
-RagdollScalar floorplane[4] = {0.0f, 1.0f, 0.0f, -2.0f};
+RagdollScalar floorplane[4] = {0.0f, 1.0f, 0.0f, -1.0f};
 RagdollScalar nudge = (1.0f / 1024.0f);
 
 void test_trace(RagdollTrace *trace)
@@ -483,6 +483,7 @@ int main(int argc, char **argv)
 	int currenttime;
 	RagdollScalar step = 1.0f / 128.0f;
 	RagdollScalar x, y, z;
+	RagdollScalar f;
 	double nextframetime = 0;
 	double zNear = 1;
 	double zFar = 128;
@@ -676,6 +677,29 @@ int main(int argc, char **argv)
 		glVertex3f( 10, floorplane[3],   0);
 		glVertex3f(-10, floorplane[3],   0);
 		glEnd();
+
+		// render shadows of sticks on the floor
+		//glDepthMask(GL_FALSE);
+		//glEnable(GL_BLEND);
+		glBegin(GL_LINES);
+		for (i = 0, body = bodies;i < numbodies;i++, body++)
+		{
+			glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+			for (j = 0;j < body->numsticks;j++)
+			{
+				if (body->sticks[j].type == RAGDOLLSTICK_MINDIST)
+					continue;
+				v = body->particles[body->sticks[j].particleindices[0]].origin;
+				f = v.v[0] * floorplane[0] + v.v[1] * floorplane[1] + v.v[2] * floorplane[2] - floorplane[3];
+				glVertex3f(v.v[0] - f * floorplane[0], v.v[1] - f * floorplane[1], v.v[2] - f * floorplane[2]);
+				v = body->particles[body->sticks[j].particleindices[1]].origin;
+				f = v.v[0] * floorplane[0] + v.v[1] * floorplane[1] + v.v[2] * floorplane[2] - floorplane[3];
+				glVertex3f(v.v[0] - f * floorplane[0], v.v[1] - f * floorplane[1], v.v[2] - f * floorplane[2]);
+			}
+		}
+		glEnd();
+		//glDepthMask(GL_TRUE);
+		//glDisable(GL_BLEND);
 
 		glBegin(GL_LINES);
 		for (i = 0, body = bodies;i < numbodies;i++, body++)
