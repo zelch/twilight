@@ -14,7 +14,7 @@ typedef enum RagdollStickType_e
 }
 RagdollStickType;
 
-typedef float RagdollScalar;
+typedef double RagdollScalar;
 
 typedef struct RagdollVector
 {
@@ -245,7 +245,7 @@ void Ragdoll_MoveBody(RagdollBody *body, RagdollScalar step, RagdollScalar accel
 			if (trace.fraction < 1)
 			{
 				// project particle onto plane at the specified nudge
-				// (this eliminates cumulative error)
+				// (this eliminates cumulative error, but seems to cause glitches)
 				//f = p->origin.v[0] * trace.planenormal[0] + p->origin.v[1] * trace.planenormal[1] + p->origin.v[2] * trace.planenormal[2] - trace.planedist - nudge;
 				//p->origin.v[0] -= f * trace.planenormal[0];
 				//p->origin.v[1] -= f * trace.planenormal[1];
@@ -442,14 +442,17 @@ void Ragdoll_PointImpulseBody(RagdollBody *body, RagdollScalar impactx, RagdollS
 
 #define STANDALONE_TEST 1
 #if STANDALONE_TEST
+#include <SDL.h>
+#include <SDL_main.h>
+#include <SDL_opengl.h>
 
-float floorplane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+RagdollScalar floorplane[4] = {0.0f, 1.0f, 0.0f, -6.0f};
 
 void test_trace(RagdollTrace *trace)
 {
-	float d1;
-	float d2;
-	float nudge = (1.0f / 32.0f);
+	RagdollScalar d1;
+	RagdollScalar d2;
+	RagdollScalar nudge = (1.0f / 32.0f);
 	trace->fraction = 1;
 	// simply test a floor plane
 	d1 = trace->start[0] * floorplane[0] + trace->start[1] * floorplane[1] + trace->start[2] * floorplane[2] - floorplane[3];
@@ -465,59 +468,183 @@ void test_trace(RagdollTrace *trace)
 }
 
 #define lhrandom(MIN,MAX) (((double)rand() / RAND_MAX) * ((MAX)-(MIN)) + (MIN))
+#define MAX_BODIES 128
 
 int main(int argc, char **argv)
 {
 	int i;
 	int j;
-	int frame;
-	float step = 1.0f / 64.0f;
-	float x, y, z;
+	int pause = 0;
+	int frame = 0;
+	int spew = 0;
+	int quit = 0;
+	int viewwidth = 1024, viewheight = 768;
+	int currenttime;
+	RagdollScalar step = 1.0f / 128.0f;
+	RagdollScalar x, y, z;
+	double nextframetime = 0;
+	double zNear = 1;
+	double zFar = 128;
+	double ymax = zNear * 0.75;
+	double xmax = ymax * viewwidth / viewheight;
 	RagdollBody *body;
 	RagdollParticle *p;
 	RagdollStickType type = RAGDOLLSTICK_CLOTH;
+	RagdollVector v;
 	int numbodies = 0;
-	RagdollBody bodies[16];
+	RagdollBody bodies[MAX_BODIES];
+	SDL_Surface *sdlsurface;
+	SDL_Event event;
 
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+	SDL_GL_LoadLibrary(NULL);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+	sdlsurface = SDL_SetVideoMode(viewwidth, viewheight, 32, SDL_OPENGL);
+	SDL_WM_SetCaption("ragdoll test", NULL);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glFrustum(-xmax, xmax, -ymax, ymax, zNear, zFar);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 
 	Ragdoll_Init(printf, malloc, free, test_trace);
+	nextframetime = SDL_GetTicks();
 	// run physics
-	for (frame = 0;frame < 256;frame++)
+	for (;;)
 	{
-		if (frame == 0)
+		while (SDL_PollEvent(&event))
 		{
-			// create a tetrahedron
-			x = 0;//lhrandom(-3, 3);
-			y = 0;//lhrandom(-3, 3);
-			z = 5;//lhrandom(2, 5);
-			body = bodies + numbodies++;
-			Ragdoll_NewBody(body, 4, 6);
-			Ragdoll_SetParticle(body, 0, x+0, y+0, z+0,  0,  0,  0);
-			Ragdoll_SetParticle(body, 1, x+1, y+0, z+0,  0,  0, -3);
-			Ragdoll_SetParticle(body, 2, x+0, y+1, z+0,  0,  0,  0);
-			Ragdoll_SetParticle(body, 3, x+0, y+0, z+1,  3,  0,  0);
-			Ragdoll_SetStick(body, 0, type, 0, 1, 0.0f, 1);
-			Ragdoll_SetStick(body, 1, type, 0, 2, 0.0f, 1);
-			Ragdoll_SetStick(body, 2, type, 0, 3, 0.0f, 1);
-			Ragdoll_SetStick(body, 3, type, 1, 2, 0.0f, 1);
-			Ragdoll_SetStick(body, 4, type, 1, 3, 0.0f, 1);
-			Ragdoll_SetStick(body, 5, type, 2, 3, 0.0f, 1);
-			Ragdoll_RecalculateBounds(body);
+			switch (event.type)
+			{
+			case SDL_KEYDOWN:
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_t:
+					if (numbodies == MAX_BODIES)
+						break;
+					// create a tetrahedron
+					x = lhrandom(-3, 3);
+					y = lhrandom(-3, 3);
+					z = -20 + lhrandom(-3, 3);
+					body = bodies + numbodies++;
+					Ragdoll_NewBody(body, 4, 6);
+					Ragdoll_SetParticle(body, 0, x+0, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
+					Ragdoll_SetParticle(body, 1, x+1, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
+					Ragdoll_SetParticle(body, 2, x+0, y+1, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
+					Ragdoll_SetParticle(body, 3, x+0, y+0, z+1, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
+					Ragdoll_SetStick(body, 0, type, 0, 1, 0.0f, 1);
+					Ragdoll_SetStick(body, 1, type, 0, 2, 0.0f, 1);
+					Ragdoll_SetStick(body, 2, type, 0, 3, 0.0f, 1);
+					Ragdoll_SetStick(body, 3, type, 1, 2, 0.0f, 1);
+					Ragdoll_SetStick(body, 4, type, 1, 3, 0.0f, 1);
+					Ragdoll_SetStick(body, 5, type, 2, 3, 0.0f, 1);
+					Ragdoll_RecalculateBounds(body);
+					break;
+				case SDLK_SPACE:
+					pause = 2;
+					break;
+				case SDLK_RETURN:
+					pause = 0;
+					break;
+				case SDLK_DELETE:
+					if (numbodies > 0)
+						Ragdoll_DestroyBody(bodies + --numbodies);
+					break;
+				case SDLK_ESCAPE:
+					quit = 1;
+					break;
+				default:
+					break;
+				}
+				break;
+			case SDL_QUIT:
+				quit = 1;
+				break;
+			default:
+				break;
+			}
 		}
-		for (i = 0, body = bodies;i < numbodies;i++, body++)
-			Ragdoll_MoveBody(body, step, 0, 0, -9.82, 1.0 / 32.0, 10, 20);
-		for (i = 0, body = bodies;i < numbodies;i++, body++)
-			Ragdoll_ConstrainBody(body, step, 8);
-		if (frame % 8 == 0)
+		if (quit)
+			break;
+
+		if (pause != 1)
 		{
-			printf("FRAME %i", frame);
+			if (pause == 2)
+				pause = 1;
 			for (i = 0, body = bodies;i < numbodies;i++, body++)
-				for (j = 0, p = body->particles;j < body->numparticles;j++, p++)
-					printf(" : %f %f %f", p->origin.v[0], p->origin.v[1], p->origin.v[2]);
-			printf("\n");
+				Ragdoll_MoveBody(body, step, 0.0f, -9.82f, 0.0f, 1.0f / 1024.0f, 5.0f, 10.0f);
+			for (i = 0, body = bodies;i < numbodies;i++, body++)
+				Ragdoll_ConstrainBody(body, step, 8);
+			if (spew)
+			{
+				printf("FRAME %i", frame);
+				for (i = 0, body = bodies;i < numbodies;i++, body++)
+					for (j = 0, p = body->particles;j < body->numparticles;j++, p++)
+						printf(" : %f %f %f", p->origin.v[0], p->origin.v[1], p->origin.v[2]);
+				printf("\n");
+			}
+			frame++;
 		}
+
+		nextframetime += 1000 * step;
+		currenttime = SDL_GetTicks();
+		if (currenttime >= (int)nextframetime)
+			continue;
+		SDL_Delay((int)nextframetime - currenttime);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBegin(GL_LINES);
+		for (i = 0, body = bodies;i < numbodies;i++, body++)
+		{
+			glColor4f((i & 3) / 3.0f, ((i >> 2) & 3) / 3.0f, ((i >> 4) & 3) / 3.0f, 1);
+			for (j = 0;j < body->numsticks;j++)
+			{
+				v = body->particles[body->sticks[j].particleindices[0]].origin;
+				glVertex3f(v.v[0], v.v[1], v.v[2]);
+				v = body->particles[body->sticks[j].particleindices[1]].origin;
+				glVertex3f(v.v[0], v.v[1], v.v[2]);
+			}
+		}
+		glEnd();
+
+		glPointSize(3);
+		glBegin(GL_POINTS);
+		for (i = 0, body = bodies;i < numbodies;i++, body++)
+		{
+			glColor4f((i & 3) / 6.0f + 0.5f, ((i >> 2) & 3) / 6.0f + 0.5f, ((i >> 4) & 3) / 6.0f + 0.5f, 1);
+			for (j = 0;j < body->numparticles;j++)
+			{
+				v = body->particles[j].origin;
+				glVertex3f(v.v[0], v.v[1], v.v[2]);
+			}
+		}
+		glEnd();
+
+		glDepthMask(GL_FALSE);
+		glEnable(GL_BLEND);
+		glColor4f(0.5, 0.5, 0.5, 0.5);
+		glBegin(GL_QUADS);
+		glVertex3f(-10, floorplane[3], -30);
+		glVertex3f( 10, floorplane[3], -30);
+		glVertex3f( 10, floorplane[3], -10);
+		glVertex3f(-10, floorplane[3], -10);
+		glEnd();
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+
+		SDL_GL_SwapBuffers();
 	}
 	Ragdoll_Quit();
+	SDL_Quit();
 	return 0;
 }
 #endif
