@@ -183,14 +183,11 @@ void Ragdoll_SetStick(RagdollBody *body, int subindex, RagdollStickType type, in
 		v[0] = body->particles[p2].origin.v[0] - body->particles[p1].origin.v[0];
 		v[1] = body->particles[p2].origin.v[1] - body->particles[p1].origin.v[1];
 		v[2] = body->particles[p2].origin.v[2] - body->particles[p1].origin.v[2];
-		s.distsquared = v[0]*v[0]+v[1]*v[1]+v[2]*v[2];
-		s.dist = sqrt(s.distsquared);
+		s.dist = sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]) * dist;
 	}
 	else
-	{
 		s.dist = dist;
-		s.distsquared = s.dist * s.dist;
-	}
+	s.distsquared = s.dist * s.dist;
 	body->sticks[subindex] = s;
 }
 
@@ -250,10 +247,10 @@ void Ragdoll_MoveBody(RagdollBody *body, RagdollScalar step, RagdollScalar accel
 			{
 				// project particle onto plane at the specified nudge
 				// (this eliminates cumulative error, but seems to cause glitches)
-				//f = p->origin.v[0] * trace.planenormal[0] + p->origin.v[1] * trace.planenormal[1] + p->origin.v[2] * trace.planenormal[2] - trace.planedist - nudge;
-				//p->origin.v[0] -= f * trace.planenormal[0];
-				//p->origin.v[1] -= f * trace.planenormal[1];
-				//p->origin.v[2] -= f * trace.planenormal[2];
+				f = p->origin.v[0] * trace.planenormal[0] + p->origin.v[1] * trace.planenormal[1] + p->origin.v[2] * trace.planenormal[2] - trace.planedist;
+				p->origin.v[0] -= f * trace.planenormal[0];
+				p->origin.v[1] -= f * trace.planenormal[1];
+				p->origin.v[2] -= f * trace.planenormal[2];
 				// project velocity onto plane (this could be multiplied by a value like 1.5 to make it bounce significantly instead)
 				f = p->velocity.v[0] * trace.planenormal[0] + p->velocity.v[1] * trace.planenormal[1] + p->velocity.v[2] * trace.planenormal[2];
 				p->velocity.v[0] -= f * trace.planenormal[0];
@@ -450,13 +447,13 @@ void Ragdoll_PointImpulseBody(RagdollBody *body, RagdollScalar impactx, RagdollS
 #include <SDL_main.h>
 #include <SDL_opengl.h>
 
-RagdollScalar floorplane[4] = {0.0f, 1.0f, 0.0f, -6.0f};
+RagdollScalar floorplane[4] = {0.0f, 1.0f, 0.0f, -2.0f};
+RagdollScalar nudge = (1.0f / 1024.0f);
 
 void test_trace(RagdollTrace *trace)
 {
 	RagdollScalar d1;
 	RagdollScalar d2;
-	RagdollScalar nudge = (1.0f / 32.0f);
 	trace->fraction = 1;
 	// simply test a floor plane
 	d1 = trace->start[0] * floorplane[0] + trace->start[1] * floorplane[1] + trace->start[2] * floorplane[2] - floorplane[3];
@@ -467,7 +464,7 @@ void test_trace(RagdollTrace *trace)
 		trace->planenormal[0] = floorplane[0];
 		trace->planenormal[1] = floorplane[1];
 		trace->planenormal[2] = floorplane[2];
-		trace->planedist = floorplane[3];
+		trace->planedist = floorplane[3] + nudge;
 	}
 }
 
@@ -493,7 +490,7 @@ int main(int argc, char **argv)
 	double xmax = ymax * viewwidth / viewheight;
 	RagdollBody *body;
 	RagdollParticle *p;
-	RagdollStickType type = RAGDOLLSTICK_CLOTH;
+	RagdollStickType type = RAGDOLLSTICK_NORMAL;
 	RagdollVector v;
 	int numbodies = 0;
 	RagdollBody bodies[MAX_BODIES];
@@ -518,6 +515,7 @@ int main(int argc, char **argv)
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Ragdoll_Init(printf, malloc, free, test_trace);
 	nextframetime = SDL_GetTicks();
@@ -536,20 +534,20 @@ int main(int argc, char **argv)
 						break;
 					// create a tetrahedron
 					x = lhrandom(-3, 3);
-					y = lhrandom(-3, 3);
-					z = -20 + lhrandom(-3, 3);
+					y = 5;
+					z = -10 + lhrandom(-3, 3);
 					body = bodies + numbodies++;
 					Ragdoll_NewBody(body, 4, 6);
 					Ragdoll_SetParticle(body, 0, x+0, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
 					Ragdoll_SetParticle(body, 1, x+1, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
 					Ragdoll_SetParticle(body, 2, x+0, y+1, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
 					Ragdoll_SetParticle(body, 3, x+0, y+0, z+1, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
-					Ragdoll_SetStick(body, 0, type, 0, 1, 0.0f, 1);
-					Ragdoll_SetStick(body, 1, type, 0, 2, 0.0f, 1);
-					Ragdoll_SetStick(body, 2, type, 0, 3, 0.0f, 1);
-					Ragdoll_SetStick(body, 3, type, 1, 2, 0.0f, 1);
-					Ragdoll_SetStick(body, 4, type, 1, 3, 0.0f, 1);
-					Ragdoll_SetStick(body, 5, type, 2, 3, 0.0f, 1);
+					Ragdoll_SetStick(body, 0, type, 0, 1, 1.0f, 1);
+					Ragdoll_SetStick(body, 1, type, 0, 2, 1.0f, 1);
+					Ragdoll_SetStick(body, 2, type, 0, 3, 1.0f, 1);
+					Ragdoll_SetStick(body, 3, type, 1, 2, 1.0f, 1);
+					Ragdoll_SetStick(body, 4, type, 1, 3, 1.0f, 1);
+					Ragdoll_SetStick(body, 5, type, 2, 3, 1.0f, 1);
 					Ragdoll_RecalculateBounds(body);
 					break;
 				case SDLK_h:
@@ -557,20 +555,64 @@ int main(int argc, char **argv)
 						break;
 					// create a tetrahedron
 					x = lhrandom(-3, 3);
-					y = lhrandom(-3, 3);
-					z = -20 + lhrandom(-3, 3);
+					y = 5;
+					z = -6 + lhrandom(-3, 3);
 					body = bodies + numbodies++;
-					Ragdoll_NewBody(body, 4, 6);
-					Ragdoll_SetParticle(body, 0, x+0, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
-					Ragdoll_SetParticle(body, 1, x+1, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
-					Ragdoll_SetParticle(body, 2, x+0, y+1, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
-					Ragdoll_SetParticle(body, 3, x+0, y+0, z+1, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
-					Ragdoll_SetStick(body, 0, type, 0, 1, 0.0f, 1);
-					Ragdoll_SetStick(body, 1, type, 0, 2, 0.0f, 1);
-					Ragdoll_SetStick(body, 2, type, 0, 3, 0.0f, 1);
-					Ragdoll_SetStick(body, 3, type, 1, 2, 0.0f, 1);
-					Ragdoll_SetStick(body, 4, type, 1, 3, 0.0f, 1);
-					Ragdoll_SetStick(body, 5, type, 2, 3, 0.0f, 1);
+					Ragdoll_NewBody(body, 16, 36);
+					Ragdoll_SetParticle(body,  0, x+0.00f, y+2.00f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // head
+					Ragdoll_SetParticle(body,  1, x+0.00f, y+1.70f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // neck
+					Ragdoll_SetParticle(body,  2, x-0.30f, y+1.40f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // right shoulder
+					Ragdoll_SetParticle(body,  3, x+0.30f, y+1.40f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // left shoulder
+					Ragdoll_SetParticle(body,  4, x-0.50f, y+1.10f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // right elbow
+					Ragdoll_SetParticle(body,  5, x-0.50f, y+0.90f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // right hand
+					Ragdoll_SetParticle(body,  6, x+0.50f, y+1.10f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // left elbow
+					Ragdoll_SetParticle(body,  7, x+0.50f, y+0.90f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // left hand
+					Ragdoll_SetParticle(body,  8, x-0.20f, y+1.00f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // right waist
+					Ragdoll_SetParticle(body,  9, x+0.20f, y+1.00f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // left waist
+					Ragdoll_SetParticle(body, 10, x-0.25f, y+0.85f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // right hip
+					Ragdoll_SetParticle(body, 11, x+0.25f, y+0.85f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // left hip
+					Ragdoll_SetParticle(body, 12, x-0.30f, y+0.40f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // right knee
+					Ragdoll_SetParticle(body, 13, x-0.30f, y+0.40f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // right foot
+					Ragdoll_SetParticle(body, 14, x+0.30f, y+0.00f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // left knee
+					Ragdoll_SetParticle(body, 15, x+0.30f, y+0.00f, z+0.00f, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3)); // left foot
+					Ragdoll_SetStick(body,  0, type                ,  0,  1, 1.0f, 1); // head to neck
+					Ragdoll_SetStick(body,  1, type                ,  1,  2, 1.0f, 1); // neck to right shoulder
+					Ragdoll_SetStick(body,  2, type                ,  1,  3, 1.0f, 1); // neck to left shoulder
+					Ragdoll_SetStick(body,  3, type                ,  1,  8, 1.0f, 1); // neck to right waist
+					Ragdoll_SetStick(body,  4, type                ,  1,  9, 1.0f, 1); // neck to left waist
+					Ragdoll_SetStick(body,  5, type                ,  2,  3, 1.0f, 1); // right shoulder to left shoulder
+					Ragdoll_SetStick(body,  6, type                ,  2,  4, 1.0f, 1); // right shoulder to right elbow
+					Ragdoll_SetStick(body,  7, type                ,  2,  8, 1.0f, 1); // right shoulder to right waist
+					Ragdoll_SetStick(body,  8, type                ,  2,  9, 1.0f, 1); // right shoulder to left waist
+					Ragdoll_SetStick(body,  9, type                ,  3,  6, 1.0f, 1); // left shoulder to left elbow
+					Ragdoll_SetStick(body, 10, type                ,  3,  8, 1.0f, 1); // left shoulder to right waist
+					Ragdoll_SetStick(body, 11, type                ,  3,  9, 1.0f, 1); // left shoulder to left waist
+					Ragdoll_SetStick(body, 12, type                ,  4,  5, 1.0f, 1); // right elbow to right hand
+					Ragdoll_SetStick(body, 13, type                ,  6,  7, 1.0f, 1); // left elbow to left hand
+					Ragdoll_SetStick(body, 14, type                ,  8,  9, 1.0f, 1); // right waist to left waist
+					Ragdoll_SetStick(body, 15, type                ,  8, 10, 1.0f, 1); // right waist to right hip
+					Ragdoll_SetStick(body, 16, type                ,  8, 11, 1.0f, 1); // right waist to left hip
+					Ragdoll_SetStick(body, 17, type                ,  9, 10, 1.0f, 1); // left waist to right hip
+					Ragdoll_SetStick(body, 18, type                ,  9, 11, 1.0f, 1); // left waist to left hip
+					Ragdoll_SetStick(body, 19, type                , 10, 11, 1.0f, 1); // right hip to left hip
+					Ragdoll_SetStick(body, 20, type                , 10, 12, 1.0f, 1); // right hip to right knee
+					Ragdoll_SetStick(body, 21, type                , 11, 14, 1.0f, 1); // left hip to left knee
+					Ragdoll_SetStick(body, 22, type                , 12, 13, 1.0f, 1); // right knee to right foot
+					Ragdoll_SetStick(body, 23, type                , 14, 15, 1.0f, 1); // left knee to left foot
+					Ragdoll_SetStick(body, 24, RAGDOLLSTICK_MINDIST,  4,  9, 0.8f, 1); // right elbow to left waist
+					Ragdoll_SetStick(body, 25, RAGDOLLSTICK_MINDIST,  6,  8, 0.8f, 1); // left elbow to right waist
+					Ragdoll_SetStick(body, 26, RAGDOLLSTICK_MINDIST,  5,  8, 0.8f, 1); // right hand to right waist
+					Ragdoll_SetStick(body, 27, RAGDOLLSTICK_MINDIST,  7,  9, 0.8f, 1); // left hand to left waist
+					Ragdoll_SetStick(body, 28, RAGDOLLSTICK_MINDIST, 12, 14, 0.8f, 1); // right knee to left knee
+					Ragdoll_SetStick(body, 29, RAGDOLLSTICK_MINDIST, 13, 15, 0.8f, 1); // right foot to left foot
+					Ragdoll_SetStick(body, 30, RAGDOLLSTICK_MINDIST,  2, 10, 0.8f, 1); // right shoulder to right hip
+					Ragdoll_SetStick(body, 31, RAGDOLLSTICK_MINDIST,  3, 11, 0.8f, 1); // left shoulder to left hip
+					Ragdoll_SetStick(body, 32, RAGDOLLSTICK_MINDIST,  0,  2, 0.8f, 1); // head to right shoulder
+					Ragdoll_SetStick(body, 33, RAGDOLLSTICK_MINDIST,  0,  3, 0.8f, 1); // head to left shoulder
+					Ragdoll_SetStick(body, 32, RAGDOLLSTICK_MINDIST,  0,  8, 0.8f, 1); // head to right shoulder
+					Ragdoll_SetStick(body, 33, RAGDOLLSTICK_MINDIST,  0,  9, 0.8f, 1); // head to left shoulder
+					Ragdoll_SetStick(body, 34, RAGDOLLSTICK_MINDIST, 10, 13, 0.7f, 1); // right hip to right foot
+					Ragdoll_SetStick(body, 35, RAGDOLLSTICK_MINDIST, 11, 15, 0.7f, 1); // right hip to right foot
 					Ragdoll_RecalculateBounds(body);
 					break;
 				case SDLK_SPACE:
@@ -605,7 +647,7 @@ int main(int argc, char **argv)
 			if (pause == 2)
 				pause = 1;
 			for (i = 0, body = bodies;i < numbodies;i++, body++)
-				Ragdoll_MoveBody(body, step, 0.0f, -9.82f, 0.0f, 1.0f / 1024.0f, 5.0f, 10.0f);
+				Ragdoll_MoveBody(body, step, 0.0f, -9.82f, 0.0f, nudge, 2.0f, 4.0f);
 			for (i = 0, body = bodies;i < numbodies;i++, body++)
 				Ragdoll_ConstrainBody(body, step, 8);
 			if (spew)
@@ -627,12 +669,22 @@ int main(int argc, char **argv)
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glColor4f(0.5, 0.5, 0.5, 1);
+		glBegin(GL_QUADS);
+		glVertex3f(-10, floorplane[3], -20);
+		glVertex3f( 10, floorplane[3], -20);
+		glVertex3f( 10, floorplane[3],   0);
+		glVertex3f(-10, floorplane[3],   0);
+		glEnd();
+
 		glBegin(GL_LINES);
 		for (i = 0, body = bodies;i < numbodies;i++, body++)
 		{
 			glColor4f((i & 3) / 3.0f, ((i >> 2) & 3) / 3.0f, ((i >> 4) & 3) / 3.0f, 1);
 			for (j = 0;j < body->numsticks;j++)
 			{
+				if (body->sticks[j].type == RAGDOLLSTICK_MINDIST)
+					continue;
 				v = body->particles[body->sticks[j].particleindices[0]].origin;
 				glVertex3f(v.v[0], v.v[1], v.v[2]);
 				v = body->particles[body->sticks[j].particleindices[1]].origin;
@@ -640,6 +692,26 @@ int main(int argc, char **argv)
 			}
 		}
 		glEnd();
+
+		glDepthMask(GL_FALSE);
+		glEnable(GL_BLEND);
+		glBegin(GL_LINES);
+		for (i = 0, body = bodies;i < numbodies;i++, body++)
+		{
+			glColor4f((i & 3) / 3.0f, ((i >> 2) & 3) / 3.0f, ((i >> 4) & 3) / 3.0f, 0.3f);
+			for (j = 0;j < body->numsticks;j++)
+			{
+				if (body->sticks[j].type != RAGDOLLSTICK_MINDIST)
+					continue;
+				v = body->particles[body->sticks[j].particleindices[0]].origin;
+				glVertex3f(v.v[0], v.v[1], v.v[2]);
+				v = body->particles[body->sticks[j].particleindices[1]].origin;
+				glVertex3f(v.v[0], v.v[1], v.v[2]);
+			}
+		}
+		glEnd();
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
 
 		glPointSize(3);
 		glBegin(GL_POINTS);
@@ -653,18 +725,6 @@ int main(int argc, char **argv)
 			}
 		}
 		glEnd();
-
-		glDepthMask(GL_FALSE);
-		glEnable(GL_BLEND);
-		glColor4f(0.5, 0.5, 0.5, 0.5);
-		glBegin(GL_QUADS);
-		glVertex3f(-10, floorplane[3], -30);
-		glVertex3f( 10, floorplane[3], -30);
-		glVertex3f( 10, floorplane[3], -10);
-		glVertex3f(-10, floorplane[3], -10);
-		glEnd();
-		glDepthMask(GL_TRUE);
-		glDisable(GL_BLEND);
 
 		SDL_GL_SwapBuffers();
 	}
