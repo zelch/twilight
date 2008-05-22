@@ -481,7 +481,7 @@ int main(int argc, char **argv)
 	int quit = 0;
 	int viewwidth = 1024, viewheight = 768;
 	int currenttime;
-	RagdollScalar step = 1.0f / 128.0f;
+	RagdollScalar step = 1.0f / 64.0f;
 	RagdollScalar x, y, z;
 	RagdollScalar f;
 	double nextframetime = 0;
@@ -506,6 +506,8 @@ int main(int argc, char **argv)
 	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 	sdlsurface = SDL_SetVideoMode(viewwidth, viewheight, 32, SDL_OPENGL);
 	SDL_WM_SetCaption("ragdoll test", NULL);
+
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -549,6 +551,140 @@ int main(int argc, char **argv)
 					Ragdoll_SetStick(body, 3, type, 1, 2, 1.0f, 1);
 					Ragdoll_SetStick(body, 4, type, 1, 3, 1.0f, 1);
 					Ragdoll_SetStick(body, 5, type, 2, 3, 1.0f, 1);
+					Ragdoll_RecalculateBounds(body);
+					break;
+				case SDLK_w:
+					if (numbodies == MAX_BODIES)
+						break;
+					// create a ragdoll similar to the one in the article "Advanced Character Physics" on Gamasutra
+					x = lhrandom(-3, 3);
+					y = floorplane[3];
+					z = -6 + lhrandom(-3, 3);
+					body = bodies + numbodies++;
+					Ragdoll_NewBody(body, 35, 87);
+					Ragdoll_SetParticle(body,  0, x+0.00f, y+1.82f, z+0.00f, 0                  , 0                  , 0                  ); //  0 head
+					Ragdoll_SetParticle(body,  1, x+0.00f, y+1.75f, z+0.00f, 0                  , 0                  , 0                  ); //  1 neck
+					Ragdoll_SetParticle(body,  2, x+0.00f, y+1.48f, z+0.00f, 0                  , 0                  , 0                  ); //  2 spine1
+					Ragdoll_SetParticle(body,  3, x+0.00f, y+1.41f, z+0.00f, 0                  , 0                  , 0                  ); //  3 spine2
+					Ragdoll_SetParticle(body,  4, x+0.00f, y+1.35f, z+0.00f, 0                  , 0                  , 0                  ); //  4 spine3
+					Ragdoll_SetParticle(body,  5, x+0.00f, y+1.29f, z+0.00f, 0                  , 0                  , 0                  ); //  5 spine4
+					Ragdoll_SetParticle(body,  6, x+0.00f, y+1.22f, z+0.00f, 0                  , 0                  , 0                  ); //  6 spine5
+					Ragdoll_SetParticle(body,  7, x-0.10f, y+1.73f, z+0.00f, 0                  , 0                  , 0                  ); //  7 right collar
+					Ragdoll_SetParticle(body,  8, x-0.22f, y+1.62f, z+0.00f, lhrandom( -30,  30), lhrandom( -30,  30), lhrandom(-300, 300)); //  8 right shoulder
+					Ragdoll_SetParticle(body,  9, x-0.43f, y+1.46f, z+0.00f, 0                  , 0                  , 0                  ); //  9 right elbow
+					Ragdoll_SetParticle(body, 10, x-0.66f, y+1.28f, z+0.00f, 0                  , 0                  , 0                  ); // 10 right wrist
+					Ragdoll_SetParticle(body, 11, x-0.13f, y+1.13f, z+0.00f, 0                  , 0                  , 0                  ); // 11 right hip
+					Ragdoll_SetParticle(body, 12, x-0.13f, y+0.60f, z+0.00f, 0                  , 0                  , 0                  ); // 12 right knee
+					Ragdoll_SetParticle(body, 13, x-0.12f, y+0.18f, z+0.00f, 0                  , 0                  , 0                  ); // 13 right sock
+					Ragdoll_SetParticle(body, 14, x-0.12f, y+0.10f, z+0.00f, 0                  , 0                  , 0                  ); // 14 right ankle
+					Ragdoll_SetParticle(body, 15, x-0.13f, y+0.04f, z+0.00f, 0                  , 0                  , 0                  ); // 15 right foot
+					Ragdoll_SetParticle(body, 16, x+0.10f, y+1.73f, z+0.00f, 0                  , 0                  , 0                  ); // 16 left collar
+					Ragdoll_SetParticle(body, 17, x+0.22f, y+1.62f, z+0.00f, 0                  , 0                  , 0                  ); // 17 left shoulder
+					Ragdoll_SetParticle(body, 18, x+0.43f, y+1.46f, z+0.00f, 0                  , 0                  , 0                  ); // 18 left elbow
+					Ragdoll_SetParticle(body, 19, x+0.66f, y+1.28f, z+0.00f, 0                  , 0                  , 0                  ); // 19 left wrist
+					Ragdoll_SetParticle(body, 20, x+0.13f, y+1.13f, z+0.00f, 0                  , 0                  , 0                  ); // 20 left hip
+					Ragdoll_SetParticle(body, 21, x+0.13f, y+0.60f, z+0.00f, 0                  , 0                  , 0                  ); // 21 left knee
+					Ragdoll_SetParticle(body, 22, x+0.12f, y+0.18f, z+0.00f, 0                  , 0                  , 0                  ); // 22 left sock
+					Ragdoll_SetParticle(body, 23, x+0.12f, y+0.10f, z+0.00f, 0                  , 0                  , 0                  ); // 23 left ankle
+					Ragdoll_SetParticle(body, 24, x+0.13f, y+0.04f, z+0.00f, 0                  , 0                  , 0                  ); // 24 left foot
+					Ragdoll_SetParticle(body, 25, x-0.09f, y+1.13f, z+0.00f, 0                  , 0                  , 0                  ); // 25 right hip (inner)
+					Ragdoll_SetParticle(body, 26, x-0.09f, y+0.60f, z+0.00f, 0                  , 0                  , 0                  ); // 26 right knee (inner)
+					Ragdoll_SetParticle(body, 27, x-0.08f, y+0.18f, z+0.00f, 0                  , 0                  , 0                  ); // 27 right sock (inner)
+					Ragdoll_SetParticle(body, 28, x-0.08f, y+0.10f, z+0.00f, 0                  , 0                  , 0                  ); // 28 right ankle (inner)
+					Ragdoll_SetParticle(body, 29, x-0.09f, y+0.04f, z+0.00f, 0                  , 0                  , 0                  ); // 29 right foot (inner)
+					Ragdoll_SetParticle(body, 30, x+0.09f, y+1.13f, z+0.00f, 0                  , 0                  , 0                  ); // 30 left hip (inner)
+					Ragdoll_SetParticle(body, 31, x+0.09f, y+0.60f, z+0.00f, 0                  , 0                  , 0                  ); // 31 left knee (inner)
+					Ragdoll_SetParticle(body, 32, x+0.08f, y+0.18f, z+0.00f, 0                  , 0                  , 0                  ); // 32 left sock (inner)
+					Ragdoll_SetParticle(body, 33, x+0.08f, y+0.10f, z+0.00f, 0                  , 0                  , 0                  ); // 33 left ankle (inner)
+					Ragdoll_SetParticle(body, 34, x+0.09f, y+0.04f, z+0.00f, 0                  , 0                  , 0                  ); // 34 left foot (inner)
+					Ragdoll_SetStick(body,  0, type                ,  0,  1, 1.0f, 1);
+					Ragdoll_SetStick(body,  1, type                ,  1,  2, 1.0f, 1);
+					Ragdoll_SetStick(body,  2, type                ,  1,  7, 1.0f, 1);
+					Ragdoll_SetStick(body,  3, type                ,  1, 16, 1.0f, 1);
+					Ragdoll_SetStick(body,  4, type                ,  2,  3, 1.0f, 1);
+					Ragdoll_SetStick(body,  5, type                ,  3,  4, 1.0f, 1);
+					Ragdoll_SetStick(body,  6, type                ,  4,  5, 1.0f, 1);
+					Ragdoll_SetStick(body,  7, type                ,  5,  6, 1.0f, 1);
+					Ragdoll_SetStick(body,  8, type                ,  6, 11, 1.0f, 1);
+					Ragdoll_SetStick(body,  9, type                ,  6, 20, 1.0f, 1);
+					Ragdoll_SetStick(body, 10, type                ,  7,  8, 1.0f, 1);
+					Ragdoll_SetStick(body, 11, type                ,  8,  9, 1.0f, 1);
+					Ragdoll_SetStick(body, 12, type                ,  9, 10, 1.0f, 1);
+					Ragdoll_SetStick(body, 13, type                , 11, 12, 1.0f, 1);
+					Ragdoll_SetStick(body, 14, type                , 12, 13, 1.0f, 1);
+					Ragdoll_SetStick(body, 15, type                , 13, 14, 1.0f, 1);
+					Ragdoll_SetStick(body, 16, type                , 14, 15, 1.0f, 1);
+					Ragdoll_SetStick(body, 17, type                , 16, 17, 1.0f, 1);
+					Ragdoll_SetStick(body, 18, type                , 17, 18, 1.0f, 1);
+					Ragdoll_SetStick(body, 19, type                , 18, 19, 1.0f, 1);
+					Ragdoll_SetStick(body, 20, type                , 20, 21, 1.0f, 1);
+					Ragdoll_SetStick(body, 21, type                , 21, 22, 1.0f, 1);
+					Ragdoll_SetStick(body, 22, type                , 22, 23, 1.0f, 1);
+					Ragdoll_SetStick(body, 23, type                , 23, 24, 1.0f, 1);
+					Ragdoll_SetStick(body, 24, type                ,  7, 11, 1.0f, 1);
+					Ragdoll_SetStick(body, 25, type                , 16, 20, 1.0f, 1);
+					Ragdoll_SetStick(body, 26, type                ,  7, 16, 1.0f, 1);
+					Ragdoll_SetStick(body, 27, type                ,  8, 17, 1.0f, 1);
+					Ragdoll_SetStick(body, 28, type                ,  8, 11, 1.0f, 1);
+					Ragdoll_SetStick(body, 29, type                ,  8, 20, 1.0f, 1);
+					Ragdoll_SetStick(body, 30, type                , 17, 11, 1.0f, 1);
+					Ragdoll_SetStick(body, 31, type                , 17, 20, 1.0f, 1);
+					Ragdoll_SetStick(body, 32, type                , 11, 20, 1.0f, 1);
+					Ragdoll_SetStick(body, 33, type                ,  7, 20, 1.0f, 1);
+					Ragdoll_SetStick(body, 34, type                , 16, 11, 1.0f, 1);
+					Ragdoll_SetStick(body, 35, RAGDOLLSTICK_MINDIST, 12, 21, 0.5f, 1);
+					Ragdoll_SetStick(body, 36, RAGDOLLSTICK_MINDIST, 13, 22, 0.5f, 1);
+					Ragdoll_SetStick(body, 37, RAGDOLLSTICK_MINDIST, 14, 23, 0.5f, 1);
+					Ragdoll_SetStick(body, 38, RAGDOLLSTICK_MINDIST, 15, 24, 0.5f, 1);
+					Ragdoll_SetStick(body, 39, RAGDOLLSTICK_MINDIST,  0,  2, 0.7f, 1);
+					Ragdoll_SetStick(body, 40, RAGDOLLSTICK_MINDIST,  0,  7, 0.7f, 1);
+					Ragdoll_SetStick(body, 41, RAGDOLLSTICK_MINDIST,  0, 16, 0.7f, 1);
+					Ragdoll_SetStick(body, 42, RAGDOLLSTICK_MINDIST, 10, 20, 0.7f, 1);
+					Ragdoll_SetStick(body, 43, RAGDOLLSTICK_MINDIST, 11, 19, 0.7f, 1);
+					Ragdoll_SetStick(body, 44, RAGDOLLSTICK_MINDIST,  9, 20, 0.7f, 1);
+					Ragdoll_SetStick(body, 45, RAGDOLLSTICK_MINDIST, 11, 18, 0.7f, 1);
+					Ragdoll_SetStick(body, 46, RAGDOLLSTICK_MINDIST,  0,  8, 0.7f, 1);
+					Ragdoll_SetStick(body, 47, RAGDOLLSTICK_MINDIST,  0, 17, 0.7f, 1);
+					Ragdoll_SetStick(body, 48, type                , 25, 30, 1.0f, 1);
+					Ragdoll_SetStick(body, 49, type                ,  6, 11, 1.0f, 1);
+					Ragdoll_SetStick(body, 50, type                ,  6, 20, 1.0f, 1);
+					Ragdoll_SetStick(body, 51, type                ,  6, 25, 1.0f, 1);
+					Ragdoll_SetStick(body, 52, type                ,  6, 30, 1.0f, 1);
+					Ragdoll_SetStick(body, 53, type                , 11, 25, 1.0f, 1);
+					Ragdoll_SetStick(body, 54, type                , 12, 26, 1.0f, 1);
+					Ragdoll_SetStick(body, 55, type                , 13, 27, 1.0f, 1);
+					Ragdoll_SetStick(body, 56, type                , 14, 28, 1.0f, 1);
+					Ragdoll_SetStick(body, 57, type                , 15, 29, 1.0f, 1);
+					Ragdoll_SetStick(body, 58, type                , 20, 30, 1.0f, 1);
+					Ragdoll_SetStick(body, 59, type                , 21, 31, 1.0f, 1);
+					Ragdoll_SetStick(body, 60, type                , 22, 32, 1.0f, 1);
+					Ragdoll_SetStick(body, 61, type                , 23, 33, 1.0f, 1);
+					Ragdoll_SetStick(body, 62, type                , 24, 34, 1.0f, 1);
+					Ragdoll_SetStick(body, 63, type                , 25, 26, 1.0f, 1);
+					Ragdoll_SetStick(body, 64, type                , 26, 27, 1.0f, 1);
+					Ragdoll_SetStick(body, 65, type                , 27, 28, 1.0f, 1);
+					Ragdoll_SetStick(body, 66, type                , 28, 29, 1.0f, 1);
+					Ragdoll_SetStick(body, 67, type                , 30, 31, 1.0f, 1);
+					Ragdoll_SetStick(body, 68, type                , 31, 32, 1.0f, 1);
+					Ragdoll_SetStick(body, 69, type                , 32, 33, 1.0f, 1);
+					Ragdoll_SetStick(body, 70, type                , 33, 34, 1.0f, 1);
+					Ragdoll_SetStick(body, 71, type                , 11, 26, 1.0f, 1);
+					Ragdoll_SetStick(body, 72, type                , 25, 12, 1.0f, 1);
+					Ragdoll_SetStick(body, 73, type                , 12, 27, 1.0f, 1);
+					Ragdoll_SetStick(body, 74, type                , 26, 13, 1.0f, 1);
+					Ragdoll_SetStick(body, 75, type                , 13, 28, 1.0f, 1);
+					Ragdoll_SetStick(body, 76, type                , 27, 14, 1.0f, 1);
+					Ragdoll_SetStick(body, 77, type                , 14, 29, 1.0f, 1);
+					Ragdoll_SetStick(body, 78, type                , 28, 15, 1.0f, 1);
+					Ragdoll_SetStick(body, 79, type                , 20, 31, 1.0f, 1);
+					Ragdoll_SetStick(body, 80, type                , 30, 21, 1.0f, 1);
+					Ragdoll_SetStick(body, 81, type                , 21, 32, 1.0f, 1);
+					Ragdoll_SetStick(body, 82, type                , 31, 22, 1.0f, 1);
+					Ragdoll_SetStick(body, 83, type                , 22, 33, 1.0f, 1);
+					Ragdoll_SetStick(body, 84, type                , 32, 23, 1.0f, 1);
+					Ragdoll_SetStick(body, 85, type                , 23, 34, 1.0f, 1);
+					Ragdoll_SetStick(body, 86, type                , 33, 24, 1.0f, 1);
+					Ragdoll_ConstrainBody(body, step, 64);
 					Ragdoll_RecalculateBounds(body);
 					break;
 				case SDLK_h:
@@ -614,6 +750,7 @@ int main(int argc, char **argv)
 					Ragdoll_SetStick(body, 33, RAGDOLLSTICK_MINDIST,  0,  9, 0.8f, 1); // head to left shoulder
 					Ragdoll_SetStick(body, 34, RAGDOLLSTICK_MINDIST, 10, 13, 0.7f, 1); // right hip to right foot
 					Ragdoll_SetStick(body, 35, RAGDOLLSTICK_MINDIST, 11, 15, 0.7f, 1); // right hip to right foot
+					Ragdoll_ConstrainBody(body, step, 64);
 					Ragdoll_RecalculateBounds(body);
 					break;
 				case SDLK_SPACE:
