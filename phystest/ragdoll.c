@@ -605,7 +605,7 @@ int main(int argc, char **argv)
 					z = -6 + lhrandom(-3, 3);
 					body = bodies + numbodies++;
 					Ragdoll_NewBody(body, 35, 97);
-					Ragdoll_SetParticle(body,  0, 0.12f, x+0.00f, y+1.82f, z-0.00f, 0, 0, 0); //  0 head
+					Ragdoll_SetParticle(body,  0, 0.20f, x+0.00f, y+1.82f, z-0.00f, 0, 0, 0); //  0 head
 					Ragdoll_SetParticle(body,  1, 0.15f, x+0.00f, y+1.75f, z-0.00f, 0, 0, 0); //  1 neck
 					Ragdoll_SetParticle(body,  2, 0.15f, x+0.00f, y+1.48f, z-0.00f, 0, 0, 0); //  2 spine1
 					Ragdoll_SetParticle(body,  3, 0.15f, x+0.00f, y+1.41f, z+0.01f, 0, 0, 0); //  3 spine2
