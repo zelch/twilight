@@ -604,7 +604,7 @@ int main(int argc, char **argv)
 					y = floorplane[3];
 					z = -6 + lhrandom(-3, 3);
 					body = bodies + numbodies++;
-					Ragdoll_NewBody(body, 35, 92);
+					Ragdoll_NewBody(body, 35, 97);
 					Ragdoll_SetParticle(body,  0, 0.12f, x+0.00f, y+1.82f, z-0.00f, 0, 0, 0); //  0 head
 					Ragdoll_SetParticle(body,  1, 0.15f, x+0.00f, y+1.75f, z-0.00f, 0, 0, 0); //  1 neck
 					Ragdoll_SetParticle(body,  2, 0.15f, x+0.00f, y+1.48f, z-0.00f, 0, 0, 0); //  2 spine1
@@ -732,6 +732,11 @@ int main(int argc, char **argv)
 					Ragdoll_SetStick(body, 89, RAGDOLLSTICK_MINDIST,  4, 31, 0.7f, 1);
 					Ragdoll_SetStick(body, 90, RAGDOLLSTICK_MINDIST,  4, 10, 0.7f, 1);
 					Ragdoll_SetStick(body, 91, RAGDOLLSTICK_MINDIST,  4, 19, 0.7f, 1);
+					Ragdoll_SetStick(body, 92, RAGDOLLSTICK_MINDIST,  4,  0, 0.9f, 1);
+					Ragdoll_SetStick(body, 93, RAGDOLLSTICK_MINDIST,  4,  9, 0.7f, 1);
+					Ragdoll_SetStick(body, 94, RAGDOLLSTICK_MINDIST,  4, 18, 0.7f, 1);
+					Ragdoll_SetStick(body, 95, RAGDOLLSTICK_MINDIST,  4, 13, 0.7f, 1);
+					Ragdoll_SetStick(body, 96, RAGDOLLSTICK_MINDIST,  4, 22, 0.7f, 1);
 					Ragdoll_RecalculateBounds(body);
 					body->sleep = RAGDOLL_SLEEPFRAMES;
 					//Ragdoll_PointImpulseBody(body, x + lhrandom(-0.66f, 0.66f), y + lhrandom(0.00f, 2.00f), z + 0.05f, lhrandom( -30,  30), lhrandom( -30,  30), lhrandom(-300, 0));
