@@ -57,78 +57,40 @@ RagdollStick;
 
 typedef struct RagdollBody
 {
-	int active;
 	int sleep; // if true the body is not moving at all
 	int numparticles;
 	int numsticks;
 	RagdollParticle *particles;
 	RagdollStick *sticks;
+	RagdollVector mins;
+	RagdollVector maxs;
 }
 RagdollBody;
 
-typedef struct RagdollGlobals
+void Ragdoll_Setup(RagdollBody *body, unsigned int numparticles, RagdollParticle *particles, unsigned int numsticks, RagdollStick *sticks)
 {
-	int (*callback_printf)(const char *fmt, ...);
-	void *(*callback_malloc)(size_t size);
-	void (*callback_free)(void *data);
-	void (*callback_trace)(RagdollTrace *trace);
-}
-RagdollGlobals;
-
-RagdollGlobals Ragdoll;
-
-static int Ragdoll_DummyPrintf(const char *fmt, ...)
-{
-	return 0;
-}
-
-void Ragdoll_Init(int (*callback_printf)(const char *fmt, ...), void *(*callback_malloc)(size_t size), void (*callback_free)(void *data), void (*callback_trace)(RagdollTrace *trace))
-{
-	memset(&Ragdoll, 0, sizeof(Ragdoll));
-	Ragdoll.callback_printf = callback_printf;
-	Ragdoll.callback_malloc = callback_malloc;
-	Ragdoll.callback_free = callback_free;
-	Ragdoll.callback_trace = callback_trace;
-	if (!Ragdoll.callback_printf)
-		Ragdoll.callback_printf = Ragdoll_DummyPrintf;
-}
-
-void Ragdoll_Quit(void)
-{
-	memset(&Ragdoll, 0, sizeof(Ragdoll));
-}
-
-void Ragdoll_NewBody(RagdollBody *body, unsigned int numparticles, unsigned int numsticks)
-{
-	// check limits to prevent crashes in certain stack-based code
-	if (numparticles > RAGDOLL_MAX_PARTICLES_PER_BODY)
-	{
-		numparticles = RAGDOLL_MAX_PARTICLES_PER_BODY;
-		Ragdoll.callback_printf("Ragdoll_Newbody: too many particles, limiting to %i\n", numparticles);
-	}
 	memset(body, 0, sizeof(*body));
-	body->active = 1;
 	body->numparticles = numparticles;
 	body->numsticks = numsticks;
-	if (numparticles > 0)
-		body->particles = (RagdollParticle *)Ragdoll.callback_malloc(body->numparticles * sizeof(RagdollParticle));
-	if (numsticks > 0)
-		body->sticks = (RagdollStick *)Ragdoll.callback_malloc(body->numsticks * sizeof(RagdollStick));
-}
-
-void Ragdoll_DestroyBody(RagdollBody *body)
-{
-	// free anything related to this body
-	if (body->particles)
-		Ragdoll.callback_free(body->particles);
-	if (body->sticks)
-		Ragdoll.callback_free(body->sticks);
-	memset(body, 0, sizeof(*body));
+	body->particles = particles;
+	body->sticks = sticks;
 }
 
 void Ragdoll_RecalculateBounds(RagdollBody *body)
 {
-	// TODO
+	int i;
+	RagdollParticle *p;
+	if (body->particles)
+		body->mins = body->maxs = body->particles->origin;
+	for (i = 0, p = body->particles;i < body->numparticles;i++, p++)
+	{
+		if (body->mins.v[0] > p->origin.v[0]) body->mins.v[0] = p->origin.v[0];
+		if (body->mins.v[1] > p->origin.v[1]) body->mins.v[1] = p->origin.v[1];
+		if (body->mins.v[2] > p->origin.v[2]) body->mins.v[2] = p->origin.v[2];
+		if (body->maxs.v[0] < p->origin.v[0]) body->maxs.v[0] = p->origin.v[0];
+		if (body->maxs.v[1] < p->origin.v[1]) body->maxs.v[1] = p->origin.v[1];
+		if (body->maxs.v[2] < p->origin.v[2]) body->maxs.v[2] = p->origin.v[2];
+	}
 }
 
 void Ragdoll_GetPositions(RagdollBody *body, int startindex, int numpositions, RagdollScalar *positions, size_t stride)
@@ -137,10 +99,7 @@ void Ragdoll_GetPositions(RagdollBody *body, int startindex, int numpositions, R
 	RagdollParticle *p;
 	RagdollScalar *pos;
 	if (startindex < 0 || numpositions < 0 || (unsigned int)(startindex + numpositions) > (unsigned int)body->numparticles)
-	{
-		Ragdoll.callback_printf("Ragdoll_GetPositions: invalid range\n");
 		return;
-	}
 	p = body->particles + startindex;
 	pos = positions;
 	for (i = 0;i < numpositions;i++, p++, pos = (RagdollScalar *)((unsigned char *)pos + stride))
@@ -155,10 +114,7 @@ void Ragdoll_SetParticle(RagdollBody *body, int subindex, RagdollScalar radius, 
 {
 	RagdollParticle p;
 	if (subindex < 0 || subindex >= body->numparticles)
-	{
-		Ragdoll.callback_printf("Ragdoll_SetParticle: invalid particle index\n");
 		return;
-	}
 	memset(&p, 0, sizeof(p));
 	p.origin.v[0] = (RagdollScalar)x;
 	p.origin.v[1] = (RagdollScalar)y;
@@ -175,10 +131,7 @@ void Ragdoll_SetStick(RagdollBody *body, int subindex, RagdollStickType type, in
 	RagdollStick s;
 	RagdollScalar v[3];
 	if (subindex < 0 || subindex >= body->numsticks)
-	{
-		Ragdoll.callback_printf("Ragdoll_SetStick: invalid stick index\n");
 		return;
-	}
 	memset(&s, 0, sizeof(s));
 	s.particleindices[0] = p1;
 	s.particleindices[1] = p2;
@@ -196,7 +149,7 @@ void Ragdoll_SetStick(RagdollBody *body, int subindex, RagdollStickType type, in
 	body->sticks[subindex] = s;
 }
 
-void Ragdoll_MoveBody(RagdollBody *body, RagdollScalar step, RagdollScalar accelx, RagdollScalar accely, RagdollScalar accelz, RagdollScalar nudge, RagdollScalar friction, RagdollScalar stiction, RagdollScalar sleepdist)
+void Ragdoll_MoveBody(RagdollBody *body, RagdollScalar step, RagdollScalar accelx, RagdollScalar accely, RagdollScalar accelz, RagdollScalar nudge, RagdollScalar friction, RagdollScalar stiction, RagdollScalar sleepdist, void (*callback_trace)(RagdollTrace *trace))
 {
 	int i;
 	int j;
@@ -254,7 +207,7 @@ void Ragdoll_MoveBody(RagdollBody *body, RagdollScalar step, RagdollScalar accel
 			trace.end[1] = p->origin.v[1] + t * p->velocity.v[1];
 			trace.end[2] = p->origin.v[2] + t * p->velocity.v[2];
 			trace.radius = p->radius;
-			Ragdoll.callback_trace(&trace);
+			callback_trace(&trace);
 			f = trace.fraction * t;
 			p->origin.v[0] += f * p->velocity.v[0];
 			p->origin.v[1] += f * p->velocity.v[1];
@@ -508,6 +461,8 @@ int main(int argc, char **argv)
 {
 	int i;
 	int j;
+	int numparticles;
+	int numsticks;
 	int pause = 0;
 	int frame = 0;
 	int spew = 0;
@@ -563,7 +518,6 @@ int main(int argc, char **argv)
 	glDisable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Ragdoll_Init(printf, malloc, free, test_trace);
 	nextframetime = SDL_GetTicks();
 	// run physics
 	for (;;)
@@ -583,7 +537,9 @@ int main(int argc, char **argv)
 					y = 5;
 					z = -6 + lhrandom(-3, 3);
 					body = bodies + numbodies++;
-					Ragdoll_NewBody(body, 4, 6);
+					numparticles = 4;
+					numsticks = 6;
+					Ragdoll_Setup(body, numparticles, malloc(numparticles * sizeof(RagdollParticle)), numsticks, malloc(numsticks * sizeof(RagdollStick)));
 					Ragdoll_SetParticle(body, 0, 0.0f, x+0, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
 					Ragdoll_SetParticle(body, 1, 0.0f, x+1, y+0, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
 					Ragdoll_SetParticle(body, 2, 0.0f, x+0, y+1, z+0, lhrandom(-3, 3), lhrandom(-3, 3), lhrandom(-3, 3));
@@ -604,7 +560,9 @@ int main(int argc, char **argv)
 					y = floorplane[3];
 					z = -6 + lhrandom(-3, 3);
 					body = bodies + numbodies++;
-					Ragdoll_NewBody(body, 35, 97);
+					numparticles = 35;
+					numsticks = 97;
+					Ragdoll_Setup(body, numparticles, malloc(numparticles * sizeof(RagdollParticle)), numsticks, malloc(numsticks * sizeof(RagdollStick)));
 					Ragdoll_SetParticle(body,  0, 0.20f, x+0.00f, y+1.82f, z-0.00f, 0, 0, 0); //  0 head
 					Ragdoll_SetParticle(body,  1, 0.15f, x+0.00f, y+1.75f, z-0.00f, 0, 0, 0); //  1 neck
 					Ragdoll_SetParticle(body,  2, 0.15f, x+0.00f, y+1.48f, z-0.00f, 0, 0, 0); //  2 spine1
@@ -749,7 +707,9 @@ int main(int argc, char **argv)
 					y = floorplane[3];
 					z = -6 + lhrandom(-3, 3);
 					body = bodies + numbodies++;
-					Ragdoll_NewBody(body, 16, 36);
+					numparticles = 16;
+					numsticks = 36;
+					Ragdoll_Setup(body, numparticles, malloc(numparticles * sizeof(RagdollParticle)), numsticks, malloc(numsticks * sizeof(RagdollStick)));
 					Ragdoll_SetParticle(body,  0, 0.05f, x+0.00f, y+2.00f, z, 0, 0, 0); // head
 					Ragdoll_SetParticle(body,  1, 0.05f, x+0.00f, y+1.70f, z, 0, 0, 0); // neck
 					Ragdoll_SetParticle(body,  2, 0.05f, x-0.30f, y+1.40f, z, 0, 0, 0); // right shoulder
@@ -815,7 +775,12 @@ int main(int argc, char **argv)
 					break;
 				case SDLK_DELETE:
 					if (numbodies > 0)
-						Ragdoll_DestroyBody(bodies + --numbodies);
+					{
+						body = bodies + --numbodies;
+						free(body->particles);
+						free(body->sticks);
+						memset(body, 0, sizeof(*body));
+					}
 					break;
 				case SDLK_ESCAPE:
 					quit = 1;
@@ -850,7 +815,7 @@ int main(int argc, char **argv)
 			if (pause == 2)
 				pause = 1;
 			for (i = 0, body = bodies;i < numbodies;i++, body++)
-				Ragdoll_MoveBody(body, step, 0.0f, -9.82f, 0.0f, nudge, 0.25f, 0.125f, 0.0005f);
+				Ragdoll_MoveBody(body, step, 0.0f, -9.82f, 0.0f, nudge, 0.25f, 0.125f, 0.0005f, test_trace);
 			for (i = 0, body = bodies;i < numbodies;i++, body++)
 				Ragdoll_ConstrainBody(body, step, 16);
 			if (spew)
@@ -1017,7 +982,6 @@ int main(int argc, char **argv)
 
 		SDL_GL_SwapBuffers();
 	}
-	Ragdoll_Quit();
 	SDL_Quit();
 	return 0;
 }
