@@ -951,7 +951,7 @@ int main(int argc, char **argv)
 			else if (button == 3)
 				bestparticle->velocity.v[2] -= button * 50.0f;
 			// try to keep the body from deforming massively
-			Ragdoll_ConstrainBody(body, step, 256);
+			Ragdoll_ConstrainBody(bestbody, step, 256);
 			// reactivate the body if it was resting
 			bestbody->sleep = 0;
 			// only do one impulse per click
