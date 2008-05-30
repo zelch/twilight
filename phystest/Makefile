@@ -22,18 +22,18 @@ CFLAGS= -MD -Wall -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION) `$(SDL_CONFIG) --cflag
 
 LDFLAGS= $(PROFILEOPTION) `$(SDL_CONFIG) --libs` -lm
 
-TARGETS= ragdoll
+TARGETS= lhragdoll
 
 all: $(TARGETS)
-mingw: ragdoll.exe
+mingw: lhragdoll.exe
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
 
-ragdoll: ragdoll.o
+lhragdoll: lhragdoll.o lhragdolltest.o
 	$(CC) -o $@ $^ -lGL $(LDFLAGS)
 
-ragdoll.exe: ragdoll.o
+lhragdoll.exe: lhragdoll.o lhragdolltest.o
 	$(CC) -o $@ $^ -lopengl32 $(LDFLAGS)
 
 clean:

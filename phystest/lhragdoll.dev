@@ -1,7 +1,7 @@
 [Project]
-FileName=ragdoll.dev
-Name=ragdoll
-UnitCount=1
+FileName=lhragdoll.dev
+Name=lhragdoll
+UnitCount=2
 Type=0
 Ver=1
 ObjFiles=
@@ -14,7 +14,7 @@ Compiler=-Dmain=SDL_main
 CppCompiler=
 Linker=-lmingw32 -lSDLmain -lSDL -lopengl32
 IsCpp=0
-Icon=ragdoll.ico
+Icon=lhragdoll.ico
 ExeOutput=
 ObjectOutput=
 OverrideOutput=0
@@ -30,9 +30,19 @@ CompilerSet=0
 CompilerSettings=
 
 [Unit1]
-FileName=ragdoll.c
+FileName=lhragdoll.c
 CompileCpp=0
-Folder=ragdoll
+Folder=lhragdoll
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit2]
+FileName=lhragdolltest.c
+CompileCpp=0
+Folder=lhragdoll
 Compile=1
 Link=1
 Priority=1000
