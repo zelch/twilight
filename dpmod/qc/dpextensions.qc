@@ -1693,3 +1693,10 @@ float(float caseinsensitive, string s, ...) crc16 = #494;
 //A function that gets called just before progs exit. To save persistent data from.
 //It is not called on a crash or error.
 //void SV_Shutdown();
+
+//DP_SV_SPAWNFUNC_PREFIX
+//idea: div0
+//darkplaces implementation: div0
+//Make functions whose name start with spawnfunc_ take precedence as spawn function for loading entities.
+//Useful if you have a field ammo_shells (required in any Quake mod) but want to support spawn functions called ammo_shells (like in Q3A).
+//Optionally, you can declare a global "float require_spawnfunc_prefix;" which will require ANY spawn function to start with that prefix.
