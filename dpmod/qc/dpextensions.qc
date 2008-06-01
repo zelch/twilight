@@ -1694,6 +1694,13 @@ float(float caseinsensitive, string s, ...) crc16 = #494;
 //It is not called on a crash or error.
 //void SV_Shutdown();
 
+//DP_QC_URI_ESCAPE
+//idea: div0
+//darkplaces implementation: div0
+//URI::Escape's functionality
+string(string in) uri_escape = #510;
+string(string in) uri_unescape = #511;
+
 //DP_SV_SPAWNFUNC_PREFIX
 //idea: div0
 //darkplaces implementation: div0
