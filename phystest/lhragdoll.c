@@ -98,6 +98,8 @@ void LHRagdoll_MoveBody(LHRagdollBody *body, LHRagdollScalar step, LHRagdollScal
 
 	if (stiction < friction)
 		stiction = friction;
+	// multiply friction by step to keep the math simpler later
+	friction *= step;
 
 	// avoid some redundant calculations later
 	halfaccel[0] = halfstep * accelx;
