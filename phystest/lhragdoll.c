@@ -246,7 +246,7 @@ void LHRagdoll_ConstrainBody(LHRagdollBody *body, LHRagdollScalar step, int rest
 				break;
 			case LHRAGDOLLSTICK_MINDIST:
 				// mindist constraints only apply if too close
-				if (d >= s->distsquared * s->distsquared)
+				if (d >= s->distsquared)
 					continue;
 			case LHRAGDOLLSTICK_NORMAL:
 				// move particles to match stick's rest length
