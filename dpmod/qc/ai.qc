@@ -192,18 +192,27 @@ void() monster_spawnwanderpath =
 void() monster_checkbossflag =
 {
 	local float healthboost;
-	// use the first line if you want to have random boss monsters on nightmare and higher difficulties
-	//if ((self.spawnflags & 64) || (random() * random() * skill >= 2.8))
-	if (self.spawnflags & 64)
+	local float r;
+	// monsterbosses cvar or spawnflag 64 causes a monster to be a miniboss
+	if ((self.spawnflags & 64) || (random() * 100 < cvar("monsterbosspercent")))
 	{
 		self.radsuit_finished = time + 1000000000;
-		self.super_damage_finished = time + 1000000000;
-		healthboost = 200 + self.health * 3;
+		r = random() * 4;
+		if (r < 2)
+		{
+			self.super_damage_finished = time + 1000000000;
+			healthboost = 30 + self.health * 0.5;
+			self.effects = self.effects | (EF_FULLBRIGHT | EF_BLUE);
+		}
+		if (r >= 1)
+		{
+			healthboost = 30 + self.health * bound(0.5, skill * 0.5, 1.5);
+			self.effects = self.effects | (EF_FULLBRIGHT | EF_RED);
+			self.healthregen = max(self.healthregen, min(skill * 10, 30));
+		}
 		self.health = self.health + healthboost;
 		self.max_health = self.health;
-		self.bodyhealth = self.bodyhealth + healthboost;
-		if (self.healthregen < 50)
-			self.healthregen = 50;
+		self.bodyhealth = self.bodyhealth * 2 + healthboost;
 		do
 		{
 			self.colormod_x = random();
@@ -212,7 +221,6 @@ void() monster_checkbossflag =
 			self.colormod =  normalize(self.colormod);
 		}
 		while (self.colormod_x > 0.6 && self.colormod_y > 0.6 && self.colormod_z > 0.6);
-		self.effects = self.effects | (EF_FULLBRIGHT | EF_BLUE);
 	}
 };
 
