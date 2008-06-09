@@ -424,6 +424,12 @@ void() worldspawn =
 	precache_sound ("player/death4.wav");
 	precache_sound ("player/death5.wav");
 
+	// used by quad cheat
+	precache_sound ("items/damage2.wav");
+	precache_sound ("items/damage3.wav");
+	// used by temporary shielding after spawning
+	precache_sound ("items/protect3.wav");
+
 	precache_sound ("player/h2ojump.wav");		// player jumping into water
 	precache_sound ("player/slimbrn2.wav");		// player enter slime
 	precache_sound ("player/inh2o.wav");		// player enter water
