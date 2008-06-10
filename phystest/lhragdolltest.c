@@ -421,7 +421,7 @@ int main(int argc, char **argv)
 			if (pause == 2)
 				pause = 1;
 			for (i = 0, body = bodies;i < numbodies;i++, body++)
-				LHRagdoll_MoveBody(body, step, 0.0f, -9.82f, 0.0f, nudge, 16.0f, 8.0f, 0.001f, test_trace);
+				LHRagdoll_MoveBody(body, step, 0.0f, -9.82f, 0.0f, 16.0f, 8.0f, 0.001f, test_trace);
 			for (i = 0, body = bodies;i < numbodies;i++, body++)
 				LHRagdoll_ConstrainBody(body, step, 16);
 			if (spew)

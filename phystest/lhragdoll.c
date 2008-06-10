@@ -76,7 +76,7 @@ void LHRagdoll_RecalculateBounds(LHRagdollBody *body)
 	}
 }
 
-void LHRagdoll_MoveBody(LHRagdollBody *body, LHRagdollScalar step, LHRagdollScalar accelx, LHRagdollScalar accely, LHRagdollScalar accelz, LHRagdollScalar nudge, LHRagdollScalar friction, LHRagdollScalar stiction, LHRagdollScalar sleepdist, void (*callback_trace)(LHRagdollTrace *trace))
+void LHRagdoll_MoveBody(LHRagdollBody *body, LHRagdollScalar step, LHRagdollScalar accelx, LHRagdollScalar accely, LHRagdollScalar accelz, LHRagdollScalar friction, LHRagdollScalar stiction, LHRagdollScalar sleepdist, void (*callback_trace)(LHRagdollTrace *trace))
 {
 	int i;
 	int j;
@@ -145,7 +145,7 @@ void LHRagdoll_MoveBody(LHRagdollBody *body, LHRagdollScalar step, LHRagdollScal
 			t -= f;
 			if (trace.fraction < 1)
 			{
-				// project particle onto plane at the specified nudge
+				// project particle onto plane
 				// (this eliminates cumulative error, but seems to cause glitches)
 				//f = p->origin.v[0] * trace.planenormal[0] + p->origin.v[1] * trace.planenormal[1] + p->origin.v[2] * trace.planenormal[2] - trace.planedist - trace.radius;
 				//p->origin.v[0] -= f * trace.planenormal[0];
