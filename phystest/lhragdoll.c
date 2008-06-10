@@ -96,10 +96,11 @@ void LHRagdoll_MoveBody(LHRagdollBody *body, LHRagdollScalar step, LHRagdollScal
 	if (body->sleep >= LHRAGDOLL_SLEEPFRAMES)
 		return;
 
-	if (stiction < friction)
-		stiction = friction;
 	// multiply friction by step to keep the math simpler later
 	friction *= step;
+	stiction *= step;
+	if (stiction < friction)
+		stiction = friction;
 
 	// avoid some redundant calculations later
 	halfaccel[0] = halfstep * accelx;
@@ -146,10 +147,10 @@ void LHRagdoll_MoveBody(LHRagdollBody *body, LHRagdollScalar step, LHRagdollScal
 			{
 				// project particle onto plane at the specified nudge
 				// (this eliminates cumulative error, but seems to cause glitches)
-				f = p->origin.v[0] * trace.planenormal[0] + p->origin.v[1] * trace.planenormal[1] + p->origin.v[2] * trace.planenormal[2] - trace.planedist - trace.radius;
-				p->origin.v[0] -= f * trace.planenormal[0];
-				p->origin.v[1] -= f * trace.planenormal[1];
-				p->origin.v[2] -= f * trace.planenormal[2];
+				//f = p->origin.v[0] * trace.planenormal[0] + p->origin.v[1] * trace.planenormal[1] + p->origin.v[2] * trace.planenormal[2] - trace.planedist - trace.radius;
+				//p->origin.v[0] -= f * trace.planenormal[0];
+				//p->origin.v[1] -= f * trace.planenormal[1];
+				//p->origin.v[2] -= f * trace.planenormal[2];
 				// project velocity onto plane (this could be multiplied by a value like 1.5 to make it bounce significantly instead)
 				f = p->velocity.v[0] * trace.planenormal[0] + p->velocity.v[1] * trace.planenormal[1] + p->velocity.v[2] * trace.planenormal[2];
 				p->velocity.v[0] -= f * trace.planenormal[0];
