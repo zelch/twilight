@@ -1,6 +1,7 @@
 // vis.c
 
 #include "vis.h"
+#include "threads.h"
 
 #define	MAX_THREADS		4
 
@@ -23,8 +24,6 @@ byte *uncompressed;
 // (portalleafs+63)>>3
 int bitbytes;
 int bitlongs;
-
-int numthreads = 4;
 
 qboolean fastvis;
 qboolean verbose;
@@ -473,11 +472,7 @@ void LoadPortals (char *name)
 	{
 		f = fopen(name, "r");
 		if (!f)
-		{
-			printf ("LoadPortals: couldn't read %s\n",name);
-			printf ("No vising performed.\n");
-			exit (1);
-		}
+			Error ("LoadPortals: couldn't read %s\n",name);
 	}
 
 	if (fscanf (f,"%79s\n%i\n%i\n",magic, &portalleafs, &numportals) != 3)
@@ -615,11 +610,6 @@ int Vis_Main( int argc, char **argv )
 		{
 			rvis = false;
 			printf ("rvis optimization disabled\n");
-		}
-		else if (!strcmp(argv[i],"-threads"))
-		{
-			numthreads = atoi (argv[i+1]);
-			i++;
 		}
 		else if (!strcmp(argv[i], "-fast"))
 		{

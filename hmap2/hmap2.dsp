@@ -159,6 +159,10 @@ SOURCE=.\solidbsp.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\threads.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\tjunc.c
 # End Source File
 # Begin Source File
@@ -220,6 +224,10 @@ SOURCE=.\mathlib.h
 # Begin Source File
 
 SOURCE=.\mem.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\threads.h
 # End Source File
 # Begin Source File
 

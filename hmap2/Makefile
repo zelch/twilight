@@ -6,7 +6,7 @@ WIN32_LDFLAGS=-lwinmm
 ##### Unix variables #####
 
 UNIX_HMAP_EXE=hmap2
-UNIX_LDFLAGS=-lm
+UNIX_LDFLAGS=-lpthread -lm
 
 ##### Common variables #####
 
@@ -14,11 +14,11 @@ HMAPOBJECTS= cmdlib.o mathlib.o bspfile.o mem.o winding.o scriptlib.o \
     brush.o csg4.o faces.o map.o outside.o portals.o \
     qbsp.o solidbsp.o tjunc.o tree.o writebsp.o \
     wad.o bsp2prt.o bspinfo.o vis.o vis_flow.o vis_sound.o light.o \
-    light_face.o light_trace.o
+    light_face.o light_trace.o threads.o
 
 CC=gcc
-CFLAGS=-MD -Wall -O2
-#CFLAGS=-MD -Wall -g -ggdb
+#CFLAGS=-MD -Wall -O2
+CFLAGS=-MD -Wall -g -ggdb
 
 ##### Commands #####
 

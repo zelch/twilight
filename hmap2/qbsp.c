@@ -1,6 +1,7 @@
 // bsp5.c
 
 #include "bsp5.h"
+#include "threads.h"
 
 //
 // command line flags
@@ -269,6 +270,19 @@ int main (int argc, char **argv)
 
 	if (!strcmp(filename_map, filename_bsp))
 		Error("filename_map \"%s\" == filename_bsp \"%s\"\n", filename_map, filename_bsp);
+
+	for (i = 0; i < argc; i++)
+	{
+		if (!strcmp(argv[i],"-threads"))
+		{
+			i++;
+			if( i >= argc )
+				Error( "no value was given to -numthreads\n" );
+			numthreads = atoi (argv[i]);
+		}
+	}
+
+	ThreadSetDefault ();
 
 	i = 1;
 	ismcbsp = false;
