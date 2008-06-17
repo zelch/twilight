@@ -316,7 +316,7 @@ LightWorld
 */
 void LightWorld( void )
 {
-	int			i, k, n, m, count;
+	int			i, k, n, m, count, pass, surfacesdone, lightvisibilitydone;
 	unsigned short	*mark;
 	time_t		lightstarttime, oldtime, newtime;
 	directlight_t *light;
@@ -337,6 +337,8 @@ void LightWorld( void )
 	memset( surfacelightchain, 0, sizeof( surfacelightchain ) );
 
 	// LordHavoc: find the right leaf for each entity
+	lightvisibilitydone = 0;
+	oldtime = time( NULL );
 	for( i = 0, light = directlights; i < num_directlights; i++, light++ ) {
 		lightcount++;
 		alllight[alllights++] = light;
@@ -410,6 +412,14 @@ void LightWorld( void )
 				}
 			}
 		}
+		lightvisibilitydone++;
+		newtime = time(NULL);
+		if (newtime != oldtime)
+		{
+			printf("\rvisibility for light %5i of %5i (%3i%%), estimated time left: %5i ", lightvisibilitydone, num_directlights, (int) (lightvisibilitydone*100)/num_directlights, (int) (((num_directlights-lightvisibilitydone)*(newtime-lightstarttime))/lightvisibilitydone));
+			fflush(stdout);
+			oldtime = newtime;
+		}
 	}
 
 	printf( "%4i lights, %4i air, %4i solid, %4i water, %4i slime, %4i lava, %4i sky, %4i unknown\n", lightcount, emptycount, solidcount, watercount, slimecount, lavacount, skycount, misccount );
@@ -432,17 +442,23 @@ void LightWorld( void )
 	oldtime = time( NULL );
 
 	c_occluded = 0;
-	for( m = 0; m < count; ) {
-		LightFace( dfaces + m + dmodels[0].firstface, surfacelightchain[m + dmodels[0].firstface], novislight, novislights, org );
-		m++;
-		newtime = time( NULL );
-		if( newtime != oldtime ) {
-			printf( "\rworld face %5i of %5i (%3i%%), estimated time left: %5i ", m, count, (int) (m*100)/count, (int) (((count-m)*(newtime-lightstarttime))/m) );
-			fflush( stdout );
-			oldtime = newtime;
+	surfacesdone = 0;
+	for (pass = 0;pass < 256;pass++)
+	{
+		for (m = pass; m < count;m += 256)
+		{
+			LightFace(dfaces + m + dmodels[0].firstface, surfacelightchain[m + dmodels[0].firstface], novislight, novislights, org);
+			surfacesdone++;
+			newtime = time(NULL);
+			if (newtime != oldtime)
+			{
+				printf("\rworld face %5i of %5i (%3i%%), estimated time left: %5i ", surfacesdone, count, (int) (surfacesdone*100)/count, (int) (((count-surfacesdone)*(newtime-lightstarttime))/surfacesdone));
+				fflush(stdout);
+				oldtime = newtime;
+			}
 		}
 	}
-	printf( "\n%5i faces done\nlightdatasize: %i\n", numfaces, lightdatasize );
+	printf( "\n%5i faces done\nlightdatasize: %i\n", surfacesdone, lightdatasize );
 	printf( "c_occluded: %i\n", c_occluded );
 
 	printf( "\nlighting %5i submodels:\n", nummodels );
