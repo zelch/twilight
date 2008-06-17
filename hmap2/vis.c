@@ -59,9 +59,9 @@ portal_t *GetNextPortal (void)
 	min = 99999;
 	p = NULL;
 
-	for (pass = 0;pass < 64;pass++)
+	for (pass = 0;pass < 256;pass++)
 	{
-		for (j=pass, tp = portals+j ; j<numportals*2 ; j += 64, tp += 64)
+		for (j=pass, tp = portals+j ; j<numportals*2 ; j += 256, tp += 256)
 		{
 			if (tp->nummightsee < min && tp->status == stat_none)
 			{
