@@ -521,7 +521,7 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
   int		status=0;
   size_t   i=0;
   
-  start     = time (NULL);
+  start     = I_DoubleTime();
   pacifier  = showpacifier;
   
   dispatch  = 0;
@@ -562,7 +562,7 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
     threaded = false;
   }
   
-  end = time (NULL);
+  end = I_DoubleTime();
   if (pacifier)
     printf (" (%i)\n", end-start);
 }
