@@ -214,19 +214,17 @@ float lhbitparms_index;
 float lhbitparms_endindex;
 vector lhbitparms_code, lhbitparms_scale;
 
+// this allows storage of up to 480 bits in 16 parms,
+// 720 bits with 16 parms + 8 cvars, more if you have more cvars
 vector(float index) lhbitparms_codesize =
 {
-	if (index < 16)
-		return '2 128 8388608';
-	else
-		return '2 64 8388608';
+	return '2 64 8388608';
 };
 
 void(float index, vector v) lhbitparms_storeparm =
 {
 	local float code;
-	if (index >= 16)
-		v = v + '0 140 0';
+	v = v + '0 140 0';
 	code = lhfp_encode(v_x, v_y, v_z);
 	if (index <  1) parm1 = code;
 	else if (index <  2) parm2 = code;
@@ -286,8 +284,7 @@ vector(float index) lhbitparms_loadparm =
 	v_x = lhfp_code0;
 	v_y = lhfp_code1;
 	v_z = lhfp_code2;
-	if (index >= 16)
-		v_y = v_y - 140;
+	v_y = v_y - 140;
 	return v;
 };
 
