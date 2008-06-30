@@ -33,7 +33,7 @@ rendering process:
 1*. one or two poses are looked up by number
 2*. boneposes (matrices) are interpolated, building bone matrix array
 3. bones are parsed sequentially, each bone's matrix is transformed by it's parent bone (which can be -1; the model to world matrix)
-4. meshs are parsed sequentially, as follows:
+4. meshes are parsed sequentially, as follows:
   1. vertices are parsed sequentially and may be influenced by more than one bone (the results of the 3x4 matrix transform will be added together - weighting is already built into these)
   2. shader is looked up and called, passing vertex buffer (temporary) and triangle indices (which are stored in the mesh)
 5. rendering is complete
@@ -51,10 +51,10 @@ typedef struct dpmheader_s
 
 	// these offsets are relative to the file
 	unsigned int num_bones;
-	unsigned int num_meshs;
+	unsigned int num_meshes;
 	unsigned int num_frames;
 	unsigned int ofs_bones; // dpmbone_t bone[num_bones];
-	unsigned int ofs_meshs; // dpmmesh_t mesh[num_meshs];
+	unsigned int ofs_meshes; // dpmmesh_t mesh[num_meshes];
 	unsigned int ofs_frames; // dpmframe_t frame[num_frames];
 }
 dpmheader_t;

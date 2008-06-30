@@ -481,17 +481,17 @@ dpmheader_t *dpmload(char *filename)
 	dpm->yawradius = BigFloat(dpm->yawradius);
 	dpm->allradius = BigFloat(dpm->allradius);
 	dpm->num_bones = BigLong(dpm->num_bones);
-	dpm->num_meshs = BigLong(dpm->num_meshs);
+	dpm->num_meshes = BigLong(dpm->num_meshes);
 	dpm->num_frames = BigLong(dpm->num_frames);
 	dpm->ofs_bones = BigLong(dpm->ofs_bones);
-	dpm->ofs_meshs = BigLong(dpm->ofs_meshs);
+	dpm->ofs_meshes = BigLong(dpm->ofs_meshes);
 	dpm->ofs_frames = BigLong(dpm->ofs_frames);
 	for (bonenum = 0, bone = (void *)((unsigned char *)dpm + dpm->ofs_bones);bonenum < dpm->num_bones;bonenum++, bone++)
 	{
 		bone->parent = BigLong(bone->parent);
 		bone->flags = BigLong(bone->flags);
 	}
-	for (meshnum = 0, mesh = (void *)((unsigned char *)dpm + dpm->ofs_meshs);meshnum < dpm->num_meshs;meshnum++, mesh++)
+	for (meshnum = 0, mesh = (void *)((unsigned char *)dpm + dpm->ofs_meshes);meshnum < dpm->num_meshes;meshnum++, mesh++)
 	{
 		mesh->num_verts = BigLong(mesh->num_verts);
 		mesh->num_tris = BigLong(mesh->num_tris);
@@ -796,18 +796,11 @@ int textureforimage(const char *name)
 	return image->texnum;
 }
 
-void bindimagetexture(const char *name)
-{
-	CHECKGLERROR
-	glBindTexture(GL_TEXTURE_2D, textureforimage(name));
-	CHECKGLERROR
-}
-
 void dpmprecacheimages(dpmheader_t *dpm)
 {
 	int i;
 	dpmmesh_t *mesh;
-	for (i = 0, mesh = (void *)((unsigned char *)dpm + dpm->ofs_meshs);i < dpm->num_meshs;i++, mesh++)
+	for (i = 0, mesh = (void *)((unsigned char *)dpm + dpm->ofs_meshes);i < dpm->num_meshes;i++, mesh++)
 		textureforimage(mesh->shadername);
 }
 
@@ -866,73 +859,128 @@ void dpmlerpbones(dpmheader_t *dpm, int lerpframe1, int lerpframe2, float lerp, 
 
 int textureunits = 1;
 
-int varraysize;
-
-typedef struct {
-	float	v[3];
-} vertex_t;
-
-typedef struct {
-	float	v[2];
-} texcoord_t;
-
-vertex_t *varray_vertex;
-vertex_t *varray_normal;
-texcoord_t *varray_texcoord;
-
 int vbo_enable = 0;
+int vbo_subdata = 1;
 int vbo_ext = 0;
 const char *ext_string = NULL;
 int ext_vbo = 0;
 int ext_drawrangeelements = 0;
+int use_shortindices = 1;
 
-unsigned int vbo_bufs[3] = { 0, 0, 0};
+#define MAX_MESHES 256
 
-void R_Mesh_Init(void)
+typedef struct meshrenderinfo_s
 {
-	varraysize = 0;
-	varray_vertex = NULL;
-	varray_normal = NULL;
-	varray_texcoord = NULL;
+	int num_texture;
+
+	int num_vertices;
+	float *data_vertex3f;
+	float *data_normal3f;
+	float *data_texcoord2f;
+	GLuint vbo_vertex3f;
+	GLuint vbo_normal3f;
+	GLuint vbo_texcoord2f;
+
+	int num_triangles;
+	GLuint *data_element3i;
+	GLushort *data_element3s;
+	GLuint ebo_element3i;
+	GLuint ebo_element3s;
 }
+meshrenderinfo_t;
 
-void R_Mesh_ResizeCheck(int numverts)
+meshrenderinfo_t meshrenderinfo[MAX_MESHES];
+
+void R_Mesh_CreateRenderInfo(meshrenderinfo_t *info, int texture, int numverts, int numtriangles, float *vertex3f, float *normal3f, float *texcoord2f, int *element3i)
 {
-	if (varraysize < numverts)
+	int j;
+	if (info->data_vertex3f)
+		free(info->data_vertex3f);
+	memset(info, 0, sizeof(*info));
+	info->num_texture = texture;
+	info->num_vertices = numverts;
+	info->num_triangles = numtriangles;
+	info->data_vertex3f = malloc(info->num_vertices * sizeof(float[3]) + info->num_vertices * sizeof(float[3]) + info->num_vertices * sizeof(float[2]) + info->num_triangles * sizeof(int[3]) + (info->num_vertices <= 65536 ? (info->num_triangles * sizeof(unsigned short[3])) : 0));
+	info->data_normal3f = info->data_vertex3f + info->num_vertices * 3;
+	info->data_texcoord2f = info->data_normal3f + info->num_vertices * 3;
+	info->data_element3i = (GLuint *)(info->data_texcoord2f + info->num_vertices * 2);
+	if (info->num_vertices <= 65536)
+		info->data_element3s = (unsigned short *)(info->data_element3i + info->num_triangles * 3);
+
+	if (vertex3f)
+		memcpy(info->data_vertex3f, vertex3f, info->num_vertices * sizeof(float[3]));
+	if (normal3f)
+		memcpy(info->data_normal3f, normal3f, info->num_vertices * sizeof(float[3]));
+	if (texcoord2f)
+		memcpy(info->data_texcoord2f, texcoord2f, info->num_vertices * sizeof(float[2]));
+	if (element3i)
 	{
-		if (ext_vbo)
-			glDeleteBuffersARB(3, vbo_bufs);
-
-		varraysize = numverts;
-		if (varray_vertex)
-			free(varray_vertex);
-		if (varray_normal)
-			free(varray_normal);
-		if (varray_texcoord)
-			free(varray_texcoord);
-		varray_vertex = calloc(varraysize, sizeof(vertex_t));
-		varray_normal = calloc(varraysize, sizeof(vertex_t));
-		varray_texcoord = calloc(varraysize, sizeof(texcoord_t));
-
-		glEnable(GL_VERTEX_ARRAY);
-		glEnable(GL_NORMAL_ARRAY);
-		glEnable(GL_TEXTURE_COORD_ARRAY);
-		glDisable(GL_COLOR_ARRAY);
+		memcpy(info->data_element3i, element3i, info->num_triangles * sizeof(int[3]));
+		if (info->data_element3s)
+			for (j = 0;j < info->num_triangles * 3;j++)
+				info->data_element3s[j] = info->data_element3i[j];
 	}
 }
 
 void dpmdraw(dpmheader_t *dpm, dpmbonepose_t *bonepose)
 {
 	int meshnum, vertnum, i, v;
-	float *tc, vertex[3], normal[3];
+	float vertex[3], normal[3];
 	dpmbonepose_t *m;
 	dpmvertex_t *vert;
 	dpmbonevert_t *bonevert;
 	dpmmesh_t *mesh;
-	for (meshnum = 0, mesh = (dpmmesh_t *)((unsigned char *)dpm + dpm->ofs_meshs);meshnum < dpm->num_meshs;meshnum++, mesh++)
+	meshrenderinfo_t *info;
+	float *vertex3f;
+	float *normal3f;
+
+	if (vbo_enable && !meshrenderinfo[0].vbo_vertex3f)
 	{
-		R_Mesh_ResizeCheck(mesh->num_verts);
-		for (vertnum = 0, vert = (dpmvertex_t *)((unsigned char *)dpm + mesh->ofs_verts); vertnum < mesh->num_verts; vertnum++)
+		for (meshnum = 0, mesh = (dpmmesh_t *)((unsigned char *)dpm + dpm->ofs_meshes), info = meshrenderinfo;meshnum < dpm->num_meshes;meshnum++, mesh++, info++)
+		{
+			if (info->vbo_vertex3f)
+				continue;
+			printf("creating vbos for mesh #%i (%i vertices %i triangles)\n", meshnum, info->num_vertices, info->num_triangles);
+			glGenBuffersARB(1, &info->vbo_vertex3f);
+			glGenBuffersARB(1, &info->vbo_normal3f);
+			glGenBuffersARB(1, &info->vbo_texcoord2f);
+			glGenBuffersARB(1, &info->ebo_element3i);
+			if (info->data_element3s)
+				glGenBuffersARB(1, &info->ebo_element3s);
+			if (info->vbo_vertex3f)
+			{
+				glBindBufferARB(GL_ARRAY_BUFFER_ARB, info->vbo_vertex3f);
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float[3]) * info->num_vertices, info->data_vertex3f, GL_STREAM_DRAW_ARB);
+			}
+			if (info->vbo_normal3f)
+			{
+				glBindBufferARB(GL_ARRAY_BUFFER_ARB, info->vbo_normal3f);
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float[3]) * info->num_vertices, info->data_normal3f, GL_STREAM_DRAW_ARB);
+			}
+			if (info->vbo_texcoord2f)
+			{
+				glBindBufferARB(GL_ARRAY_BUFFER_ARB, info->vbo_texcoord2f);
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float[3]) * info->num_vertices, info->data_texcoord2f, GL_STATIC_DRAW_ARB);
+			}
+			if (info->ebo_element3i)
+			{
+				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, info->ebo_element3i);
+				glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(int[3]) * info->num_triangles, info->data_element3i, GL_STATIC_DRAW_ARB);
+			}
+			if (info->ebo_element3s)
+			{
+				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, info->ebo_element3s);
+				glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(unsigned short[3]) * info->num_triangles, info->data_element3s, GL_STATIC_DRAW_ARB);
+			}
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			CHECKGLERROR
+		}
+	}
+
+	for (meshnum = 0, mesh = (dpmmesh_t *)((unsigned char *)dpm + dpm->ofs_meshes), info = meshrenderinfo;meshnum < dpm->num_meshes;meshnum++, mesh++, info++)
+	{
+		for (vertnum = 0, vert = (dpmvertex_t *)((unsigned char *)dpm + mesh->ofs_verts), vertex3f = info->data_vertex3f, normal3f = info->data_normal3f; vertnum < info->num_vertices; vertnum++, vertex3f += 3, normal3f += 3)
 		{
 			bonevert = (dpmbonevert_t *)(vert + 1);
 			m = bonepose + bonevert->bonenum;
@@ -951,55 +999,82 @@ void dpmdraw(dpmheader_t *dpm, dpmbonepose_t *bonepose)
 					normal[v] += bonevert->normal[0] * m->matrix[v][0] + bonevert->normal[1] * m->matrix[v][1] + bonevert->normal[2] * m->matrix[v][2];
 				}
 			}
-			varray_vertex[vertnum].v[0] = vertex[0];
-			varray_vertex[vertnum].v[1] = vertex[1];
-			varray_vertex[vertnum].v[2] = vertex[2];
-			varray_normal[vertnum].v[0] = normal[0];
-			varray_normal[vertnum].v[1] = normal[1];
-			varray_normal[vertnum].v[2] = normal[2];
+			vertex3f[0] = vertex[0];
+			vertex3f[1] = vertex[1];
+			vertex3f[2] = vertex[2];
+			normal3f[0] = normal[0];
+			normal3f[1] = normal[1];
+			normal3f[2] = normal[2];
 			vert = (dpmvertex_t *)bonevert;
 		}
-		for (vertnum = 0, tc = (float *)((unsigned char *)dpm + mesh->ofs_texcoords);vertnum < mesh->num_verts;vertnum++, tc += 2)
-		{
-			varray_texcoord[vertnum].v[0] = tc[0];
-			varray_texcoord[vertnum].v[1] = tc[1];
-		}
+		glColor4f(1,1,1,1);
+		glBindTexture(GL_TEXTURE_2D, info->num_texture);
 		if (vbo_enable)
 		{
-			if (!vbo_bufs[0])
-			{
-				glGenBuffersARB(3, vbo_bufs);
-				glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(vertex_t) * varraysize, NULL, GL_DYNAMIC_DRAW_ARB);
-				glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(vertex_t) * varraysize, NULL, GL_DYNAMIC_DRAW_ARB);
-				glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
-				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(texcoord_t) * varraysize, NULL, GL_DYNAMIC_DRAW_ARB);
-				glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-			}
-			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[0]);
-			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(vertex_t) * mesh->num_verts, varray_vertex);
-			glVertexPointer(3, GL_FLOAT, sizeof(vertex_t), 0);
-			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[1]);
-			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(vertex_t) * mesh->num_verts, varray_normal);
-			glNormalPointer(GL_FLOAT, sizeof(vertex_t), 0);
-			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_bufs[2]);
-			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(texcoord_t) * mesh->num_verts, varray_texcoord);
-			glTexCoordPointer(2, GL_FLOAT, sizeof(texcoord_t), 0);
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, info->vbo_vertex3f);
+			if (vbo_subdata)
+				glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(float[3]) * info->num_vertices, info->data_vertex3f);
+			else
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float[3]) * info->num_vertices, info->data_vertex3f, GL_STREAM_DRAW_ARB);
+			glVertexPointer(3, GL_FLOAT, sizeof(float[3]), 0);
+			CHECKGLERROR
+
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, info->vbo_normal3f);
+			if (vbo_subdata)
+				glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sizeof(float[3]) * info->num_vertices, info->data_normal3f);
+			else
+				glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(float[3]) * info->num_vertices, info->data_normal3f, GL_STREAM_DRAW_ARB);
+			glNormalPointer(GL_FLOAT, sizeof(float[3]), 0);
+			CHECKGLERROR
+
+			glBindBufferARB(GL_ARRAY_BUFFER_ARB, info->vbo_texcoord2f);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(float[2]), 0);
+			CHECKGLERROR
+
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			CHECKGLERROR
+
+			if (info->ebo_element3s && use_shortindices)
+			{
+				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, info->ebo_element3s);
+				if (ext_drawrangeelements)
+					glDrawRangeElements(GL_TRIANGLES, 0, info->num_vertices, info->num_triangles * 3, GL_UNSIGNED_SHORT, 0);
+				else
+					glDrawElements(GL_TRIANGLES, info->num_triangles * 3, GL_UNSIGNED_SHORT, 0);
+				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			}
+			else
+			{
+				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, info->ebo_element3i);
+				if (ext_drawrangeelements)
+					glDrawRangeElements(GL_TRIANGLES, 0, info->num_vertices, info->num_triangles * 3, GL_UNSIGNED_INT, 0);
+				else
+					glDrawElements(GL_TRIANGLES, info->num_triangles * 3, GL_UNSIGNED_INT, 0);
+				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			}
+			CHECKGLERROR
 		}
 		else
 		{
-			glVertexPointer(3, GL_FLOAT, sizeof(vertex_t), varray_vertex);
-			glNormalPointer(GL_FLOAT, sizeof(vertex_t), varray_normal);
-			glTexCoordPointer(2, GL_FLOAT, sizeof(texcoord_t), varray_texcoord);
+			glVertexPointer(3, GL_FLOAT, sizeof(float[3]), info->data_vertex3f);
+			glNormalPointer(GL_FLOAT, sizeof(float[3]), info->data_normal3f);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(float[2]), info->data_texcoord2f);
+			if (info->data_element3s && use_shortindices)
+			{
+				if (ext_drawrangeelements)
+					glDrawRangeElements(GL_TRIANGLES, 0, info->num_vertices, info->num_triangles * 3, GL_UNSIGNED_SHORT, info->data_element3s);
+				else
+					glDrawElements(GL_TRIANGLES, info->num_triangles * 3, GL_UNSIGNED_SHORT, info->data_element3s);
+			}
+			else
+			{
+				if (ext_drawrangeelements)
+					glDrawRangeElements(GL_TRIANGLES, 0, info->num_vertices, info->num_triangles * 3, GL_UNSIGNED_INT, info->data_element3i);
+				else
+					glDrawElements(GL_TRIANGLES, info->num_triangles * 3, GL_UNSIGNED_INT, info->data_element3i);
+			}
+			CHECKGLERROR
 		}
-		glColor4f(1,1,1,1);
-		bindimagetexture(mesh->shadername);
-		if (ext_drawrangeelements)
-			glDrawRangeElements(GL_TRIANGLES, 0, mesh->num_verts, mesh->num_tris * 3, GL_UNSIGNED_INT, (GLuint *)((unsigned char *)dpm + mesh->ofs_indices));
-		else
-			glDrawElements(GL_TRIANGLES, mesh->num_tris * 3, GL_UNSIGNED_INT, (GLuint *)((unsigned char *)dpm + mesh->ofs_indices));
 	}
 }
 
@@ -1092,6 +1167,8 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 {
 	char caption[1024];
 	float xmax, ymax, zNear, zFar;
+	int i;
+	int num_fonttexture;
 	int oldtime, currenttime;
 	int playback;
 	double timedifference;
@@ -1100,6 +1177,7 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 	double playedtime;
 	int playedframes;
 	dpmheader_t *dpm;
+	dpmmesh_t *dpmmeshes;
 	int scenenum, scenefirstframe, scenenumframes, sceneframerate;
 	float sceneframe;
 	float origin[3], angles[3];
@@ -1132,6 +1210,8 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 	initimagetextures();
 	dpmprecacheimages(dpm);
 
+	num_fonttexture = textureforimage("lhfont.tga");
+
 	//glClearColor(0,0,0,0);
 
 	origin[0] = 0;
@@ -1148,6 +1228,15 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 	SDL_EnableUNICODE(1);
 
 	sceneranges = dpmbuildsceneranges(dpm);
+
+	dpmmeshes = (dpmmesh_t *)((unsigned char *)dpm + dpm->ofs_meshes);
+	for (i = 0;i < dpm->num_meshes;i++)
+		R_Mesh_CreateRenderInfo(meshrenderinfo + i, textureforimage(dpmmeshes[i].shadername), dpmmeshes[i].num_verts, dpmmeshes[i].num_tris, NULL, NULL, (float *)((unsigned char *)dpm + dpmmeshes[i].ofs_texcoords), (int *)((unsigned char *)dpm + dpmmeshes[i].ofs_indices));
+
+	glEnable(GL_VERTEX_ARRAY);
+	glEnable(GL_NORMAL_ARRAY);
+	glEnable(GL_TEXTURE_COORD_ARRAY);
+	glDisable(GL_COLOR_ARRAY);
 
 	playedtime = 0;
 	playedframes = 0;
@@ -1235,6 +1324,27 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 						else
 							printf("vbo toggle needs GL_ARB_vertex_buffer_object extension\n");
 					}
+					if (event.key.keysym.unicode == 'd')
+					{
+						if (ext_vbo)
+						{
+							vbo_subdata = !vbo_subdata;
+							if (vbo_subdata)
+								printf("vbo subdata enabled\n");
+							else
+								printf("vbo subdata disabled\n");
+						}
+						else
+							printf("vbo toggle needs GL_ARB_vertex_buffer_object extension\n");
+					}
+					if (event.key.keysym.unicode == 's')
+					{
+						use_shortindices = !use_shortindices;
+						if (use_shortindices)
+							printf("short indices enabled\n");
+						else
+							printf("short indices disabled\n");
+					}
 					break;
 				}
 				break;
@@ -1304,7 +1414,7 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 		glEnable(GL_TEXTURE_2D);
 		glDisable(GL_DEPTH_TEST);
 		//glDisable(GL_CULL_FACE);
-		bindimagetexture("lhfont.tga");
+		glBindTexture(GL_TEXTURE_2D, num_fonttexture);
 		glColor4f(1,1,1,1);
 		fpsframecount++;
 		if (currenttime >= fpsbasetime + 1000)
@@ -1313,7 +1423,7 @@ void dpmviewer(char *filename, int width, int height, int bpp, int fullscreen)
 			fpsbasetime = currenttime;
 			fpsframecount = 0;
 		}
-		sprintf(tempstring, "V: VBO %s   arrows/pgup/pgdn: rotate   [/]: viewdistance", vbo_enable ? "enabled " : "disabled");
+		sprintf(tempstring, "V: VBO %s %s arrows/pgup/pgdn: rotate   [/]: viewdistance", vbo_enable ? (vbo_subdata ? "subdata " : "enabled ") : "disabled", use_shortindices ? "Short" : "Int  ");
 		drawstring(tempstring, 0, 0, 8, 8);
 		sprintf(tempstring, "0-9: type in framerate    space: pause    escape: quit");
 		drawstring(tempstring, 0, 8, 8, 8);
