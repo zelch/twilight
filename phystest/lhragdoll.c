@@ -169,7 +169,7 @@ void LHRagdoll_MoveBody(LHRagdollBody *body, LHRagdollScalar step, LHRagdollScal
 		}
 
 		// decide if the body is still moving
-		if (body->sleep)
+		if (body->sleep > 0)
 		{
 			v.v[0] = p->origin.v[0] - oldorigin.v[0];
 			v.v[1] = p->origin.v[1] - oldorigin.v[1];

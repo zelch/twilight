@@ -236,8 +236,8 @@ int main(int argc, char **argv)
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
 	SDL_GL_LoadLibrary(NULL);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+//	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+//	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 	sdlsurface = SDL_SetVideoMode(viewwidth, viewheight, 32, SDL_OPENGL);
 	SDL_WM_SetCaption("ragdoll test", NULL);
