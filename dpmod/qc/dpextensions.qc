@@ -568,6 +568,31 @@ float(entity ent) wasfreed = #353; // same as in EXT_CSQC extension
 //edict_num returns the entity corresponding to a given number, this works even for freed entities, but you should call wasfreed(ent) to see if is currently active.
 //wasfreed returns whether an entity slot is currently free (entities that have never spawned are free, entities that have had remove called on them are also free).
 
+//DP_QC_ENTITYDATA
+//idea: KrimZon
+//darkplaces implementation: KrimZon
+//builtin definitions:
+float() numentityfields = #496;
+string(float fieldnum) entityfieldname = #497;
+float(float fieldnum) entityfieldtype = #498;
+string(float fieldnum, entity ent) getentityfieldstring = #499;
+float(float fieldnum, entity ent, string s) putentityfieldstring = #500;
+//constants:
+//Returned by entityfieldtype
+float FIELD_STRING   = 1;
+float FIELD_FLOAT    = 2;
+float FIELD_VECTOR   = 3;
+float FIELD_ENTITY   = 4;
+float FIELD_FUNCTION = 6;
+//description:
+//Versatile functions intended for storing data from specific entities between level changes, but can be customized for some kind of partial savegame.
+//WARNING: .entity fields cannot be saved and restored between map loads as they will leave dangling pointers.
+//numentityfields returns the number of entity fields. NOT offsets. Vectors comprise 4 fields: v, v_x, v_y and v_z.
+//entityfieldname returns the name as a string, eg. "origin" or "classname" or whatever.
+//entityfieldtype returns a value that the constants represent, but the field may be of another type in more exotic progs.dat formats or compilers.
+//getentityfieldstring returns data as would be written to a savegame, eg... "0.05" (float), "0 0 1" (vector), or "Hello World!" (string). Function names can also be returned.
+//putentityfieldstring puts the data returned by getentityfieldstring back into the entity.
+
 //DP_QC_ETOS
 //idea: id Software
 //darkplaces implementation: id Software
