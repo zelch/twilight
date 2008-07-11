@@ -893,6 +893,29 @@ void(vector dir) vectorvectors = #432;
 //description:
 //creates v_forward, v_right, and v_up vectors given a forward vector, similar to makevectors except it takes a forward direction vector instead of angles.
 
+//DP_QC_WHICHPACK
+//idea: div0
+//darkplaces implementation: div0
+//builtin definitions:
+string(string filename) whichpack = #503;
+//description:
+//returns the name of the pak/pk3/whatever containing the given file, in the same path space as FRIK_FILE functions use (that is, possibly with a path name prefix)
+
+//DP_QC_URI_ESCAPE
+//idea: div0
+//darkplaces implementation: div0
+//URI::Escape's functionality
+string(string in) uri_escape = #510;
+string(string in) uri_unescape = #511;
+
+//DP_SV_SPAWNFUNC_PREFIX
+//idea: div0
+//darkplaces implementation: div0
+//Make functions whose name start with spawnfunc_ take precedence as spawn function for loading entities.
+//Useful if you have a field ammo_shells (required in any Quake mod) but want to support spawn functions called ammo_shells (like in Q3A).
+//Optionally, you can declare a global "float require_spawnfunc_prefix;" which will require ANY spawn function to start with that prefix.
+
+
 //DP_QUAKE2_MODEL
 //idea: quake community
 //darkplaces implementation: LordHavoc
@@ -1239,6 +1262,21 @@ void(entity ent, float colors) setcolor = #401;
 //description:
 //sets the time scale of the server, mainly intended for use in singleplayer by the player, however potentially useful for mods, so here's an extension for it.
 //range is 0 to infinite, recommended values to try are 0.1 (very slow, 10% speed), 1 (normal speed), 5 (500% speed).
+
+//DP_SV_WRITEPICTURE
+//idea: div0
+//darkplaces implementation: div0
+//builtin definitions:
+void(float to, string s, float sz) WritePicture = #501;
+//description:
+//writes a picture to the data stream so CSQC can read it using ReadPicture, which has the definition
+//  string(void) ReadPicture = #501;
+//The picture data is sent as at most sz bytes, by compressing to low quality
+//JPEG. The data being sent will be equivalent to:
+//  WriteString(to, s);
+//  WriteShort(to, imagesize);
+//  for(i = 0; i < imagesize; ++i)
+//    WriteByte(to, [the i-th byte of the compressed JPEG image]);
 
 //DP_SV_WRITEUNTERMINATEDSTRING
 //idea: FrikaC
@@ -1719,16 +1757,6 @@ float(float caseinsensitive, string s, ...) crc16 = #494;
 //It is not called on a crash or error.
 //void SV_Shutdown();
 
-//DP_QC_URI_ESCAPE
-//idea: div0
-//darkplaces implementation: div0
-//URI::Escape's functionality
-string(string in) uri_escape = #510;
-string(string in) uri_unescape = #511;
-
-//DP_SV_SPAWNFUNC_PREFIX
-//idea: div0
-//darkplaces implementation: div0
-//Make functions whose name start with spawnfunc_ take precedence as spawn function for loading entities.
-//Useful if you have a field ammo_shells (required in any Quake mod) but want to support spawn functions called ammo_shells (like in Q3A).
-//Optionally, you can declare a global "float require_spawnfunc_prefix;" which will require ANY spawn function to start with that prefix.
+//EXT_CSQC
+// #232 void(float index, float type, .void field) SV_AddStat (EXT_CSQC)
+void(float index, float type, ...) addstat = #232;
