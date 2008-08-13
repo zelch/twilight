@@ -131,7 +131,7 @@ void ThreadSetDefault (void)
 			numthreads = 1;
 	}
 
-	qprintf ("%i threads\n", numthreads);
+	printf ("%i threads\n", numthreads);
 }
 
 
@@ -162,12 +162,12 @@ RunThreadsOn
 */
 void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
 {
-	int		threadid[MAX_THREADS];
+	DWORD	threadid[MAX_THREADS];
 	HANDLE	threadhandle[MAX_THREADS];
 	int		i;
 	int		start, end;
 
-	start = I_FloatTime ();
+	start = I_DoubleTime ();
 	dispatch = 0;
 	workcount = workcnt;
 	oldf = -1;
@@ -202,7 +202,7 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
 	DeleteCriticalSection (&crit);
 
 	threaded = false;
-	end = I_FloatTime ();
+	end = I_DoubleTime ();
 	if (pacifier)
 		printf (" (%i)\n", end-start);
 }
@@ -263,7 +263,7 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
 	pthread_mutexattr_t	mattrib;
 	int		start, end;
 
-	start = I_FloatTime ();
+	start = I_DoubleTime ();
 	dispatch = 0;
 	workcount = workcnt;
 	oldf = -1;
@@ -304,7 +304,7 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
 
 	threaded = false;
 
-	end = I_FloatTime ();
+	end = I_DoubleTime ();
 	if (pacifier)
 		printf (" (%i)\n", end-start);
 }
@@ -364,7 +364,7 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
 	int		pid[MAX_THREADS];
 	int		start, end;
 
-	start = I_FloatTime ();
+	start = I_DoubleTime ();
 	dispatch = 0;
 	workcount = workcnt;
 	oldf = -1;
@@ -396,7 +396,7 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
 
 	threaded = false;
 
-	end = I_FloatTime ();
+	end = I_DoubleTime ();
 	if (pacifier)
 		printf (" (%i)\n", end-start);
 }
@@ -608,14 +608,14 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
 	workcount = workcnt;
 	oldf = -1;
 	pacifier = showpacifier;
-	start = I_FloatTime (); 
+	start = I_DoubleTime (); 
 #ifdef NeXT
 	if (pacifier)
 		setbuf (stdout, NULL);
 #endif
 	func(0);
 
-	end = I_FloatTime ();
+	end = I_DoubleTime ();
 	if (pacifier)
 		printf (" (%i)\n", end-start);
 }
