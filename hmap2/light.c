@@ -299,7 +299,7 @@ void WriteLights( void )
 
 //===============================================================================
 
-#define LIGHTCHAINS (MAX_MAP_FACES * 32)
+#define LIGHTCHAINS (MAX_MAP_FACES * 64)
 
 lightchain_t *surfacelightchain[MAX_MAP_FACES];
 lightchain_t lightchainbuf[LIGHTCHAINS];
