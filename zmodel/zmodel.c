@@ -405,7 +405,7 @@ int setbonepose(int frame, int num, float x, float y, float z, float a, float b,
 		return 0;
 	}
 	// LordHavoc: compute matrix
-	computebonematrix(x, y, z, a, b, c, frame < 0 ? &meshpose[num] : &pose[frame][num]);
+	computebonematrix(x * modelscale, y * modelscale, z * modelscale, a, b, c, frame < 0 ? &meshpose[num] : &pose[frame][num]);
 	return 1;
 }
 
@@ -651,6 +651,9 @@ int parsemeshtriangles(void)
 				printf("bone %i in triangle data is not defined\n", bonenum);
 				return 0;
 			}
+			org[0] *= modelscale;
+			org[1] *= modelscale;
+			org[2] *= modelscale;
 			memcpy(p->bonename, scenebone[bonenum].name, MAX_NAME);
 			// untransform the origin and normal
 			inversetransform(org, &bonematrix[sceneboneremap[bonenum]], p->origin);
@@ -776,18 +779,19 @@ void fixrootbones(void)
 	bonepose_t rootpose, temp;
 	cy = cos(modelrotate * M_PI / 180.0);
 	sy = sin(modelrotate * M_PI / 180.0);
-	rootpose.m[0][0] = cy * modelscale;
-	rootpose.m[1][0] = sy * modelscale;
+	rootpose.m[0][0] = cy;
+	rootpose.m[1][0] = sy;
 	rootpose.m[2][0] = 0;
-	rootpose.m[0][1] = -sy * modelscale;
-	rootpose.m[1][1] = cy * modelscale;
+	rootpose.m[0][1] = -sy;
+	rootpose.m[1][1] = cy;
 	rootpose.m[2][1] = 0;
 	rootpose.m[0][2] = 0;
 	rootpose.m[1][2] = 0;
-	rootpose.m[2][2] = modelscale;
-	rootpose.m[0][3] = -modelorigin[0] * rootpose.m[0][0] + -modelorigin[1] * rootpose.m[1][0] + -modelorigin[2] * rootpose.m[2][0];
-	rootpose.m[1][3] = -modelorigin[0] * rootpose.m[0][1] + -modelorigin[1] * rootpose.m[1][1] + -modelorigin[2] * rootpose.m[2][1];
-	rootpose.m[2][3] = -modelorigin[0] * rootpose.m[0][2] + -modelorigin[1] * rootpose.m[1][2] + -modelorigin[2] * rootpose.m[2][2];
+	rootpose.m[2][2] = 1;
+	// origin is PRE-SCALE origin...
+	rootpose.m[0][3] = (-modelorigin[0] * rootpose.m[0][0] + -modelorigin[1] * rootpose.m[1][0] + -modelorigin[2] * rootpose.m[2][0]) * modelscale;
+	rootpose.m[1][3] = (-modelorigin[0] * rootpose.m[0][1] + -modelorigin[1] * rootpose.m[1][1] + -modelorigin[2] * rootpose.m[2][1]) * modelscale;
+	rootpose.m[2][3] = (-modelorigin[0] * rootpose.m[0][2] + -modelorigin[1] * rootpose.m[1][2] + -modelorigin[2] * rootpose.m[2][2]) * modelscale;
 	for (j = 0;j < numbones;j++)
 	{
 		if (bone[j].parent < 0)
