@@ -35,7 +35,8 @@
 
 char output_name[MAX_FILEPATH];
 
-float modelorigin[3] = {0, 0, 0}, modelrotate = 0, modelscale = 1;
+float modelorigin[3] = {0, 0, 0}, modelrotate[3] = {0, 0, 0}, modelscale[3] = {1, 1, 1};
+int modelinvert = 0;
 
 // this makes it keep all bones, not removing unused ones (as they might be used for attachments)
 int keepallbones = 1;
@@ -405,7 +406,7 @@ int setbonepose(int frame, int num, float x, float y, float z, float a, float b,
 		return 0;
 	}
 	// LordHavoc: compute matrix
-	computebonematrix(x * modelscale, y * modelscale, z * modelscale, a, b, c, frame < 0 ? &meshpose[num] : &pose[frame][num]);
+	computebonematrix(x * modelscale[0], y * modelscale[1], z * modelscale[2], a, b, c, frame < 0 ? &meshpose[num] : &pose[frame][num]);
 	return 1;
 }
 
@@ -635,7 +636,10 @@ int parsemeshtriangles(void)
 		}
 		else
 		{
-			p = &triangles[numtriangles].point[current - 1];
+			if(modelinvert)
+				p = &triangles[numtriangles].point[2 - (current - 1)];
+			else
+				p = &triangles[numtriangles].point[current - 1];
 			if (sscanf(line, "%i %f %f %f %f %f %f %f %f", &bonenum, &org[0], &org[1], &org[2], &normal[0], &normal[1], &normal[2], &p->texcoord[0], &p->texcoord[1]) < 9)
 			{
 				printf("invalid vertex \"%s\"\n", line);
@@ -651,9 +655,16 @@ int parsemeshtriangles(void)
 				printf("bone %i in triangle data is not defined\n", bonenum);
 				return 0;
 			}
-			org[0] *= modelscale;
-			org[1] *= modelscale;
-			org[2] *= modelscale;
+			org[0] *= modelscale[0];
+			org[1] *= modelscale[1];
+			org[2] *= modelscale[2];
+			// we DIVIDE by the modelscale, because:
+			// to apply a transformation matrix M to a vector p and its normal n, you get:
+			// p' = M p
+			// n' = (M^T^-1) n
+			normal[0] /= modelscale[0];
+			normal[1] /= modelscale[1];
+			normal[2] /= modelscale[2];
 			memcpy(p->bonename, scenebone[bonenum].name, MAX_NAME);
 			// untransform the origin and normal
 			inversetransform(org, &bonematrix[sceneboneremap[bonenum]], p->origin);
@@ -772,26 +783,73 @@ lump_t;
 
 float posemins[MAX_FRAMES][3], posemaxs[MAX_FRAMES][3], poseradius[MAX_FRAMES];
 
+typedef float vec3_t[3];
+#define PITCH 0
+#define YAW 1
+#define ROLL 2
+void AngleVectors (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
+{
+        double angle, sr, sp, sy, cr, cp, cy;
+
+        angle = angles[YAW] * (M_PI*2 / 360);
+        sy = sin(angle);
+        cy = cos(angle);
+        angle = angles[PITCH] * (M_PI*2 / 360);
+        sp = sin(angle);
+        cp = cos(angle);
+        if (forward)
+        {
+                forward[0] = cp*cy;
+                forward[1] = cp*sy;
+                forward[2] = -sp;
+        }
+        if (right || up)
+        {
+                if (angles[ROLL])
+                {
+                        angle = angles[ROLL] * (M_PI*2 / 360);
+                        sr = sin(angle);
+                        cr = cos(angle);
+                        if (right)
+                        {
+                                right[0] = -1*(sr*sp*cy+cr*-sy);
+                                right[1] = -1*(sr*sp*sy+cr*cy);
+                                right[2] = -1*(sr*cp);
+                        }
+                        if (up)
+                        {
+                                up[0] = (cr*sp*cy+-sr*-sy);
+                                up[1] = (cr*sp*sy+-sr*cy);
+                                up[2] = cr*cp;
+                        }
+                }
+                else
+                {
+                        if (right)
+                        {
+                                right[0] = sy;
+                                right[1] = -cy;
+                                right[2] = 0;
+                        }
+                        if (up)
+                        {
+                                up[0] = (sp*cy);
+                                up[1] = (sp*sy);
+                                up[2] = cp;
+                        }
+                }
+        }
+}
+
 void fixrootbones(void)
 {
 	int i, j;
-	float cy, sy;
 	bonepose_t rootpose, temp;
-	cy = cos(modelrotate * M_PI / 180.0);
-	sy = sin(modelrotate * M_PI / 180.0);
-	rootpose.m[0][0] = cy;
-	rootpose.m[1][0] = sy;
-	rootpose.m[2][0] = 0;
-	rootpose.m[0][1] = -sy;
-	rootpose.m[1][1] = cy;
-	rootpose.m[2][1] = 0;
-	rootpose.m[0][2] = 0;
-	rootpose.m[1][2] = 0;
-	rootpose.m[2][2] = 1;
+	AngleVectors(modelrotate, rootpose.m[0], rootpose.m[1], rootpose.m[2]);
 	// origin is PRE-SCALE origin...
-	rootpose.m[0][3] = (-modelorigin[0] * rootpose.m[0][0] + -modelorigin[1] * rootpose.m[1][0] + -modelorigin[2] * rootpose.m[2][0]) * modelscale;
-	rootpose.m[1][3] = (-modelorigin[0] * rootpose.m[0][1] + -modelorigin[1] * rootpose.m[1][1] + -modelorigin[2] * rootpose.m[2][1]) * modelscale;
-	rootpose.m[2][3] = (-modelorigin[0] * rootpose.m[0][2] + -modelorigin[1] * rootpose.m[1][2] + -modelorigin[2] * rootpose.m[2][2]) * modelscale;
+	rootpose.m[0][3] = (-modelorigin[0] * modelscale[0] * rootpose.m[0][0] + -modelorigin[1] * modelscale[1] * rootpose.m[1][0] + -modelorigin[2] * modelscale[2] * rootpose.m[2][0]);
+	rootpose.m[1][3] = (-modelorigin[0] * modelscale[0] * rootpose.m[0][1] + -modelorigin[1] * modelscale[1] * rootpose.m[1][1] + -modelorigin[2] * modelscale[2] * rootpose.m[2][1]);
+	rootpose.m[2][3] = (-modelorigin[0] * modelscale[0] * rootpose.m[0][2] + -modelorigin[1] * modelscale[1] * rootpose.m[1][2] + -modelorigin[2] * modelscale[2] * rootpose.m[2][2]);
 	for (j = 0;j < numbones;j++)
 	{
 		if (bone[j].parent < 0)
@@ -1624,7 +1682,28 @@ int sc_rotate(void)
 		return 0;
 	if (!isfloat(c))
 		return 0;
-	modelrotate = atof(c);
+	modelrotate[0] = atof(c);
+	
+	c = gettoken();
+	if(c)
+	{
+		if(!isfloat(c))
+			return 0;
+		modelrotate[1] = atof(c);
+		c = gettoken();
+		if(!c)
+			return 0;
+		if(!isfloat(c))
+			return 0;
+		modelrotate[2] = atof(c);
+	}
+	else
+	{
+		modelrotate[1] = modelrotate[0];
+		modelrotate[0] = 0;
+		modelrotate[2] = 0;
+	}
+
 	return 1;
 }
 
@@ -1635,7 +1714,33 @@ int sc_scale(void)
 		return 0;
 	if (!isfloat(c))
 		return 0;
-	modelscale = atof(c);
+	modelscale[0] = atof(c);
+	
+	c = gettoken();
+	if(c)
+	{
+		if(!isfloat(c))
+			return 0;
+		modelscale[1] = atof(c);
+		c = gettoken();
+		if(!c)
+			return 0;
+		if(!isfloat(c))
+			return 0;
+		modelscale[2] = atof(c);
+	}
+	else
+	{
+		modelscale[1] = modelscale[0];
+		modelscale[2] = modelscale[0];
+	}
+
+	return 1;
+}
+
+int sc_invert(void)
+{
+	modelinvert = !modelinvert;
 	return 1;
 }
 
@@ -1780,6 +1885,7 @@ sccommand sc_commands[] =
 	{"scene", sc_scene},
 	{"fps", sc_fps},
 	{"noloop", sc_noloop},
+	{"invert", sc_invert},
 	{"#", sc_comment},
 	{"\n", sc_nothing},
 	{"", NULL}
