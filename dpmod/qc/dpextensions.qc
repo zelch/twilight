@@ -478,6 +478,15 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 //description:
 //MOVETYPE_BOUNCE but without gravity, and with full reflection (no speed loss like grenades have), in other words - bouncing laser bolts.
 
+//DP_NULL_MODEL
+//idea: Chris
+//darkplaces implementation: div0
+//definitions:
+//string dp_null_model = "null";
+//description:
+//setmodel(e, "null"); makes an entity invisible, have a zero bbox, but
+//networked. useful for shared CSQC entities.
+
 //DP_MOVETYPEFOLLOW
 //idea: id Software, LordHavoc (redesigned)
 //darkplaces implementation: LordHavoc
@@ -541,6 +550,14 @@ string(string s) cvar_defstring = #482;
 //description:
 //returns the default value of a cvar, as a tempstring.
 
+//DP_QC_CVAR_DESCRIPTION
+//idea: div0
+//DarkPlaces implementation: div0
+//builtin definitions:
+string(string name) cvar_description = #518;
+//description:
+//returns the description of a cvar
+
 //DP_QC_CVAR_STRING
 //idea: VorteX
 //DarkPlaces implementation: VorteX, LordHavoc
@@ -548,6 +565,18 @@ string(string s) cvar_defstring = #482;
 string(string s) cvar_string = #448;
 //description:
 //returns the value of a cvar, as a tempstring.
+
+//DP_QC_CVAR_TYPE
+//idea: div0
+//DarkPlaces implementation: div0
+//builtin definitions:
+float(string name) cvar_type = #495;
+float CVAR_TYPEFLAG_EXISTS = 1;
+float CVAR_TYPEFLAG_SAVED = 2;
+float CVAR_TYPEFLAG_PRIVATE = 4;
+float CVAR_TYPEFLAG_ENGINE = 8;
+float CVAR_TYPEFLAG_HASDESCRIPTION = 16;
+float CVAR_TYPEFLAG_READONLY = 32;
 
 //DP_QC_EDICT_NUM
 //idea: 515
@@ -696,6 +725,22 @@ vector(entity ent, float tagindex) gettaginfo = #452;
 //gettagindex returns the number of a tag on an entity, this number is the same as set by setattachment (in the .tag_index field), allowing the qc to save a little cpu time by keeping the number around if it wishes (this could already be done by calling setattachment and saving off the tag_index).
 //gettaginfo returns the origin of the tag in worldspace and sets v_forward, v_right, and v_up to the current orientation of the tag in worldspace, this automatically resolves all dependencies (attachments, including viewmodelforclient), this means you could fire a shot from a tag on a gun entity attached to the view for example.
 
+//DP_QC_GETTAGINFO_BONEPROPERTIES
+//idea: daemon
+//DarkPlaces implementation: div0
+//global definitions:
+float gettaginfo_parent;
+string gettaginfo_name;
+vector gettaginfo_offset;
+vector gettaginfo_forward;
+vector gettaginfo_right;
+vector gettaginfo_up;
+//description:
+//when this extension is present, gettaginfo fills in some globals with info about the bone that had been queried
+//gettaginfo_parent is set to the number of the parent bone, or 0 if it is a root bone
+//gettaginfo_name is set to the name of the bone whose index had been specified in gettaginfo
+//gettaginfo_offset, gettaginfo_forward, gettaginfo_right, gettaginfo_up contain the transformation matrix of the bone relative to its parent. Note that the matrix may contain a scaling component.
+
 //DP_QC_MINMAXBOUND
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -810,6 +855,18 @@ float(string s, string separator1, ...) tokenizebyseparator = #479;
 //returns 4 and the tokens are "10" "2" "3" "4"
 //possibly useful for parsing IPv4 addresses (such as "1.2.3.4") and IPv6 addresses (such as "[1234:5678:9abc:def0:1234:5678:9abc:def0]:26000")
 
+//DP_QC_TOKENIZE_CONSOLE
+//idea: div0
+//darkplaces implementation: div0
+//builtin definitions:
+float(string s) tokenize_console = #514;
+float(float i) argv_start_index = #515;
+float(float i) argv_end_index = #516;
+//description:
+//this function returns tokens separated just like the console does
+//also, functions are provided to get the index of the first and last character of each token in the original string
+//Passing negative values to them, or to argv, will be treated as indexes from the LAST token (like lists work in Perl). So argv(-1) will return the LAST token.
+
 //DP_QC_TRACEBOX
 //idea: id Software
 //darkplaces implementation: id Software
@@ -898,6 +955,21 @@ string(string filename) whichpack = #503;
 //URI::Escape's functionality
 string(string in) uri_escape = #510;
 string(string in) uri_unescape = #511;
+
+//DP_QC_URI_GET
+//idea: div0
+//darkplaces implementation: div0
+//loads text from an URL into a string
+//returns 1 on success of initiation, 0 if there are too many concurrent
+//connections already or if the URL is invalid
+//the following callback will receive the data and MUST exist!
+//  void(float id, float status, string data) URI_Get_Callback;
+//status is either
+//  negative for an internal error,
+//  0 for success, or
+//  the HTTP response code on server error (e.g. 404)
+//if 1 is returned by uri_get, the callback will be called in the future
+float(string url, float id) uri_get = #513;
 
 //DP_SV_SPAWNFUNC_PREFIX
 //idea: div0
@@ -1129,6 +1201,18 @@ void(vector origin, string sample, float volume, float attenuation) pointsound =
 // You may as such dictate the behavior as to what happens to the entity.
 // To mimic the engine's default behavior, simply call remove(self).
 
+//DP_SV_ONENTITYPREPOSTSPAWNFUNCTION
+//idea: div0
+//darkplaces implementation: div0
+//engine-called QC prototypes:
+//void() SV_OnEntityPreSpawnFunction;
+//void() SV_OnEntityPostSpawnFunction;
+//description:
+// These functions are called BEFORE or AFTER an entity is spawned the regular way.
+// You may as such dictate the behavior as to what happens to the entity.
+// SV_OnEntityPreSpawnFunction is called before even looking for the spawn function, so you can even change its classname in there. If it remove()s the entity, the spawn function will not be looked for.
+// SV_OnEntityPostSpawnFunction is called ONLY after its spawn function or SV_OnEntityNoSpawnFunction was called, and skipped if the entity got removed by either.
+
 //DP_SV_MODELFLAGS_AS_EFFECTS
 //idea: LordHavoc, Dresk
 //darkplaces implementation: LordHavoc
@@ -1229,6 +1313,19 @@ void(string s, ...) print = #339; // same number as in EXT_CSQC
 //darkplaces implementation: LordHavoc
 //description:
 //this extension allows precache_model and precache_sound (and any variants) to be used during the game (with automatic messages to clients to precache the new model/sound indices), also setmodel/sound/ambientsound can be called without precaching first (they will cause an automatic precache).
+
+//DP_SV_QCSTATUS
+//idea: div0
+//darkplaces implementation: div0
+//1. A global variable
+string worldstatus;
+//Its content is set as "qcstatus" field in the rules.
+//It may be at most 255 characters, and must not contain newlines or backslashes.
+//2. A per-client field
+.string clientstatus;
+//It is sent instead of the "frags" in status responses.
+//It should always be set in a way so that stof(player.clientstatus) is a meaningful score value. Other info may be appended. If used this way, the cvar sv_status_use_qcstatus may be set to 1, and then this value will replace the frags in "status".
+//Currently, qstat does not support this and will not show player info if used and set to anything other than ftos(some integer).
 
 //DP_SV_ROTATINGBMODEL
 //idea: id Software
@@ -1727,6 +1824,13 @@ string(float bufhandle, float string_index) bufstr_get = #466;
 void(float bufhandle, float string_index, string str) bufstr_set = #467;
 float(float bufhandle, string str, float order) bufstr_add = #468;
 void(float bufhandle, float string_index) bufstr_free = #469;
+
+//DP_QC_STRINGBUFFERS_CVARLIST
+//idea: div0
+//darkplaces implementation: div0
+//functions to list cvars and store their names into a stringbuffer
+//cvars that start with pattern but not with antipattern will be stored into the buffer
+void(float bufhandle, string pattern, string antipattern) buf_cvarlist = #517;
 
 //DP_QC_STRREPLACE
 //idea: Sajt
