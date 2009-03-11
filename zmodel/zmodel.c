@@ -1685,7 +1685,7 @@ int sc_rotate(void)
 	modelrotate[0] = atof(c);
 	
 	c = gettoken();
-	if(c && *c && *c != '\n')
+	if(c && *c && *c != '\n' && *c != '\r')
 	{
 		if(!isfloat(c))
 			return 0;
@@ -1717,7 +1717,7 @@ int sc_scale(void)
 	modelscale[0] = atof(c);
 	
 	c = gettoken();
-	if(c && *c && *c != '\n')
+	if(c && *c && *c != '\n' && *c != '\r')
 	{
 		if(!isfloat(c))
 			return 0;
