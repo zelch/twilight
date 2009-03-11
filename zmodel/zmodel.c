@@ -846,6 +846,10 @@ void fixrootbones(void)
 	int i, j;
 	bonepose_t rootpose, temp;
 	AngleVectors(modelrotate, rootpose.m[0], rootpose.m[1], rootpose.m[2]);
+	// AngleVectors makes a right vector, we need a left vector
+	rootpose.m[1][0] *= -1;
+	rootpose.m[1][1] *= -1;
+	rootpose.m[1][2] *= -1;
 	// origin is PRE-SCALE origin...
 	rootpose.m[0][3] = (-modelorigin[0] * modelscale[0] * rootpose.m[0][0] + -modelorigin[1] * modelscale[1] * rootpose.m[1][0] + -modelorigin[2] * modelscale[2] * rootpose.m[2][0]);
 	rootpose.m[1][3] = (-modelorigin[0] * modelscale[0] * rootpose.m[0][1] + -modelorigin[1] * modelscale[1] * rootpose.m[1][1] + -modelorigin[2] * modelscale[2] * rootpose.m[2][1]);
