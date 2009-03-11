@@ -482,7 +482,7 @@ int parsenodes(void)
 			if (!memcmp(bone[i].name, scenebone[num].name, MAX_NAME))
 			{
 				if (bone[i].parent != parent)
-					printf("warning: duplicate global bone definition (%s) with different parent (existing %i != new %i)\n", name, bone[i].parent, parent);
+					printf("warning: duplicate global bone definition (%s) with different parent (existing %i != new %i)\n", bone[i].name, bone[i].parent, parent);
 				goto foundbone;
 			}
 		}
