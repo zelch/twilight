@@ -183,6 +183,16 @@ float   EF_STARDUST     = 2048;
 //description:
 //entity emits bouncing sparkles in every direction
 
+//DP_EF_TELEPORT_BIT
+//idea: id software
+//darkplaces implementation: div0
+//effects bit:
+float   EF_TELEPORT_BIT = 2097152;
+//description:
+//when toggled, interpolation of the entity is skipped for one frame. Useful for teleporting.
+//to toggle this bit in QC, you can do:
+//  self.effects += (EF_TELEPORT_BIT - 2 * (self.effects & EF_TELEPORT_BIT));
+
 //DP_ENT_ALPHA
 //idea: Nehahra
 //darkplaces implementation: LordHavoc
@@ -628,6 +638,18 @@ string(entity ent) etos = #65;
 entity(.string fld, string match) findchain = #402;
 //description:
 //similar to find() but returns a chain of entities like findradius.
+
+//DP_QC_FINDCHAIN_TOFIELD
+//idea: div0
+//darkplaces implementation: div0
+//builtin definitions:
+entity(.string fld, float match, .entity tofield) findradius_tofield = #22;
+entity(.string fld, string match, .entity tofield) findchain_tofield = #402;
+entity(.string fld, float match, .entity tofield) findchainflags_tofield = #450;
+entity(.string fld, float match, .entity tofield) findchainfloat_tofield = #403;
+//description:
+//similar to findchain() etc, but stores the chain into .tofield instead of .chain
+//actually, the .entity tofield is an optional field of the the existing findchain* functions
 
 //DP_QC_FINDCHAINFLAGS
 //idea: Sajt
@@ -1772,6 +1794,14 @@ float PFLAGS_FULLDYNAMIC = 128; // light enable (without this set no light is pr
 //sv_stepheight (default 18)
 //description:
 //sv_jumpstep allows stepping up onto stairs while airborn, sv_stepheight controls how high a single step can be.
+
+//FTE_QC_CHECKPVS
+//idea: Urre
+//darkplaces implementation: div0
+//builtin definitions:
+float checkpvs(vector viewpos, entity viewee) = #240;
+//description:
+//returns true if viewee can be seen from viewpos according to PVS data
 
 //FTE_STRINGS
 //idea: many
