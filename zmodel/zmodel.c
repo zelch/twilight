@@ -1882,14 +1882,15 @@ int sc_nothing(void)
 sccommand sc_commands[] =
 {
 	{"output", sc_output},
+	{"model", sc_output},
 	{"origin", sc_origin},
 	{"rotate", sc_rotate},
 	{"scale", sc_scale},
 	{"mesh", sc_mesh},
 	{"scene", sc_scene},
+	{"invert", sc_invert},
 	{"fps", sc_fps},
 	{"noloop", sc_noloop},
-	{"invert", sc_invert},
 	{"#", sc_comment},
 	{"\n", sc_nothing},
 	{"", NULL}
