@@ -590,7 +590,7 @@ int Light_Main( int argc, char **argv )
 
 	if( i != argc - 1 )
 		Error( "%s",
-"usage: hmap2 [-mc] -light [options] bspfile\n"
+"usage: hmap2 -light [options] bspfile\n"
 "Compiles lighting data in a .bsp and also makes .lit colored lighting data\n"
 "\n"
 "Quick usage notes for entities: (place these in key/value pairs)\n"
@@ -604,8 +604,6 @@ int Light_Main( int argc, char **argv )
 "3: 1          fast, no fade, useful for sky lights, tyrlite compatible\n"
 "4: sun        slow, directional sunlight, uses target direction like spotlights\n"
 "5: 1-x/r*x/r  fast, looks like darkplaces/tenebrae lights\n"
-"\n"
-"-mc           uses \"Martial Concert\" format bsp\n"
 "\n"
 "What the options do:\n"
 "-extra        antialiased lighting, takes much longer, higher quality\n"

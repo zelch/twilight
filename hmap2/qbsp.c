@@ -353,10 +353,8 @@ int main (int argc, char **argv)
 	if (i != argc - 1)
 error:
 		Error ("%s",
-"usage: hmap2 [-mc] [options] sourcefile\n"
+"usage: hmap2 [options] sourcefile\n"
 "Compiles .map to .bsp, does not compile vis or lighting data\n"
-"\n"
-"-mc         uses \"Martial Concert\" format bsp\n"
 "\n"
 "other utilities available:\n"
 "-bsp2prt    bsp2prt utility, run -bsp2prt as the first parameter for more\n"
