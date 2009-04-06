@@ -48,11 +48,6 @@ void Error (char *error, ...)
 	va_end (argptr);
 	printf ("\n");
 
-#if _MSC_VER && _DEBUG
-	printf("press any key\n");
-	getchar();
-#endif
-
 	exit (1);
 }
 

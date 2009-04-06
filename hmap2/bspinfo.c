@@ -44,11 +44,6 @@ int BspInfo_Main( int argc, char **argv )
 
 	BspInfo_PrintInfo( argv[argc-1] );
 
-#if _MSC_VER && _DEBUG
-	printf( "press any key\n" );
-	getchar ();
-#endif
-
 	// free allocated memory
 	Q_ShutdownMem ();
 

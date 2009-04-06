@@ -664,11 +664,6 @@ int Light_Main( int argc, char **argv )
 	// print memory stats
 	Q_PrintMem ();
 
-#if _MSC_VER && _DEBUG
-	printf( "press any key\n" );
-	getchar();
-#endif
-
 	// free allocated memory
 	Q_ShutdownMem ();
 
