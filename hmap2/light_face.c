@@ -410,7 +410,7 @@ SingleLightFace
 static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 {
 	int				i, mapnum;
-	vec_t			add, dist, idist, dist2, dist3, rad2, f;
+	vec_t			add, dist, idist, dist2, f, iradius;
 	vec3_t			incoming, c;
 	lightpoint_t	*point;
 	lightsample_t	*sample;
@@ -430,7 +430,7 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 	// mapnum won't be allocated until some light hits the surface
 	mapnum = -1;
 
-	rad2 = light->clampradius / light->radius;
+	iradius = 1.0 / light->radius;
 
 	for( i = 0, point = l->point; i < l->numpoints; i++, point++ ) {
 		if( point->occluded )
@@ -448,15 +448,14 @@ static void SingleLightFace( const directlight_t *light, lightinfo_t *l )
 		if( light->spotcone && DotProduct( light->spotdir, incoming ) > light->spotcone)
 			continue;
 
-		dist2 = dist / light->radius;
-		dist3 = dist / light->clampradius;
+		dist2 = dist * iradius;
 
 		switch( light->type ) {
 			case LIGHTTYPE_MINUSX:
-				add = (1.0 - (dist2        )) - (1.0 - (rad2       )) * dist3;
+				add = (1.0 - (dist2        ));
 				break;
 			case LIGHTTYPE_MINUSXX:
-				add = (1.0 - (dist2 * dist2)) - (1.0 - (rad2 * rad2)) * dist3;
+				add = (1.0 - (dist2 * dist2));
 				break;
 			case LIGHTTYPE_RECIPX:
 				add = (1.0 / (dist2        ));

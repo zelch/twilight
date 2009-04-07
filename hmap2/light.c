@@ -163,11 +163,10 @@ void ParseLightEntities( void )
 			vec[0] = 1;
 		if (vec[0] != 1)
 		{
-			if (vec[0] <= 0.0001)
+			if (vec[0] <= 0)
 			{
 				l->type = LIGHTTYPE_NONE;
 				l->radius = BOGUS_RANGE;
-				VectorScale(l->color, 0.25, l->color);
 			}
 			else
 				l->radius /= vec[0];
