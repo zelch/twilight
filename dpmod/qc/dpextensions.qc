@@ -1685,7 +1685,7 @@ string(float fhandle) fgets = #112; // reads a line of text from the file and re
 void(float fhandle, string s, ...) fputs = #113; // writes a line of text to the end of the file
 float(string s) strlen = #114; // returns how many characters are in a string
 string(string s1, string s2, ...) strcat = #115; // concatenates two or more strings (for example "abc", "def" would return "abcdef") and returns as a tempstring
-string(string s, float start, float length) substring = #116; // returns a section of a string as a tempstring
+string(string s, float start, float length) substring = #116; // returns a section of a string as a tempstring - see FTE_STRINGS for enhanced version
 vector(string s) stov = #117; // returns vector value from a string
 string(string s, ...) strzone = #118; // makes a copy of a string into the string zone and returns it, this is often used to keep around a tempstring for longer periods of time (tempstrings are replaced often)
 void(string s) strunzone = #119; // removes a copy of a string from the string zone (you can not use that string again or it may crash!!!)
@@ -1700,6 +1700,7 @@ float FILE_WRITE = 2;
 //
 //NOTE: strzone functionality is partially superseded by
 //DP_QC_UNLIMITEDTEMPSTRINGS when longterm storage is not needed
+//NOTE: substring is upgraded by FTE_STRINGS extension with negative start/length handling identical to php 5.2.0
 
 //KRIMZON_SV_PARSECLIENTCOMMAND
 //idea: KrimZon
@@ -1806,18 +1807,21 @@ float checkpvs(vector viewpos, entity viewee) = #240;
 //FTE_STRINGS
 //idea: many
 //darkplaces implementation: KrimZon
+//builtin definitions:
+float(string str, string sub, float startpos) strstrofs = #221; // returns the offset into a string of the matching text, or -1 if not found, case sensitive
+float(string str, float ofs) str2chr = #222; // returns the character at the specified offset as an integer, or 0 if an invalid index, or byte value - 256 if the engine supports UTF8 and the byte is part of an extended character
+string(float c, ...) chr2str = #223; // returns a string representing the character given, if the engine supports UTF8 this may be a multi-byte sequence (length may be more than 1) for characters over 127.
+string(float ccase, float calpha, float cnum, string s, ...) strconv = #224; // reformat a string with special color characters in the font, DO NOT USE THIS ON UTF8 ENGINES (if you are lucky they will emit ^4 and such color codes instead), the parameter values are 0=same/1=lower/2=upper for ccase, 0=same/1=white/2=red/5=alternate/6=alternate-alternate for redalpha, 0=same/1=white/2=red/3=redspecial/4=whitespecial/5=alternate/6=alternate-alternate for rednum.
+string(float chars, string s, ...) strpad = #225; // pad string with spaces to a specified length, < 0 = left padding, > 0 = right padding
+string(string info, string key, string value, ...) infoadd = #226; // sets or adds a key/value pair to an infostring - note: forbidden characters are \ and "
+string(string info, string key) infoget = #227; // gets a key/value pair in an infostring, returns value or null if not found
+float(string s1, string s2, float len) strncmp = #228; // compare two strings up to the specified number of characters, if their length differs and is within the specified limit the result will be negative, otherwise it is the difference in value of their first non-matching character.
+float(string s1, string s2) strcasecmp = #229; // compare two strings with case-insensitive matching, characters a-z are considered equivalent to the matching A-Z character, no other differences, and this does not consider special characters equal even if they look similar
+float(string s1, string s2, float len) strncasecmp = #230; // same as strcasecmp but with a length limit, see strncmp
+//string(string s, float start, float length) substring = #116; // returns a section of a string as a tempstring, if given negative start the start is measured back from the end of the string, if given a negative length the start is the offset back from the end of the string to stop at, rather than being relative to start, if start is negative and larger than length it is treated as 0, examples: substring("blah", -3, 3) returns "lah", where as substring("blah", 3, 3) returns "h", substring("blah", -10, 3) returns "bla", substring("blah", -10, -3) returns "b"
 //description:
 //various string manipulation functions
-float(string str, string sub, float startpos) strstrofs = #221;
-float(string str, float ofs) str2chr = #222;
-string(float c, ...) chr2str = #223;
-string(float ccase, float calpha, float cnum, string s, ...) strconv = #224;
-string(float chars, string s, ...) strpad = #225;
-string(string info, string key, string value, ...) infoadd = #226;
-string(string info, string key) infoget = #227;
-float(string s1, string s2, float len) strncmp = #228;
-float(string s1, string s2) strcasecmp = #229;
-float(string s1, string s2, float len) strncasecmp = #230;
+//note: substring also exists in FRIK_FILE but this extension adds negative start and length as valid cases (see note above), substring is consistent with the php 5.2.0 substr function (not 5.2.3 behavior)
 
 //DP_CON_BESTWEAPON
 //idea: many
