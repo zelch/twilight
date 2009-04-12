@@ -1818,10 +1818,20 @@ string(string info, string key) infoget = #227; // gets a key/value pair in an i
 float(string s1, string s2, float len) strncmp = #228; // compare two strings up to the specified number of characters, if their length differs and is within the specified limit the result will be negative, otherwise it is the difference in value of their first non-matching character.
 float(string s1, string s2) strcasecmp = #229; // compare two strings with case-insensitive matching, characters a-z are considered equivalent to the matching A-Z character, no other differences, and this does not consider special characters equal even if they look similar
 float(string s1, string s2, float len) strncasecmp = #230; // same as strcasecmp but with a length limit, see strncmp
-//string(string s, float start, float length) substring = #116; // returns a section of a string as a tempstring, if given negative start the start is measured back from the end of the string, if given a negative length the start is the offset back from the end of the string to stop at, rather than being relative to start, if start is negative and larger than length it is treated as 0, examples: substring("blah", -3, 3) returns "lah", where as substring("blah", 3, 3) returns "h", substring("blah", -10, 3) returns "bla", substring("blah", -10, -3) returns "b"
+//string(string s, float start, float length) substring = #116; // see note below
 //description:
 //various string manipulation functions
 //note: substring also exists in FRIK_FILE but this extension adds negative start and length as valid cases (see note above), substring is consistent with the php 5.2.0 substr function (not 5.2.3 behavior)
+//substring returns a section of a string as a tempstring, if given negative
+// start the start is measured back from the end of the string, if given a
+// negative length the length is the offset back from the end of the string to
+// stop at, rather than being relative to start, if start is negative and
+// larger than length it is treated as 0.
+// examples of substring:
+// substring("blah", -3, 3) returns "lah"
+// substring("blah", 3, 3) returns "h"
+// substring("blah", -10, 3) returns "bla"
+// substring("blah", -10, -3) returns "b"
 
 //DP_CON_BESTWEAPON
 //idea: many
