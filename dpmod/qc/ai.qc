@@ -5,8 +5,8 @@ void() knight_bow6;
 void() knight_bow1;
 void() FoundTarget;
 
-float MONSTER_WANDER = 64; // disable wandering around
-float MONSTER_APPEAR = 128; // spawn invisible, and appear when triggered
+float MONSTER_WANDER = 32; // disable wandering around
+float MONSTER_APPEAR = 64; // spawn invisible, and appear when triggered
 
 .float ismonster;
 .float monsterawaitingteleport; // avoid awaking monsters in teleport rooms
