@@ -8,7 +8,7 @@
 int modifymd3(unsigned char *data, int datasize, int flagsset, int flags, char *renametextures_old, char *renametextures_new, float shift[3], int flipnormals)
 {
 	int i, j, nummeshes, numshaders, shaderindex, shaderoffset, vertexoffset, lumpend, num;
-	unsigned char *meshdata, *shaderdata, *framedata;
+	unsigned char *meshdata, *shaderdata;
 	unsigned char temp[64];
 	if (datasize < 108)
 		return 0;
@@ -92,7 +92,7 @@ int modifymd3(unsigned char *data, int datasize, int flagsset, int flags, char *
 			for (j = 0;j < num;j++)
 			{
 				unsigned char *v;
-				v = (short *) (meshdata + vertexoffset + j * 8);
+				v = (unsigned char *) (meshdata + vertexoffset + j * 8);
 				write16(v+0, read16(v+0) + shift[0] * 64);
 				write16(v+2, read16(v+2) + shift[1] * 64);
 				write16(v+4, read16(v+4) + shift[2] * 64);
