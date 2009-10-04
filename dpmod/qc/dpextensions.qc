@@ -244,6 +244,14 @@ float EF_DELTA = 8388608;
 //description:
 //customizable glowing light effect on the entity, glow_color is a paletted (8bit) color in the range 0-255 (note: 0 and 254 are white), glow_size is 0 or higher (up to the engine what limit to cap it to, darkplaces imposes a 1020 limit), if glow_trail is true it will leave a trail of particles of the same color as the light.
 
+//DP_ENT_GLOWMOD
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//field definition:
+.vector glowmod;
+//description:
+//controls color of the entity's glow texture (fullbrights), '0 0 0', is forced to be '1 1 1' (otherwise everything would be black), used for tinting objects, see colormod (same color restrictions apply).
+
 //DP_ENT_LOWPRECISION
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -1712,7 +1720,7 @@ float FILE_WRITE = 2;
 //idea: Spike, LordHavoc
 //darkplaces implementation: LordHavoc
 //builtin definitions:
-float(float modlindex) skel_create = #263; // create a skeleton (be sure to assign the value to .skeletonindex for use), returns skeleton index (1 or higher) on success, returns 0 on failure  (for example if the modelindex is not skeletal)
+float(float modlindex) skel_create = #263; // create a skeleton (be sure to assign this value into .skeletonindex for use), returns skeleton index (1 or higher) on success, returns 0 on failure  (for example if the modelindex is not skeletal), it is recommended that you create a new skeleton if you change modelindex.
 float(float skel, entity ent, float modlindex, float retainfrac, float firstbone, float lastbone) skel_build = #264; // blend in a percentage of standard animation, 0 replaces entirely, 1 does nothing, 0.5 blends half, etc, and this only alters the bones in the specified range for which out of bounds values like 0,100000 are safe (uses .frame, .frame2, .frame3, .frame4, .lerpfrac, .lerpfrac3, .lerpfrac4, .frame1time, .frame2time, .frame3time, .frame4time), returns skel on success, 0 on failure
 float(float skel) skel_get_numbones = #265; // returns how many bones exist in the created skeleton
 string(float skel, float bonenum) skel_get_bonename = #266; // returns name of bone (as a tempstring)
