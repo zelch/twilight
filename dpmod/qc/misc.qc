@@ -478,53 +478,68 @@ void() fire_touch =
 
 //============================================================================
 
+void() barrel_respawn;
 
 void() barrel_explode =
 {
 	local vector v, v2;
-	// these are all kicked by the blast itself, so there is no need for much movement
-	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble1.mdl", 5);
-	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble2.mdl", 5);
-	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble3.mdl", 5);
-	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble1.mdl", 5);
-	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble2.mdl", 5);
-	v = randompos(self.mins, self.maxs) + self.origin;v2 = randomvec() * 50;ThrowDebris(world, v, v2, "progs/rubble3.mdl", 5);
+	local float c;
+
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_NONE;
+	self.model = "";
+
 	SUB_UseTargets();
+	self.target = string_null;
+	self.killtarget = string_null;
+
+	// these are all kicked by the blast itself, so there is no need for much movement
+	c = 0;
+	while (c < 7)
+	{
+		c = c + 1;
+		v = randompos(self.mins, self.maxs) + self.origin;
+		v2 = randomvec() * 50;
+		ThrowDebris(world, v, v2, "progs/rubble1.mdl", 5);
+	}
 	setorigin(self, (self.absmin + self.absmax) * 0.5);
 	T_RadiusDamage(self, self.owner, self.dmg, self.dmg, self.dmg * 0.5, world, self.deathtype, DT_EXPLOSION, Obituary_Generic);
-	BecomeExplosion(self, '0 0 0', FALSE);
+	//BecomeExplosion(self, '0 0 0', FALSE);
+
+	te_explosion(self.origin);
+	effect(self.origin, "progs/dpexplosion.spr32", 0, 20, 40);
+
+	self.think = barrel_respawn;
+	self.nextthink = time + 30;
 };
 
 void() barrel_det =
 {
+	self.takedamage = DAMAGE_NO;
 	self.think = barrel_explode;
-	self.nextthink = time;
+	self.nextthink = time + 0.2;
 };
 
-void(string netname1, string model1, string deathmessage, float damage) barrel_spawn =
+void() barrel_respawn =
 {
-	local float oldz;
-
-	precache_model (model1);
-	precache_sound ("weapons/r_exp3.wav");
-
-	if (!self.deathtype) // map makers can override this
-		self.deathtype = deathmessage;
-	if (!self.dmg)
-		self.dmg = damage;
-	self.netname = netname1;
-
+	self.origin = self.oldorigin = self.dest;
+	self.angles = self.dest1;
+	self.velocity = '0 0 0';
+	self.avelocity = '0 0 0';
+	self.forcescale = 375 / self.dmg;
 	self.owner = self;
 	self.solid = SOLID_BBOX;
-	self.movetype = MOVETYPE_NONE;
-	setmodel (self, model1);
-	self.health = 20;
+	self.movetype = MOVETYPE_TOSS;
+	setmodel (self, self.mdl);
+	self.health = 50;
 	self.th_die = barrel_det;
 	self.takedamage = DAMAGE_AIM;
 	self.think = SUB_Null;
 	self.nextthink = -1;
 	self.flags = 0;
 
+/*
+	local float oldz;
 	self.origin_z = self.origin_z + 2;
 	oldz = self.origin_z;
 	droptofloor();
@@ -534,7 +549,24 @@ void(string netname1, string model1, string deathmessage, float damage) barrel_s
 		dprint (vtos(self.origin));
 		dprint ("\n");
 		remove(self);
+		return;
 	}
+*/
+
+	if (cvar("dpmod_odephysics"))
+	{
+		self.movetype = MOVETYPE_PHYSICS;
+		self.solid = SOLID_PHYSICS_BOX;
+		//self.solid = SOLID_BSP;
+		self.mass = self.dmg * 0.2;
+		makevectors(self.angles);
+		self.axis_forward = v_forward;
+		self.axis_left = v_right * -1;
+		self.axis_up = v_up;
+		self.spinvelocity = '0 0 0'; // rotation axis * speed in radians
+		setorigin(self, self.origin);
+	}
+
 };
 
 /*QUAKED misc_explobox (0 .5 .8) (0 0 0) (32 32 64)
@@ -542,7 +574,17 @@ TESTING THING
 */
 void() misc_explobox =
 {
-	barrel_spawn("Large exploding box", "maps/b_explob.bsp", " was blown up by an explosive box", 750);
+	precache_model ("maps/b_explob.bsp");
+	precache_sound ("weapons/r_exp3.wav");
+	self.mdl = "maps/b_explob.bsp";
+	self.dest = self.origin;
+	self.dest1 = self.angles;
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " was blown up by an explosive box";
+	if (!self.dmg)
+		self.dmg = 750;
+	self.netname = "Large box of explosives";
+	barrel_respawn();
 };
 
 /*QUAKED misc_explobox2 (0 .5 .8) (0 0 0) (32 32 64)
@@ -550,7 +592,17 @@ Smaller exploding box, REGISTERED ONLY
 */
 void() misc_explobox2 =
 {
-	barrel_spawn("Small exploding box", "maps/b_exbox2.bsp", " was blown up by an explosive box", 250);
+	precache_model ("maps/b_exbox2.bsp");
+	precache_sound ("weapons/r_exp3.wav");
+	self.mdl = "maps/b_exbox2.bsp";
+	self.dest = self.origin;
+	self.dest1 = self.angles;
+	if (!self.deathtype) // map makers can override this
+		self.deathtype = " was blown up by an explosive box";
+	if (!self.dmg)
+		self.dmg = 250;
+	self.netname = "Small box of explosives";
+	barrel_respawn();
 };
 
 //============================================================================

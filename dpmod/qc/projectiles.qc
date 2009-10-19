@@ -626,6 +626,26 @@ void(vector org, vector vel, entity own, float damage, float force, float damage
 	setmodel (newmis, "progs/grenade.mdl");
 	setsize (newmis, '0 0 0', '0 0 0');
 	setorigin (newmis, org);
+
+	if (!(newmis.weapon & GRENADE_IMPACT))
+	if (cvar("dpmod_odephysics"))
+	{
+		newmis.movetype = MOVETYPE_PHYSICS;
+		newmis.solid = SOLID_PHYSICS_BOX;
+		newmis.mass = 1;
+		makevectors(newmis.angles);
+		newmis.axis_forward = v_forward;
+		newmis.axis_left = v_right * -1;
+		newmis.axis_up = v_up;
+		newmis.spinvelocity = '0 0 0'; // rotation axis * speed in radians
+		newmis.avelocity = '0 0 0';
+		setmodel(newmis, newmis.model); // setmodel sets mins/maxs
+		setorigin(newmis, newmis.origin);
+	}
+
+	newmis.pflags = PFLAGS_FULLDYNAMIC;
+	newmis.light_lev = 150;
+	newmis.color = '0.6 0.05 0.05';
 };
 
 /*

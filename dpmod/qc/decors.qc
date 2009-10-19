@@ -6,6 +6,17 @@ DECORS (shell casings, gibs, decals, nails stuck in walls...)
 ==============================================================================
 */
 
+//DP_PHYSICS
+float SOLID_PHYSICS_BOX = 32;
+float SOLID_PHYSICS_SPHERE = 33;
+float SOLID_PHYSICS_CAPSULE = 34;
+float MOVETYPE_PHYSICS = 32;
+.float mass;
+.vector axis_forward;
+.vector axis_left;
+.vector axis_up;
+.vector spinvelocity;
+
 void(entity e) removedecor =
 {
 	if (e.classname != "decor")
@@ -44,34 +55,43 @@ entity(entity e) newdecor =
 };
 
 //.float createdtime;
+float decordecay;
 
 // removes the oldest decors each frame to maintain a certain maximum decors
 void() decorframe =
 {
-	local entity estart, e;
-	local float decay;
+	local entity estart, e, next;
+	//local float decay;
 	//local entity b1, b2, b3, b4, b5, b6, b7, b8, b9, b10;
 	//local float bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, bt10, iterations;
 
-	// different number of decors in multi-player (to avoid lag on modems)
-	if (maxclients > 1)
-		maxdecors = 32;
-	else if (cvar("spawnmonsters"))
-		maxdecors = 500;
-	else
-		maxdecors = 10000;
-	if (cvar("ekg"))
-		maxdecors = maxdecors * 5;
 	// overridable by saved2 cvar on server console
-	if (cvar("decors"))
-		maxdecors = cvar("decors");
+	maxdecors = cvar("decors");
+	// different number of decors in multi-player (to avoid lag on modems)
+	if (maxdecors < 1)
+	{
+		if (maxclients > 1)
+			maxdecors = 32;
+		else if (cvar("dpmod_odephysics"))
+			maxdecors = 50;
+		else if (cvar("spawnmonsters"))
+			maxdecors = 500;
+		else
+			maxdecors = 10000;
+		if (cvar("ekg"))
+			maxdecors = maxdecors * 5;
+	}
 	maxdecors = bound(1, maxdecors, 16384);
 
 	// numdecors is allowed to be bogus as long as it is >= the real number of decors
 	// (but perfection is clearly preferable)
 	if (numdecors <= maxdecors)
+	{
+		decordecay = 0;
 		return;
+	}
 
+	/*
 	// recount all the decors
 	numdecors = 0;
 	estart = e = findchain(classname, "decor");
@@ -81,19 +101,30 @@ void() decorframe =
 		e = e.chain;
 	}
 	if (numdecors <= maxdecors)
+	{
+		decordecay = 0;
 		return; // nothing to do
+	}
+	*/
 
 	// changed decor removal policy to simply make them have timeouts that only apply when the decor limit has been reached
 	// the timeout rate depends on how far over the limit it is, so this does adapt to sudden excess
-	decay = frametime * (numdecors / maxdecors);
-	e = estart;
+
+	if (numdecors > maxdecors)
+		decordecay = frametime * (1 + 2 * numdecors / maxdecors);
+	else
+		decordecay = frametime;
+	numdecors = 0;
+	//e = estart;
+	estart = e = findchain(classname, "decor");
 	while(e)
 	{
-		if (e.cnt > 0)
-			e.cnt = e.cnt - decay;
-		else
-			removedecor(e);
-		e = e.chain;
+		numdecors = numdecors + 1;
+		next = e.chain;
+		e.cnt = e.cnt - decordecay;
+		if (e.cnt <= 0)
+			remove(e);
+		e = next;
 	}
 
 /*
@@ -471,9 +502,29 @@ void() casingthink =
 void() casingknockedloosefunc =
 {
 	self.lefty = FALSE;
-	self.movetype = MOVETYPE_BOUNCE;
-	self.flags = self.flags - (self.flags & FL_ONGROUND);
-	self.avelocity = randomvec() * 300;
+	if (cvar("dpmod_odephysics"))
+	{
+		if (self.movetype != MOVETYPE_PHYSICS)
+		{
+			self.movetype = MOVETYPE_PHYSICS;
+			self.solid = SOLID_PHYSICS_BOX;
+			self.mass = 0.1;
+			makevectors(self.angles);
+			self.axis_forward = v_forward;
+			self.axis_left = v_right * -1;
+			self.axis_up = v_up;
+			self.spinvelocity = randomvec() * 5; // rotation axis * speed in radians
+			self.avelocity = '0 0 0';
+			setmodel(self, self.model); // setmodel sets mins/maxs
+			setorigin(self, self.origin);
+		}
+	}
+	else
+	{
+		self.movetype = MOVETYPE_BOUNCE;
+		self.flags = self.flags - (self.flags & FL_ONGROUND);
+		self.avelocity = randomvec() * 300;
+	}
 	self.nextthink = time + 0.1;
 	self.touch = casingtouch;
 };
@@ -524,6 +575,21 @@ void(vector org, vector vel, float randomvel, vector ang, vector avel, float ran
 	}
 	setsize (e, '0 0 -1', '0 0 -1');
 	setorigin (e, org);
+
+	if (cvar("dpmod_odephysics"))
+	{
+		e.movetype = MOVETYPE_PHYSICS;
+		e.solid = SOLID_PHYSICS_BOX;
+		e.mass = 0.1;
+		makevectors(e.angles);
+		e.axis_forward = v_forward;
+		e.axis_left = v_right * -1;
+		e.axis_up = v_up;
+		e.spinvelocity = (e.avelocity_y * '0 0 1' + randomvec() * randomavel) * (3.141 / 180); // rotation axis * speed in radians
+		e.avelocity = '0 0 0';
+		setsize(e, '-3 -1 -1', '3 1 1');
+		setorigin(e, e.origin);
+	}
 };
 
 
@@ -659,6 +725,20 @@ void(vector org, entity en, vector dir) newwallspike =
 		e.v_angle = e.angles - en.angles;
 		e.movetype = MOVETYPE_FOLLOW;
 	}
+
+	if (cvar("dpmod_odephysics"))
+	{
+		//e.solid = SOLID_PHYSICS_BOX;
+		e.mass = 0.1;
+		makevectors(e.angles);
+		e.axis_forward = v_forward;
+		e.axis_left = v_right * -1;
+		e.axis_up = v_up;
+		e.spinvelocity = '0 0 0'; // rotation axis * speed in radians
+		e.avelocity = '0 0 0';
+		setsize(e, '-3 -1 -1', '3 1 1');
+		setorigin(e, e.origin);
+	}
 };
 
 
@@ -724,11 +804,16 @@ void() debristhink =
 .float isdecor;
 void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 {
-	// if in danger of running out of entities, don't spawn any new ones
-	if (numdecors >= 16384)
-	if (e == world)
-		return;
-	e = newdecor(e);
+	if (e)
+		e = newdecor(e);
+	else
+	{
+		// if in danger of running out of entities, don't spawn any new ones
+		if (numdecors >= 16384)
+			return;
+		e = newdecor(world);
+		e.angles = randomvec() * 360;
+	}
 	e.forcescale = 2;
 	e.cnt = 30 * (0.5 + random());
 	setorigin(e, org);
@@ -748,6 +833,21 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 	e.th_pain = SUB_Null;
 	e.think = debristhink;
 	e.nextthink = time;
+
+	if (cvar("dpmod_odephysics"))
+	{
+		e.movetype = MOVETYPE_PHYSICS;
+		e.solid = SOLID_PHYSICS_BOX;
+		e.mass = 5;
+		makevectors(e.angles);
+		e.axis_forward = v_forward;
+		e.axis_left = v_right * -1;
+		e.axis_up = v_up;
+		e.spinvelocity = randomvec() * 5; // rotation axis * speed in radians
+		e.avelocity = '0 0 0';
+		setmodel(e, e.model); // setmodel sets mins/maxs
+		setorigin(e, e.origin);
+	}
 };
 
 entity(vector org, vector vel, string modelname) Ragdoll_ThrowGib;
@@ -788,6 +888,7 @@ void() ThrowMeatSpray =
 		return;
 	org = self.origin + randompos(self.mins, self.maxs);
 	e = newdecor(world);
+	e.angles = randomvec() * 360;
 	e.forcescale = 4;
 	setorigin(e, org);
 	setmodel (e, "progs/zom_gib.mdl");
@@ -800,6 +901,21 @@ void() ThrowMeatSpray =
 	e.think = SUB_Remove;
 	e.nextthink = time + 1;
 	e.touch = meatspraytouch;
+
+	if (cvar("dpmod_odephysics"))
+	{
+		e.movetype = MOVETYPE_PHYSICS;
+		e.solid = SOLID_PHYSICS_BOX;
+		e.mass = 1;
+		makevectors(e.angles);
+		e.axis_forward = v_forward;
+		e.axis_left = v_right * -1;
+		e.axis_up = v_up;
+		e.spinvelocity = randomvec() * 5; // rotation axis * speed in radians
+		e.avelocity = '0 0 0';
+		setmodel(e, e.model); // setmodel sets mins/maxs
+		setorigin(e, e.origin);
+	}
 };
 
 void(string gibname) ThrowGib =
@@ -2050,7 +2166,7 @@ void() RigidBody_Think =
 	}
 };
 
-entity(string modelname, vector org, vector forward, vector left, vector up, float mass, vector vel, vector axis, float spin) RigidBody_Spawn =
+entity(string modelname, vector org, vector forward, vector left, vector up, float bmass, vector vel, vector axis, float spin) RigidBody_Spawn =
 {
 	local entity body;
 	body = spawn();
@@ -2062,7 +2178,7 @@ entity(string modelname, vector org, vector forward, vector left, vector up, flo
 	body.rb_forward = forward;
 	body.rb_left = left;
 	body.rb_up = up;
-	body.rb_mass = mass;
+	body.rb_mass = bmass;
 	body.rb_velocity = vel;
 	body.rb_spinaxis = axis;
 	body.rb_spinspeed = spin;
