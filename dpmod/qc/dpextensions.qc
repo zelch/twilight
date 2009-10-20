@@ -771,6 +771,27 @@ vector gettaginfo_up;
 //gettaginfo_name is set to the name of the bone whose index had been specified in gettaginfo
 //gettaginfo_offset, gettaginfo_forward, gettaginfo_right, gettaginfo_up contain the transformation matrix of the bone relative to its parent. Note that the matrix may contain a scaling component.
 
+//DP_QC_GETTIME
+//idea: tZork
+//darkplaces implementation: tZork, div0
+//constant definitions:
+float GETTIME_FRAMESTART = 0; // time of start of frame
+float GETTIME_REALTIME = 1; // current time (may be OS specific)
+float GETTIME_HIRES = 2; // like REALTIME, but may reset between QC invocations and thus can be higher precision
+float GETTIME_UPTIME = 3; // time since start of the engine
+//builtin definitions:
+float(float tmr) gettime = #519;
+//description:
+//some timers to query...
+
+//DP_QC_GETTIME_CDTRACK
+//idea: div0
+//darkplaces implementation: div0
+//constant definitions:
+float GETTIME_CDTRACK = 4;
+//description:
+//returns the playing time of the current cdtrack when passed to gettime()
+
 //DP_QC_MINMAXBOUND
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -1138,6 +1159,15 @@ float(entity clent) clienttype = #455; // returns one of the CLIENTTYPE_* consta
 //this intentionally does not call SV_SendServerinfo to allow the QuakeC a chance to set the netname and clientcolors fields before actually spawning the bot by calling ClientConnect and PutClientInServer manually
 //on level change ClientConnect and PutClientInServer are called by the engine to spawn in the bot (this is why clienttype() exists to tell you on the next level what type of client this is).
 //parms work the same on bot clients as they do on real clients, and do carry from level to level
+
+//DP_SV_BOUNCEFACTOR
+//idea: divVerent
+//darkplaces implementation: divVerent
+//field definitions:
+.float bouncefactor; // velocity multiplier after a bounce
+.float bouncestop; // bounce stops if velocity to bounce plane is < bouncestop * gravity AFTER the bounce
+//description:
+//allows qc to customize MOVETYPE_BOUNCE a bit
 
 //DP_SV_CLIENTCOLORS
 //idea: LordHavoc
@@ -1643,6 +1673,8 @@ float DPCONTENTS_PLAYERCLIP = 256; // blocks player movement
 float DPCONTENTS_MONSTERCLIP = 512; // blocks monster movement
 float DPCONTENTS_DONOTENTER = 1024; // AI hint brush
 float DPCONTENTS_LIQUIDSMASK = 14; // WATER | SLIME | LAVA
+float DPCONTENTS_BOTCLIP = 2048; // AI hint brush
+float DPCONTENTS_OPAQUE = 4096; // only fully opaque brushes get this (may be useful for line of sight checks)
 float Q3SURFACEFLAG_NODAMAGE = 1;
 float Q3SURFACEFLAG_SLICK = 2; // low friction surface
 float Q3SURFACEFLAG_SKY = 4; // sky surface (also has NOIMPACT and NOMARKS set)
