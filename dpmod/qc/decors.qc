@@ -12,10 +12,6 @@ float SOLID_PHYSICS_SPHERE = 33;
 float SOLID_PHYSICS_CAPSULE = 34;
 float MOVETYPE_PHYSICS = 32;
 .float mass;
-.vector axis_forward;
-.vector axis_left;
-.vector axis_up;
-.vector spinvelocity;
 
 void(entity e) removedecor =
 {
@@ -509,22 +505,15 @@ void() casingknockedloosefunc =
 			self.movetype = MOVETYPE_PHYSICS;
 			self.solid = SOLID_PHYSICS_BOX;
 			self.mass = 0.1;
-			makevectors(self.angles);
-			self.axis_forward = v_forward;
-			self.axis_left = v_right * -1;
-			self.axis_up = v_up;
-			self.spinvelocity = randomvec() * 5; // rotation axis * speed in radians
-			self.avelocity = '0 0 0';
 			setmodel(self, self.model); // setmodel sets mins/maxs
-			setorigin(self, self.origin);
 		}
 	}
 	else
 	{
 		self.movetype = MOVETYPE_BOUNCE;
 		self.flags = self.flags - (self.flags & FL_ONGROUND);
-		self.avelocity = randomvec() * 300;
 	}
+	self.avelocity = randomvec() * 300;
 	self.nextthink = time + 0.1;
 	self.touch = casingtouch;
 };
@@ -581,14 +570,8 @@ void(vector org, vector vel, float randomvel, vector ang, vector avel, float ran
 		e.movetype = MOVETYPE_PHYSICS;
 		e.solid = SOLID_PHYSICS_BOX;
 		e.mass = 0.1;
-		makevectors(e.angles);
-		e.axis_forward = v_forward;
-		e.axis_left = v_right * -1;
-		e.axis_up = v_up;
-		e.spinvelocity = (e.avelocity_y * '0 0 1' + randomvec() * randomavel) * (3.141 / 180); // rotation axis * speed in radians
-		e.avelocity = '0 0 0';
-		setsize(e, '-3 -1 -1', '3 1 1');
-		setorigin(e, e.origin);
+		//setsize(e, '-3 -1 -1', '3 1 1');
+		setmodel(e, e.model); // setmodel sets mins/maxs
 	}
 };
 
@@ -730,14 +713,8 @@ void(vector org, entity en, vector dir) newwallspike =
 	{
 		//e.solid = SOLID_PHYSICS_BOX;
 		e.mass = 0.1;
-		makevectors(e.angles);
-		e.axis_forward = v_forward;
-		e.axis_left = v_right * -1;
-		e.axis_up = v_up;
-		e.spinvelocity = '0 0 0'; // rotation axis * speed in radians
-		e.avelocity = '0 0 0';
-		setsize(e, '-3 -1 -1', '3 1 1');
-		setorigin(e, e.origin);
+		//setsize(e, '-3 -1 -1', '3 1 1');
+		setmodel(e, e.model); // setmodel sets mins/maxs
 	}
 };
 
@@ -839,14 +816,7 @@ void(entity e, vector org, vector vel, string gibname, float s) ThrowDebris =
 		e.movetype = MOVETYPE_PHYSICS;
 		e.solid = SOLID_PHYSICS_BOX;
 		e.mass = 5;
-		makevectors(e.angles);
-		e.axis_forward = v_forward;
-		e.axis_left = v_right * -1;
-		e.axis_up = v_up;
-		e.spinvelocity = randomvec() * 5; // rotation axis * speed in radians
-		e.avelocity = '0 0 0';
 		setmodel(e, e.model); // setmodel sets mins/maxs
-		setorigin(e, e.origin);
 	}
 };
 
@@ -907,14 +877,7 @@ void() ThrowMeatSpray =
 		e.movetype = MOVETYPE_PHYSICS;
 		e.solid = SOLID_PHYSICS_BOX;
 		e.mass = 1;
-		makevectors(e.angles);
-		e.axis_forward = v_forward;
-		e.axis_left = v_right * -1;
-		e.axis_up = v_up;
-		e.spinvelocity = randomvec() * 5; // rotation axis * speed in radians
-		e.avelocity = '0 0 0';
 		setmodel(e, e.model); // setmodel sets mins/maxs
-		setorigin(e, e.origin);
 	}
 };
 

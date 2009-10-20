@@ -633,14 +633,7 @@ void(vector org, vector vel, entity own, float damage, float force, float damage
 		newmis.movetype = MOVETYPE_PHYSICS;
 		newmis.solid = SOLID_PHYSICS_BOX;
 		newmis.mass = 1;
-		makevectors(newmis.angles);
-		newmis.axis_forward = v_forward;
-		newmis.axis_left = v_right * -1;
-		newmis.axis_up = v_up;
-		newmis.spinvelocity = '0 0 0'; // rotation axis * speed in radians
-		newmis.avelocity = '0 0 0';
 		setmodel(newmis, newmis.model); // setmodel sets mins/maxs
-		setorigin(newmis, newmis.origin);
 	}
 
 	newmis.pflags = PFLAGS_FULLDYNAMIC;

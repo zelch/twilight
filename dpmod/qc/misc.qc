@@ -559,11 +559,6 @@ void() barrel_respawn =
 		self.solid = SOLID_PHYSICS_BOX;
 		//self.solid = SOLID_BSP;
 		self.mass = self.dmg * 0.2;
-		makevectors(self.angles);
-		self.axis_forward = v_forward;
-		self.axis_left = v_right * -1;
-		self.axis_up = v_up;
-		self.spinvelocity = '0 0 0'; // rotation axis * speed in radians
 		setorigin(self, self.origin);
 	}
 
