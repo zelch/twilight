@@ -640,6 +640,14 @@ float FIELD_FUNCTION = 6;
 //getentityfieldstring returns data as would be written to a savegame, eg... "0.05" (float), "0 0 1" (vector), or "Hello World!" (string). Function names can also be returned.
 //putentityfieldstring puts the data returned by getentityfieldstring back into the entity.
 
+//DP_QC_ENTITYSTRING
+void(string s) loadfromdata = #529;
+void(string s) loadfromfile = #530;
+void(string s) callfunction = #605;
+void(float fh, entity e) writetofile = #606;
+float(string s) isfunction = #607;
+void(entity e, string s) parseentitydata = #608;
+
 //DP_QC_ETOS
 //idea: id Software
 //darkplaces implementation: id Software
@@ -647,6 +655,17 @@ float FIELD_FUNCTION = 6;
 string(entity ent) etos = #65;
 //description:
 //prints "entity 1" or similar into a string. (this was a Q2 builtin)
+
+//DP_QC_EXTRESPONSEPACKET
+//idea: div0
+//darkplaces implementation: div0
+//builtin definitions:
+string getextresponse(void) getextresponse = #624;
+//description:
+//returns a string of the form "\"ipaddress:port\" data...", or the NULL string
+//if no packet was found. Packets can be queued into the client/server by
+//sending a packet starting with "\xFF\xFF\xFF\xFFextResponse " to the
+//listening port.
 
 //DP_QC_FINDCHAIN
 //idea: LordHavoc
@@ -800,6 +819,13 @@ float(float tmr) gettime = #519;
 float GETTIME_CDTRACK = 4;
 //description:
 //returns the playing time of the current cdtrack when passed to gettime()
+
+//DP_QC_LOG
+//darkplaces implementation: div0
+//builtin definitions:
+float log(float f) = #532;
+//description:
+//logarithm
 
 //DP_QC_MINMAXBOUND
 //idea: LordHavoc
