@@ -1787,12 +1787,14 @@ float FILE_WRITE = 2;
 //idea: Spike, LordHavoc
 //darkplaces implementation: LordHavoc
 //builtin definitions:
-float(float modlindex) skel_create = #263; // create a skeleton (be sure to assign this value into .skeletonindex for use), returns skeleton index (1 or higher) on success, returns 0 on failure  (for example if the modelindex is not skeletal), it is recommended that you create a new skeleton if you change modelindex.
+// all skeleton numbers are 1-based (0 being no skeleton)
+// all bone numbers are 1-based (0 being invalid)
+float(float modlindex) skel_create = #263; // create a skeleton (be sure to assign this value into .skeletonindex for use), returns skeleton index (1 or higher) on success, returns 0 on failure (for example if the modelindex is not skeletal), it is recommended that you create a new skeleton if you change modelindex, as the skeleton uses the hierarchy from the model.
 float(float skel, entity ent, float modlindex, float retainfrac, float firstbone, float lastbone) skel_build = #264; // blend in a percentage of standard animation, 0 replaces entirely, 1 does nothing, 0.5 blends half, etc, and this only alters the bones in the specified range for which out of bounds values like 0,100000 are safe (uses .frame, .frame2, .frame3, .frame4, .lerpfrac, .lerpfrac3, .lerpfrac4, .frame1time, .frame2time, .frame3time, .frame4time), returns skel on success, 0 on failure
-float(float skel) skel_get_numbones = #265; // returns how many bones exist in the created skeleton
-string(float skel, float bonenum) skel_get_bonename = #266; // returns name of bone (as a tempstring)
-float(float skel, float bonenum) skel_get_boneparent = #267; // returns parent num for supplied bonenum, -1 if bonenum has no parent or bone does not exist (returned value is always less than bonenum, you can loop on this)
-float(float skel, string tagname) skel_find_bone = #268; // get number of bone with specified name, 0 on failure, tagindex (bonenum+1) on success, same as using gettagindex on the modelindex
+float(float skel) skel_get_numbones = #265; // returns how many bones exist in the created skeleton, 0 if skeleton does not exist
+string(float skel, float bonenum) skel_get_bonename = #266; // returns name of bone (as a tempstring), "" if invalid bonenum (< 1 for example) or skeleton does not exist
+float(float skel, float bonenum) skel_get_boneparent = #267; // returns parent num for supplied bonenum, 0 if bonenum has no parent or bone does not exist (returned value is always less than bonenum, you can loop on this)
+float(float skel, string tagname) skel_find_bone = #268; // get number of bone with specified name, 0 on failure, bonenum (1-based) on success, same as using gettagindex but takes modelindex instead of entity
 vector(float skel, float bonenum) skel_get_bonerel = #269; // get matrix of bone in skeleton relative to its parent - sets v_forward, v_right, v_up, returns origin (relative to parent bone)
 vector(float skel, float bonenum) skel_get_boneabs = #270; // get matrix of bone in skeleton in model space - sets v_forward, v_right, v_up, returns origin (relative to entity)
 void(float skel, float bonenum, vector org) skel_set_bone = #271; // set matrix of bone relative to its parent, reads v_forward, v_right, v_up, takes origin as parameter (relative to parent bone)
