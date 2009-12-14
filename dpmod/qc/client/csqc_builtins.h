@@ -50,6 +50,7 @@ void(vector o, vector d, float color, float count) particle = #48;
 void() ChangeYaw = #49;
 
 vector(vector v) vectoangles = #51;
+vector(vector v, vector w) vectoangles2 = #51;
 
 float(float f) sin = #60;
 float(float f) cos = #61;
@@ -116,6 +117,7 @@ void(entity ent) addentity = #302;
 float(float property, ...) setproperty = #303;
 void() renderscene = #304;
 void(vector org, float radius, vector lightcolours) adddynamiclight = #305;
+void(vector org, float radius, vector lightcolours, float style, string cubemapname, float pflags) adddynamiclight2 = #305;
 //void(string texturename, float flag[, float is2d, float lines]) R_BeginPolygon = #306;
 void(string texturename, float flag, float is2d, float lines) R_BeginPolygon = #306;
 void(vector org, vector texcoords, vector rgb, float alpha) R_PolygonVertex = #307;
@@ -134,7 +136,7 @@ float(vector position, string pic, vector size, vector rgb, float alpha, float f
 float(vector position, vector size, vector rgb, float alpha, float flag) drawfill = #323;
 void(float x, float y, float width, float height) drawsetcliparea = #324;
 void(void) drawresetcliparea = #325;
-float drawcolorcodedstring(vector position, string text, vector scale, vector rgb, float alpha, float flag) = #326;
+float(vector position, string text, vector scale, float alpha, float flag) drawcolorcodedstring = #326;
 
 float(float stnum) getstatf = #330;
 float(float stnum) getstati = #331;
@@ -163,14 +165,15 @@ void(string cmdname) registercommand = #352;
 float(entity ent) wasfreed = #353;
 string(string key) serverkey = #354;
 
-float() readbyte = #360;
-float() readchar = #361;
-float() readshort = #362;
-float() readlong = #363;
-float() readcoord = #364;
-float() readangle = #365;
-string() readstring = #366;
-float() readfloat = #367;
+// Use proper case; refer to the id1 Write* functions!
+float() ReadByte = #360;
+float() ReadChar = #361;
+float() ReadShort = #362;
+float() ReadLong = #363;
+float() ReadCoord = #364;
+float() ReadAngle = #365;
+string() ReadString = #366;
+float() ReadFloat = #367;
 
 // LordHavoc's range #400-#499
 void(entity from, entity to) copyentity = #400;
@@ -247,7 +250,9 @@ float(float t) atan = #473;
 float(float c, float s) atan2 = #474;
 float(float a) tan = #475;
 float(string s) strippedstringlen = #476;
+float(string s) strlennocol = #476; // This is the correct name for the function, but not removing the decolorizedstring mapping.
 string(string s) decolorizedstring = #477;
+string(string s) strdecolorize = #477; // This is the correct name for the function, but not removing the decolorizedstring mapping.
 string(float uselocaltime, string format, ...) strftime = #478;
 float(string s) tokenizebyseparator = #479;
 string(string s) strtolower = #480;
