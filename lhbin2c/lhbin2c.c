@@ -11,8 +11,8 @@ int main(int argc, char **argv)
 {
 	int i, j, c, w, skipstart, filenum, filesize, strings = 0, hex = 0;
 	FILE *infile;
-	unsigned char readbuf[128];
-	char writebuf[sizeof(readbuf) * 6 + 32];
+	static unsigned char readbuf[1048576];
+	static char writebuf[sizeof(readbuf) * 6 + 32];
 	char	*base = NULL, file_name[1024];
 	if (argc >= 2)
 	{
@@ -80,7 +80,12 @@ int main(int argc, char **argv)
 							{
 								writebuf[w++] = '\\';
 								     if (readbuf[j] == '\n')
+								{
 									writebuf[w++] = 'n';
+									writebuf[w++] = '"';
+									writebuf[w++] = '\n';
+									writebuf[w++] = '"';
+								}
 								else if (readbuf[j] == '\r')
 									writebuf[w++] = 'r';
 								else if (readbuf[j] == '\t')
