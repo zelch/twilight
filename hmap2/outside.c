@@ -182,7 +182,7 @@ qboolean FillOutside (tree_t *tree, int hullnum)
 	{
 		GetVectorForKey (&entities[i], "origin", origin);
 
-		if (DotProduct (origin, origin) >= 0.1)
+		if (DotProduct (origin, origin) >= 0.1 && entities[i].brushes == NULL)
 		{
 			if (PlaceOccupant (i, origin, tree->headnode))
 				inside = true;
