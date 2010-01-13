@@ -63,11 +63,11 @@ CreateBrushFaces
 */
 void CreateBrushFaces (void)
 {
-	int				i,j, k, rotate;
+	int				i,j, k;
 	vec_t			r;
 	face_t			*f, *next;
 	winding_t		*w;
-	plane_t			*p, plane;
+	plane_t			clipplane, faceplane;
 	mface_t			*mf;
 	vec3_t			offset, point;
 
@@ -76,8 +76,7 @@ void CreateBrushFaces (void)
 
 	brush_faces = NULL;
 
-	rotate = !strncmp(ValueForKey(CurrentEntity, "classname"), "rotate_", 7);
-	if (rotate)
+	if (!strncmp(ValueForKey(CurrentEntity, "classname"), "rotate_", 7))
 	{
 		entity_t	*FoundEntity;
 		char 		*searchstring;
@@ -93,29 +92,35 @@ void CreateBrushFaces (void)
 	}
 
 	GetVectorForKey(CurrentEntity, "origin", offset);
+	//printf("%i brushfaces at offset %f %f %f\n", numbrushfaces, offset[0], offset[1], offset[2]);
 
 	for (i = 0;i < numbrushfaces;i++)
 	{
 		mf = &faces[i];
-		VectorNegate( mf->plane.normal, point );
 
-		w = BaseWindingForPlane (&mf->plane);
+		//printf("plane %f %f %f %f\n", mf->plane.normal[0], mf->plane.normal[1], mf->plane.normal[2], mf->plane.dist);
+		faceplane = mf->plane;
+		w = BaseWindingForPlane (&faceplane);
 
+		//VectorNegate( faceplane.normal, point );
 		for (j = 0;j < numbrushfaces && w;j++)
 		{
-			p = &faces[i].plane;
-			if( j == i/* || VectorCompare( p->normal, point )*/ )
+			clipplane = faces[j].plane;
+			if( j == i/* || VectorCompare( clipplane.normal, point )*/ )
 				continue;
 
 			// flip the plane, because we want to keep the back side
-			VectorNegate(faces[j].plane.normal, plane.normal);
-			plane.dist = -faces[j].plane.dist;
+			VectorNegate(clipplane.normal, clipplane.normal);
+			clipplane.dist *= -1;
 
-			w = ClipWindingEpsilon (w, &plane, ON_EPSILON, true);
+			w = ClipWindingEpsilon (w, &clipplane, ON_EPSILON, true);
 		}
 
 		if (!w)
+		{
+			//printf("----- skipped plane -----\n");
 			continue;	// overcontrained plane
+		}
 
 		// this face is a keeper
 		f = AllocFace ();
@@ -147,6 +152,7 @@ void CreateBrushFaces (void)
 					FreeFace (f);
 				}
 				brush_faces = NULL;
+				//printf("----- skipped brush -----\n");
 				return;
 			}
 
@@ -155,20 +161,16 @@ void CreateBrushFaces (void)
 
 		CheckWinding( w );
 
-		VectorCopy (mf->plane.normal, plane.normal);
-		VectorScale (mf->plane.normal, mf->plane.dist, point);
-		VectorSubtract (point, offset, point);
-		plane.dist = DotProduct (plane.normal, point);
-
+		faceplane.dist -= DotProduct(faceplane.normal, offset);
 		f->texturenum = mf->texinfo;
-		f->planenum = FindPlane (&plane, &f->planeside);
+		f->planenum = FindPlane (&faceplane, &f->planeside);
 		f->next = brush_faces;
 		brush_faces = f;
 	}
 
 	// Rotatable objects have to have a bounding box big enough
 	// to account for all its rotations.
-	if (rotate)
+	if (DotProduct(offset, offset))
 	{
 		vec_t delta;
 
@@ -180,9 +182,9 @@ void CreateBrushFaces (void)
 			brush_maxs[k] = delta;
 		}
 	}
+
+	//printf("%i : %f %f %f : %f %f %f\n", numbrushfaces, brush_mins[0], brush_mins[1], brush_mins[2], brush_maxs[0], brush_maxs[1], brush_maxs[2]);
 }
-
-
 
 /*
 ==============================================================================
@@ -411,34 +413,94 @@ void ExpandBrush (int hullnum)
 {
 	int			i, x, s;
 	vec3_t		corner;
-	face_t		*f;
 	winding_t	*w;
-	plane_t		plane, *p;
+	plane_t		plane;
+
+	int				j, k, numwindings;
+	vec_t			r;
+	winding_t		**windings;
+	plane_t			clipplane, faceplane;
+	mface_t			*mf;
+	vec3_t			point;
+	vec3_t		mins, maxs;
+
+	if (!numbrushfaces)
+		return;
 
 	num_hull_points = 0;
 	num_hull_edges = 0;
 
-	// create all the hull points
-	for (f=brush_faces ; f ; f=f->next)
+	ClearBounds( mins, maxs );
+
+	// generate windings and bounds data
+	numwindings = 0;
+	windings = calloc(numbrushfaces, sizeof(*windings));
+	for (i = 0;i < numbrushfaces;i++)
 	{
-		w = f->winding;
-		for (i=0 ; i<w->numpoints ; i++)
-			AddHullPoint (w->points[i], hullnum);
+		mf = &faces[i];
+		windings[i] = NULL;
+
+		faceplane = mf->plane;
+		w = BaseWindingForPlane (&faceplane);
+
+		for (j = 0;j < numbrushfaces && w;j++)
+		{
+			clipplane = faces[j].plane;
+			if( j == i )
+				continue;
+
+			// flip the plane, because we want to keep the back side
+			VectorNegate(clipplane.normal, clipplane.normal);
+			clipplane.dist *= -1;
+
+			w = ClipWindingEpsilon (w, &clipplane, ON_EPSILON, true);
+		}
+
+		if (!w)
+			continue;	// overcontrained plane
+
+		for (j = 0;j < w->numpoints;j++)
+		{
+			for (k = 0;k < 3;k++)
+			{
+				point[k] = w->points[j][k];
+				r = Q_rint( point[k] );
+				if ( fabs( point[k] - r ) < ZERO_EPSILON)
+					w->points[j][k] = r;
+				else
+					w->points[j][k] = point[k];
+
+				// check for incomplete brushes
+				if( w->points[j][k] >= BOGUS_RANGE || w->points[j][k] <= -BOGUS_RANGE )
+					return;
+			}
+
+			AddPointToBounds( w->points[j], mins, maxs );
+		}
+
+		windings[i] = w;
 	}
 
-	// expand all of the planes
-	for (i=0 ; i<numbrushfaces ; i++)
+	// add all of the corner offsets
+	for (i = 0;i < numwindings;i++)
 	{
-		p = &faces[i].plane;
-		VectorClear (corner);
+		w = windings[i];
+		for (j = 0;j < w->numpoints;j++)
+			AddHullPoint(w->points[j], hullnum);
+	}
+
+	// expand the face planes
+	for (i = 0;i < numbrushfaces;i++)
+	{
+		mf = &faces[i];
 		for (x=0 ; x<3 ; x++)
 		{
-			if (p->normal[x] > 0)
+			if (mf->plane.normal[x] > 0)
 				corner[x] = -hullinfo.hullsizes[hullnum][0][x];
-			else if (p->normal[x] < 0)
+			else if (mf->plane.normal[x] < 0)
 				corner[x] = -hullinfo.hullsizes[hullnum][1][x];
 		}
-		p->dist += DotProduct (corner, p->normal);
+		mf->plane.dist += DotProduct (corner, mf->plane.normal);
 	}
 
 	// add any axis planes not contained in the brush to bevel off corners
@@ -449,18 +511,25 @@ void ExpandBrush (int hullnum)
 			VectorClear (plane.normal);
 			plane.normal[x] = s;
 			if (s == -1)
-				plane.dist = -brush_mins[x] + hullinfo.hullsizes[hullnum][1][x];
+				plane.dist = -mins[x] + hullinfo.hullsizes[hullnum][1][x];
 			else
-				plane.dist = brush_maxs[x] + -hullinfo.hullsizes[hullnum][0][x];
+				plane.dist = maxs[x] + -hullinfo.hullsizes[hullnum][0][x];
 			AddBrushPlane (&plane);
 		}
 
 	// add all of the edge bevels
-	for (f=brush_faces ; f ; f=f->next) {
-		w = f->winding;
-		for (i=0 ; i<w->numpoints ; i++)
-			AddHullEdge (w->points[i], w->points[(i+1)%w->numpoints], hullnum);
+	for (i = 0;i < numwindings;i++)
+	{
+		w = windings[i];
+		for (j = 0;j < w->numpoints;j++)
+			AddHullEdge(w->points[j], w->points[(j+1)%w->numpoints], hullnum);
 	}
+
+	// free the windings as we no longer need them
+	for (i = 0;i < numwindings;i++)
+		if (windings[i])
+			FreeWinding(windings[i]);
+	free(windings);
 }
 
 //============================================================================
@@ -479,7 +548,6 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 	int			contents;
 	char		*name;
 	mface_t		*f;
-	face_t		*face, *next;
 
 	//
 	// check texture name for attributes
@@ -541,23 +609,15 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 		numbrushfaces++;
 	}
 
+	if (hullnum)
+		ExpandBrush (hullnum);
+
 	CreateBrushFaces ();
 
 	if (!brush_faces)
 	{
 		printf ("WARNING: couldn't create faces for brush %i in entity %i (incomplete brush?)\n", brushnum, (int)(CurrentEntity - entities));
 		return NULL;
-	}
-
-	if (hullnum)
-	{
-		ExpandBrush (hullnum);
-		for (face=brush_faces ; face ; face=next)
-		{
-			next = face->next;
-			FreeFace( face );
-		}
-		CreateBrushFaces ();
 	}
 
 	//
@@ -569,9 +629,13 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 	VectorCopy (brush_mins, b->mins);
 	VectorCopy (brush_maxs, b->maxs);
 	// debugging code
-	//printf("brush\n");
+	//printf("mapbrush\n");
 	//for (f=mb->faces ; f ; f=f->next)
 	//	printf("face %f %f %f %f \"%s\"\n", f->plane.normal[0], f->plane.normal[1], f->plane.normal[2], f->plane.dist, miptex[texinfo[f->texinfo].miptex]);
+	//printf("bspbrush %i\n", numbrushfaces);
+	//face_t		*face;
+	//for (face=b->faces ; face ; face=face->next)
+	//	printf("bspface %f %f %f %f\n", mapplanes[face->planenum].normal[0], mapplanes[face->planenum].normal[1], mapplanes[face->planenum].normal[2], mapplanes[face->planenum].dist);
 
 	return b;
 }
