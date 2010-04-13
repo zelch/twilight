@@ -175,6 +175,16 @@ float   EF_RED          = 128;
 //description:
 //entity emits red light (used for invulnerability)
 
+//DP_EF_RESTARTANIM_BIT
+//idea: id software
+//darkplaces implementation: divVerent
+//effects bit:
+float   EF_RESTARTANIM_BIT = 1048576;
+//description:
+//when toggled, the current animation is restarted. Useful for weapon animation.
+//to toggle this bit in QC, you can do:
+//  self.effects += (EF_RESTARTANIM_BIT - 2 * (self.effects & EF_RESTARTANIM_BIT));
+
 //DP_EF_STARDUST
 //idea: MythWorks Inc
 //darkplaces implementation: LordHavoc
@@ -185,7 +195,7 @@ float   EF_STARDUST     = 2048;
 
 //DP_EF_TELEPORT_BIT
 //idea: id software
-//darkplaces implementation: div0
+//darkplaces implementation: divVerent
 //effects bit:
 float   EF_TELEPORT_BIT = 2097152;
 //description:
@@ -507,7 +517,7 @@ void(entity e, entity tagentity, string tagname) setattachment = #443; // attach
 
 //DP_NULL_MODEL
 //idea: Chris
-//darkplaces implementation: div0
+//darkplaces implementation: divVerent
 //definitions:
 //string dp_null_model = "null";
 //description:
@@ -550,6 +560,33 @@ float(float a) tan = #475; // returns tangent value (which is simply sin(a)/cos(
 //useful math functions for analyzing vectors, note that these all use angles in radians (just like the cos/sin functions) not degrees unlike makevectors/vectoyaw/vectoangles, so be sure to do the appropriate conversions (multiply by DEG2RAD or RAD2DEG as needed).
 //note: atan2 can take unnormalized vectors (just like vectoyaw), and the function was included only for completeness (more often you want vectoyaw or vectoangles), atan2(v_x,v_y) * RAD2DEG gives the same result as vectoyaw(v)
 
+//DP_QC_AUTOCVARS
+//idea: divVerent
+//darkplaces implementation: divVerent
+//description:
+//allows QC variables to be bound to cvars
+//(works for float, string, vector types)
+//example:
+// float autocvar_developer;
+// float autocvar_registered;
+// string autocvar__cl_name;
+//NOTE: copying a string-typed autocvar to another variable/field, and then
+//changing the cvar or returning from progs is UNDEFINED. Writing to autocvar
+//globals is UNDEFINED.  Accessing autocvar globals after cvar_set()ing that
+//cvar is IMPLEMENTATION DEFINED (an implementation may either yield the
+//previous, or the current, value). Whether autocvar globals, after restoring
+//a savegame, have the cvar's current value, or the original value at time of
+//saving, is UNDEFINED. Restoring a savegame however must not restore the
+//cvar values themselves.
+//In case the cvar does NOT exist, then it is automatically created with the
+//value of the autocvar initializer, if given. This is possible with e.g.
+//frikqcc and fteqcc the following way:
+// var float autocvar_whatever = 42;
+//If no initializer is given, the cvar will be initialized to a string
+//equivalent to the NULL value of the given data type, that is, the empty
+//string, 0, or '0 0 0'. However, when automatic cvar creation took place, a
+//warning is printed to the game console.
+
 //DP_QC_CHANGEPITCH
 //idea: id Software
 //darkplaces implementation: id Software
@@ -578,8 +615,8 @@ string(string s) cvar_defstring = #482;
 //returns the default value of a cvar, as a tempstring.
 
 //DP_QC_CVAR_DESCRIPTION
-//idea: div0
-//DarkPlaces implementation: div0
+//idea: divVerent
+//DarkPlaces implementation: divVerent
 //builtin definitions:
 string(string name) cvar_description = #518;
 //description:
@@ -594,8 +631,8 @@ string(string s) cvar_string = #448;
 //returns the value of a cvar, as a tempstring.
 
 //DP_QC_CVAR_TYPE
-//idea: div0
-//DarkPlaces implementation: div0
+//idea: divVerent
+//DarkPlaces implementation: divVerent
 //builtin definitions:
 float(string name) cvar_type = #495;
 float CVAR_TYPEFLAG_EXISTS = 1;
@@ -657,8 +694,8 @@ string(entity ent) etos = #65;
 //prints "entity 1" or similar into a string. (this was a Q2 builtin)
 
 //DP_QC_EXTRESPONSEPACKET
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //builtin definitions:
 string(void) getextresponse = #624;
 //description:
@@ -676,8 +713,8 @@ entity(.string fld, string match) findchain = #402;
 //similar to find() but returns a chain of entities like findradius.
 
 //DP_QC_FINDCHAIN_TOFIELD
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //builtin definitions:
 entity(.string fld, float match, .entity tofield) findradius_tofield = #22;
 entity(.string fld, string match, .entity tofield) findchain_tofield = #402;
@@ -773,6 +810,15 @@ vector(entity e, float s, float n, float a) getsurfacepointattribute = #486;
 //description:
 //function to query extended information about a point on a certain surface
 
+//DP_QC_GETSURFACETRIANGLE
+//idea: divVerent
+//darkplaces implementation: divVerent
+//builtin definitions:
+float(entity e, float s) getsurfacenumtriangles = #628;
+vector(entity e, float s, float n) getsurfacetriangle = #629;
+//description:
+//function to query triangles of a surface
+
 //DP_QC_GETTAGINFO
 //idea: VorteX, LordHavoc (somebody else?)
 //DarkPlaces implementation: VorteX
@@ -785,7 +831,7 @@ vector(entity ent, float tagindex) gettaginfo = #452;
 
 //DP_QC_GETTAGINFO_BONEPROPERTIES
 //idea: daemon
-//DarkPlaces implementation: div0
+//DarkPlaces implementation: divVerent
 //global definitions:
 float gettaginfo_parent;
 string gettaginfo_name;
@@ -801,7 +847,7 @@ vector gettaginfo_up;
 
 //DP_QC_GETTIME
 //idea: tZork
-//darkplaces implementation: tZork, div0
+//darkplaces implementation: tZork, divVerent
 //constant definitions:
 float GETTIME_FRAMESTART = 0; // time of start of frame
 float GETTIME_REALTIME = 1; // current time (may be OS specific)
@@ -813,15 +859,15 @@ float(float tmr) gettime = #519;
 //some timers to query...
 
 //DP_QC_GETTIME_CDTRACK
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //constant definitions:
 float GETTIME_CDTRACK = 4;
 //description:
 //returns the playing time of the current cdtrack when passed to gettime()
 
 //DP_QC_LOG
-//darkplaces implementation: div0
+//darkplaces implementation: divVerent
 //builtin definitions:
 float log(float f) = #532;
 //description:
@@ -891,6 +937,30 @@ float(float a, float b) pow = #97;
 //description:
 //useful math functions, sine of val, cosine of val, square root of val, and raise a to power b, respectively.
 
+//DP_QC_SPRINTF
+//idea: divVerent
+//darkplaces implementation: divVerent
+//builtin definitions:
+string(string format, ...) sprintf = #627;
+//description:
+//you know sprintf :P
+//supported stuff:
+//  %
+//  optional: <argpos>$ for the argument to format
+//  flags: #0- +
+//  optional: <width>, *, or *<argpos>$ for the field width
+//  optional: .<precision>, .*, or .*<argpos>$ for the precision
+//  length modifiers: h for forcing a float, l for forcing an int/entity (by default, %d etc. cast a float to int)
+//  conversions:
+//    di take a float if no length is specified or h is, and an int/entity if l is specified as length, and cast it to an int
+//    ouxXc take a float if no length is specified or h is, and an int/entity if l is specified as length, and cast it to an unsigned int
+//    eEfFgG take a float if no length is specified or h is, and an int/entity if l is specified as length, and cast it to a double
+//    s takes a string
+//    For conversions s and c, the flag # makes precision and width interpreted
+//      as byte count, by default it is interpreted as character count in UTF-8
+//      enabled engines. No other conversions can create wide characters, and #
+//      has another meaning in these.
+
 //DP_QC_STRFTIME
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
@@ -942,8 +1012,8 @@ float(string s, string separator1, ...) tokenizebyseparator = #479;
 //possibly useful for parsing IPv4 addresses (such as "1.2.3.4") and IPv6 addresses (such as "[1234:5678:9abc:def0:1234:5678:9abc:def0]:26000")
 
 //DP_QC_TOKENIZE_CONSOLE
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //builtin definitions:
 float(string s) tokenize_console = #514;
 float(float i) argv_start_index = #515;
@@ -986,7 +1056,7 @@ float MOVE_WORLDONLY = 3;
 //allows traces to hit only world (ignoring all entities, unlike MOVE_NOMONSTERS which hits all bmodels), use as the nomonsters parameter to trace functions
 
 //DP_QC_UNLIMITEDTEMPSTRINGS
-//idea: div0
+//idea: divVerent
 //darkplaces implementation: LordHavoc
 //description:
 //this extension alters Quake behavior such that instead of reusing a single
@@ -1028,23 +1098,23 @@ void(vector dir) vectorvectors = #432;
 //creates v_forward, v_right, and v_up vectors given a forward vector, similar to makevectors except it takes a forward direction vector instead of angles.
 
 //DP_QC_WHICHPACK
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //builtin definitions:
 string(string filename) whichpack = #503;
 //description:
 //returns the name of the pak/pk3/whatever containing the given file, in the same path space as FRIK_FILE functions use (that is, possibly with a path name prefix)
 
 //DP_QC_URI_ESCAPE
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //URI::Escape's functionality
 string(string in) uri_escape = #510;
 string(string in) uri_unescape = #511;
 
 //DP_QC_URI_GET
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //loads text from an URL into a string
 //returns 1 on success of initiation, 0 if there are too many concurrent
 //connections already or if the URL is invalid
@@ -1064,8 +1134,8 @@ float(string url, float id) uri_get = #513;
 //this extension indicates that FTE_CSQC_SKELETONOBJECTS functionality is available in server QC (as well as CSQC).
 
 //DP_SV_SPAWNFUNC_PREFIX
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //Make functions whose name start with spawnfunc_ take precedence as spawn function for loading entities.
 //Useful if you have a field ammo_shells (required in any Quake mod) but want to support spawn functions called ammo_shells (like in Q3A).
 //Optionally, you can declare a global "float require_spawnfunc_prefix;" which will require ANY spawn function to start with that prefix.
@@ -1303,8 +1373,8 @@ void(vector origin, string sample, float volume, float attenuation) pointsound =
 // To mimic the engine's default behavior, simply call remove(self).
 
 //DP_SV_ONENTITYPREPOSTSPAWNFUNCTION
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //engine-called QC prototypes:
 //void() SV_OnEntityPreSpawnFunction;
 //void() SV_OnEntityPostSpawnFunction;
@@ -1366,6 +1436,15 @@ float MF_TRACER3 = 128; // purple trail
 //description:
 //continuously updated field indicating client's ping (based on average of last 16 packet time differences).
 
+//DP_SV_PING_PACKETLOSS
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//field definitions:
+.float ping_packetloss;
+.float ping_movementloss;
+//description:
+//continuously updated field indicating client's packet loss, and movement loss (i.e. packet loss affecting player movement).
+
 //DP_SV_POINTPARTICLES
 //idea: Spike
 //darkplaces implementation: LordHavoc
@@ -1416,8 +1495,8 @@ void(string s, ...) print = #339; // same number as in EXT_CSQC
 //this extension allows precache_model and precache_sound (and any variants) to be used during the game (with automatic messages to clients to precache the new model/sound indices), also setmodel/sound/ambientsound can be called without precaching first (they will cause an automatic precache).
 
 //DP_SV_QCSTATUS
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //1. A global variable
 string worldstatus;
 //Its content is set as "qcstatus" field in the rules.
@@ -1457,8 +1536,8 @@ void(entity ent, float colors) setcolor = #401;
 //range is 0 to infinite, recommended values to try are 0.1 (very slow, 10% speed), 1 (normal speed), 5 (500% speed).
 
 //DP_SV_WRITEPICTURE
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //builtin definitions:
 void(float to, string s, float sz) WritePicture = #501;
 //description:
@@ -2064,7 +2143,7 @@ float PFLAGS_FULLDYNAMIC = 128; // light enable (without this set no light is pr
 
 //FTE_QC_CHECKPVS
 //idea: Urre
-//darkplaces implementation: div0
+//darkplaces implementation: divVerent
 //builtin definitions:
 float checkpvs(vector viewpos, entity viewee) = #240;
 //description:
@@ -2101,7 +2180,7 @@ float(string s1, string s2, float len) strncasecmp = #230; // same as strcasecmp
 
 //DP_CON_BESTWEAPON
 //idea: many
-//darkplaces implementation: div0
+//darkplaces implementation: divVerent
 //description:
 //allows QC to register weapon properties for use by the bestweapon command, for mods that change required ammo count or type for the weapons
 //it is done using console commands sent via stuffcmd:
@@ -2136,8 +2215,8 @@ float(float bufhandle, string str, float order) bufstr_add = #468;
 void(float bufhandle, float string_index) bufstr_free = #469;
 
 //DP_QC_STRINGBUFFERS_CVARLIST
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //functions to list cvars and store their names into a stringbuffer
 //cvars that start with pattern but not with antipattern will be stored into the buffer
 void(float bufhandle, string pattern, string antipattern) buf_cvarlist = #517;
@@ -2153,15 +2232,15 @@ string(string search, string replace, string subject) strireplace = #485;
 //strireplace does the same but uses case-insensitive matching of the 'search' term
 //
 //DP_QC_CRC16
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //Some hash function to build hash tables with. This has to be be the CRC-16-CCITT that is also required for the QuakeWorld download protocol.
 //When caseinsensitive is set, the CRC is calculated of the lower cased string.
 float(float caseinsensitive, string s, ...) crc16 = #494;
 
 //DP_SV_SHUTDOWN
-//idea: div0
-//darkplaces implementation: div0
+//idea: divVerent
+//darkplaces implementation: divVerent
 //A function that gets called just before progs exit. To save persistent data from.
 //It is not called on a crash or error.
 //void SV_Shutdown();
@@ -2184,3 +2263,39 @@ void(float pause) setpause = #531;
 //
 //Note: it is worth considering that network-related functions may be called during the pause (including customizeentityforclient for example), and it is also important to consider the continued use of the KRIMZON_SV_PARSECLIENTCOMMAND extension while paused (chatting players, etc), players may also join/leave during the pause.  In other words, the only things that are not called are think and other time-related functions.
 
+
+
+
+// EXPERIMENTAL (not finalized) EXTENSIONS:
+
+//DP_PHYSICS
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc, divVerent
+//constant definitions:
+float SOLID_PHYSICS_BOX = 32;
+float SOLID_PHYSICS_SPHERE = 33;
+float SOLID_PHYSICS_CAPSULE = 34;
+float MOVETYPE_PHYSICS = 32;
+float JOINTTYPE_POINT = 1; // point; uses origin (anchor)
+float JOINTTYPE_HINGE = 2; // hinge; uses origin (anchor) and angles (axis)
+float JOINTTYPE_SLIDER = 3; // slider; uses angles (axis)
+float JOINTTYPE_UNIVERSAL = 4; // universal; uses origin (anchor) and angles (forward is axis1, up is axis2)
+float JOINTTYPE_HINGE2 = 5; // hinge2; uses origin (anchor), angles (axis1), velocity (axis2)
+//field definitions:
+.float mass;
+.float jointtype; // see JOINTTYPE_ definitions above
+// common joint properties:
+// .entity aiment, enemy; // connected objects
+// .vector movedir;
+//   for a spring:
+//     movedir_x = spring constant (force multiplier, must be > 0)
+//     movedir_y = spring dampening constant to prevent oscillation (must be > 0)
+//     movedir_z = spring stop position (+/-)
+//   for a motor:
+//     movedir_x = desired motor velocity
+//     movedir_y = -1 * max motor force to use
+//     movedir_z = stop position (+/-), set to 0 for no stop
+//   note that ODE does not support both in one anyway
+//description:
+//various physics properties can be defined in an entity and are executed via
+//ODE
