@@ -129,6 +129,14 @@ const float RF_NOCULL = 128;
 // useful for large outdoor objects (like asteriods on sky horizont or sky models)
 // also useful when culling is done at CSQC side
 
+// DP_CSQC_SETPAUSE
+// idea: VorteX
+// darkplaces implementation: VorteX
+// builtin definitions:
+void(float ispaused) setpause = #531;
+// description: provides ability to set pause in local games (similar to one set once console is activated)
+// not stopping sound/cd track, useful for inventory screens, ingame menus with input etc.
+
 // DP_CSQC_QUERYRENDERENTITY
 // idea: VorteX
 // darkplaces implementation: VorteX
