@@ -1199,6 +1199,16 @@ float(string name, string value) registercvar = #93;
 //description:
 //the engine supports stereo WAV files.  (useful with DP_SND_DIRECTIONLESSATTNNONE for music)
 
+// DP_SND_GETSOUNDTIME
+// idea: VorteX
+// darkplaces implementation: VorteX
+// constant definitions:
+float(entity e, float channel) getsoundtime = #533; // get currently sound playing position on entity channel, -1 if not playing or error
+float(string sample) soundlength = #534; // returns length of sound sample in seconds, -1 on error (sound not precached, sound system not initialized etc.)
+// description: provides opportunity to query length of sound samples and realtime tracking of sound playing on entities
+// note: beware dedicated server not running sound engine at all, so in dedicated mode this builtins will be not usable in server progs
+// note also: menu progs not supporting getsoundtime() (will give a warning) since it has no sound playing on entities
+
 //DP_SOLIDCORPSE
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
