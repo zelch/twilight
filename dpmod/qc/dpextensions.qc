@@ -865,6 +865,7 @@ float(float tmr) gettime = #519;
 float GETTIME_CDTRACK = 4;
 //description:
 //returns the playing time of the current cdtrack when passed to gettime()
+//see DP_END_GETSOUNDTIME for similar functionality but for entity sound channels
 
 //DP_QC_LOG
 //darkplaces implementation: divVerent
@@ -1208,6 +1209,11 @@ float(string sample) soundlength = #534; // returns length of sound sample in se
 // description: provides opportunity to query length of sound samples and realtime tracking of sound playing on entities (similar to DP_GETTIME_CDTRACK)
 // note: beware dedicated server not running sound engine at all, so in dedicated mode this builtins will not work in server progs
 // note also: menu progs not supporting getsoundtime() (will give a warning) since it has no sound playing on entities
+// examples of use:
+//   - QC-driven looped sounds
+//   - QC events when sound playing is finished
+//   - toggleable ambientsounds
+//   - subtitles
 
 //DP_SOLIDCORPSE
 //idea: LordHavoc
