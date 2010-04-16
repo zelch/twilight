@@ -1290,6 +1290,14 @@ float(entity clent) clienttype = #455; // returns one of the CLIENTTYPE_* consta
 //description:
 //allows qc to customize MOVETYPE_BOUNCE a bit
 
+//DP_SV_CLIENTCAMERA
+//idea: LordHavoc, others
+//darkplaces implementation: Black
+//field definitions:
+.entity clientcamera; // override camera entity
+//description:
+//allows another entity to be the camera for a client, for example a remote camera, this is similar to sending svc_setview manually except that it also changes the network culling appropriately.
+
 //DP_SV_CLIENTCOLORS
 //idea: LordHavoc
 //darkplaces implementation: LordHavoc
