@@ -820,7 +820,7 @@ vector(entity e, float s, float n) getsurfacetriangle = #629;
 //function to query triangles of a surface
 
 //DP_QC_GETTAGINFO
-//idea: VorteX, LordHavoc (somebody else?)
+//idea: VorteX, LordHavoc
 //DarkPlaces implementation: VorteX
 //builtin definitions:
 float(entity ent, string tagname) gettagindex = #451;
@@ -1200,20 +1200,55 @@ float(string name, string value) registercvar = #93;
 //description:
 //the engine supports stereo WAV files.  (useful with DP_SND_DIRECTIONLESSATTNNONE for music)
 
-// DP_SND_GETSOUNDTIME
-// idea: VorteX
-// darkplaces implementation: VorteX
-// constant definitions:
+//DP_SND_GETSOUNDTIME
+//idea: VorteX
+//darkplaces implementation: VorteX
+//constant definitions:
 float(entity e, float channel) getsoundtime = #533; // get currently sound playing position on entity channel, -1 if not playing or error
 float(string sample) soundlength = #534; // returns length of sound sample in seconds, -1 on error (sound not precached, sound system not initialized etc.)
-// description: provides opportunity to query length of sound samples and realtime tracking of sound playing on entities (similar to DP_GETTIME_CDTRACK)
-// note: beware dedicated server not running sound engine at all, so in dedicated mode this builtins will not work in server progs
-// note also: menu progs not supporting getsoundtime() (will give a warning) since it has no sound playing on entities
-// examples of use:
-//   - QC-driven looped sounds
-//   - QC events when sound playing is finished
-//   - toggleable ambientsounds
-//   - subtitles
+//description: provides opportunity to query length of sound samples and realtime tracking of sound playing on entities (similar to DP_GETTIME_CDTRACK)
+//note: beware dedicated server not running sound engine at all, so in dedicated mode this builtins will not work in server progs
+//note also: menu progs not supporting getsoundtime() (will give a warning) since it has no sound playing on entities
+//examples of use:
+//  - QC-driven looped sounds
+//  - QC events when sound playing is finished
+//  - toggleable ambientsounds
+//  - subtitles
+
+//DP_VIDEO_DPV
+//idea: LordHavoc
+//darkplaces implementation: LordHavoc
+//console commands:
+//  playvideo <videoname> - start playing video
+//  stopvideo - stops current video
+//description: indicated that engine support playing videos in DPV format
+
+//DP_VIDEO_SUBTITLES
+//idea: VorteX
+//darkplaces implementation: VorteX
+//cvars:
+//  cl_video_subtitles - toggles subtitles showing
+//  cl_video_subtitles_lines - how many lines to reserve for subtitles
+//  cl_video_subtitles_textsize - font size
+//console commands:
+//  playvideo <videoname> <custom_subtitles_file> - start playing video
+//  stopvideo - stops current video
+//description: indicates that engine support subtitles on videos
+//subtitles stored in external text files, each video file has it's default subtitles file ( <videoname>.dpsubs )
+//example: for video/act1.dpv default subtitles file will be video/act1.dpsubs
+//also video could be played with custom subtitles file by utilizing second parm of playvideo command
+//syntax of .dpsubs files: each line in .dpsubs file defines 1 subtitle, there are three tokens:
+//   <start> <end> "string"
+//   start: subtitle start time in seconds
+//     end: subtitle time-to-show in seconds, if 0 - subtitle will be showed until next subtitle is started, 
+//          if below 0 - show until next subtitles minus this number of seconds
+//    text: subtitle text, color codes (Q3-style and ^xRGB) are allowed
+//example of subtitle file:
+//   3	0	"Vengeance! Vengeance for my eternity of suffering!"
+//   9	0	"Whelp! As if you knew what eternity was!"
+//   13	0	"Grovel before your true master."
+//   17	0	"Never!" 
+//   18	7	"I'll hack you from crotch to gizzard and feed what's left of you to your brides..."
 
 //DP_SOLIDCORPSE
 //idea: LordHavoc
