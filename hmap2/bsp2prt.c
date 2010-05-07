@@ -26,7 +26,7 @@ static node_t *Bsp2Prt_BuildTree_r( int nodenum )
 		n->planenum = FindPlane( &plane, &side );
 
 		if( side )
-			Error( "Bad node plane" );
+			printf( "bsp2prt: Bad node plane (non-optimized)\n" );
 
 		n->children[0] = Bsp2Prt_BuildTree_r( node->children[0] );
 		n->children[1] = Bsp2Prt_BuildTree_r( node->children[1] );
