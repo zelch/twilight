@@ -17,8 +17,8 @@ HMAPOBJECTS= cmdlib.o mathlib.o bspfile.o mem.o winding.o scriptlib.o \
     light_face.o light_trace.o threads.o
 
 CC=gcc
-#CFLAGS=-MD -Wall -O2
-CFLAGS=-MD -Wall -g -ggdb
+CFLAGS=-MD -Wall -O2
+#CFLAGS=-MD -Wall -g -ggdb
 
 ##### Commands #####
 
