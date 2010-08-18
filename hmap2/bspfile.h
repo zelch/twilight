@@ -267,6 +267,7 @@ typedef struct
 {
 	epair_t		*epairs;
 	struct mbrush_s *brushes;
+	int			scriptline; // LordHavoc: better error reporting
 } entity_t;
 
 extern	int			num_entities;

@@ -16,7 +16,7 @@ winding_t	*CopyWinding (winding_t *w);
 winding_t	*CopyWindingExt( int numpoints, vec3_t *points );
 winding_t	*ReverseWinding( winding_t *w );
 winding_t	*BaseWindingForPlane( plane_t *p );
-void		CheckWinding( winding_t *w );
+void		CheckWinding( winding_t *w, int scriptline );
 qboolean	WindingIsTiny( winding_t *w );
 vec_t		WindingArea( winding_t *w );
 void		WindingCentre( winding_t *w, vec3_t centre, vec_t *radius );

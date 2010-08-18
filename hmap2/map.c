@@ -324,7 +324,7 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 
 	if (DotProduct(plane.normal, plane.normal) < 0.1)
 	{
-		printf ("WARNING: brush plane with no normal on line %d\n", scriptline);
+		printf ("WARNING: line %i: brush plane with no normal\n", scriptline);
 		return;
 	}
 
@@ -409,6 +409,50 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 		//printf("plane + rotate scale = texture vectors:\n(%f %f %f %f) + [%f %f %f] =\n[%f %f %f %f] [%f %f %f %f]\n", plane.normal[0], plane.normal[1], plane.normal[2], plane.dist, rotate, scale[0], scale[1], tx.vecs[0][0], tx.vecs[0][1], tx.vecs[0][2], tx.vecs[0][3], tx.vecs[1][0], tx.vecs[1][1], tx.vecs[1][2], tx.vecs[1][3]);
 	}
 
+	for (i = 0;i < 2;i++)
+	{
+		for (j = 0;j < 4;j++)
+		{
+			if (tx.vecs[i][j] > -BOGUS_RANGE && tx.vecs[i][j] < BOGUS_RANGE)
+				continue;
+			printf( "WARNING: line %i: corrupt texture mapping vectors, using defaults\n", scriptline);
+			cosv = 1;
+			sinv = 0;
+			scale[0] = 1;
+			scale[1] = 1;
+			vecs[0][3] = 0;
+			vecs[1][3] = 0;
+			if (fabs(plane.normal[2]) < fabs(plane.normal[0]))
+			{
+				if (fabs(plane.normal[0]) < fabs(plane.normal[1]))
+				{
+					// Y primary
+					VectorSet4(tx.vecs[0],  cosv*scale[0],  0,  sinv*scale[0], vecs[0][3]);
+					VectorSet4(tx.vecs[1],  sinv*scale[1],  0, -cosv*scale[1], vecs[1][3]);
+				}
+				else
+				{
+					// X primary
+					VectorSet4(tx.vecs[0],  0,  cosv*scale[0],  sinv*scale[0], vecs[0][3]);
+					VectorSet4(tx.vecs[1],  0,  sinv*scale[1], -cosv*scale[1], vecs[1][3]);
+				}
+			}
+			else if (fabs(plane.normal[2]) < fabs(plane.normal[1]))
+			{
+				// Y primary
+				VectorSet4(tx.vecs[0],  cosv*scale[0],  0,  sinv*scale[0], vecs[0][3]);
+				VectorSet4(tx.vecs[1],  sinv*scale[1],  0, -cosv*scale[1], vecs[1][3]);
+			}
+			else
+			{
+				// Z primary
+				VectorSet4(tx.vecs[0],  cosv*scale[0],  sinv*scale[0], 0, vecs[0][3]);
+				VectorSet4(tx.vecs[1],  sinv*scale[1], -cosv*scale[1], 0, vecs[1][3]);
+			}
+			break;
+		}
+	}
+	
 	/*
 	// LordHavoc: fix for CheckFace: point off plane errors in some maps (most notably QOOLE ones),
 	// and hopefully preventing most 'portal clipped away' warnings
@@ -419,7 +463,7 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 	plane.dist = DotProduct (t3, plane.normal);
 	d = (Q_rint(plane.dist * 8.0)) * (1.0 / 8.0);
 	//if (fabs(d - plane.dist) >= (0.4 / 8.0))
-	//	printf("WARNING: correcting minor math errors in brushface on line %d\n", scriptline);
+	//	printf("WARNING: line %i: correcting minor math errors in brushface\n", scriptline);
 	plane.dist = d;
 	*/
 
@@ -436,7 +480,7 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 	// if deviation is too high, warn  (frequently happens on QOOLE maps)
 	if (fabs(DotProduct(v, plane.normal) - 1.0) > (0.5 / 32.0)
 	 || fabs(d - plane.dist) >= (0.25 / 8.0))
-		printf("WARNING: minor misalignment of brushface on line %d\n"
+		printf("WARNING: line %i: minor misalignment of brushface\n"
 			   "normal     %f %f %f (l: %f d: %f)\n"
 			   "rounded to %f %f %f (l: %f d: %f r: %f)\n",
 			   scriptline,
@@ -456,7 +500,7 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 					break;
 			if (f2)
 			{
-				printf ("WARNING: brush with duplicate plane (%g %g %g %g, .map file line number %d)\n", plane.normal[0], plane.normal[1], plane.normal[2], plane.dist, scriptline);
+				printf ("WARNING: line %i: brush with duplicate plane\n", scriptline);
 				return;
 			}
 		}
@@ -477,7 +521,7 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 			}
 			if (f2)
 			{
-				printf ("WARNING: brush with duplicate plane (first point is at %g %g %g, .map file line number %d)\n", planepts[0][0], planepts[0][1], planepts[0][2], scriptline);
+				printf ("WARNING: line %i: brush with duplicate plane\n", scriptline);
 				return;
 			}
 		}
@@ -488,12 +532,14 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 		nummapbrushes++;
 		b->next = ent->brushes;
 		ent->brushes = b;
+		b->scriptline = scriptline;
 		*brushpointer = b;
 	}
 
 	f = qmalloc(sizeof(mface_t));
 	f->next = b->faces;
 	b->faces = f;
+	f->scriptline = scriptline;
 	f->plane = plane;
 	f->texinfo = FindTexinfo (&tx);
 	nummapbrushfaces++;
@@ -592,19 +638,20 @@ qboolean ParseEntity (void)
 		GetToken(true);
 	}
 	if( strcmp( token, "{" ) )
-		Error( "ParseEntity: { not found" );
+		Error( "ParseEntity: line %i: { not found", scriptline );
 
 	if( num_entities == MAX_MAP_ENTITIES )
 		Error( "num_entities == MAX_MAP_ENTITIES" );
 
 	ent = &entities[num_entities++];
 	ent->epairs = NULL;
+	ent->scriptline = scriptline; // LordHavoc: better error reporting
 
 	do {
 		fflush( stdout );
 
 		if( !GetToken( true ) )
-			Error( "ParseEntity: EOF without closing brace" );
+			Error( "ParseEntity: line %i: EOF without closing brace", scriptline );
 
 		if( !strcmp (token, "}") )
 			break;

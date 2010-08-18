@@ -7,12 +7,16 @@ typedef struct mface_s
 	struct mface_s	*next;
 	plane_t			plane;
 	int				texinfo;
+	// LordHavoc: better error reporting
+	int				scriptline;
 } mface_t;
 
 typedef struct mbrush_s
 {
 	struct mbrush_s	*next;
 	mface_t *faces;
+	// LordHavoc: better error reporting
+	int				scriptline;
 } mbrush_t;
 
 extern	int			nummapbrushes;

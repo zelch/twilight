@@ -159,7 +159,7 @@ void CreateBrushFaces (void)
 			AddPointToBounds( w->points[j], brush_mins, brush_maxs );
 		}
 
-		CheckWinding( w );
+		CheckWinding( w, mf->scriptline );
 
 		faceplane.dist -= DotProduct(faceplane.normal, offset);
 		f->texturenum = mf->texinfo;
@@ -616,7 +616,7 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 
 	if (!brush_faces)
 	{
-		printf ("WARNING: couldn't create faces for brush %i in entity %i (incomplete brush?)\n", brushnum, (int)(CurrentEntity - entities));
+		printf ("WARNING: line %i: couldn't create faces for brush %i in entity %i (incomplete brush?)\n", mb->scriptline, brushnum, (int)(CurrentEntity - entities));
 		return NULL;
 	}
 

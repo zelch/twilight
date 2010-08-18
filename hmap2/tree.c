@@ -64,7 +64,7 @@ tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum )
 	if( !tree->brushes )
 	{
 		PrintEntity( ent );
-		Error( "Entity with no valid brushes" );
+		printf( "WARNING: line %i: Entity with no valid brushes\n", ent->scriptline );
 	}
 
 	CSGFaces( tree );

@@ -108,7 +108,7 @@ winding_t *ReverseWinding( winding_t *w )
 		VectorCopy( w->points[w->numpoints - 1 - i], neww->points[i] );
 
 #ifdef PARANOID
-	CheckWinding( neww );
+	CheckWinding( neww, 0 );
 #endif
 
 	return neww;
@@ -195,7 +195,7 @@ CheckWinding
 Check for possible errors
 ==================
 */
-void CheckWinding( winding_t *w )
+void CheckWinding( winding_t *w, int scriptline )
 {
 	int		i, j;
 	vec_t	*p1, *p2;
@@ -207,7 +207,7 @@ void CheckWinding( winding_t *w )
 
 	if (w->numpoints < 3)
 	{
-		printf( "CheckWinding: too few points to form a triangle at %f %f %f\n", w->points[0][0], w->points[0][1], w->points[0][2] );
+		printf( "WARNING: line %i: CheckWinding: too few points to form a triangle at %f %f %f\n", scriptline, w->points[0][0], w->points[0][1], w->points[0][2] );
 		w->numpoints = 0;
 		return;
 	}
@@ -223,13 +223,13 @@ void CheckWinding( winding_t *w )
 
 			for( j = 0; j < 3; j++ )
 				if( p1[j] >= BOGUS_RANGE || p1[j] <= -BOGUS_RANGE )
-					Error( "CheckWinding: BOGUS_RANGE: %f %f %f\n", p1[0], p1[1], p1[2] );
+					Error( "WARNING: line %i: CheckWinding: BOGUS_RANGE: %f %f %f\n", scriptline, p1[0], p1[1], p1[2] );
 
 			// check the point is on the face plane
 			d = DotProduct( p1, facenormal.normal ) - facenormal.dist;
 			if( d < -WINDING_EPSILON || d > WINDING_EPSILON )
 			{
-				printf( "CheckWinding: point off plane at %f %f %f, attempting to fix\n", p1[0], p1[1], p1[2] );
+				printf( "WARNING: line %i: CheckWinding: point off plane at %f %f %f, attempting to fix\n", scriptline, p1[0], p1[1], p1[2] );
 				VectorMA(p1, -d, facenormal.normal, p1);
 				break;
 			}
@@ -238,7 +238,7 @@ void CheckWinding( winding_t *w )
 			VectorSubtract( p2, p1, dir );
 			if( VectorLength( dir ) < WINDING_EPSILON )
 			{
-				printf( "CheckWinding: healing degenerate edge at %f %f %f\n", p2[0], p2[1], p2[2] );
+				printf( "WARNING: line %i: CheckWinding: healing degenerate edge at %f %f %f\n", scriptline, p2[0], p2[1], p2[2] );
 				for (j = i + 1;j < w->numpoints;j++)
 					VectorCopy(w->points[j - 1], w->points[j]);
 				w->numpoints--;
@@ -256,7 +256,7 @@ void CheckWinding( winding_t *w )
 				d = DotProduct( w->points[j], edgenormal );
 				if( d > edgedist + WINDING_EPSILON )
 				{
-					printf( "CheckWinding: non-convex polygon at %f %f %f, attempting to heal\n", w->points[j][0], w->points[j][1], w->points[j][2] );
+					printf( "WARNING: line %i: CheckWinding: non-convex polygon at %f %f %f, attempting to heal\n", scriptline, w->points[j][0], w->points[j][1], w->points[j][2] );
 					VectorMA(w->points[j], -d, edgenormal, w->points[j]);
 					break;
 				}

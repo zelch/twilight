@@ -186,7 +186,7 @@ static void CalcSamples( lightinfo_t *l )
 	int				mapnum;
 
 	l->numsamples = l->texsize[0] * l->texsize[1];
-	if( l->numsamples > SINGLEMAP )
+	if( (unsigned int)l->numsamples > (unsigned int)SINGLEMAP )
 		Error( "Bad lightmap size: %i", l->numsamples );
 
 	if( l->numsamples > l->maxsamples ) {
