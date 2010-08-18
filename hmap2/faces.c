@@ -551,15 +551,15 @@ EmitNodeFaces
 */
 void EmitNodeFaces( node_t *headnode )
 {
-	vec_t	radius;
-	vec3_t	maxs, mins;
+//	vec_t	radius;
+//	vec3_t	maxs, mins;
 
 //	qprintf( "--- EmitNodeFaces ---\n" );
 
 	// origin points won't allways be inside the map, so extend the hash area
-	radius = RadiusFromBounds( headnode->mins, headnode->maxs );
-	VectorSet( maxs, radius, radius, radius );
-	VectorSet( mins, -radius, -radius, -radius );
+//	radius = RadiusFromBounds( headnode->mins, headnode->maxs );
+//	VectorSet( maxs, radius, radius, radius );
+//	VectorSet( mins, -radius, -radius, -radius );
 
 	InitHash( headnode->mins, headnode->maxs );
 

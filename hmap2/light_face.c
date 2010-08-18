@@ -216,7 +216,8 @@ to get the world xyz value of the sample point
 static void CalcPoints( lightinfo_t *l )
 {
 	int j, s, t, w, h, realw, realh, stepbit;
-	vec_t starts, startt, us, ut, mids, midt;
+	vec_t starts, startt, us, ut;
+//	vec_t mids, midt;
 	vec3_t facemid, base;
 	lightTrace_t tr;
 	lightpoint_t *point;
@@ -237,8 +238,8 @@ static void CalcPoints( lightinfo_t *l )
 // the points are biased towards the center of the surface
 // to help avoid edge cases just inside walls
 //
-	mids = (l->exactmaxs[0] + l->exactmins[0]) * 0.5;
-	midt = (l->exactmaxs[1] + l->exactmins[1]) * 0.5;
+//	mids = (l->exactmaxs[0] + l->exactmins[0]) * 0.5;
+//	midt = (l->exactmaxs[1] + l->exactmins[1]) * 0.5;
 
 	// put the base and facemid a little above the surface
 	VectorMA( l->texorg, (1.0 / 32.0), l->facenormal, base );

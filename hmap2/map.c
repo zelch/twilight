@@ -134,7 +134,8 @@ brushtype_t;
 
 void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushtype)
 {
-	int			i, j, hltexdef, facecontents, faceflags, facevalue, q2brushface, q3brushface, bpface, brushplane;
+	int			i, j, hltexdef, bpface, brushplane;
+//	int			facecontents, faceflags, facevalue, q2brushface, q3brushface;
 	vec_t		planepts[3][3], t1[3], t2[3], d, rotate, scale[2], vecs[2][4], ang, sinv, cosv, bp[2][3];
 	mface_t		*f, *f2;
 	plane_t	plane;
@@ -299,23 +300,23 @@ void ParseBrushFace (entity_t *ent, mbrush_t **brushpointer, brushtype_t brushty
 		bp[1][2] = 0;
 	}
 	// q3 .map properties, currently unused but parsed
-	facecontents = 0;
-	faceflags = 0;
-	facevalue = 0;
-	q2brushface = false;
-	q3brushface = false;
+//	facecontents = 0;
+//	faceflags = 0;
+//	facevalue = 0;
+//	q2brushface = false;
+//	q3brushface = false;
 	if (GetToken (false))
 	{
-		q2brushface = true;
-		facecontents = atoi(token);
+//		q2brushface = true;
+//		facecontents = atoi(token);
 		if (GetToken (false))
 		{
-			faceflags = atoi(token);
+//			faceflags = atoi(token);
 			if (GetToken (false))
 			{
-				q2brushface = false;
-				q3brushface = true;
-				facevalue = atoi(token);
+//				q2brushface = false;
+//				q3brushface = true;
+//				facevalue = atoi(token);
 			}
 		}
 	}
