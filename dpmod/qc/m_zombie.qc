@@ -622,9 +622,10 @@ void() monster_zombie =
 	self.bodyhealth = 0;
 	self.bleedratio = 0; // health damage = body damage (1.0 ratio)
 
-	self.healthregen = self.health; // heal back to full health in one second
-	self.resist_explosive = 4; // 3x explosive damage
-	self.resist_axe = 4; // 3x axe damage
+	// disabled regen again...  it made zombies nearly unkillable if they are red glowing bosses, or if the health scaling cvar is used
+	self.healthregen = 0;//self.health; // heal back to full health in one second
+	self.resist_explosive = 3; // 3x explosive damage
+	self.resist_axe = 3; // 3x axe damage
 	// no longer necessary since I implemented generic resistances
 	//	// alter damage based on type (bonus to explosives)
 	//	self.damagemodifier = zombie_damagemodifier;
