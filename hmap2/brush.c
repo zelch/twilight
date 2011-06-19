@@ -570,7 +570,7 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum, qboolean worldmodel
 			return NULL;
 		if (!Q_strcasecmp(name, "textures/editor/visportal"))
 			return NULL;
-		if (name[0] == '*' && (worldmodel || !option_solidhulls))
+		if (name[0] == '*' && (worldmodel || !option_solidbmodels))
 		{
 			if (hullnum)
 				return NULL; // water brushes don't show up in clipping hulls

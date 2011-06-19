@@ -195,7 +195,7 @@ extern	qboolean forcevis;
 extern	qboolean oldbsp;
 extern	qboolean transwater;
 extern	qboolean waterlightmap;
-extern	qboolean option_solidhulls;
+extern	qboolean option_solidbmodels;
 
 extern	int		subdivide_size;
 
