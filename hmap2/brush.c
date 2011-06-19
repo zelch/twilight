@@ -542,7 +542,7 @@ LoadBrush
 Converts a mapbrush to a bsp brush
 ===============
 */
-brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
+brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum, qboolean worldmodel)
 {
 	brush_t		*b;
 	int			contents;
@@ -570,9 +570,9 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 			return NULL;
 		if (!Q_strcasecmp(name, "textures/editor/visportal"))
 			return NULL;
-		if (name[0] == '*')
+		if (name[0] == '*' && (worldmodel || !option_solidhulls))
 		{
-			if (option_solidhulls && hullnum)
+			if (hullnum)
 				return NULL; // water brushes don't show up in clipping hulls
 			if (!Q_strncasecmp(name+1,"lava",4))
 				contents = CONTENTS_LAVA;
