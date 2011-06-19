@@ -14,6 +14,7 @@ qboolean verbose;
 qboolean allverbose;
 qboolean forcevis;
 qboolean waterlightmap;
+qboolean option_solidhulls;
 
 int		subdivide_size;
 
@@ -315,6 +316,7 @@ int main (int argc, char **argv)
 	forcevis = true;
 	waterlightmap = true;
 	subdivide_size = 240;
+	option_solidhulls = false;
 
 	for (; i < argc; i++)
 	{
@@ -346,6 +348,8 @@ int main (int argc, char **argv)
 		}
 		else if (!strcmp (argv[i],"-noforcevis"))
 			forcevis = false;
+		else if (!strcmp (argv[i],"-solidhulls"))
+			option_solidhulls = true;
 		else
 			Error ("Unknown option '%s'", argv[i]);
 	}
@@ -372,6 +376,7 @@ error:
 "-noforcevis don't make a .prt if the map leaks\n"
 "-nowaterlightmap disable darkplaces lightmapped water feature\n"
 "-notex      store blank textures instead of real ones, smaller bsp if zipped\n"
+"-solidhulls use qbsp behavior of making water/sky submodels solid\n"
 		);
 
 	printf("inputfile: %s\n", filename_map);

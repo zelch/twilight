@@ -96,7 +96,7 @@ typedef struct
 // brush.c
 brush_t *AllocBrush( void );
 void FreeBrush( brush_t *b );
-void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum );
+void Brush_LoadEntity( entity_t *ent, tree_t *tree, int hullnum, qboolean worldmodel );
 
 //=============================================================================
 
@@ -195,6 +195,7 @@ extern	qboolean forcevis;
 extern	qboolean oldbsp;
 extern	qboolean transwater;
 extern	qboolean waterlightmap;
+extern	qboolean option_solidhulls;
 
 extern	int		subdivide_size;
 

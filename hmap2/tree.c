@@ -60,8 +60,8 @@ tree_t *Tree_ProcessEntity( entity_t *ent, int modnum, int hullnum )
 
 	// take the brushes and clip off all overlapping and contained faces,
 	// leaving a perfect skin of the model with no hidden faces
-	Brush_LoadEntity( ent, tree, hullnum );
-	if( !tree->brushes && hullnum == 0 )
+	Brush_LoadEntity( ent, tree, hullnum, worldmodel );
+	if( ent->brushes == NULL && hullnum == 0 )
 	{
 		PrintEntity( ent );
 		printf( "WARNING: line %i: Entity with no valid brushes\n", ent->scriptline );

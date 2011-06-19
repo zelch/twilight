@@ -549,51 +549,41 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 	char		*name;
 	mface_t		*f;
 
-	//
-	// check texture name for attributes
-	//
-
+	// figure out the brush contents
+	contents = CONTENTS_SOLID;
 	for (f = mb->faces;f;f = f->next)
 	{
 		name = miptex[texinfo[f->texinfo].miptex];
-		if (hullnum == 0)
-		{
-			// textures which don't show up in the drawing hull
-			if (!Q_strcasecmp(name, "clip"))
-				return NULL;
-			if (!Q_strcasecmp(name, "common/nodraw"))
-				return NULL;
-			if (!Q_strcasecmp(name, "textures/common/nodraw"))
-				return NULL;
-			if (!Q_strcasecmp(name, "textures/common/clip"))
-				return NULL;
-			if (!Q_strcasecmp(name, "textures/common/full_clip"))
-				return NULL;
-		}
+		// nodraw brushes do not produce anything
+		if (!Q_strcasecmp(name, "nodraw"))
+			continue;
+		if (!Q_strcasecmp(name, "common/nodraw"))
+			continue;
+		if (!Q_strcasecmp(name, "textures/common/nodraw"))
+			continue;
+		// textures which don't show up in the drawing hull
+		if (hullnum == 0 && !Q_strcasecmp(name, "clip"))
+			return NULL;
+		if (hullnum == 0 && !Q_strcasecmp(name, "textures/common/clip"))
+			return NULL;
+		if (hullnum == 0 && !Q_strcasecmp(name, "textures/common/full_clip"))
+			return NULL;
 		if (!Q_strcasecmp(name, "textures/editor/visportal"))
 			return NULL;
+		if (name[0] == '*')
+		{
+			if (option_solidhulls && hullnum)
+				return NULL; // water brushes don't show up in clipping hulls
+			if (!Q_strncasecmp(name+1,"lava",4))
+				contents = CONTENTS_LAVA;
+			else if (!Q_strncasecmp(name+1,"slime",5))
+				contents = CONTENTS_SLIME;
+			else
+				contents = CONTENTS_WATER;
+		}
+		else if (!Q_strncasecmp(name, "sky",3) && hullnum == 0)
+			contents = CONTENTS_SKY;
 	}
-
-	name = miptex[texinfo[mb->faces->texinfo].miptex];
-
-	if (name[0] == '*')		// entities never use water merging
-	{
-		if (!Q_strncasecmp(name+1,"lava",4))
-			contents = CONTENTS_LAVA;
-		else if (!Q_strncasecmp(name+1,"slime",5))
-			contents = CONTENTS_SLIME;
-		else
-			contents = CONTENTS_WATER;
-	}
-	else if (!Q_strncasecmp (name, "sky",3) && hullnum == 0)
-		contents = CONTENTS_SKY;
-	else
-		contents = CONTENTS_SOLID;
-
-	if (hullnum && contents != CONTENTS_SOLID && contents != CONTENTS_SKY)
-		return NULL;		// water brushes don't show up in clipping hulls
-
-	// no seperate textures on clip hull
 
 	//
 	// create the faces
@@ -604,6 +594,7 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 	for (f=mb->faces ; f ; f=f->next)
 	{
 		faces[numbrushfaces] = *f;
+		// cliphulls do not use textures
 		if (hullnum)
 			faces[numbrushfaces].texinfo = 0;
 		numbrushfaces++;
@@ -647,7 +638,7 @@ brush_t *LoadBrush (mbrush_t *mb, int brushnum, int hullnum)
 Brush_LoadEntity
 ============
 */
-void Brush_LoadEntity (entity_t *ent, tree_t *tree, int hullnum)
+void Brush_LoadEntity (entity_t *ent, tree_t *tree, int hullnum, qboolean worldmodel)
 {
 	mbrush_t	*mbr;
 	int			brushnum, numbrushes;
@@ -662,7 +653,7 @@ void Brush_LoadEntity (entity_t *ent, tree_t *tree, int hullnum)
 
 	for (mbr = ent->brushes, brushnum = 0; mbr; mbr=mbr->next, brushnum++)
 	{
-		b = LoadBrush (mbr, brushnum, hullnum);
+		b = LoadBrush (mbr, brushnum, hullnum, worldmodel);
 		if (!b)
 			continue;
 
