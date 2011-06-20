@@ -1025,3 +1025,17 @@ float(float t, float f1, float f2, entity e1, vector v1, vector v2, vector v3, v
 	return FALSE;
 };
 
+
+
+
+// math functions
+
+vector(vector a, vector b) rotateangles =
+{
+	local vector oldforward, oldright, oldup, af, al, au, bf, bl, bu;
+	oldforward = v_forward;oldright = v_right;oldup = v_up;
+	makevectors(a);af = v_forward;al = v_right * -1;au = v_up;
+	makevectors(b);bf = v_forward;bl = v_right * -1;bu = v_up;
+	v_forward = oldforward;v_right = oldright;v_up = oldup;
+	return vectoangles2(af * bf_x + al * bf_y + au * bf_z, af * bu_x + al * bu_y + au * bu_z);
+}
