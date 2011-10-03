@@ -248,6 +248,9 @@ int main (int argc, char **argv)
 	int		i;
 	double	start, end;
 
+	myargc = argc;
+	myargv = argv;
+
 	//	malloc_debug (15);
 	printf( "hmap2 by LordHavoc and Vic\n");
 	printf( "based on id Software's quake qbsp, light and vis utilities source code\n" );
