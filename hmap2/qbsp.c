@@ -350,6 +350,8 @@ int main (int argc, char **argv)
 			forcevis = false;
 		else if (!strcmp (argv[i],"-solidbmodels"))
 			option_solidbmodels = true;
+		else if (!strcmp (argv[i],"-wadpath"))
+			i++; // handled later in wad lookups
 		else
 			Error ("Unknown option '%s'", argv[i]);
 	}
