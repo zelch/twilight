@@ -47,7 +47,7 @@ void(float w, float h) CSQC_UpdateView =
 	// nothing right now
 
 	// clear the scene information (entities, polygons, etc)
-	clearscene(); // FIXME: check if this trashes VF_SIZE, VF_MIN or any other VF_ properties
+	clearscene();
 
 	// set up the scene parameters
 	setproperty(VF_SIZE, vf_size);
