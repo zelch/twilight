@@ -41,7 +41,8 @@ MarkLeakTrail
 ==============
 */
 portal_t	*prevleaknode;
-FILE	*leakfile;
+FILE	*leakfilepts;
+FILE	*leakfilelin;
 void MarkLeakTrail (portal_t *n2)
 {
 	int			i;
@@ -62,18 +63,33 @@ void MarkLeakTrail (portal_t *n2)
 	len = VectorLength (dir);
 	VectorNormalize (dir);
 
-	if (!leakfile)
-		leakfile = fopen (filename_pts, "w");
-	if (!leakfile)
-		Error ("Couldn't open %s\n", filename_pts);
-
-	while (len > 2)
+	if (!leakfilepts)
 	{
-		fprintf (leakfile, "%f %f %f\n", p1[0], p1[1], p1[2]);
-		for (i = 0;i < 3;i++)
-			p1[i] += dir[i] * 2;
-		len -= 2;
+		leakfilepts = fopen (filename_pts, "w");
+		if (!leakfilepts)
+			Error ("Couldn't open %s\n", filename_pts);
 	}
+	if (!leakfilelin)
+	{
+		leakfilepts = fopen (filename_lin, "w");
+		if (!leakfilelin)
+			Error ("Couldn't open %s\n", filename_lin);
+		fprintf (leakfilelin, "%f %f %f\n", p1[0], p1[1], p1[2]);
+	}
+
+	if (leakfilepts)
+	{
+		while (len > 2)
+		{
+			fprintf (leakfilepts, "%f %f %f\n", p1[0], p1[1], p1[2]);
+			for (i = 0;i < 3;i++)
+				p1[i] += dir[i] * 2;
+			len -= 2;
+		}
+	}
+
+	if (leakfilelin)
+		fprintf (leakfilelin, "%f %f %f\n", p2[0], p2[1], p2[2]);
 }
 
 /*
@@ -205,9 +221,12 @@ qboolean FillOutside (tree_t *tree, int hullnum)
 
 	if (RecursiveFillOutside (outside_node.portals->nodes[s], hullnum, false))
 	{
-		if (leakfile)
-			fclose(leakfile);
-		leakfile = NULL;
+		if (leakfilepts)
+			fclose(leakfilepts);
+		leakfilepts = NULL;
+		if (leakfilelin)
+			fclose(leakfilelin);
+		leakfilelin = NULL;
 		if (!hullnum)
 		{
 			GetVectorForKey (&entities[hit_occupied], "origin", origin);

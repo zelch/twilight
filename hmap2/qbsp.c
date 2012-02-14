@@ -24,6 +24,7 @@ char	filename_map[1024];
 char	filename_bsp[1024];
 char	filename_prt[1024];
 char	filename_pts[1024];
+char	filename_lin[1024];
 char	filename_lit[1024];
 char	filename_dlit[1024];
 char	filename_lights[1024];
@@ -208,6 +209,7 @@ void ProcessFile (char *sourcebase, char *filename_bsp1)
 		remove (filename_bsp);
 		remove (filename_prt);
 		remove (filename_pts);
+		remove (filename_lin);
 		remove (filename_lit);
 		remove (filename_dlit);
 		remove (filename_lights);
@@ -268,6 +270,7 @@ int main (int argc, char **argv)
 	strcpy(filename_bsp, filename_map);ReplaceExtension(filename_bsp, ".map", ".bsp", ".bsp");
 	strcpy(filename_prt, filename_bsp);ReplaceExtension(filename_prt, ".bsp", ".prt", ".prt");
 	strcpy(filename_pts, filename_bsp);ReplaceExtension(filename_pts, ".bsp", ".pts", ".pts");
+	strcpy(filename_lin, filename_bsp);ReplaceExtension(filename_lin, ".bsp", ".lin", ".lin");
 	strcpy(filename_lit, filename_bsp);ReplaceExtension(filename_lit, ".bsp", ".lit", ".lit");
 	strcpy(filename_dlit, filename_bsp);ReplaceExtension(filename_dlit, ".bsp", ".dlit", ".dlit");
 	strcpy(filename_lights, filename_bsp);ReplaceExtension(filename_lights, ".bsp", ".lights", ".lights");
