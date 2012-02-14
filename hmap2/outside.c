@@ -71,7 +71,7 @@ void MarkLeakTrail (portal_t *n2)
 	}
 	if (!leakfilelin)
 	{
-		leakfilepts = fopen (filename_lin, "w");
+		leakfilelin = fopen (filename_lin, "w");
 		if (!leakfilelin)
 			Error ("Couldn't open %s\n", filename_lin);
 		fprintf (leakfilelin, "%f %f %f\n", p1[0], p1[1], p1[2]);
