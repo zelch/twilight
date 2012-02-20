@@ -24,16 +24,10 @@ int		c_rotated;
 int		c_degenerateEdges;
 int		c_degenerateFaces;
 
-#define	MAX_WVERTS	0x40000
-#define	MAX_WEDGES	0x20000
-
-
 wvert_t	*wverts;
 wedge_t	*wedges;
 
 //============================================================================
-
-#define	NUM_HASH	1024
 
 wedge_t	*wedge_hash[NUM_HASH];
 

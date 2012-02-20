@@ -360,8 +360,6 @@ typedef struct hashvert_s
 	struct hashvert_s *next;
 } hashvert_t;
 
-#define	NUM_HASH		8192
-
 static	hashvert_t	hvertex[MAX_MAP_VERTS];
 static	hashvert_t	*hvert_p;
 
