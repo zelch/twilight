@@ -298,8 +298,6 @@ void WriteLights( void )
 
 //===============================================================================
 
-#define LIGHTCHAINS (MAX_MAP_FACES * 256)
-
 lightchain_t *surfacelightchain[MAX_MAP_FACES];
 lightchain_t lightchainbuf[LIGHTCHAINS];
 byte surfacehit[MAX_MAP_FACES];
@@ -316,7 +314,7 @@ LightWorld
 void LightWorld( void )
 {
 	int			i, k, n, m, count, pass, surfacesdone, lightvisibilitydone;
-	unsigned short	*mark;
+	unsigned int	*mark;
 	time_t		lightstarttime, oldtime, newtime;
 	directlight_t *light;
 	dleaf_t		*leaf;

@@ -4,14 +4,6 @@
 #include "bspfile.h"
 #include "mem.h"
 
-#define MAXLIGHTS 4096
-
-#define DEFAULTLIGHTLEVEL	300
-
-// #define WRITE_LIGHTSFILE
-
-#define MAP_DIRECTLIGHTS	MAX_MAP_ENTITIES
-
 typedef enum lighttype_e
 {
 	LIGHTTYPE_MINUSX,		// id light/arghlite/tyrlite mode 0, equation 1-x

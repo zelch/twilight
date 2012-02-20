@@ -55,7 +55,8 @@ int			numedges;
 dedge_t		dedges[MAX_MAP_EDGES];
 
 int			nummarksurfaces;
-unsigned short		dmarksurfaces[MAX_MAP_MARKSURFACES];
+// MODIFIED FOR BSP2
+unsigned int	dmarksurfaces[MAX_MAP_MARKSURFACES];
 
 int			numsurfedges;
 int			dsurfedges[MAX_MAP_SURFEDGES];
@@ -219,27 +220,39 @@ void	LoadBSPFile (char *filename)
 	int				i, j;
 	swappedbuffer_t	sb;
 	lump_t			lumps[HEADER_LUMPS], *lump;
+	qboolean isbsp2 = false;
+	ismcbsp = false;
 
 // load file into buffer
-	SB_LoadFile (&sb, filename);
+	SB_LoadFile(&sb, filename);
+
+// check header
+	if (!memcmp(sb.index, "MCBSPpad", 8))
+	{
+		ismcbsp = true;
+		SB_SeekAbsolute(&sb, 8);
+		i = SB_ReadInt (&sb);
+		if (i != MCBSPVERSION)
+			Error ("%s is version %i, should be %i", filename, i, MCBSPVERSION);
+	}
+	else if (!memcmp(sb.index, "BSP2", 4))
+	{
+		isbsp2 = true;
+		SB_SeekAbsolute(&sb, 4);
+	}
+	else
+	{
+		i = SB_ReadInt( &sb);
+		if (i != BSPVERSION)
+			Error ("%s is version %i, should be %i", filename, i, BSPVERSION);
+	}
 
 // hull 0 is always point-sized
 	VectorClear (hullinfo.hullsizes[0][0]);
 	VectorClear (hullinfo.hullsizes[0][1]);
 
-// check header
 	if (ismcbsp)
 	{
-		char	header[8];
-
-		SB_ReadData (&sb, header, 8);
-		if (memcmp (header, "MCBSPpad", 8))
-			Error ("%s has wrong header, should be \"MCBSPpad\"\n", filename);
-
-		i = SB_ReadInt (&sb);
-		if (i != MCBSPVERSION)
-			Error ("%s is version %i, should be %i", filename, i, MCBSPVERSION);
-
 		hullinfo.numhulls = SB_ReadInt (&sb);
 		hullinfo.filehulls = hullinfo.numhulls;
 		for (i = 1; i < hullinfo.numhulls; i++)
@@ -254,10 +267,6 @@ void	LoadBSPFile (char *filename)
 	}
 	else
 	{
-		i = SB_ReadInt (&sb);
-		if (i != BSPVERSION)
-			Error ("%s is version %i, should be %i", filename, i, BSPVERSION);
-
 		hullinfo.numhulls = 3;
 		hullinfo.filehulls = 4;
 		VectorSet (hullinfo.hullsizes[1][0], -16, -16, -24);
@@ -275,7 +284,7 @@ void	LoadBSPFile (char *filename)
 // read lumps (sigh...)
 	lump = &lumps[LUMP_PLANES];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numplanes = lump->filelen / sizeof(dplane_t);
+	numplanes = lump->filelen / 20;
 	for (i = 0; i < numplanes; i++)
 	{
 		dplanes[i].normal[0] = SB_ReadFloat (&sb);
@@ -287,26 +296,48 @@ void	LoadBSPFile (char *filename)
 
 	lump = &lumps[LUMP_LEAFS];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numleafs = lump->filelen / sizeof(dleaf_t);
-	for (i = 0; i < numleafs; i++)
+	if (isbsp2)
 	{
-		dleafs[i].contents = SB_ReadInt (&sb);
-		dleafs[i].visofs = SB_ReadInt (&sb);
-		dleafs[i].mins[0] = SB_ReadShort (&sb);
-		dleafs[i].mins[1] = SB_ReadShort (&sb);
-		dleafs[i].mins[2] = SB_ReadShort (&sb);
-		dleafs[i].maxs[0] = SB_ReadShort (&sb);
-		dleafs[i].maxs[1] = SB_ReadShort (&sb);
-		dleafs[i].maxs[2] = SB_ReadShort (&sb);
-		dleafs[i].firstmarksurface = SB_ReadShort (&sb);
-		dleafs[i].nummarksurfaces = SB_ReadShort (&sb);
-		for (j = 0; j < NUM_AMBIENTS; j++)
-			dleafs[i].ambient_level[j] = SB_ReadByte (&sb);
+		numleafs = lump->filelen / 44;
+		for (i = 0; i < numleafs; i++)
+		{
+			dleafs[i].contents = SB_ReadInt (&sb);
+			dleafs[i].visofs = SB_ReadInt (&sb);
+			dleafs[i].mins[0] = SB_ReadFloat (&sb);
+			dleafs[i].mins[1] = SB_ReadFloat (&sb);
+			dleafs[i].mins[2] = SB_ReadFloat (&sb);
+			dleafs[i].maxs[0] = SB_ReadFloat (&sb);
+			dleafs[i].maxs[1] = SB_ReadFloat (&sb);
+			dleafs[i].maxs[2] = SB_ReadFloat (&sb);
+			dleafs[i].firstmarksurface = SB_ReadInt (&sb);
+			dleafs[i].nummarksurfaces = SB_ReadInt (&sb);
+			for (j = 0; j < NUM_AMBIENTS; j++)
+				dleafs[i].ambient_level[j] = SB_ReadByte (&sb);
+		}
+	}
+	else
+	{
+		numleafs = lump->filelen / 28;
+		for (i = 0; i < numleafs; i++)
+		{
+			dleafs[i].contents = SB_ReadInt (&sb);
+			dleafs[i].visofs = SB_ReadInt (&sb);
+			dleafs[i].mins[0] = SB_ReadShort (&sb);
+			dleafs[i].mins[1] = SB_ReadShort (&sb);
+			dleafs[i].mins[2] = SB_ReadShort (&sb);
+			dleafs[i].maxs[0] = SB_ReadShort (&sb);
+			dleafs[i].maxs[1] = SB_ReadShort (&sb);
+			dleafs[i].maxs[2] = SB_ReadShort (&sb);
+			dleafs[i].firstmarksurface = SB_ReadShort (&sb);
+			dleafs[i].nummarksurfaces = SB_ReadShort (&sb);
+			for (j = 0; j < NUM_AMBIENTS; j++)
+				dleafs[i].ambient_level[j] = SB_ReadByte (&sb);
+		}
 	}
 
 	lump = &lumps[LUMP_VERTEXES];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numvertexes = lump->filelen / sizeof(dvertex_t);
+	numvertexes = lump->filelen / 12;
 	for (i = 0; i < numvertexes; i++)
 	{
 		dvertexes[i].point[0] = SB_ReadFloat (&sb);
@@ -316,25 +347,46 @@ void	LoadBSPFile (char *filename)
 
 	lump = &lumps[LUMP_NODES];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numnodes = lump->filelen / sizeof(dnode_t);
-	for (i = 0; i < numnodes; i++)
+	if (isbsp2)
 	{
-		dnodes[i].planenum = SB_ReadInt (&sb);
-		dnodes[i].children[0] = SB_ReadShort (&sb);
-		dnodes[i].children[1] = SB_ReadShort (&sb);
-		dnodes[i].mins[0] = SB_ReadShort (&sb);
-		dnodes[i].mins[1] = SB_ReadShort (&sb);
-		dnodes[i].mins[2] = SB_ReadShort (&sb);
-		dnodes[i].maxs[0] = SB_ReadShort (&sb);
-		dnodes[i].maxs[1] = SB_ReadShort (&sb);
-		dnodes[i].maxs[2] = SB_ReadShort (&sb);
-		dnodes[i].firstface = SB_ReadShort (&sb);
-		dnodes[i].numfaces = SB_ReadShort (&sb);
+		numnodes = lump->filelen / 44;
+		for (i = 0; i < numnodes; i++)
+		{
+			dnodes[i].planenum = SB_ReadInt (&sb);
+			dnodes[i].children[0] = SB_ReadInt (&sb);
+			dnodes[i].children[1] = SB_ReadInt (&sb);
+			dnodes[i].mins[0] = SB_ReadFloat (&sb);
+			dnodes[i].mins[1] = SB_ReadFloat (&sb);
+			dnodes[i].mins[2] = SB_ReadFloat (&sb);
+			dnodes[i].maxs[0] = SB_ReadFloat (&sb);
+			dnodes[i].maxs[1] = SB_ReadFloat (&sb);
+			dnodes[i].maxs[2] = SB_ReadFloat (&sb);
+			dnodes[i].firstface = SB_ReadInt (&sb);
+			dnodes[i].numfaces = SB_ReadInt (&sb);
+		}
+	}
+	else
+	{
+		numnodes = lump->filelen / 24;
+		for (i = 0; i < numnodes; i++)
+		{
+			dnodes[i].planenum = SB_ReadInt (&sb);
+			dnodes[i].children[0] = SB_ReadShort (&sb);
+			dnodes[i].children[1] = SB_ReadShort (&sb);
+			dnodes[i].mins[0] = SB_ReadShort (&sb);
+			dnodes[i].mins[1] = SB_ReadShort (&sb);
+			dnodes[i].mins[2] = SB_ReadShort (&sb);
+			dnodes[i].maxs[0] = SB_ReadShort (&sb);
+			dnodes[i].maxs[1] = SB_ReadShort (&sb);
+			dnodes[i].maxs[2] = SB_ReadShort (&sb);
+			dnodes[i].firstface = SB_ReadShort (&sb);
+			dnodes[i].numfaces = SB_ReadShort (&sb);
+		}
 	}
 
 	lump = &lumps[LUMP_TEXINFO];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numtexinfo = lump->filelen / sizeof(texinfo_t);
+	numtexinfo = lump->filelen / 40;
 	for (i = 0; i < numtexinfo; i++)
 	{
 		texinfo[i].vecs[0][0] = SB_ReadFloat (&sb);
@@ -351,48 +403,100 @@ void	LoadBSPFile (char *filename)
 
 	lump = &lumps[LUMP_FACES];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numfaces = lump->filelen / sizeof(dface_t);
-	for (i = 0; i < numfaces; i++)
+	if (isbsp2)
 	{
-		dfaces[i].planenum = SB_ReadShort (&sb);
-		dfaces[i].side = SB_ReadShort (&sb);
-		dfaces[i].firstedge = SB_ReadInt (&sb);
-		dfaces[i].numedges = SB_ReadShort (&sb);
-		dfaces[i].texinfo = SB_ReadShort (&sb);
-		for (j = 0; j < MAXLIGHTMAPS; j++)
-			dfaces[i].styles[j] = SB_ReadByte (&sb);
-		dfaces[i].lightofs = SB_ReadInt (&sb);
+		numfaces = lump->filelen / 28;
+		for (i = 0; i < numfaces; i++)
+		{
+			dfaces[i].planenum = SB_ReadInt (&sb);
+			dfaces[i].side = SB_ReadInt (&sb);
+			dfaces[i].firstedge = SB_ReadInt (&sb);
+			dfaces[i].numedges = SB_ReadInt (&sb);
+			dfaces[i].texinfo = SB_ReadInt (&sb);
+			for (j = 0; j < MAXLIGHTMAPS; j++)
+				dfaces[i].styles[j] = SB_ReadByte (&sb);
+			dfaces[i].lightofs = SB_ReadInt (&sb);
+		}
+	}
+	else
+	{
+		numfaces = lump->filelen / 20;
+		for (i = 0; i < numfaces; i++)
+		{
+			dfaces[i].planenum = SB_ReadShort (&sb);
+			dfaces[i].side = SB_ReadShort (&sb);
+			dfaces[i].firstedge = SB_ReadInt (&sb);
+			dfaces[i].numedges = SB_ReadShort (&sb);
+			dfaces[i].texinfo = SB_ReadShort (&sb);
+			for (j = 0; j < MAXLIGHTMAPS; j++)
+				dfaces[i].styles[j] = SB_ReadByte (&sb);
+			dfaces[i].lightofs = SB_ReadInt (&sb);
+		}
 	}
 
 	lump = &lumps[LUMP_CLIPNODES];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numclipnodes = lump->filelen / sizeof(dclipnode_t);
-	for (i = 0; i < numclipnodes; i++)
+	if (isbsp2)
 	{
-		dclipnodes[i].planenum = SB_ReadInt (&sb);
-		dclipnodes[i].children[0] = SB_ReadShort (&sb);
-		dclipnodes[i].children[1] = SB_ReadShort (&sb);
+		numclipnodes = lump->filelen / 12;
+		for (i = 0; i < numclipnodes; i++)
+		{
+			dclipnodes[i].planenum = SB_ReadInt (&sb);
+			dclipnodes[i].children[0] = SB_ReadInt (&sb);
+			dclipnodes[i].children[1] = SB_ReadInt (&sb);
+		}
+	}
+	else
+	{
+		numclipnodes = lump->filelen / 8;
+		for (i = 0; i < numclipnodes; i++)
+		{
+			dclipnodes[i].planenum = SB_ReadInt (&sb);
+			dclipnodes[i].children[0] = SB_ReadShort (&sb);
+			dclipnodes[i].children[1] = SB_ReadShort (&sb);
+		}
 	}
 
 	lump = &lumps[LUMP_MARKSURFACES];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	nummarksurfaces = lump->filelen / sizeof(dmarksurfaces[0]);
-	for (i = 0; i < nummarksurfaces; i++)
-		dmarksurfaces[i] = SB_ReadShort (&sb);
+	if (isbsp2)
+	{
+		nummarksurfaces = lump->filelen / 4;
+		for (i = 0; i < nummarksurfaces; i++)
+			dmarksurfaces[i] = SB_ReadInt (&sb);
+	}
+	else
+	{
+		nummarksurfaces = lump->filelen / 2;
+		for (i = 0; i < nummarksurfaces; i++)
+			dmarksurfaces[i] = SB_ReadShort (&sb);
+	}
 
 	lump = &lumps[LUMP_SURFEDGES];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numsurfedges = lump->filelen / sizeof(dsurfedges[0]);
+	numsurfedges = lump->filelen / 4;
 	for (i = 0; i < numsurfedges; i++)
 		dsurfedges[i] = SB_ReadInt (&sb);
 
 	lump = &lumps[LUMP_EDGES];
 	SB_SeekAbsolute (&sb, lump->fileofs);
-	numedges = lump->filelen / sizeof(dedge_t);
-	for (i = 0; i < numedges; i++)
+	if (isbsp2)
 	{
-		dedges[i].v[0] = SB_ReadShort (&sb);
-		dedges[i].v[1] = SB_ReadShort (&sb);
+		numedges = lump->filelen / 8;
+		for (i = 0; i < numedges; i++)
+		{
+			dedges[i].v[0] = SB_ReadInt (&sb);
+			dedges[i].v[1] = SB_ReadInt (&sb);
+		}
+	}
+	else
+	{
+		numedges = lump->filelen / 4;
+		for (i = 0; i < numedges; i++)
+		{
+			dedges[i].v[0] = SB_ReadShort (&sb);
+			dedges[i].v[1] = SB_ReadShort (&sb);
+		}
 	}
 
 	lump = &lumps[LUMP_MODELS];
@@ -445,7 +549,7 @@ void	LoadBSPFile (char *filename)
 	SB_ReadData (&sb, dtexdata, texdatasize);
 
 // finish up
-	SB_Free (&sb);
+	SB_Free(&sb);
 }
 
 /*
@@ -460,6 +564,20 @@ void WriteBSPFile (char *filename, qboolean litonly)
 	int				i, j;
 	FILE			*f;
 	swappedbuffer_t	sb;
+	qboolean		isbsp2
+	 =  dmodels[0].mins[0] < -32768.0f
+	 || dmodels[0].mins[1] < -32768.0f
+	 || dmodels[0].mins[2] < -32768.0f
+	 || dmodels[0].maxs[0] >= 32768.0f
+	 || dmodels[0].maxs[1] >= 32768.0f
+	 || dmodels[0].maxs[2] >= 32768.0f
+	 || nummarksurfaces >= 32768
+	 || numvertexes > 32768
+	 || numnodes >= 32768
+	 || numleafs >= 32768
+	 || numplanes >= 32768
+	 || numtexinfo >= 32768
+	 || numclipnodes >= 32768;
 
 	if (!litonly)
 	{
@@ -469,17 +587,32 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 	// allocate as much memory is needed for the buffer -- sorry about this! Please do something about this!
 		if (ismcbsp)
+		{
 			bspsize = 8+4+4+(hullinfo.numhulls-1)*24;
-		else
-			bspsize = 4;
-		bspsize += sizeof(lumps)+20*numplanes+(24+NUM_AMBIENTS)*numleafs+12*numvertexes;
-		bspsize += 24*numnodes+40*numtexinfo+(16+MAXLIGHTMAPS)*numfaces+8*numclipnodes;
-		bspsize += 2*nummarksurfaces+4*numsurfedges+4*numedges;
-		if (ismcbsp)
+			bspsize += sizeof(lumps)+20*numplanes+(24+NUM_AMBIENTS)*numleafs+12*numvertexes;
+			bspsize += 24*numnodes+40*numtexinfo+(16+MAXLIGHTMAPS)*numfaces+8*numclipnodes;
+			bspsize += 2*nummarksurfaces+4*numsurfedges+4*numedges;
 			bspsize += (48+4*MAX_MAP_HULLS)*nummodels+rgblightdatasize;
-		else
+			bspsize += visdatasize+entdatasize+texdatasize;
+		}
+		else if (isbsp2)
+		{
+			bspsize = 4;
+			bspsize += sizeof(lumps)+20*numplanes+(40+NUM_AMBIENTS)*numleafs+12*numvertexes;
+			bspsize += 44*numnodes+40*numtexinfo+(24+MAXLIGHTMAPS)*numfaces+12*numclipnodes;
+			bspsize += 4*nummarksurfaces+4*numsurfedges+8*numedges;
 			bspsize += (48+4*MAX_Q1MAP_HULLS)*nummodels+lightdatasize;
-		bspsize += visdatasize+entdatasize+texdatasize;
+			bspsize += visdatasize+entdatasize+texdatasize;
+		}
+		else
+		{
+			bspsize = 4;
+			bspsize += sizeof(lumps)+20*numplanes+(24+NUM_AMBIENTS)*numleafs+12*numvertexes;
+			bspsize += 24*numnodes+40*numtexinfo+(16+MAXLIGHTMAPS)*numfaces+8*numclipnodes;
+			bspsize += 2*nummarksurfaces+4*numsurfedges+4*numedges;
+			bspsize += (48+4*MAX_Q1MAP_HULLS)*nummodels+lightdatasize;
+			bspsize += visdatasize+entdatasize+texdatasize;
+		}
 		bspsize += 512;	// extra case for safety and to compensate for the 4-byte padding of the lumps
 
 		SB_Alloc (&sb, bspsize);
@@ -487,14 +620,11 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 	// write header
 		if (ismcbsp)
-		{
-			SB_WriteData (&sb, "MCBSPpad", 8);
-			SB_WriteInt (&sb, MCBSPVERSION);
-			SB_WriteInt (&sb, hullinfo.numhulls);
-			SB_ZeroFill (&sb, (hullinfo.numhulls - 1)*24);	// filled in later
-		}
+			SB_ZeroFill (&sb, 8+4+4+(hullinfo.numhulls - 1)*24);	// filled in later
+		else if (isbsp2)
+			SB_ZeroFill (&sb, 4); // filled in later
 		else
-			SB_WriteInt (&sb, BSPVERSION);
+			SB_ZeroFill (&sb, 4); // filled in later
 
 		SB_ZeroFill (&sb, sizeof(lumps));	// filled in later
 
@@ -514,20 +644,41 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 		lump = &lumps[LUMP_LEAFS];
 		lump->fileofs = SB_Tell(&sb);
-		for (i = 0; i < numleafs; i++)
+		if (isbsp2)
 		{
-			SB_WriteInt (&sb, dleafs[i].contents);
-			SB_WriteInt (&sb, dleafs[i].visofs);
-			SB_WriteShort (&sb, dleafs[i].mins[0]);
-			SB_WriteShort (&sb, dleafs[i].mins[1]);
-			SB_WriteShort (&sb, dleafs[i].mins[2]);
-			SB_WriteShort (&sb, dleafs[i].maxs[0]);
-			SB_WriteShort (&sb, dleafs[i].maxs[1]);
-			SB_WriteShort (&sb, dleafs[i].maxs[2]);
-			SB_WriteShort (&sb, dleafs[i].firstmarksurface);
-			SB_WriteShort (&sb, dleafs[i].nummarksurfaces);
-			for (j = 0; j < NUM_AMBIENTS; j++)
-				SB_WriteByte (&sb, dleafs[i].ambient_level[j]);
+			for (i = 0; i < numleafs; i++)
+			{
+				SB_WriteInt (&sb, dleafs[i].contents);
+				SB_WriteInt (&sb, dleafs[i].visofs);
+				SB_WriteFloat (&sb, dleafs[i].mins[0]);
+				SB_WriteFloat (&sb, dleafs[i].mins[1]);
+				SB_WriteFloat (&sb, dleafs[i].mins[2]);
+				SB_WriteFloat (&sb, dleafs[i].maxs[0]);
+				SB_WriteFloat (&sb, dleafs[i].maxs[1]);
+				SB_WriteFloat (&sb, dleafs[i].maxs[2]);
+				SB_WriteInt (&sb, dleafs[i].firstmarksurface);
+				SB_WriteInt (&sb, dleafs[i].nummarksurfaces);
+				for (j = 0; j < NUM_AMBIENTS; j++)
+					SB_WriteByte (&sb, dleafs[i].ambient_level[j]);
+			}
+		}
+		else
+		{
+			for (i = 0; i < numleafs; i++)
+			{
+				SB_WriteInt (&sb, dleafs[i].contents);
+				SB_WriteInt (&sb, dleafs[i].visofs);
+				SB_WriteShort (&sb, dleafs[i].mins[0]);
+				SB_WriteShort (&sb, dleafs[i].mins[1]);
+				SB_WriteShort (&sb, dleafs[i].mins[2]);
+				SB_WriteShort (&sb, dleafs[i].maxs[0]);
+				SB_WriteShort (&sb, dleafs[i].maxs[1]);
+				SB_WriteShort (&sb, dleafs[i].maxs[2]);
+				SB_WriteShort (&sb, dleafs[i].firstmarksurface);
+				SB_WriteShort (&sb, dleafs[i].nummarksurfaces);
+				for (j = 0; j < NUM_AMBIENTS; j++)
+					SB_WriteByte (&sb, dleafs[i].ambient_level[j]);
+			}
 		}
 		lump->filelen = SB_Tell(&sb) - lump->fileofs;
 		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
@@ -545,19 +696,39 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 		lump = &lumps[LUMP_NODES];
 		lump->fileofs = SB_Tell(&sb);
-		for (i = 0; i < numnodes; i++)
+		if (isbsp2)
 		{
-			SB_WriteInt (&sb, dnodes[i].planenum);
-			SB_WriteShort (&sb, dnodes[i].children[0]);
-			SB_WriteShort (&sb, dnodes[i].children[1]);
-			SB_WriteShort (&sb, dnodes[i].mins[0]);
-			SB_WriteShort (&sb, dnodes[i].mins[1]);
-			SB_WriteShort (&sb, dnodes[i].mins[2]);
-			SB_WriteShort (&sb, dnodes[i].maxs[0]);
-			SB_WriteShort (&sb, dnodes[i].maxs[1]);
-			SB_WriteShort (&sb, dnodes[i].maxs[2]);
-			SB_WriteShort (&sb, dnodes[i].firstface);
-			SB_WriteShort (&sb, dnodes[i].numfaces);
+			for (i = 0; i < numnodes; i++)
+			{
+				SB_WriteInt (&sb, dnodes[i].planenum);
+				SB_WriteInt (&sb, dnodes[i].children[0]);
+				SB_WriteInt (&sb, dnodes[i].children[1]);
+				SB_WriteFloat (&sb, dnodes[i].mins[0]);
+				SB_WriteFloat (&sb, dnodes[i].mins[1]);
+				SB_WriteFloat (&sb, dnodes[i].mins[2]);
+				SB_WriteFloat (&sb, dnodes[i].maxs[0]);
+				SB_WriteFloat (&sb, dnodes[i].maxs[1]);
+				SB_WriteFloat (&sb, dnodes[i].maxs[2]);
+				SB_WriteInt (&sb, dnodes[i].firstface);
+				SB_WriteInt (&sb, dnodes[i].numfaces);
+			}
+		}
+		else
+		{
+			for (i = 0; i < numnodes; i++)
+			{
+				SB_WriteInt (&sb, dnodes[i].planenum);
+				SB_WriteShort (&sb, dnodes[i].children[0]);
+				SB_WriteShort (&sb, dnodes[i].children[1]);
+				SB_WriteShort (&sb, dnodes[i].mins[0]);
+				SB_WriteShort (&sb, dnodes[i].mins[1]);
+				SB_WriteShort (&sb, dnodes[i].mins[2]);
+				SB_WriteShort (&sb, dnodes[i].maxs[0]);
+				SB_WriteShort (&sb, dnodes[i].maxs[1]);
+				SB_WriteShort (&sb, dnodes[i].maxs[2]);
+				SB_WriteShort (&sb, dnodes[i].firstface);
+				SB_WriteShort (&sb, dnodes[i].numfaces);
+			}
 		}
 		lump->filelen = SB_Tell(&sb) - lump->fileofs;
 		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
@@ -582,35 +753,72 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 		lump = &lumps[LUMP_FACES];
 		lump->fileofs = SB_Tell(&sb);
-		for (i = 0; i < numfaces; i++)
+		if (isbsp2)
 		{
-			SB_WriteShort (&sb, dfaces[i].planenum);
-			SB_WriteShort (&sb, dfaces[i].side);
-			SB_WriteInt (&sb, dfaces[i].firstedge);
-			SB_WriteShort (&sb, dfaces[i].numedges);
-			SB_WriteShort (&sb, dfaces[i].texinfo);
-			for (j = 0; j < MAXLIGHTMAPS; j++)
-				SB_WriteByte (&sb, dfaces[i].styles[j]);
-			SB_WriteInt (&sb, dfaces[i].lightofs);
+			for (i = 0; i < numfaces; i++)
+			{
+				SB_WriteInt (&sb, dfaces[i].planenum);
+				SB_WriteInt (&sb, dfaces[i].side);
+				SB_WriteInt (&sb, dfaces[i].firstedge);
+				SB_WriteInt (&sb, dfaces[i].numedges);
+				SB_WriteInt (&sb, dfaces[i].texinfo);
+				for (j = 0; j < MAXLIGHTMAPS; j++)
+					SB_WriteByte (&sb, dfaces[i].styles[j]);
+				SB_WriteInt (&sb, dfaces[i].lightofs);
+			}
+		}
+		else
+		{
+			for (i = 0; i < numfaces; i++)
+			{
+				SB_WriteShort (&sb, dfaces[i].planenum);
+				SB_WriteShort (&sb, dfaces[i].side);
+				SB_WriteInt (&sb, dfaces[i].firstedge);
+				SB_WriteShort (&sb, dfaces[i].numedges);
+				SB_WriteShort (&sb, dfaces[i].texinfo);
+				for (j = 0; j < MAXLIGHTMAPS; j++)
+					SB_WriteByte (&sb, dfaces[i].styles[j]);
+				SB_WriteInt (&sb, dfaces[i].lightofs);
+			}
 		}
 		lump->filelen = SB_Tell(&sb) - lump->fileofs;
 		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
 
 		lump = &lumps[LUMP_CLIPNODES];
 		lump->fileofs = SB_Tell(&sb);
-		for (i = 0; i < numclipnodes; i++)
+		if (isbsp2)
 		{
-			SB_WriteInt (&sb, dclipnodes[i].planenum);
-			SB_WriteShort (&sb, dclipnodes[i].children[0]);
-			SB_WriteShort (&sb, dclipnodes[i].children[1]);
+			for (i = 0; i < numclipnodes; i++)
+			{
+				SB_WriteInt (&sb, dclipnodes[i].planenum);
+				SB_WriteInt (&sb, dclipnodes[i].children[0]);
+				SB_WriteInt (&sb, dclipnodes[i].children[1]);
+			}
+		}
+		else
+		{
+			for (i = 0; i < numclipnodes; i++)
+			{
+				SB_WriteInt (&sb, dclipnodes[i].planenum);
+				SB_WriteShort (&sb, dclipnodes[i].children[0]);
+				SB_WriteShort (&sb, dclipnodes[i].children[1]);
+			}
 		}
 		lump->filelen = SB_Tell(&sb) - lump->fileofs;
 		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
 
 		lump = &lumps[LUMP_MARKSURFACES];
 		lump->fileofs = SB_Tell(&sb);
-		for (i = 0; i < nummarksurfaces; i++)
-			SB_WriteShort (&sb, dmarksurfaces[i]);
+		if (isbsp2)
+		{
+			for (i = 0; i < nummarksurfaces; i++)
+				SB_WriteInt (&sb, dmarksurfaces[i]);
+		}
+		else
+		{
+			for (i = 0; i < nummarksurfaces; i++)
+				SB_WriteShort (&sb, dmarksurfaces[i]);
+		}
 		lump->filelen = SB_Tell(&sb) - lump->fileofs;
 		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
 
@@ -623,10 +831,21 @@ void WriteBSPFile (char *filename, qboolean litonly)
 
 		lump = &lumps[LUMP_EDGES];
 		lump->fileofs = SB_Tell(&sb);
-		for (i = 0; i < numedges; i++)
+		if (isbsp2)
 		{
-			SB_WriteShort (&sb, dedges[i].v[0]);
-			SB_WriteShort (&sb, dedges[i].v[1]);
+			for (i = 0; i < numedges; i++)
+			{
+				SB_WriteInt (&sb, dedges[i].v[0]);
+				SB_WriteInt (&sb, dedges[i].v[1]);
+			}
+		}
+		else
+		{
+			for (i = 0; i < numedges; i++)
+			{
+				SB_WriteShort (&sb, dedges[i].v[0]);
+				SB_WriteShort (&sb, dedges[i].v[1]);
+			}
 		}
 		lump->filelen = SB_Tell(&sb) - lump->fileofs;
 		SB_ZeroFill (&sb, ((lump->filelen + 3) & ~3) - lump->filelen);
@@ -699,8 +918,14 @@ void WriteBSPFile (char *filename, qboolean litonly)
 				SB_WriteFloat (&sb, hullinfo.hullsizes[i][1][2]);
 			}
 		}
+		else if (isbsp2)
+		{
+			SB_WriteData (&sb, "BSP2", 4);
+		}
 		else
+		{
 			SB_WriteInt (&sb, BSPVERSION);
+		}
 
 		for (i = 0; i < HEADER_LUMPS; i++)
 		{

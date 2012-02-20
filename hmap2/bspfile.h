@@ -7,24 +7,33 @@
 #define	MAX_Q1MAP_HULLS			4
 #define	MAX_MAP_HULLS			16
 
-#define	MAX_MAP_MODELS			4096		// was 256
-#define	MAX_MAP_BRUSHES			32768		// LordHavoc: I ran into this myself, was 4096
-#define	MAX_MAP_ENTITIES		32768		// LordHavoc: was 1024
-#define	MAX_MAP_ENTSTRING		0x100000	// LordHavoc: was 65536
+#define	MAX_MAP_MODELS			0x8000
+#define	MAX_MAP_BRUSHES			0x200000
+#define	MAX_MAP_ENTITIES		0x8000
+#define	MAX_MAP_ENTSTRING		0x800000
 
-#define	MAX_MAP_PLANES			65536		// LordHavoc: I ran into this myself, was 8192
-#define	MAX_MAP_NODES			32767		// because negative shorts are contents
-#define	MAX_MAP_CLIPNODES		32767		//
-#define	MAX_MAP_LEAFS			32767		//
-#define	MAX_MAP_VERTS			65535
-#define	MAX_MAP_FACES			65536
-#define	MAX_MAP_MARKSURFACES	65535
-#define	MAX_MAP_TEXINFO			MAX_MAP_FACES // LordHavoc: I ran into this myself, was 4096
-#define	MAX_MAP_EDGES			0x100000	// LordHavoc: was 256000
-#define	MAX_MAP_SURFEDGES		0x200000	// LordHavoc: was 512000
-#define	MAX_MAP_MIPTEX			0x800000	// LordHavoc: quadrupled (was 0x200000)
-#define	MAX_MAP_LIGHTING		0x400000	// LordHavoc: raised from 0x100000 (1mb) to 0x400000 (4mb)
-#define	MAX_MAP_VISIBILITY		0x400000	// LordHavoc: quadrupled (was 0x100000)
+#define	MAX_MAP_PLANES			0x800000
+#define	MAX_MAP_NODES			0x800000
+#define	MAX_MAP_CLIPNODES		0x2000000
+#define	MAX_MAP_LEAFS			0x800000
+#define	MAX_MAP_VERTS			0x800000
+#define	MAX_MAP_FACES			0x1000000
+#define	MAX_MAP_MARKSURFACES	0x2000000
+#define	MAX_MAP_TEXINFO			0x800000
+#define	MAX_MAP_EDGES			0x1000000
+#define	MAX_MAP_SURFEDGES		0x2000000
+#define	MAX_MAP_MIPTEX			0x1000000
+#define	MAX_MAP_LIGHTING		0x2000000
+#define	MAX_MAP_VISIBILITY		0x2000000
+
+#define MAXLIGHTS 4096
+#define LIGHTCHAINS 0x4000000
+
+#define DEFAULTLIGHTLEVEL	300
+
+// #define WRITE_LIGHTSFILE
+
+#define MAP_DIRECTLIGHTS	MAX_MAP_ENTITIES
 
 // key / value pair sizes
 
@@ -35,6 +44,7 @@
 
 #define BSPVERSION	29
 #define MCBSPVERSION 2
+// BSP2 also exists, but its version is "BSP2" not a number
 
 typedef struct
 {
@@ -123,20 +133,22 @@ typedef struct
 #define	CONTENTS_SKY		-6
 
 // !!! if this is changed, it must be changed in asm_i386.h too !!!
+// MODIFIED FOR BSP2
 typedef struct
 {
 	int			planenum;
-	short		children[2];	// negative numbers are -(leafs+1), not nodes
-	short		mins[3];		// for sphere culling
-	short		maxs[3];
+	int			children[2];	// negative numbers are -(leafs+1), not nodes
+	float		mins[3];		// for sphere culling
+	float		maxs[3];
 	unsigned short	firstface;
 	unsigned short	numfaces;	// counting both sides
 } dnode_t;
 
+// MODIFIED FOR BSP2
 typedef struct
 {
 	int			planenum;
-	short		children[2];	// negative numbers are contents
+	int			children[2];	// negative numbers are contents
 } dclipnode_t;
 
 
@@ -150,20 +162,22 @@ typedef struct texinfo_s
 
 // note that edge 0 is never used, because negative edge nums are used for
 // counterclockwise use of the edge in a face
+// MODIFIED FOR BSP2
 typedef struct
 {
-	unsigned short	v[2];		// vertex numbers
+	unsigned int	v[2];		// vertex numbers
 } dedge_t;
 
 #define	MAXLIGHTMAPS	4
+// MODIFIED FOR BSP2
 typedef struct
 {
-	short		planenum;
-	short		side;
+	int			planenum;
+	int			side;
 
 	int			firstedge;		// we must support > 64k edges
-	short		numedges;
-	short		texinfo;
+	int			numedges;
+	int			texinfo;
 
 // lighting info
 	byte		styles[MAXLIGHTMAPS];
@@ -181,16 +195,17 @@ typedef struct
 
 // leaf 0 is the generic CONTENTS_SOLID leaf, used for all solid areas
 // all other leafs need visibility info
+// MODIFIED FOR BSP2
 typedef struct
 {
 	int			contents;
 	int			visofs;				// -1 = no visibility info
 
-	short		mins[3];			// for frustum culling
-	short		maxs[3];
+	float		mins[3];			// for frustum culling
+	float		maxs[3];
 
-	unsigned short		firstmarksurface;
-	unsigned short		nummarksurfaces;
+	unsigned int		firstmarksurface;
+	unsigned int		nummarksurfaces;
 
 	byte		ambient_level[NUM_AMBIENTS];
 } dleaf_t;
@@ -247,7 +262,8 @@ extern	int			numedges;
 extern	dedge_t		dedges[MAX_MAP_EDGES];
 
 extern	int			nummarksurfaces;
-extern	unsigned short	dmarksurfaces[MAX_MAP_MARKSURFACES];
+// MODIFIED FOR BSP2
+extern	unsigned int	dmarksurfaces[MAX_MAP_MARKSURFACES];
 
 extern	int			numsurfedges;
 extern	int			dsurfedges[MAX_MAP_SURFEDGES];
