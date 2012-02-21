@@ -73,7 +73,8 @@ typedef struct
 #define	LUMP_SURFEDGES	13
 #define	LUMP_MODELS		14
 
-#define	HEADER_LUMPS	15
+#define	BSP29HEADER_LUMPS	15
+#define	BSP2HEADER_LUMPS	128
 
 typedef struct
 {
