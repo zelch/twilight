@@ -1069,10 +1069,15 @@ void(entity t) CopyToBodyQue =
 // here to affect all monsters except zombies.
 void(entity t, void() framefunc) MonsterCorpse =
 {
-	// setup for recycling
+	// change to corpse behavior (gib if damaged enough, etc)
 	BecomeCorpse(t, framefunc);
-	CopyToBodyQue(t);
-	remove(t);
+
+	// setup for recycling
+	// LordHavoc 20120223: turn it directly into a decor rather than spawning a new one, otherwise it loses the decals when playing with model decals on
+	t.classname = "decor";
+	newdecor(t);
+//	CopyToBodyQue(t);
+//	remove(t);
 };
 
 void(string headname, float gibs, string gibname1, float gibs1, string gibname2, float gibs2) MonsterGibs =
