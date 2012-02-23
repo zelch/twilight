@@ -968,6 +968,13 @@ void() StartFrame =
 		waypoint_spawnformap();
 	}
 
+	if (mapgen_enabled)
+	if (!mapgen_hasrun)
+	{
+		mapgen_hasrun = TRUE;
+		mapgen_start();
+	}
+
 	modeupdate(); // all kinds of stuff (teamplay changing etc)
 
 	teamplay = cvar("teamplay");

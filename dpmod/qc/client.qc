@@ -892,6 +892,7 @@ The normal starting point for a level.
 */
 void() info_player_start =
 {
+	if (mapgen_roomtemplate_setup(info_player_start)) return;
 };
 
 
@@ -921,6 +922,7 @@ new in Dark Places:
 */
 void() info_player_deathmatch =
 {
+	if (mapgen_roomtemplate_setup(info_player_deathmatch)) return;
 	info_player_deathmatch_setup();
 };
 
@@ -943,6 +945,7 @@ new in Dark Places:
 */
 void() info_player_team1 =
 {
+	if (mapgen_roomtemplate_setup(info_player_team1)) return;
 	info_player_deathmatch_setup();
 };
 
@@ -958,6 +961,7 @@ new in Dark Places:
 */
 void() info_player_team2 =
 {
+	if (mapgen_roomtemplate_setup(info_player_team2)) return;
 	info_player_deathmatch_setup();
 };
 
@@ -973,6 +977,7 @@ new in Dark Places:
 */
 void() info_player_team3 =
 {
+	if (mapgen_roomtemplate_setup(info_player_team3)) return;
 	info_player_deathmatch_setup();
 };
 

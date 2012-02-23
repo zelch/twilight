@@ -7,11 +7,6 @@ DECORS (shell casings, gibs, decals, nails stuck in walls...)
 */
 
 //DP_PHYSICS
-float SOLID_PHYSICS_BOX = 32;
-float SOLID_PHYSICS_SPHERE = 33;
-float SOLID_PHYSICS_CAPSULE = 34;
-float MOVETYPE_PHYSICS = 32;
-.float mass;
 
 void(entity e) removedecor =
 {
@@ -47,6 +42,7 @@ entity(entity e) newdecor =
 	e.frame = 0;
 	e.havocattack = FALSE;
 	e.touch = SUB_Null;
+//	e.traileffectnum = particleeffectnum("TE_EXPLOSION");
 	return e;
 };
 
@@ -1625,7 +1621,7 @@ void(entity ragdoll) Ragdoll_Remove =
 	remove(ragdoll);
 };
 
-entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float mas, float forcescal, float bouncefactor, float frictionfactor) Ragdoll_AddParticle =
+entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float mas, float forcescal, float rbouncefactor, float frictionfactor) Ragdoll_AddParticle =
 {
 	local entity e;
 	e = spawn();
@@ -1635,7 +1631,7 @@ entity(entity ragdoll, vector org, vector vel, vector m1, vector m2, float mas, 
 	e.owner.ragdoll_particlelist = e;
 	e.ragdoll_mass = mas;
 	e.ragdoll_inversemass = 1.0 / mas;
-	e.ragdoll_bounce = bouncefactor;
+	e.ragdoll_bounce = rbouncefactor;
 	e.ragdoll_friction = frictionfactor;
 	e.forcescale = forcescal;
 	e.takedamage = DAMAGE_YES;

@@ -12,6 +12,7 @@ Used as a positional target for lightning.
 */
 void() info_notnull =
 {
+	if (mapgen_roomtemplate_setup(info_notnull)) return;
 };
 
 void() misc_teleporter_dest =
@@ -1025,6 +1026,7 @@ This is just a solid wall if not inhibitted
 */
 void() func_wall =
 {
+	if (mapgen_roomtemplate_setup(func_wall)) return;
 	self.angles = '0 0 0';
 	self.movetype = MOVETYPE_PUSH;	// so it doesn't get pushed by anything
 	self.solid = SOLID_BSP;

@@ -6,9 +6,11 @@
 
 defs.qc
 
-dpextensions.qc // engine features
+dpdefs/dpextensions.qc // engine features
 
 modedefs.qc     // deathmatch and teamplay settings
+
+mapgen.qc       // random dungeon generator
 
 damage.qc       // max ammo amounts, how much damage, starting health, damage type definitions, etc
 
