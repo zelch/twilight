@@ -464,15 +464,16 @@ int main(int argc, char **argv)
 		indata = loadfile(inname, &insize);
 		outdata = calloc(1, insize * 9);
 		if (outdata)
-			outsize = dxt2bgra(inname, insize, indata, insize * 9, outdata);
-		if (outsize)
 		{
-			snprintf(outname, sizeof(outname), "%s%s", dirname, inname);
-			if (outname[0])
-				savefile(outname, outsize, outdata);
-		}
-		if (outdata)
+			outsize = dxt2bgra(inname, insize, indata, insize * 9, outdata);
+			if (outsize)
+			{
+				snprintf(outname, sizeof(outname), "%s%s", dirname, inname);
+				if (outname[0])
+					savefile(outname, outsize, outdata);
+			}
 			free(outdata);
+		}
 		outdata = NULL;
 	}
 	return 0;
