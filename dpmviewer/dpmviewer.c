@@ -164,10 +164,16 @@ float FloatNoSwap (float f)
 
 void InitSwapFunctions (void)
 {
-	unsigned char swaptest[2] = {1,0};
+	union
+	{
+		short s;
+		unsigned char b[2];
+	}
+	u;
+	u.s = 1;
 
 // set the byte swapping variables in a portable manner
-	if ( *(short *)swaptest == 1)
+	if (u.b[0])
 	{
 		BigShort = ShortSwap;
 		LittleShort = ShortNoSwap;

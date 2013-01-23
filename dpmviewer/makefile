@@ -15,7 +15,7 @@ PROFILEOPTION=
 
 #normal compile
 OPTIMIZATIONS= -O2 -fexpensive-optimizations
-CFLAGS= -MD -Wall -Werror $(OPTIMIZATIONS) $(PROFILEOPTION) `$(SDL_CONFIG) --cflags`
+CFLAGS= -MD -Wall $(OPTIMIZATIONS) $(PROFILEOPTION) `$(SDL_CONFIG) --cflags`
 #debug compile
 #OPTIMIZATIONS=
 #CFLAGS= -MD -Wall -ggdb $(OPTIMIZATIONS) $(PROFILEOPTION) `$(SDL_CONFIG) --cflags`
