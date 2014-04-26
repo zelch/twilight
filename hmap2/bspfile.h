@@ -20,7 +20,7 @@
 #define	MAX_MAP_FACES			0x200000
 #define	MAX_MAP_MARKSURFACES	0x400000
 #define	MAX_MAP_TEXINFO			0x100000
-#define	MAX_MAP_EDGES			0x400000
+#define	MAX_MAP_EDGES			0x100000
 #define	MAX_MAP_SURFEDGES		0x800000
 // these are pure byte limits on file size
 #define	MAX_MAP_MIPTEX			0x1000000
