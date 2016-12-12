@@ -1,5 +1,9 @@
 // lighting.c
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "light.h"
 
 qboolean	lightvis;
@@ -398,7 +402,7 @@ void LightWorld( void )
 				if( (lightchainbufindex + leaf->nummarksurfaces) > LIGHTCHAINS )
 					Error( "LightWorld: ran out of light chains!  complain to maintainer of hlight\n" );
 
-				for( m = 0, mark = dmarksurfaces + leaf->firstmarksurface; m < leaf->nummarksurfaces; m++, mark++ ) {
+				for( m = 0, mark = dmarksurfaces + leaf->firstmarksurface; (unsigned int)m < leaf->nummarksurfaces; m++, mark++ ) {
 					if( surfacehit[*mark] )
 						continue;
 					surfacehit[*mark] = true;

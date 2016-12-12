@@ -1,4 +1,8 @@
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "cmdlib.h"
 #include "mathlib.h"
 #include "bspfile.h"
@@ -279,7 +283,7 @@ void	LoadBSPFile (char *filename)
 	headerend = 4+sizeof(lumps);
 	for (i = 0; i < BSP2HEADER_LUMPS; i++)
 	{
-		if(headerend >= 4+(i+1)*sizeof(lumps[0]))
+		if((unsigned int)headerend >= 4+(i+1)*sizeof(lumps[0]))
 		{
 			lumps[i].fileofs = SB_ReadInt (&sb);
 			lumps[i].filelen = SB_ReadInt (&sb);
