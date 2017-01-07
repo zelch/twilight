@@ -73,6 +73,17 @@ typedef struct
 #define	LUMP_SURFEDGES	13
 #define	LUMP_MODELS		14
 
+// LordHavoc: extended BSP2 specs follow - these specs add data in additional lumps, they do not replace existing lumps with new formats (unlike BSP2 itself where several field sizes changed), and these lumps can be defined in BSP29 format if using the BSP2 lump range
+
+// BSP2B adds collision brushes, colored lighting, deluxemapping, lightgrid, and increases lightstyles range from 32-255 to 32-65535
+#define BSP2B_LUMP_BRUSHSIDES 70
+#define BSP2B_LUMP_BRUSHES 71
+#define BSP2B_LUMP_LIGHTINGRGB 72
+#define BSP2B_LUMP_LIGHTINGDIR 73
+#define BSP2B_LUMP_FACES_EXTRAINFO 74
+#define BSP2B_LUMP_LIGHTGRID 75
+#define BSP2B_LUMP_MODELS_EXTRAINFO 76
+
 #define	BSP29HEADER_LUMPS	15
 #define	BSP2HEADER_LUMPS	128
 
@@ -140,18 +151,20 @@ typedef struct
 #define	CONTENTS_SKY		-6
 
 // !!! if this is changed, it must be changed in asm_i386.h too !!!
-// MODIFIED FOR BSP2
+// MODIFIED FOR BSP2 (int planenum, int children, uint firstface/numfaces)
+// this is a memory-only struct (despite the name) - BSP2/BSP29 handling is implemented with read/write calls in bspfile.c
 typedef struct
 {
 	int			planenum;
 	int			children[2];	// negative numbers are -(leafs+1), not nodes
 	float		mins[3];		// for sphere culling
 	float		maxs[3];
-	unsigned short	firstface;
-	unsigned short	numfaces;	// counting both sides
+	unsigned int	firstface;
+	unsigned int	numfaces;	// counting both sides
 } dnode_t;
 
 // MODIFIED FOR BSP2
+// this is a memory-only struct (despite the name) - BSP2/BSP29 handling is implemented with read/write calls in bspfile.c
 typedef struct
 {
 	int			planenum;
